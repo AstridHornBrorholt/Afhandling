@@ -1,0 +1,18 @@
+\begin{tabular}{@{\hspace*{1mm}} c @{\hspace*{3mm}} c @{\hspace*{3mm}} c @{\hspace*{3mm}} r @{\hspace*{3mm}} c @{\hspace*{1mm}}}
+\toprule
+\textbf{$\granularity$}	&	\textbf{$\xrightarrow{a}_{app}$ method}	&	\textbf{Parameters}	&	\textbf{Time}	&	\textbf{Probability safe} \\
+\midrule
+0.02	&	\multirow{4}{*}{Algorithm~\ref{MCAlgo}}	&	$n=2$	&	1m\,50s	& \text{unsafe run found} \\ %[99.9967\%; 99.9979\%]	\\% \hline
+0.02	&		&	$n=4$	&	2m\,14s	&	$\interval{99.9999\%}{100\%}$	\\ %\hline
+0.02	&		&	$n=8$	&	4m\,02s	&	$\interval{99.9999\%}{100\%}$	\\ %\hline
+0.02	&		&	$n=16$	&	11m\,03s	&	$\interval{99.9999\%}{100\%}$	\\ %\hline
+\midrule
+0.01	&	\multirow{4}{*}{Algorithm~\ref{MCAlgo}}	&	$n=2$	&	16m\,49s	&	$\interval{99.9999\%}{100\%}$	\\ %\hline
+0.01	&		&	$n=4$	&	19m\,00s 	&	$\interval{99.9999\%}{100\%}$	\\ %\hline
+0.01	&		&	$n=8$	&	27m\,21s	&	$\interval{99.9999\%}{100\%}$	\\ %\hline
+0.01	&		&	$n=16$	&	56m\,32s	&	$\interval{99.9999\%}{100\%}$	\\ %\hline
+\midrule
+0.01	&	\multirow{2}{*}{\juliareach}	&	time step $0.002$	&	24h\,30m	&	considers $s_0$ unsafe	\\ %\hline
+0.01	&		&	time step $0.001$	&	41h\,05m	&	safe by construction	\\
+\bottomrule
+\end{tabular}

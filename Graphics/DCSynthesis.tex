@@ -1,0 +1,25 @@
+\begin{tabular}{@{\hspace{0mm}} c @{\hspace{3mm}} c @{\hspace{3mm}} r @{\hspace{3mm}} c }
+    \toprule
+    \textbf{$\granularity$}	&	\textbf{$n$}	&	\textbf{Time}	&	\textbf{Probability safe}\\
+    \midrule
+    %0.1	&	1	&	3	&	[0.0000\%; 0.0005\%]	\\
+    %0.1	&	2	&	10	&	Considers $s_0$ unsafe	\\
+    %0.1	&	3	&	25	&	Considers $s_0$ unsafe	\\
+    %0.1	&	4	&	50	&	Considers $s_0$ unsafe	\\
+    %\midrule
+    %0.05	&	1	&	10	&	[0.0000\%; 0.0005\%]	\\
+    0.05	&	2	&	41s	&	$\interval{99.9995\%}{100\%}$	\\
+    0.05	&	3	&	1m\,50s	&	considers $s_0$ unsafe	\\
+    0.05	&	4	&	3m\,30s	&	considers $s_0$ unsafe	\\
+    \midrule
+    %0.02	&	1	&	60	&	[0.0000\%; 0.0005\%]	\\
+    0.02	&	2	&	3m\,43s	&	$\interval{99.9995\%}{100\%}$	\\
+    0.02	&	3	&	8m\,59s	&	$\interval{99.9995\%}{100\%}$	\\
+    0.02	&	4	&	18m\,11s	&	$\interval{99.9995\%}{100\%}$	\\
+    \midrule
+    %0.01	&	1	&	227	&	[0.0001\%; 0.0014\%]	\\
+    0.01	&	2	&	15m\,48s	&	$\interval{99.9995\%}{100\%}$	\\
+    0.01	&	3	&	38m\,26s	&	$\interval{99.9995\%}{100\%}$	\\
+    0.01	&	4	&	1h\,19m	&	$\interval{99.9995\%}{100\%}$	\\
+    \bottomrule
+    \end{tabular}
