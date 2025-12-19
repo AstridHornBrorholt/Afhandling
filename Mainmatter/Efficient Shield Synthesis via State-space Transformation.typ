@@ -1,0 +1,1 @@
+= Efficient Shield Synthesis via State-space Transformation
