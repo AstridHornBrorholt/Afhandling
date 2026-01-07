@@ -1,10 +1,32 @@
 #import "@preview/subpar:0.2.2"
 #import "@preview/lemmify:0.1.8": *
+#import "../Config/Macros.typ" : *
 #let (
   theorem, lemma, corollary,
   remark, proposition, example,
   proof, rules: thm-rules
-) = default-theorems("thm-group", lang: "en")
+) = default-theorems("thm-group", lang: "en", thm-numbering: thm-numbering-linear)
+
+= Shielded Reinforcement Learning \ for Hybrid Systems
+#grid(columns: (1fr, 1fr), row-gutter: 2em,
+  [Asger Horn Brorholt \
+  _Department of Computer Science \ Aalborg University, Aalborg, Denmark_],
+
+  [Andreas Holck Høeg-Petersen \
+  _Department of Computer Science \ Aalborg University, Copenhagen, Denmark_],
+
+  [Kim Guldstrand Larsen \
+  _Department of Computer Science \ Aalborg University, Aalborg, Denmark_],
+
+  [Christian~Schilling \
+  _Department of Computer Science \ Aalborg University, Aalborg, Denmark_])
+
+#v(1fr)
+
+#heading(level: 2, numbering: none)[Abstract]
+We consider the problem of synthesizing safety strategies for control systems, also known as shields. Since the state space is infinite, shields are typically computed over a finite-state abstraction, with the most common abstraction being a rectangular grid. However, for many systems, such a grid does not align well with the safety property or the system dynamics. That is why a coarse grid is rarely sufficient, but a fine grid is typically computationally infeasible to obtain. In this paper, we show that appropriate state-space transformations can still allow to use a coarse grid at almost no computational overhead. We demonstrate in three case studies that our transformation-based synthesis outperforms a standard synthesis by several orders of magnitude. In the first two case studies, we use domain knowledge to select a suitable transformation. In the third case study, we instead report on results in engineering a transformation without domain knowledge.
+
+#pagebreak(weak: true)
 
 == Introduction
 <introduction>
@@ -136,7 +158,7 @@ The remainder of the paper is structured as follows. In
 underlying partition-based shielding. In
 @sec:shielding, we discuss how state-space
 transformations can be used for shield synthesis over grid-based
-partitions. In @sec:experiments, we show experimental
+partitions. In @sec:experiments2, we show experimental
 results in three case studies. Finally, we conclude the paper in
 @sec:conclusion.
 
@@ -250,7 +272,7 @@ grid $cal(G) subset.eq 2^S$ induces a finite labeled transition
 system $lr((cal(G) comma italic(A c t) comma arrow.r))$ that connects
 cells via control actions if they can be reached in one step:
 
-$ C arrow.r^a C prime arrow.l.r.double exists s in C dot.basic med delta lr((s comma a)) inter C prime eq.not nothing dot.basic $ <eq:transition>
+$ C arrow.r^a C prime arrow.l.r.double exists s in C dot.basic med delta lr((s comma a)) inter C prime eq.not nothing $ <eq:transition>
 
 ==== Grid extension.
 <grid-extension.>
@@ -258,7 +280,7 @@ Given a grid $cal(G)$ and a safety property $phi$, the set of
 #emph[controllable cells], or simply #emph[safe cells], is the maximal
 set of cells $cal(C)_phi$ such that
 
-$ cal(C)_phi eq ⌊ phi ⌋_(cal(G)) inter brace.l C in cal(G) divides exists a in italic(A c t) dot.basic med forall C prime dot.basic med C arrow.r^a C prime arrow.r.double.long C prime in cal(C)_phi brace.r dot.basic $ <eq:controllable_cells>
+$ cal(C)_phi eq ⌊ phi ⌋_(cal(G)) inter brace.l C in cal(G) divides exists a in italic(A c t) dot.basic med forall C prime dot.basic med C arrow.r^a C prime arrow.r.double.long C prime in cal(C)_phi brace.r $ <eq:controllable_cells>
 
 It is straightforward to compute $cal(C)_phi$ with a finite fixpoint
 iteration. If $cal(C)_phi$ is nonempty, there exists a safety
@@ -266,7 +288,7 @@ strategy $sigma^(cal(G)) colon cal(G) arrow.r 2^(italic(A c t))$ at the
 level of cells (instead of concrete states) with respect to the
 set $cal(C)_phi$, where the most permissive such
 strategy #cite(label("BernetJW02")) is
-$ sigma^(cal(G)) lr((C)) eq brace.l a in italic(A c t) divides forall C prime dot.basic med C arrow.r^a C prime arrow.r.double.long C prime in cal(C)_phi brace.r dot.basic $
+$ sigma^(cal(G)) lr((C)) eq brace.l a in italic(A c t) divides forall C prime dot.basic med C arrow.r^a C prime arrow.r.double.long C prime in cal(C)_phi brace.r $
 
 A safety strategy $sigma^(cal(G))$ over the grid $cal(G)$ induces the
 safety
@@ -285,34 +307,12 @@ because the grid introduces an abstraction, as demonstrated next.
   where $X eq union.big_(C in cal(C)_phi) C$.
 ]<lemma:soundness>
 
-#subpar.grid(
-  [#figure(image("../Graphics/AISOLA24/Original State Space.svg"),
-    caption: [Original state space. \ #hide[x]]
-  )<fig:oscillator:a>],
 
-  [#figure(image("../Graphics/AISOLA24/After Fixpoint Iteration.svg"),
-    caption: [After fixpoint iteration. \ #hide[x]]
-  )<fig:oscillator:b>],
-
-  [#figure(image("../Graphics/AISOLA24/Transformed State Space.svg"),
-    caption: [Transformed state space.]
-  )<fig:oscillator:c>],
-
-  columns: 3,
-  placement: bottom,
-  caption: [
-    Harmonic oscillator in $x slash y$ state space with an obstacle $O$
-    (gray). Initially, the black cells $⌈ O ⌉_(cal(G))$ are unsafe. The
-    example state (green) leads to an unsafe cell, rendering its cell
-    unsafe too. In the fixpoint, all cells are unsafe.  Transformation
-    to polar coordinates. The initial marking is also the fixpoint.
-  ]
-)
-<fig:oscillator>
 
 Recall that a grid is an abstraction. The precision of this abstraction
 is controlled by the size of the grid cells, which we also refer to as
 the granularity.
+
 
 
 #example()[Consider again the harmonic oscillator from
@@ -344,7 +344,34 @@ the granularity.
   no cell is considered safe (@fig:oscillator:b). This
   means that, for the chosen grid granularity, no safety
   strategy $sigma^(cal(G))$ at the level of cells exists.
+  
 ]<ex:oscillator2> 
+
+
+#subpar.grid(
+  [#figure(image("../Graphics/AISOLA24/Original State Space.svg"),
+    caption: [Original state space. \ #hide[x]]
+  )<fig:oscillator:a>],
+
+  [#figure(image("../Graphics/AISOLA24/After Fixpoint Iteration.svg"),
+    caption: [After fixpoint iteration. \ #hide[x]]
+  )<fig:oscillator:b>],
+
+  [#figure(image("../Graphics/AISOLA24/Transformed State Space.svg"),
+    caption: [Transformed state space.]
+  )<fig:oscillator:c>],
+
+  columns: 3,
+  // placement: bottom,
+  caption: [
+    Harmonic oscillator in $x slash y$ state space with an obstacle $O$
+    (gray). Initially, the black cells $⌈ O ⌉_(cal(G))$ are unsafe. The
+    example state (green) leads to an unsafe cell, rendering its cell
+    unsafe too. In the fixpoint, all cells are unsafe.  Transformation
+    to polar coordinates. The initial marking is also the fixpoint.
+  ]
+)
+<fig:oscillator>
 
 We remark that, since we are only interested in safety at discrete
 points in time, finer partitions could still yield safety strategies for
@@ -360,7 +387,7 @@ instrumental.
 <state-space-transformations>
 We recall the principle of state-space transformations. Consider a state
 space $S subset.eq bb(R)^d$. A transformation to another state
-space $T subset.eq bb(R)^(d prime)$ is any
+space $T subset.eq bb(R)^(d')$ is any
 function $f colon S arrow.r T$.
 
 For our application, some transformations are better than others. We
@@ -403,7 +430,7 @@ since the grid is defined over $T$, we need to adapt the definition. The
 set of controllable cells is the maximal set of cells $cal(C)_phi^f$
 such that
 
-$ cal(C)_phi^f eq ⌊ f lr((phi)) ⌋_(cal(G)) inter brace.l C in cal(G) divides exists a in italic(A c t) dot.basic med forall C prime dot.basic med C arrow.r^a C prime arrow.r.double.long C prime in cal(C)_phi^f brace.r dot.basic $ <eq:controllable_cells_transform>
+$ cal(C)_phi^f eq ⌊ f lr((phi)) ⌋_(cal(G)) inter brace.l C in cal(G) divides exists a in italic(A c t) dot.basic med forall C prime dot.basic med C arrow.r^a C prime arrow.r.double.long C prime in cal(C)_phi^f brace.r $ <eq:controllable_cells_transform>
 
 The first change is to map $phi$ to cells over $T$. Next, it is
 convenient to define a new control
@@ -412,7 +439,7 @@ original system in the new state space. The new successor
 function $delta_T colon T times italic(A c t) arrow.r 2^T$ is given
 indirectly as
 
-$ delta_T lr((f lr((s)) comma a)) eq f lr((delta_S lr((s comma a)))) dot.basic $ <eq:successor_transformed_implicit>
+$ delta_T lr((f lr((s)) comma a)) eq f lr((delta_S lr((s comma a)))) $ <eq:successor_transformed_implicit>
 
 The second change in
 @eq:controllable_cells_transform
@@ -421,7 +448,7 @@ labeled transition
 system $lr((cal(G) comma italic(A c t) comma arrow.r))$. Recall from
 @eq:transition that the transitions are
 defined in terms of the successor function $delta_T$:
-$ C arrow.r^a C prime arrow.l.r.double exists t in C dot.basic med delta_T lr((t comma a)) inter C prime eq.not nothing dot.basic $
+$ C arrow.r^a C prime arrow.l.r.double exists t in C dot.basic med delta_T lr((t comma a)) inter C prime eq.not nothing $
 
 ==== State-based successor computation.
 <state-based-successor-computation.>
@@ -443,7 +470,7 @@ obtain $X prime eq delta_S lr((X comma a))$. Finally, we obtain the
 corresponding transformed states $Y eq f lr((X prime))$. In summary, we
 have
 
-$ delta_T lr((t comma a)) eq f lr((delta_S lr((f^(minus 1) lr((t)) comma a)))) dot.basic $ <eq:suc_transformed>
+$ delta_T lr((t comma a)) eq f lr((delta_S lr((f^(minus 1) lr((t)) comma a)))) $ <eq:suc_transformed>
 
 Note that, if the transformation $f$ is bijective, its
 inverse $f^(minus 1)$ is deterministic and we
@@ -453,14 +480,14 @@ and $f lr((f^(minus 1) lr((t)))) eq t$ for all $s in S$ and $t in T$.
 Consider again the harmonic oscillator from
 @ex:oscillator2. The inverse
 transformation
-is $f^(minus 1) lr((theta comma r)) eq paren.l vec(r cos lr((theta)), r sin lr((theta))) H E L L O O O$.
+is $f^(minus 1) lr((theta comma r)) eq vec(r cos (theta), r sin (theta)) $.
 The blue successor state of the green state in
 @fig:oscillator:c is computed by mapping to the green
 state in @fig:oscillator:a via $f^(minus 1)$, computing
 the blue successor state via $delta$, and mapping back via $f$.
 
 #subpar.grid(
-  [#figure(image("../Graphics/AISOLA24/Commutative Diagram.svg", width: 80%),
+  [#figure(image("../Graphics/AISOLA24/Commutative Diagram.svg", width: 50%) + v(15pt),
       caption: [Commutative diagram.]
     )<fig:commutative_diagram>
   ], 
@@ -514,11 +541,11 @@ transformed and in the original state space.
   are safety strategies over states:
 
   - $sigma^Y lr((t)) eq sigma^(cal(G)) lr((lr([t])_(cal(G))))$ over states
-    in $t in Y subset.eq T$, where $Y eq union.big_(C in cal(C)_phi^f) C$.
+    in $t in Y subset.eq T$, where $Y eq union.big_(C in cal(C)_phi^f) C$
 
   - $sigma^X lr((s)) eq sigma^(cal(G)) lr((lr([f lr((s))])_(cal(G))))$
     over states in $s in X subset.eq S$,
-    where $X eq f^(minus 1) lr((union.big_(C in cal(C)_phi^f) C))$.
+    where $X eq f^(minus 1) lr((union.big_(C in cal(C)_phi^f) C))$
 ]<thm:soundness>
 
 #proof[We first need to argue that $delta_T$ is well-defined.
@@ -537,26 +564,22 @@ transformed and in the original state space.
   show that all states in $delta_S lr((s comma a))$ are safe, i.e., in $X$
   as well. By construction, $f lr((s)) in union.big_(C in cal(C)_phi^f) C$
   and $a in sigma^(cal(G)) lr((lr([f lr((s))])_(cal(G))))$. Hence,
-  $ delta_T lr((f lr((s)) comma a)) subset.eq union.big_(C in cal(C)_phi^f) C dot.basic $
+  $ delta_T lr((f lr((s)) comma a)) subset.eq union.big_(C in cal(C)_phi^f) C $ <eq:suc_contained>
 
   We also use the following simple lemma:
-  $ forall s prime in S dot.basic med s in f^(minus 1) lr((f lr((s prime)))) dot.basic $
+  $ forall s prime in S dot.basic med s in f^(minus 1) lr((f lr((s prime)))) $ <eq:monotonicity>
 
   Finally, we get (applying monotonicity in the last inclusion):
 
-  #[
-    #set text(fill: red)
-    \$\$\\begin{aligned}
-            \\ensuremath{\\delta}\_S(s, a)
-            &\\stackrel{\\eqref{eq:monotonicity}}{\\subseteq} \\ensuremath{\\delta}\_S(\\ensuremath{\\ensuremath{f}^{-1}}(f(s)), a)
-            \\stackrel{\\eqref{eq:monotonicity}}{\\subseteq} \\ensuremath{\\ensuremath{f}^{-1}}(\\ensuremath{f}(\\ensuremath{\\delta}\_S(\\ensuremath{\\ensuremath{f}^{-1}}(f(s)), a))) \\\\
-            %
-            &\\stackrel{\\eqref{eq:suc\_transformed}}{\\subseteq} \\ensuremath{\\ensuremath{f}^{-1}}(\\ensuremath{\\delta}\_T(f(s), a))
-            \\stackrel{\\eqref{eq:suc\_contained}}{\\subseteq} \\ensuremath{\\ensuremath{f}^{-1}}\\left(\\bigcup\\nolimits\_{\\ensuremath{C}\\in \\ensuremath{\\ensuremath{\\mathcal{C}\_{\\ensuremath{\\varphi}}}^{\\ensuremath{f}}}} \\ensuremath{C}\\right)
-            \= X. \\tag\*{\\qed}
-        
-    \\end{aligned}\$\$
-  ]
+
+  $
+  delta_S (s, a)
+  & subset.eq^#[(#ref(supplement: none, <eq:monotonicity>))]    delta_S (f^(-1)(f(s)), a)
+    subset.eq^#[(#ref(supplement: none, <eq:monotonicity>))]    f^(-1)(f(delta_S (f^(-1)(f(s)), a))) \
+  & subset.eq^#[(#ref(supplement: none, <eq:suc_transformed>))] f^(-1)(delta_T (f(s), a))
+    subset.eq^#[(#ref(supplement: none, <eq:suc_contained>))]  f^(-1)  (union.big_(C in cal(C)_phi^f) C)  
+    =X
+  $
 ]
 
 Note that we obtain @lemma:soundness
@@ -606,7 +629,7 @@ transformation may also be beneficial for learning, independent of the
 shield synthesis. We will investigate the effect in our experiments.
 
 == Experiments
-<sec:experiments>
+<sec:experiments2>
 In this section, we demonstrate the benefits of state-space
 transformations for three models.#footnote[A repeatability package is
 available here: \
@@ -619,14 +642,16 @@ method #cite(label("BrorholtJLLS23")).
 === Satellite Model
 <satellite-model>
 
-#figure([#image("../Graphics/AISOLA24/Spiral/Unsafe Spiral Trace.svg", width: 75%)
-  $lr((x comma y)) in S eq bracket.l minus 2 semi 2 bracket.l times bracket.l minus 2 semi 2 bracket.l$
-
-  $lr((theta comma r)) in T eq bracket.l minus pi semi pi bracket.l times bracket.l 0 semi 2 bracket.l$
-
-  $f lr((x comma y)) eq lr(("atan2" lr((y comma x)) comma sqrt(x^2 comma y^2)))^top$
-
-  ],
+#figure(grid(columns: (3fr, 5fr), align: horizon, gutter: 2em,
+    image("../Graphics/AISOLA24/Spiral/Unsafe Spiral Trace.svg"),
+    infobox(title: "State Space")[
+      #set math.equation(numbering: none)
+      $lr((x comma y)) in S eq bracket.l minus 2 semi 2 bracket.l times bracket.l minus 2 semi 2 bracket.l$\
+      $lr((theta comma r)) in T eq bracket.l minus pi semi pi bracket.l times bracket.l 0 semi 2 bracket.l$\
+      $f lr((x comma y)) eq lr(("atan2" lr((y comma x)) comma sqrt(x^2 comma y^2)))^top$\
+    ]
+  ),
+  placement: top,
   caption: [
     Satellite model.
   ]
@@ -666,27 +691,18 @@ reward and causes it to reappear at a new position. The optimization
 criterion for the agent is thus to visit as many destinations as
 possible during an episode.
 
-#figure([#figure([#image("../Graphics/AISOLA24/Spiral/Spiral Shield - Standard State Space.svg", width: 100%)],
-    caption: [
-      Shield in $S$ (176,400 cells).
-    ]
-  )
-  <fig:satellite_shield_original>
+#subpar.grid(
+  [#figure(image("../Graphics/AISOLA24/Spiral/Spiral Shield - Standard State Space.svg"),
+    caption: [Shield in $S$ (176,400 cells). \ #hide("x")]
+  )<fig:satellite_shield_original>],
 
-  #figure([#image("../Graphics/AISOLA24/Spiral/Spiral Shield - Altered State Space.svg", width: 100%)],
-    caption: [
-      Shield in $T$ (27,300 cells), including a transformation back to
-      $S$.
-    ]
-  )
-  <fig:satellite_shield_transformed>
-
-  ],
-  caption: [
-    Shields for the satellite model. The legend applies to both figures.
-  ]
+  [#figure(image("../Graphics/AISOLA24/Spiral/Spiral Shield - Altered State Space.svg"),
+    caption: [Shield in $T$ (27,300 cells), including a transformation back to $S$.]
+  )<fig:satellite_shield_transformed>],
+  columns: 2,
+  caption: [Shields for the satellite model. The legend applies to both figures.],
+  label: <fig:satellite_shields>
 )
-<fig:satellite_shields>
 
 @fig:satellite_shield_original shows a shield obtained
 in the original state space. First, we note that a fine grid granularity
@@ -721,56 +737,43 @@ transformed shield is both easier to compute and more precise.
 
 === Bouncing-Ball Model
 <bouncing-ball-model>
-#figure([#image("../Graphics/AISOLA24/Bouncing Ball/Bouncing Ball.svg", width: 75%)
-  $lr((v comma p)) in S eq bracket.l minus 13 semi 13 bracket.l times bracket.l 0 semi 8 bracket.l$
-
-  $lr((E_m comma v)) in T eq bracket.l 0 semi 100 bracket.l times bracket.l minus 13 semi 13 bracket.l$
-
-  $f lr((v comma p)) eq lr((m g p plus 1 / 2 m v^2 comma v))^top$
-
-  ],
+#figure(grid(columns: (3fr, 5fr), align: horizon, gutter: 2em,
+    image("../Graphics/AISOLA24/Bouncing Ball/Bouncing Ball.svg", width: 75%),
+    infobox(title: "State Space")[
+      $lr((v comma p)) in S eq bracket.l minus 13 semi 13 bracket.l times bracket.l 0 semi 8 bracket.l$  \
+      $lr((E_m comma v)) in T eq bracket.l 0 semi 100 bracket.l times bracket.l minus 13 semi 13 bracket.l$ \
+      $f lr((v comma p)) eq lr((m g p plus 1 / 2 m v^2 comma v))^top$ \
+    ]
+  ),
+  placement: top,
   caption: [
     Bouncing-ball model.
   ]
 )
 <fig:bouncing_ball>
+#subpar.grid(
+  [#figure(image("../Graphics/AISOLA24/Bouncing Ball/automaton.png"),
+    caption: [Hybrid automaton.]
+  )<fig:bb_automaton>],
 
-#figure([#figure([#image("../Graphics/AISOLA24/Bouncing Ball/automaton.png", width: 100%)],
-    caption: [
-      Hybrid automaton.
-    ]
-  )
-  <fig:bb_automaton>
+  [#figure(image("../Graphics/AISOLA24/Bouncing Ball/BB Shield - Standard State Space.svg"),
+    caption: [Shield in $S$ (520,000 cells).]
+  )<fig:bb_shield_original>],
 
-  #figure([#image("../Graphics/AISOLA24/Bouncing Ball/BB Shield - Standard State Space.svg", width: 100%)],
-    caption: [
-      Shield in $S$ (520,000 cells).
-    ]
-  )
-  <fig:bb_shield_original>
+  [#figure(image("../Graphics/AISOLA24/Bouncing Ball/BB Shield - Altered State Space.svg"),
+    caption: [Shield in $T$ (650 cells).]
+  )<fig:bb_shield_transformed>],
 
-  \
-
-  #figure([#image("../Graphics/AISOLA24/Bouncing Ball/BB Shield - Altered State Space.svg", width: 100%)],
-    caption: [
-      Shield in $T$ (650 cells).
-    ]
-  )
-  <fig:bb_shield_transformed>
-
-  #figure([#image("../Graphics/AISOLA24/Bouncing Ball/BB Shield - Altered State Space but Shown in Standard State Space.svg", width: 100%)],
-    caption: [
-      Shield in $T$ transformed back to $S$.
-    ]
-  )
-  <fig:bb_shield_transformed_projection>
-
-  ],
+  [#figure(image("../Graphics/AISOLA24/Bouncing Ball/BB Shield - Altered State Space but Shown in Standard State Space.svg"),
+    caption: [Shield in $T$ transformed back to $S$.]
+  )<fig:bb_shield_transformed_projection>],
+  placement: top,
+  columns: 2,
   caption: [
     Hybrid automaton and shields for the bouncing-ball model.
-  ]
+  ],
+  label: <fig:bb_shield>
 )
-<fig:bb_shield>
 
 For the second case study, we consider the model of a bouncing ball
 from #cite(label("BrorholtJLLS23")). @fig:bouncing_ball shows
@@ -840,14 +843,15 @@ overall the shapes are similar.
 
 === Cart-Pole Model
 <cart-pole-model>
-#figure([#image("../Graphics/AISOLA24/Cart Pole/Cart Pole.svg", width: 75%)
-  $lr((theta comma omega)) in S eq bracket.l minus 2.095 semi 2.095 bracket.l times bracket.l minus 3 semi 3 bracket.l$
-
-  $lr((theta comma p lr((theta comma omega)))) in T eq bracket.l minus 2.095 semi 2.095 bracket.l times bracket.l minus 3 semi 3 bracket.l$
-
-  $f lr((theta comma omega)) eq lr((theta comma omega minus p lr((theta))))^top$
-
-  ],
+#figure(grid(columns: (3fr, 5fr), align: horizon, gutter: 2em,
+    image("../Graphics/AISOLA24/Cart Pole/Cart Pole.svg", width: 75%),
+    infobox(title: "State Space")[
+      $lr((theta comma omega)) in S eq bracket.l minus 2.095 semi 2.095 bracket.l times bracket.l minus 3 semi 3 bracket.l$ \
+      $lr((theta comma p lr((theta comma omega)))) in T eq bracket.l minus 2.095 semi 2.095 bracket.l times bracket.l minus 3 semi 3 bracket.l$ \
+      $f lr((theta comma omega)) eq lr((theta comma omega minus p lr((theta))))^top$
+    ],
+  ),
+  placement: top,
   caption: [
     Cart-pole model.
   ]
@@ -898,37 +902,23 @@ transformation in the second step.
 
 ==== Approximating the Decision Boundaries.
 <approximating-the-decision-boundaries.>
-#figure([#figure([#image("../Graphics/AISOLA24/Cart Pole/Angle Original State Space Shield.svg", width: 100%)],
-    caption: [
-      Shield in $S$ ($900$ cells).
-    ]
-  )
-  <fig:cart_pole_shield_original>
+#subpar.grid(
+  [#figure(image("../Graphics/AISOLA24/Cart Pole/Angle Original State Space Shield.svg"),
+    caption: [Shield in $S$ ($900$ cells). \ #hide("x")]
+  )<fig:cart_pole_shield_original>],
 
-  #figure([#image("../Graphics/AISOLA24/Cart Pole/Fitting Polynomial to Unfinished Shield V2.svg", width: 100%)],
-    caption: [
-      Approximate decision boundaries in $S$.
-    ]
-  )
-  <fig:cart_pole_shield_unfinished>
+  [#figure(image("../Graphics/AISOLA24/Cart Pole/Fitting Polynomial to Unfinished Shield V2.svg"),
+    caption: [Approximating the decision boundaries in $S$.]
+  )<fig:cart_pole_shield_unfinished>],
 
-  \
+  [#figure(image("../Graphics/AISOLA24/Cart Pole/Angle Polynomial from Unfinished Shield.svg"),
+    caption: [Shield in $T$ ($400$ cells).]
+  )<fig:cart_pole_shield_transformed>],
 
-  #figure([#image("../Graphics/AISOLA24/Cart Pole/Angle Polynomial from Unfinished Shield.svg", width: 100%)],
-    caption: [
-      Shield in $T$ ($400$ cells).
-    ]
-  )
-  <fig:cart_pole_shield_transformed>
-
-  #figure([#image("../Graphics/AISOLA24/Cart Pole/Angle Polynomial from Unfinished Shield Projected Back to Original State Space.svg", width: 100%)],
-    caption: [
-      Shield in $T$ projected back to $S$.
-    ]
-  )
-  <fig:cart_pole_shield_transformed_projected>
-
-  ],
+  [#figure(image("../Graphics/AISOLA24/Cart Pole/Angle Polynomial from Unfinished Shield Projected Back to Original State Space.svg"),
+    caption: [Shield in $T$ projected back to $S$.]
+  )<fig:cart_pole_shield_transformed_projected>],
+  columns: 2,
   caption: [
     Shield computation for the cart-pole model. The legend in
     @fig:cart_pole_shield_original applies to all
@@ -996,13 +986,17 @@ respectively.
 
 #figure(table(
     columns: 4,
-    align: (col, row) => (left,center,right,right,).at(col),
+    align: (center + horizon, center, right, right),
     inset: 6pt,
-    [#strong[Model]], [#strong[State space]], [#strong[Number of cells]],
-    [#strong[Number of nodes]],
-    [Satellite],  [$S$],  [176,400],  [4,913],  [],  [$T$],  [27,300],  [544],
-    [Bouncing ball],  [$S$],  [520,000],  [940],  [],  [$T$],  [650],  [49],
-    [Cart-pole],  [$S$],  [900],  [99],  [],  [$T$],  [400],  [32],
+    table.header([#strong[Model]], [#strong[State space]], [#strong[Number of cells]], [#strong[Number of nodes]]),
+    table.cell(rowspan: 2)[Satellite],  [$S$],  [176,400],  [4,913],  
+                                        [$T$],  [27,300],  [544],
+    table.hline(),
+    table.cell(rowspan: 2)[Bouncing ball],  [$S$],  [520,000],  [940],  
+                                            [$T$],  [650],  [49],
+    table.hline(),
+    table.cell(rowspan: 2)[Cart-pole],  [$S$],  [900],  [99],
+                                        [$T$],  [400],  [32],
   ),
   caption: [Representation sizes of the computed shields.]
 )<tab:shield_reduction>
@@ -1032,48 +1026,16 @@ reduction by one to two orders of magnitude.
 
 
 #figure(table(
-    columns: 12,
-    align: (col, row) => (center,right,right,right,center,right,right,right,center,right,right,right,).at(col),
-    inset: 6pt,
-    [#strong[Learning]], [#strong[Satellite] ($arrow.tr$)], [], [], [],
-    [#strong[Bouncing ball] ($arrow.br$)], [], [], [], [#strong[Cart-pole]
-    ($arrow.br$)], [], [],
-    [],
-    [None],
-    [$S$],
-    [$T$],
-    [],
-    [None],
-    [$S$],
-    [$T$],
-    [],
-    [None],
-    [$S$],
-    [$T$],
-    [2-4 $S$],
-    [1.123],
-    [0.786],
-    [#strong[1.499]],
-    [],
-    [39.897],
-    [37.607],
-    [#strong[36.593]],
-    [],
-    [0.007],
-    [0.019],
-    [#strong[0.001]],
-    [$T$],
-    [0.917],
-    [0.889],
-    [#strong[1.176]],
-    [],
-    [39.128],
-    [40.024],
-    [#strong[39.099]],
-    [],
-    [#strong[0.000]],
-    [#strong[0.000]],
-    [#strong[0.000]],
+    columns: 10,
+    align: center,
+    table.header(
+      strong[Learning], 
+      table.cell(colspan: 3, strong[Satellite ($arrow.tr$)]), 
+      table.cell(colspan: 3, strong[Bouncing ball ($arrow.br$)]),
+      table.cell(colspan: 3, strong[Cart-pole, ($arrow.br$)]),
+    ),
+    [], [None], [$S$], [$T$], [None], [$S$], [$T$], [None], [$S$], [$T$],
+    [$S$], [1.123], [0.786], strong[1.499], [39.897], [37.607], strong[36.593], [0.007], [0.019], strong[0.001], [$T$], [0.917], [0.889],  strong[1.176], [39.128], [40.024], strong[39.099], strong[0.000], strong[0.000], strong[0.000],
   ),
   caption: [Cumulative return over $1000$ episodes with both
 shielding and learning in either of the state spaces. Higher return is

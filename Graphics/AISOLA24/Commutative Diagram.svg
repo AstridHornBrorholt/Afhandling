@@ -2,9 +2,9 @@
 <!-- Created with Inkscape (http://www.inkscape.org/) -->
 
 <svg
-   width="23.926271mm"
-   height="19.705624mm"
-   viewBox="0 0 23.926271 19.705624"
+   width="21.418484mm"
+   height="19.235628mm"
+   viewBox="0 0 21.418483 19.235628"
    version="1.1"
    id="svg38267"
    inkscape:version="1.2.2 (b0a8486, 2022-12-01)"
@@ -25,17 +25,17 @@
      inkscape:document-units="mm"
      showgrid="false"
      showguides="true"
-     inkscape:zoom="11.449419"
-     inkscape:cx="57.426493"
-     inkscape:cy="33.102116"
-     inkscape:window-width="2560"
-     inkscape:window-height="1371"
-     inkscape:window-x="1440"
-     inkscape:window-y="735"
+     inkscape:zoom="8.9392418"
+     inkscape:cx="36.52435"
+     inkscape:cy="43.06853"
+     inkscape:window-width="1920"
+     inkscape:window-height="1014"
+     inkscape:window-x="1920"
+     inkscape:window-y="29"
      inkscape:window-maximized="1"
      inkscape:current-layer="layer1">
     <sodipodi:guide
-       position="10.144801,10.161653"
+       position="7.6370144,10.105306"
        orientation="0,-1"
        id="guide39139"
        inkscape:locked="false" />
@@ -46,7 +46,7 @@
      inkscape:label="Layer 1"
      inkscape:groupmode="layer"
      id="layer1"
-     transform="translate(-96.194606,-202.70317)">
+     transform="translate(-98.702393,-203.11682)">
     <g
        id="g30701"
        transform="matrix(0.35277777,0,0,-0.35277777,102.7882,206.68267)">
@@ -207,9 +207,9 @@
        xml:space="preserve"
        style="font-variant:normal;font-weight:normal;font-size:3.16315px;font-family:CMMI9;-inkscape-font-specification:CMMI9;writing-mode:lr-tb;fill:#000000;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:0.352778"
        id="text30819"
-       x="96.147156"
+       x="98.654945"
        y="214.67883"><tspan
-         x="96.147156"
+         x="98.654945"
          y="214.67883"
          id="tspan30817"
          style="stroke-width:0.352778">f</tspan></text>
@@ -217,9 +217,9 @@
        xml:space="preserve"
        style="font-variant:normal;font-weight:normal;font-size:2.10876px;font-family:CMSY6;-inkscape-font-specification:CMSY6;writing-mode:lr-tb;fill:#000000;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:0.352778"
        id="text30823"
-       x="97.523933"
+       x="100.03172"
        y="213.50696"><tspan
-         x="97.523933"
+         x="100.03172"
          y="213.50696"
          id="tspan30821"
          style="stroke-width:0.352778">−</tspan></text>
@@ -227,9 +227,9 @@
        xml:space="preserve"
        style="font-variant:normal;font-weight:normal;font-size:2.10876px;font-family:CMR6;-inkscape-font-specification:CMR6;writing-mode:lr-tb;fill:#000000;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:0.352778"
        id="text30827"
-       x="98.427422"
+       x="100.93521"
        y="213.47879"><tspan
-         x="98.427422"
+         x="100.93521"
          y="213.47879"
          id="tspan30825"
          style="stroke-width:0.352778">1</tspan></text>

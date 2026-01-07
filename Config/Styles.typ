@@ -27,7 +27,10 @@
 
   // Text & paragraphs
   set text(
-    font: "Noto Sans Georgian",
+    // font: "Merriweather",
+    // font: "Roboto Slab",
+    font: "Gentium Book Plus",
+    // font: "Noto Sans Georgian",
     // font: "EB Garamond 08", 
     size: 10pt)
 
@@ -87,19 +90,20 @@
   }
 
   // Equations
-  set math.equation(numbering: "1.")
+  set math.equation(numbering: "(1)")
 
   // Lemmify theorems
   let (
     theorem, lemma, corollary,
     remark, proposition, example,
     proof, rules: thm-rules
-  ) = default-theorems("thm-group", lang: "en", thm-numbering: thm-numbering-linear)
+  ) = default-theorems("thm-group", lang: "en")
 
   show: thm-rules
   
-  show thm-selector("thm-group", subgroup: "example"): it => box(
+  show thm-selector("thm-group", subgroup: "example"): it => block(
     it,
+    breakable: true,
     stroke: 0.5pt,
     inset: 1em
   )
