@@ -1,3 +1,37 @@
+#import "@preview/subpar:0.2.2"
+#import "@preview/lemmify:0.1.8": *
+#import "@preview/lovelace:0.3.0": *
+#import "../Config/Macros.typ" : *
+#let (
+  theorem, lemma, corollary,
+  remark, proposition, example,
+  proof, rules: thm-rules
+) = default-theorems("thm-group", lang: "en", thm-numbering: thm-numbering-linear)
+
+= Compositional Shielding and Reinforcement Learning for Multi-agent Systems
+
+#grid(columns: (1fr, 1fr), row-gutter: 2em,
+  [Asger Horn Brorholt \
+  _Department of Computer Science \ Aalborg University, Aalborg, Denmark_],
+
+  [Kim Guldstrand Larsen \
+  _Department of Computer Science \ Aalborg University, Aalborg, Denmark_],
+
+  [Christian~Schilling \
+  _Department of Computer Science \ Aalborg University, Aalborg, Denmark_])
+
+#v(1fr)
+
+#heading(level: 2, numbering: none)[Abstract]
+Deep reinforcement learning has emerged as a powerful tool for obtaining high-performance policies. However, the safety of these policies has been a long-standing issue. One promising paradigm to guarantee safety is a _shield_, which "shields" a policy from making unsafe actions. However, computing a shield scales exponentially in the number of state variables. This is a particular concern in multi-agent systems with many agents.
+In this work, we propose a novel approach for multi-agent shielding. We address scalability by computing individual shields for each agent. The challenge is that typical safety specifications are global properties, but the shields of individual agents only ensure local properties. Our key to overcome this challenge is to apply assume-guarantee reasoning. Specifically, we present a sound proof rule that decomposes a (global, complex) safety specification into (local, simple) obligations for the shields of the individual agents.
+Moreover, we show that applying the shields during reinforcement learning significantly improves the quality of the policies obtained for a given training budget. 
+We demonstrate the effectiveness and scalability of our multi-agent shielding framework in two case studies, reducing the computation time from hours to seconds and achieving fast learning convergence.
+
+#pagebreak(weak: true)
+
+
+
 = Introduction
 <introduction>
 Reinforcement learning
@@ -47,12 +81,12 @@ by smaller, "local" proofs for each individual component. In particular,
 #emph[assume-guarantee reasoning] for concurrent programs was
 popularized in seminal
 works #cite(label("OwickiG76")) #cite(label("Lamport77")) #cite(label("Pnueli84")) #cite(label("Stark85")) #cite(label("DBLP:journals/fteda/BenvenisteCNPRR18")).
-By writing $angle.l A angle.r C angle.l G angle.r$ for "assuming $A$,
+By writing $chevron.l A chevron.r C chevron.l G chevron.r$ for "assuming $A$,
 component $C$ will guarantee $G$," the standard (acyclic)
 assume-guarantee rule for finite state machines with handshake
 synchronization looks as
 follows #cite(label("DBLP:reference/mc/GiannakopoulouNP18")):
-$ frac(angle.l top angle.r C_1 bar.v.double C_2 bar.v.double dots.h.c bar.v.double C_n angle.l phi.alt angle.r, angle.l top angle.r C_1 angle.l G_1 angle.r comma angle.l G_1 angle.r C_2 angle.l G_2 angle.r comma dots.h comma angle.l G_(n minus 2) angle.r C_(n minus 1) angle.l G_(n minus 1) angle.r comma angle.l G_(n minus 1) angle.r C_n angle.l phi.alt angle.r) $
+$ frac(chevron.l top chevron.r C_1 bar.v.double C_2 bar.v.double dots.h.c bar.v.double C_n chevron.l phi.alt chevron.r, chevron.l top chevron.r C_1 chevron.l G_1 chevron.r comma chevron.l G_1 chevron.r C_2 chevron.l G_2 chevron.r comma dots.h comma chevron.l G_(n minus 2) chevron.r C_(n minus 1) chevron.l G_(n minus 1) chevron.r comma chevron.l G_(n minus 1) chevron.r C_n chevron.l phi.alt chevron.r) $
 
 By this chain of assume-guarantee pairs, it is clear that, together, the
 components ensure safety property $phi.alt$.
@@ -400,9 +434,9 @@ Given compatible strategies $sigma$ and $sigma prime$, their composition
 $sigma inter.sq sigma prime$ is the strategy
 $lr((sigma inter.sq sigma prime)) lr((s)) eq sigma lr((s)) inter sigma prime lr((s))$.
 
-We write $sect.sq_(i lt j) #h(0em) sigma_i$ to denote
+We write $inter.sq_(i lt j) #h(0em) sigma_i$ to denote
 $sigma_1 inter.sq dots.h inter.sq sigma_(j minus 1)$, and
-$sect.sq_i thin sigma_i$ to denote
+$inter.sq_i thin sigma_i$ to denote
 $sigma_1 inter.sq dots.h inter.sq sigma_n$ when $n$ is clear from the
 context.
 
@@ -730,7 +764,7 @@ Crucially, in our work, the guarantees are given in a certain order. We
 assume #emph[wlog] that the agent indices are ordered from 1 to $n$ such
 that agent $i$ can only rely on the safety properties of all
 agents $j lt i$. Thus, agent $i$ guarantees $phi.alt_i$ by assuming
-$sect.big_(j lt i) phi.alt_j$. This is important to avoid problems with
+$inter.big_(j lt i) phi.alt_j$. This is important to avoid problems with
 (generally unsound) circular reasoning. In particular, agent $1$ cannot
 rely on anything, and $phi.alt_n$ is not relied on.
 
@@ -738,7 +772,7 @@ The theorem then states that if each agent guarantees its safety
 property $phi.alt_i$, and only relies on guarantees $phi.alt_j$ such
 that $j lt i$. The result is a (safe) distributed shield. The described
 condition is formally expressed as
-$lr((cal(T)_(nabla^ast.basic lr([sect.big_(j lt i) phi.alt_j]))))^i tack.r.double_(nabla_i) overline(italic(p r j))_i lr((phi.alt_i))$,
+$lr((cal(T)_(nabla^ast.basic lr([inter.big_(j lt i) phi.alt_j]))))^i tack.r.double_(nabla_i) overline(italic(p r j))_i lr((phi.alt_i))$,
 where we use the most permissive shield $nabla^ast.basic$ for unicity.
 
 <thm:shield_agr>
@@ -748,24 +782,24 @@ $cal(T) eq lr((italic(S) comma italic(A c t) comma italic(T)))$ with
 projections $italic(p r j)_i$ and an $n$-agent safety property
 $phi.alt eq inter.big_i phi.alt_i$. Moreover, assume (local) shields
 $nabla_i$ for all $i$ such that
-$lr((cal(T)_(nabla^ast.basic lr([sect.big_(j lt i) phi.alt_j]))))^i tack.r.double_(nabla_i) overline(italic(p r j))_i lr((phi.alt_i))$.
+$lr((cal(T)_(nabla^ast.basic lr([inter.big_(j lt i) phi.alt_j]))))^i tack.r.double_(nabla_i) overline(italic(p r j))_i lr((phi.alt_i))$.
 Then, if $nabla eq inter.sq_i thin arrow.t lr((nabla_i))$ exists, it is a
 shield for $cal(T)$ wrt. $phi.alt$ (i.e.,
 $cal(T)_nabla tack.r.double phi.alt$).]
 
 #emph[Proof.] Assume $cal(T)$, $phi.alt$, and local shields $nabla_i$ as
 in the assumptions. Observe that for $i eq 1$,
-$sect.big_(j lt i) phi.alt_i eq italic(S)$, and that
+$inter.big_(j lt i) phi.alt_i eq italic(S)$, and that
 $cal(T)_(nabla^ast.basic lr([italic(S)])) eq cal(T)$. Then:
-$  & and.big_i lr((cal(T)_(nabla^ast.basic lr([sect.big_(j lt i) phi.alt_j]))))^i tack.r.double_(nabla_i) overline(italic(p r j))_i lr((phi.alt_i))\
-arrow.r.double.long^(upright("Lem. ") upright("lem:proj")) & and.big_i cal(T)_(nabla^ast.basic lr([sect.big_(j lt i) phi.alt_j])) tack.r.double_(arrow.t lr((nabla_i))) phi.alt_i arrow.r.double.long^(lr((ast.basic))) and.big_i cal(T)_(sect.sq_(j lt i) arrow.t lr((nabla_j))) tack.r.double_(arrow.t lr((nabla_i))) phi.alt_i\
-arrow.r.double.long^(upright("Def. ") upright("def:models_shield")) & and.big_i cal(T) tack.r.double_(sect.sq_(j lt.eq i) arrow.t lr((nabla_j))) phi.alt_i arrow.r.double.long cal(T) tack.r.double_(sect.sq_i thin arrow.t lr((nabla_i))) phi.alt arrow.r.double.long^(upright("Def. ") upright("def:models_shield")) cal(T)_nabla tack.r.double phi.alt $
+$  & and.big_i lr((cal(T)_(nabla^ast.basic lr([inter.big_(j lt i) phi.alt_j]))))^i tack.r.double_(nabla_i) overline(italic(p r j))_i lr((phi.alt_i))\
+arrow.r.double.long^(upright("Lem. ") upright("lem:proj")) & and.big_i cal(T)_(nabla^ast.basic lr([inter.big_(j lt i) phi.alt_j])) tack.r.double_(arrow.t lr((nabla_i))) phi.alt_i arrow.r.double.long^(lr((ast.basic))) and.big_i cal(T)_(inter.sq_(j lt i) arrow.t lr((nabla_j))) tack.r.double_(arrow.t lr((nabla_i))) phi.alt_i\
+arrow.r.double.long^(upright("Def. ") upright("def:models_shield")) & and.big_i cal(T) tack.r.double_(inter.sq_(j lt.eq i) arrow.t lr((nabla_j))) phi.alt_i arrow.r.double.long cal(T) tack.r.double_(inter.sq_i thin arrow.t lr((nabla_i))) phi.alt arrow.r.double.long^(upright("Def. ") upright("def:models_shield")) cal(T)_nabla tack.r.double phi.alt $
 
 Step $lr((ast.basic))$ holds because the composition
-$sect.sq_(j lt.eq i) arrow.t lr((nabla_j))$ of the local shields up to
+$inter.sq_(j lt.eq i) arrow.t lr((nabla_j))$ of the local shields up to
 index $i$ satisfy $phi.alt_i$ under the previous guarantees $phi.alt_j$,
 $j lt i$. Thus,
-$cal(T)_(sect.sq_(j lt i) arrow.t lr((nabla_j))) prec.eq cal(T)_(nabla^ast.basic lr([sect.big_(j lt i) phi.alt_j]))$,
+$cal(T)_(inter.sq_(j lt i) arrow.t lr((nabla_j))) prec.eq cal(T)_(nabla^ast.basic lr([inter.big_(j lt i) phi.alt_j]))$,
 and the conclusion follows by applying Lemma #link(<lem:preceq>)[3]. ◻
 
 Finding the local safety properties $phi.alt_i$ is an art, and we leave
@@ -857,9 +891,27 @@ In order to apply the algorithm, we require an acyclic dependency graph
 the order suggested by the dependencies, which, as we will see, leads to
 an attractive property.
 
-Build dependency graph $G$ of $cal(M)_nabla$
+#figure(kind: "algorithm", supplement: [Algorithm], 
+  pseudocode-list(numbered-title: [Cascading shielded learning of $n$-agent policies])[
+    - Input{Shielded $n$-agent MDP $cal(M)_nabla$,  $n$-agent cost function $c = (c_1, dots, c_n)$}
+    - Output{$n$-agent policy $(pi_1, dots, pi_n)$}
+    + Build dependency graph $G$ of $cal(M)_nabla$;
+    + Let $cal(M)' := cal(M)_nabla$;
+    + While(true)
+      + If{there is no node in $G$ with no outgoing edges}
+        + #line-label(<line:error>) error(``Cyclic dependencies are incompatible.''); 
+      + Let $i$ be a node in $G$ with no outgoing edges;
+      + #line-label(<line:learn>) Train agent policy~$pi_i$ on the MDP $"sandbox"(cal(M)', i)$ wrt. cost function $c_i$; 
+      + Update $G$ by removing node $i$ and all incoming edges;
 
-Let $cal(M) prime := cal(M)_nabla$
+      + If{$G$ is empty}
+        + Return{$(pi_1, dots, pi_n)$}
+
+      + Update $cal(M)' := cal(M)'_{pi_i}$ #footnote[i.e., instantiated shielded MDP]
+    }
+  ]
+)<algo:learn>
+
 
 To draw the connection to the distributed shield, the crucial insight is
 that we can again use it for assume-guarantee reasoning to prevent
@@ -1068,9 +1120,9 @@ applies to complex dependencies where agents influence multiple other
 agents asymmetrically. We consider a network of inter-connected chemical
 production units, each with an internal storage.
 
-r.33
-
-<fig:cp_layout>
+#figure(image("../Graphics/AAMAS25/cp_layout.svg"),
+  caption: [Layout of plant network.]
+)<fig:cp_layout>
 
 @fig:cp_layout shows the graph
 structure of the network. Numbered nodes (1 to 10) denote controlled
