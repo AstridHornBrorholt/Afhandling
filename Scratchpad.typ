@@ -3,6 +3,6 @@
 
 #show: apply_style
 
-#include "Mainmatter/Compositional Shielding and Reinforcement Learning for Multi-agent Systems.typ"
+#include "Mainmatter/Uppaal Coshy: Automatic Synthesis of Compact Shields for Hybrid Systems.typ"
 
 #bibliography("Bibliography.bib")

@@ -1,5 +1,5 @@
-sed -r "Mainmatter/Pandoc Conversions/Compositional Shielding and Reinforcement Learning for Multi-agent Systems.typ" \
-    -e 's|"Graphics/|"../Graphics/AAMAS25/|g' \
+sed -r "Mainmatter/Pandoc Conversions/Uppaal Coshy: Automatic Synthesis of Compact Shields for Hybrid Systems.typ" \
+    -e 's|"Graphics/|"../Graphics/RP25/|g' \
     -e 's| sect | inter |g' \
     -e 's|([0-9])\\linewidth|\1*100%|g' \
     -e 's|([0-9])\\textwidth|\1*100%|g' \
@@ -12,7 +12,7 @@ sed -r "Mainmatter/Pandoc Conversions/Compositional Shielding and Reinforcement 
     -e 's| ?#cite\((".*")\)| #cite(label(\1))|g' \
     -e 's|[A-Za-z.]+ #link\(<(.*)>\)\[\d+\]|@\1|g' \
     -e 's|[A-Za-z.]+ #link\(<(.*)>\)\[\\\[.+\\\]\]|@\1|g' \
-    > "Mainmatter/Compositional Shielding and Reinforcement Learning for Multi-agent Systems.typ"
+    > "Mainmatter/Uppaal Coshy: Automatic Synthesis of Compact Shields for Hybrid Systems.typ"
 # [A-Z][a-z]+ #link\(\<(.*)\>\)\[\\\[.*\\\]\]
 # @(DBLP:[^ ]+)
 # #label("$1")

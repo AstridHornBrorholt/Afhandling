@@ -13,7 +13,7 @@
 // Please notice that new chapters must start on a right-hand page. This can be secured in Word by using the "Breaks" functionality and choosing "Odd page". See guide for two page view
 
 #import "@preview/lemmify:0.1.8": *
-
+#import "Colors.typ" : *
 
 
 #let apply_style(doc) = {
@@ -35,6 +35,8 @@
     size: 10pt)
 
   set par(leading: 0.54em, justify: true)  // Fiddled with it till it matched the other pdf.
+
+  show raw: set text(font: "Fira Code", fill: cmyk(78%, 32%, 0%, 49%))
 
   // Figures & Tables
   show figure: set block(spacing: 2em)

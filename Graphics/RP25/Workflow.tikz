@@ -1,0 +1,23 @@
+\begin{tikzpicture}[
+    node distance=1cm, 
+    every node/.style={align=center},
+    >=stealth,
+    font=\tiny
+]
+    % Nodes
+    \node[] (EMDP) {\normalsize $\mathcal{M}$ \\  EMDP};
+    \node[right=of EMDP] (TAM) {\normalsize $\transitionsystem$ \\  Transition system};
+    \node[right=of TAM] (sigma_phi) {\normalsize $\sigma_{\varphi}$ \\ Shield};
+    \node[right=13mm of sigma_phi] (M_shielded) {\normalsize $\mathcal{M} \mid \sigma_{\varphi}$ \\ Shielded EMDP};
+    \node[right=of M_shielded] (sigma_star) {\normalsize $\sigma^*$ \\ Shielded, \\ near-optimal \\ strategy};
+    
+    % Dashed box
+    \node[draw=nephritis, dashed, thick, inner sep=1.5mm, fit=(EMDP) (sigma_phi), label={[nephritis]above: {\small New integration in \uppaal}}, rounded corners] {};
+
+    % Arrows
+    \draw[->] (EMDP) -- (TAM) node[midway, above] { Grid $\grid$};
+    \draw[->] (TAM) -- (sigma_phi) node[midway, above] { Synthesis };
+    \draw[->] (sigma_phi) -- (M_shielded) node[midway, above] { Apply \\ shield };
+    \draw[->] (M_shielded) -- (sigma_star) node[midway, above] { Reinforcement \\ learning};
+    
+\end{tikzpicture}
