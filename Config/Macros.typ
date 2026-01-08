@@ -33,16 +33,7 @@
   )
 }
 
-#import "@preview/great-theorems:0.1.2" : *
-#import "@preview/rich-counters:0.2.1": *
+#let fallback = {set text(fill: white); $nabla$}
+#let shield = $fallback #h(-0.65em) #image("../Graphics/shield.svg", height: 0.6em)$
 
-#let examplecounter = rich-counter(identifier: "example", inherited_levels: 1)
-#let example = mathblock(blocktitle: "Example", counter: examplecounter)
-#let lemmacounter = rich-counter(identifier: "lemma", inherited_levels: 1)
-#let lemma = mathblock(blocktitle: "Lemma", counter: lemmacounter)
-#let theoremcounter = rich-counter(identifier: "theorem", inherited_levels: 1)
-#let theorem = mathblock(blocktitle: "Theorem", counter: theoremcounter)
-#let proofcounter = rich-counter(identifier: "proof", inherited_levels: 1)
-#let proof = mathblock(blocktitle: "proof", counter: proofcounter)
-
-#example[Foo]
+#shield

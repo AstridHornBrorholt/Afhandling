@@ -5,7 +5,7 @@
 #let (
   theorem, lemma, corollary,
   remark, proposition, example,
-  proof, rules: thm-rules
+  proof, definition, rules: thm-rules
 ) = default-theorems("thm-group", lang: "en", thm-numbering: thm-numbering-linear)
 
 = Compositional Shielding and Reinforcement Learning for Multi-agent Systems
@@ -32,7 +32,7 @@ We demonstrate the effectiveness and scalability of our multi-agent shielding fr
 
 
 
-= Introduction
+== Introduction
 <introduction>
 Reinforcement learning
 (RL) #cite(label("DBLP:books/wi/Puterman94")) #cite(label("DBLP:books/lib/SuttonB98")), and
@@ -86,7 +86,11 @@ component $C$ will guarantee $G$," the standard (acyclic)
 assume-guarantee rule for finite state machines with handshake
 synchronization looks as
 follows #cite(label("DBLP:reference/mc/GiannakopoulouNP18")):
-$ frac(chevron.l top chevron.r C_1 bar.v.double C_2 bar.v.double dots.h.c bar.v.double C_n chevron.l phi.alt chevron.r, chevron.l top chevron.r C_1 chevron.l G_1 chevron.r comma chevron.l G_1 chevron.r C_2 chevron.l G_2 chevron.r comma dots.h comma chevron.l G_(n minus 2) chevron.r C_(n minus 1) chevron.l G_(n minus 1) chevron.r comma chevron.l G_(n minus 1) chevron.r C_n chevron.l phi.alt chevron.r) $
+
+$ frac(
+  chevron.l top chevron.r C_1 chevron.l G_1 chevron.r comma chevron.l G_1 chevron.r C_2 chevron.l G_2 chevron.r comma dots.h comma chevron.l G_(n minus 2) chevron.r C_(n minus 1) chevron.l G_(n minus 1) chevron.r comma chevron.l G_(n minus 1) chevron.r C_n chevron.l phi.alt chevron.r,
+  chevron.l top chevron.r C_1 bar.v.double C_2 bar.v.double dots.h.c bar.v.double C_n chevron.l phi.alt chevron.r, 
+) $
 
 By this chain of assume-guarantee pairs, it is clear that, together, the
 components ensure safety property $phi.alt$.
@@ -109,11 +113,11 @@ of the shield synthesis. In this work, we assume that the
 guarantees $G_i$ are given, which allows us to derive corresponding
 individual agent shields via standard shield synthesis.
 
-==== Motivating Example
+=== Motivating Example
 <sect:platoon>
 A multi-agent car platoon with adaptive cruise controls consists of $n$
 cars, numbered from back to front #cite(label("DBLP:conf/birthday/LarsenMT15"))
-(Figure #link(<fig:platoon>)[1]). The cars 1 to $n minus 1$ are each
+(@fig:platoon). The cars 1 to $n minus 1$ are each
 controlled by an agent, while (front) car $n$ is driven by the
 environment. The state variables are the car velocities $v_i$ and
 distances $d_i$ between cars $i$ and $i plus 1$. For $i lt n$, car $i$
@@ -184,7 +188,7 @@ In summary, this paper makes the following main contributions:
   shielded cascading learning is efficient and achieves state-of-the-art
   performance.
 
-== Related Work
+=== Related Work
 <related-work>
 ==== Shielding.
 <shielding.>
@@ -278,61 +282,66 @@ shielding.
 ==== Outline.
 <outline.>
 In the next section, we define basic notation. In
-Section #link(<sect:shielding>)[3], we introduce distributed shielding
+@sect:shielding, we introduce distributed shielding
 based on projections and extend it with assume-guarantee reasoning. In
-Section #link(<sect:learning>)[4], we develop cascading learning,
+@sect:learning, we develop cascading learning,
 tailored to systems with acyclic dependencies. In
-Section #link(<sect:evaluation>)[5], we evaluate our approaches in two
-case studies. In Section #link(<sect:conclusion>)[6], we conclude and
+@sect:evaluation, we evaluate our approaches in two
+case studies. In @sect:conclusion, we conclude and
 discuss future work.
 
-= Preliminaries
+== Preliminaries
 <sect:preliminaries>
-== Transition Systems (MDPs & LTSs)
+
+=== Transition Systems (MDPs & LTSs)
 <transition-systems-mdps-ltss>
 We start with some basic definitions of transition systems.
 
-#strong[Definition 1] (Labeled transition system). A #emph[labeled
-transition system] (LTS) is a triple
-$cal(T) eq lr((italic(S) comma italic(A c t) comma italic(T)))$ where
-$italic(S)$ is the finite state space, $italic(A c t)$ is the action
-space, and
-$italic(T) subset.eq italic(S) times italic(A c t) times italic(S)$ is
-the transition relation with no dead ends, i.e., for all
-$s in italic(S)$ there exists some $a in italic(A c t)$ and
-$s prime in italic(S)$ such that
-$lr((s comma a comma s prime)) in italic(T)$.
+#definition(name:"Labeled transition system")[A #emph[labeled
+  transition system] (LTS) is a triple
+  $cal(T) eq lr((italic(S) comma italic(A c t) comma italic(T)))$ where
+  $italic(S)$ is the finite state space, $italic(A c t)$ is the action
+  space, and
+  $italic(T) subset.eq italic(S) times italic(A c t) times italic(S)$ is
+  the transition relation with no dead ends, i.e., for all
+  $s in italic(S)$ there exists some $a in italic(A c t)$ and
+  $s prime in italic(S)$ such that
+  $lr((s comma a comma s prime)) in italic(T)$.
+]
 
-#strong[Definition 2] (Markov decision process). A #emph[Markov decision
-process] (MDP) is a triple
-$cal(M) eq lr((italic(S) comma italic(A c t) comma P))$ where
-$italic(S)$ is the finite state space, $italic(A c t)$ is the action
-space, and
-$P colon italic(S) times italic(A c t) times italic(S) arrow.r lr([0 comma 1])$
-is the probabilistic transition relation satisfying
-$sum_(s prime in italic(S)) P lr((s comma a comma s prime)) in brace.l 0 comma 1 brace.r$
-for all $s in italic(S)$ and $a in italic(A c t)$, and for at least one
-action, the sum is 1.
+#definition(name: "Markov decision process")[A #emph[Markov decision
+  process] (MDP) is a triple
+  $cal(M) eq lr((italic(S) comma italic(A c t) comma P))$ where
+  $italic(S)$ is the finite state space, $italic(A c t)$ is the action
+  space, and
+  $P colon italic(S) times italic(A c t) times italic(S) arrow.r lr([0 comma 1])$
+  is the probabilistic transition relation satisfying
+  $sum_(s prime in italic(S)) P lr((s comma a comma s prime)) in brace.l 0 comma 1 brace.r$
+  for all $s in italic(S)$ and $a in italic(A c t)$, and for at least one
+  action, the sum is 1.
+]
 
 We will view an LTS as an abstraction of an MDP where probabilities are
 replaced by possibilities.
 
-#strong[Definition 3] (Induced LTS). Given an MDP
-$cal(M) eq lr((italic(S) comma italic(A c t) comma P))$, the
-#emph[induced LTS] is
-$cal(T)_(cal(M)) eq lr((italic(S) comma italic(A c t) comma italic(T)))$
-with $lr((s comma a comma s prime)) in italic(T)$ iff
-$P lr((s comma a comma s prime)) gt 0$.
+#definition(name: "Induced LTS")[Given an MDP
+  $cal(M) eq lr((italic(S) comma italic(A c t) comma P))$, the
+  #emph[induced LTS] is
+  $cal(T)_(cal(M)) eq lr((italic(S) comma italic(A c t) comma italic(T)))$
+  with $lr((s comma a comma s prime)) in italic(T)$ iff
+  $P lr((s comma a comma s prime)) gt 0$.
+]
 
-#strong[Definition 4] (Run). Assume an LTS
-$cal(T) eq lr((italic(S) comma italic(A c t) comma italic(T)))$ and a
-finite alternating sequence of states and actions
-$rho eq s_0 a_0 s_1 a_1 dots.h$; then, $rho$ is a #emph[run] of $cal(T)$
-if $lr((s_i comma a_i comma s_(i plus 1))) in italic(T)$ for all
-$i gt.eq 0$. Similarly, for an MDP
-$cal(M) eq lr((italic(S) comma italic(A c t) comma P))$, $rho$ is a
-#emph[run] of $cal(M)$ if
-$P lr((s_i comma a_i comma s_(i plus 1))) gt 0$ for all $i gt.eq 0$.
+#definition(name: "Run")[Assume an LTS
+  $cal(T) eq lr((italic(S) comma italic(A c t) comma italic(T)))$ and a
+  finite alternating sequence of states and actions
+  $rho eq s_0 a_0 s_1 a_1 dots.h$; then, $rho$ is a #emph[run] of $cal(T)$
+  if $lr((s_i comma a_i comma s_(i plus 1))) in italic(T)$ for all
+  $i gt.eq 0$. Similarly, for an MDP
+  $cal(M) eq lr((italic(S) comma italic(A c t) comma P))$, $rho$ is a
+  #emph[run] of $cal(M)$ if
+  $P lr((s_i comma a_i comma s_(i plus 1))) gt 0$ for all $i gt.eq 0$.
+]
 
 We distinguish between strategies and policies in this work. A strategy
 prescribes a nondeterministic choice of actions in each LTS state.
@@ -340,22 +349,24 @@ Similarly, a policy prescribes a probabilistic choice of actions in each
 MDP state. Before defining them formally, we need a notion of
 restricting the actions to sensible choices.
 
-#strong[Definition 5] (Enabled actions). Given an LTS,
-$cal(E) lr((s)) eq brace.l a in italic(A c t) divides exists s prime colon lr((s comma a comma s prime)) in italic(T) brace.r$
-denotes the #emph[enabled actions] in state $s$. Similarly, given an
-MDP,
-$cal(E) lr((s)) eq brace.l a in italic(A c t) divides exists s prime colon P lr((s comma a comma s prime)) gt 0 brace.r$.
+#definition(name: "Enabled actions")[Given an LTS,
+  $cal(E) lr((s)) eq brace.l a in italic(A c t) divides exists s prime colon lr((s comma a comma s prime)) in italic(T) brace.r$
+  denotes the #emph[enabled actions] in state $s$. Similarly, given an
+  MDP,
+  $cal(E) lr((s)) eq brace.l a in italic(A c t) divides exists s prime colon P lr((s comma a comma s prime)) gt 0 brace.r$.
+]
 
-#strong[Definition 6] (Strategy; policy). Given an LTS, a
-(nondeterministic) #emph[strategy] is a function
-$sigma colon italic(S) arrow.r 2^(italic(A c t))$ such that
-$nothing eq.not sigma lr((s)) subset.eq cal(E) lr((s))$ for all
-$s in italic(S)$. Given an MDP, a (probabilistic) #emph[policy] is a
-function
-$pi colon italic(S) times italic(A c t) arrow.r lr([0 comma 1])$ such
-that $sum_(a in cal(E) lr((s))) pi lr((s comma a)) eq 1$ and
-$and.big_(a prime in italic(A c t) backslash cal(E) lr((s))) pi lr((s comma a prime)) eq 0$
-for all $s in italic(S)$.
+#definition(name: "Strategy; policy")[Given an LTS, a
+  (nondeterministic) #emph[strategy] is a function
+  $sigma colon italic(S) arrow.r 2^(italic(A c t))$ such that
+  $nothing eq.not sigma lr((s)) subset.eq cal(E) lr((s))$ for all
+  $s in italic(S)$. Given an MDP, a (probabilistic) #emph[policy] is a
+  function
+  $pi colon italic(S) times italic(A c t) arrow.r lr([0 comma 1])$ such
+  that $sum_(a in cal(E) lr((s))) pi lr((s comma a)) eq 1$ and
+  $and.big_(a prime in italic(A c t) backslash cal(E) lr((s))) pi lr((s comma a prime)) eq 0$
+  for all $s in italic(S)$.
+]
 
 Note that our strategies and policies are memoryless. This is justified
 as we will only consider safety properties in this work, for which
@@ -363,13 +374,14 @@ memory is not required #cite(label("DBLP:reference/mc/BloemCJ18")). Strategies
 and policies restrict the possible runs, and we call these runs the
 outcomes.
 
-#strong[Definition 7] (Outcome). A run $rho eq s_0 a_0 s_1 a_1 dots.h$
-of an LTS is an #emph[outcome] of a strategy $sigma$ if
-$a_i in sigma lr((s_i))$ for all $i gt.eq 0$. Similarly, a run
-$rho eq s_0 a_0 s_1 a_1 dots.h$ of an MDP is an outcome of a policy $pi$
-if $pi lr((s_i comma a_i)) gt 0$ for all $i gt.eq 0$.
+#definition(name: "Outcome")[A run $rho eq s_0 a_0 s_1 a_1 dots.h$
+  of an LTS is an #emph[outcome] of a strategy $sigma$ if
+  $a_i in sigma lr((s_i))$ for all $i gt.eq 0$. Similarly, a run
+  $rho eq s_0 a_0 s_1 a_1 dots.h$ of an MDP is an outcome of a policy $pi$
+  if $pi lr((s_i comma a_i)) gt 0$ for all $i gt.eq 0$.
+]
 
-== Safety and Shielding
+=== Safety and Shielding
 <safety-and-shielding>
 In this work, we are interested in safety properties, which are
 characterized by a set of safe (resp. unsafe) states. The goal is to
@@ -377,12 +389,14 @@ stay in the safe (resp. avoid the unsafe) states. In this section, we
 introduce corresponding notions, in particular (classical) shields and
 how they can be applied.
 
-#strong[Definition 8] (Safety property). A #emph[safety property] is a
-set of states $phi.alt subset.eq italic(S)$.
+#definition(name: "Safety property")[A #emph[safety property] is a
+  set of states $phi.alt subset.eq italic(S)$.
+]
 
-#strong[Definition 9] (Safe run). Given a safety property
-$phi.alt subset.eq italic(S)$, a run $s_0 a_0 s_1 a_1 dots.h$ is
-#emph[safe] if $s_i in phi.alt$ for all $i gt.eq 0$.
+#definition(name: "Safe run")[Given a safety property
+  $phi.alt subset.eq italic(S)$, a run $s_0 a_0 s_1 a_1 dots.h$ is
+  #emph[safe] if $s_i in phi.alt$ for all $i gt.eq 0$.
+]
 
 Given an LTS, a safety property $phi.alt subset.eq italic(S)$ partitions
 the states into two sets: the #emph[winning states], from which a
@@ -396,24 +410,27 @@ winning states, which we abstain from mentioning explicitly.
 A shield is a (typically nondeterministic) strategy that ensures safety.
 In game-theory terms, a shield is called a #emph[winning strategy].
 
-#strong[Definition 10] (Shield). Given an LTS
-$lr((italic(S) comma italic(A c t) comma italic(T)))$ and a safety
-property $phi.alt subset.eq italic(S)$, a #emph[shield]
-$nabla lr([phi.alt])$ is a strategy whose outcomes starting in any
-winning state are all safe wrt. $phi.alt$.
+#definition(name: "Shield")[Given an LTS
+  $lr((italic(S) comma italic(A c t) comma italic(T)))$ and a safety
+  property $phi.alt subset.eq italic(S)$, a #emph[shield]
+  $shield lr([phi.alt])$ is a strategy whose outcomes starting in any
+  winning state are all safe wrt. $phi.alt$.
+]
 
-We often omit $phi.alt$ and just write $nabla$. Among all shields, it is
+We often omit $phi.alt$ and just write $shield$. Among all shields, it is
 known that there is a "best" one that allows the most actions.
 
-#strong[Definition 11] (Most permissive shield). Given an LTS and a
+#definition(name: "Most permissive shield")[Given an LTS and a
 safety property $phi.alt$, the #emph[most permissive shield]
-$nabla^ast.basic lr([phi.alt])$ is the shield that allows the largest
+$shield^ast.basic lr([phi.alt])$ is the shield that allows the largest
 set of actions for each state $s in italic(S)$.
+]
 
-#strong[Lemma 1] ( #cite(label("DBLP:reference/mc/BloemCJ18"))).
-#emph[$nabla^ast.basic$ is unique and obtained as the union of all
-shields $nabla$ for $phi.alt$:
-$nabla^ast.basic lr((s)) eq brace.l a in italic(A c t) divides exists nabla colon a in nabla lr((s)) brace.r$.]
+#lemma(name: cite(label("DBLP:reference/mc/BloemCJ18")))[
+  $shield^ast.basic$ is unique and obtained as the union of all
+  shields $shield$ for $phi.alt$:
+  $shield^ast.basic lr((s)) eq brace.l a in italic(A c t) divides exists shield colon a in shield lr((s)) brace.r$.
+]
 
 The standard usage of a shield is to restrict the actions of a policy
 for guaranteeing safety. In this work, we also compose it with another
@@ -423,12 +440,13 @@ strategies that are compatible in the sense that they allow at least one
 common action in each state (otherwise the result is not a strategy
 according to our definition).
 
-#strong[Definition 12] (Composition). Two strategies $sigma_1$
-and $sigma_2$ over an LTS
-$lr((italic(S) comma italic(A c t) comma italic(T)))$ are
-#emph[compatible] if
-$sigma_1 lr((s)) inter sigma_2 lr((s)) eq.not nothing$ for all
-$s in italic(S)$.
+#definition(name: "Composition")[Two strategies $sigma_1$
+  and $sigma_2$ over an LTS
+  $lr((italic(S) comma italic(A c t) comma italic(T)))$ are
+  #emph[compatible] if
+  $sigma_1 lr((s)) inter sigma_2 lr((s)) eq.not nothing$ for all
+  $s in italic(S)$.
+]
 
 Given compatible strategies $sigma$ and $sigma prime$, their composition
 $sigma inter.sq sigma prime$ is the strategy
@@ -440,65 +458,68 @@ $inter.sq_i thin sigma_i$ to denote
 $sigma_1 inter.sq dots.h inter.sq sigma_n$ when $n$ is clear from the
 context.
 
-Given a strategy $sigma$ and a compatible shield $nabla$, we also use
+Given a strategy $sigma$ and a compatible shield $shield$, we also use
 the alternative notation of the #emph[shielded
-strategy] $nabla lr((sigma)) eq sigma inter.sq nabla$.
+strategy] $shield lr((sigma)) eq sigma inter.sq shield$.
 
 Given a set of states $phi.alt$, we are interested whether an LTS
 ensures that we will stay in that set $phi.alt$, independent of the
 strategy.
 
-#strong[Definition 13]. Assume an LTS $cal(T)$ and a set of
-states $phi.alt$. We write $cal(T) tack.r.double phi.alt$ if for all
-strategies $sigma$, all corresponding outcomes $s_0 a_0 s_1 a_1 dots.h$
-satisfy $s_i in phi.alt$ for all $i gt.eq 0$.
+#definition()[Assume an LTS $cal(T)$ and a set of
+  states $phi.alt$. We write $cal(T) tack.r.double phi.alt$ if for all
+  strategies $sigma$, all corresponding outcomes $s_0 a_0 s_1 a_1 dots.h$
+  satisfy $s_i in phi.alt$ for all $i gt.eq 0$.
+]
 
 We now use a different view on a shield and apply it to an LTS in order
 to "filter out" those actions that are forbidden by the shield.
 
-#strong[Definition 14] (Shielded LTS). Given an LTS
-$cal(T) eq lr((italic(S) comma italic(A c t) comma italic(T)))$, a
-safety property $phi.alt$, and a shield $nabla lr([phi.alt])$, the
-#emph[shielded LTS]
-$cal(T)_nabla eq lr((italic(S) comma italic(A c t) comma italic(T)_nabla))$
-with
-$italic(T)_nabla eq brace.l lr((s comma a comma s prime)) in italic(T) divides a in nabla lr((s)) brace.r$
-is restricted to transitions whose actions are allowed by the shield.
+#definition(name: "Shielded LTS")[Given an LTS
+  $cal(T) eq lr((italic(S) comma italic(A c t) comma italic(T)))$, a
+  safety property $phi.alt$, and a shield $shield lr([phi.alt])$, the
+  #emph[shielded LTS]
+  $cal(T)_shield eq lr((italic(S) comma italic(A c t) comma italic(T)_shield))$
+  with
+  $italic(T)_shield eq brace.l lr((s comma a comma s prime)) in italic(T) divides a in shield lr((s)) brace.r$
+  is restricted to transitions whose actions are allowed by the shield.
+]
 
 The next proposition asserts that a shielded LTS is safe.
 
-#strong[Proposition 1]. #emph[Given an LTS $cal(T)$, a safety
-property $phi.alt$, and a corresponding shield $nabla lr([phi.alt])$,
-all outcomes of any strategy for $cal(T)_nabla$ are safe.]
+#proposition[Given an LTS $cal(T)$, a safety
+property $phi.alt$, and a corresponding shield $shield lr([phi.alt])$,
+all outcomes of any strategy for $cal(T)_shield$ are safe.]
 
-In other words, $cal(T)_nabla tack.r.double phi.alt$. We analogously
+In other words, $cal(T)_shield tack.r.double phi.alt$. We analogously
 define shielded MDPs.
 
-#strong[Definition 15] (Shielded MDP). Given an MDP
-$cal(M) eq lr((italic(S) comma italic(A c t) comma P))$, a safety
-property $phi.alt$, and a shield $nabla$ for $cal(T)_(cal(M))$, the
-#emph[shielded MDP]
-$cal(M)_nabla eq lr((italic(S) comma italic(A c t) comma P_nabla))$ is
-restricted to transitions with actions allowed by $nabla$:
-$P_nabla lr((s comma a comma s prime)) eq P lr((s comma a comma s prime))$
-if $a in nabla lr((s))$, and
-$P_nabla lr((s comma a comma s prime)) eq 0$ otherwise.
+#definition(name: "Shielded MDP")[Given an MDP
+  $cal(M) eq lr((italic(S) comma italic(A c t) comma P))$, a safety
+  property $phi.alt$, and a shield $shield$ for $cal(T)_(cal(M))$, the
+  #emph[shielded MDP]
+  $cal(M)_shield eq lr((italic(S) comma italic(A c t) comma P_shield))$ is
+  restricted to transitions with actions allowed by $shield$:
+  $P_shield lr((s comma a comma s prime)) eq P lr((s comma a comma s prime))$
+  if $a in shield lr((s))$, and
+  $P_shield lr((s comma a comma s prime)) eq 0$ otherwise.
+]
 
-#strong[Proposition 2]. #emph[Assume an MDP $cal(M)$, a safety
-property $phi.alt$, and a corresponding shield $nabla lr([phi.alt])$
+#proposition[Assume an MDP $cal(M)$, a safety
+property $phi.alt$, and a corresponding shield $shield lr([phi.alt])$
 for $cal(T)_(cal(M))$. Then all outcomes of any policy for
-$cal(M)_nabla$ are safe.]
+$cal(M)_shield$ are safe.]
 
 The last proposition explains how standard shielding is applied to learn
-safe policies. Given an MDP $cal(M)$, we first compute a shield $nabla$
+safe policies. Given an MDP $cal(M)$, we first compute a shield $shield$
 over the induced LTS $cal(T)_(cal(M))$. Then we apply the shield to the
-MDP $cal(M)$ to obtain $cal(M)_nabla$ and filter unsafe actions. The
+MDP $cal(M)$ to obtain $cal(M)_shield$ and filter unsafe actions. The
 shield guarantees that the agent is safe both during and after learning.
 
 From now on we mainly focus on computing shields from an LTS, as the
 generalization to MDPs is straightforward.
 
-== Compositional Systems
+=== Compositional Systems
 <compositional-systems>
 Now we turn to compositional systems (LTSs and MDPs) with multiple
 agents. We restrict ourselves to $k$-dimensional state
@@ -510,19 +531,21 @@ variables while retaining others. We use the notation that, given an
 $n$-vector $v eq lr((v_1 comma dots.h comma v_n))$, $v lr([i])$ denotes
 the $i$-th element $v_i$.
 
-#strong[Definition 16] (Projection). A #emph[projection] is a mapping
-$italic(p r j) colon italic(S) arrow.r O$ that maps $k$-dimensional
-vectors $s in italic(S)$ to $j$-dimensional vectors $o in O$, where
-$j lt.eq k$. Formally, $italic(p r j)$ is associated with a sequence of
-$j$ indices $1 lt.eq i_1 lt dots.h lt i_j lt.eq k$ such that
-$italic(p r j) lr((s)) eq lr((s lr([i_1]) comma dots.h comma s lr([i_j])))$.
-Additionally, we define
-$italic(p r j) lr((phi.alt)) eq union.big_(s in phi.alt) brace.l italic(p r j) lr((s)) brace.r$.
+#definition(name: "Projection")[A #emph[projection] is a mapping
+  $italic(p r j) colon italic(S) arrow.r O$ that maps $k$-dimensional
+  vectors $s in italic(S)$ to $j$-dimensional vectors $o in O$, where
+  $j lt.eq k$. Formally, $italic(p r j)$ is associated with a sequence of
+  $j$ indices $1 lt.eq i_1 lt dots.h lt i_j lt.eq k$ such that
+  $italic(p r j) lr((s)) eq lr((s lr([i_1]) comma dots.h comma s lr([i_j])))$.
+  Additionally, we define
+  $italic(p r j) lr((phi.alt)) eq union.big_(s in phi.alt) brace.l italic(p r j) lr((s)) brace.r$.
+]
 
-#strong[Definition 17] (Extension). Given projection
-$italic(p r j) colon italic(S) arrow.r O$, the set of states projected
-to $o$ is the #emph[extension]
-$arrow.t lr((o)) eq brace.l s in italic(S) divides italic(p r j) lr((s)) eq o brace.r$.
+#definition(name: "Extension")[Given projection
+  $italic(p r j) colon italic(S) arrow.r O$, the set of states projected
+  to $o$ is the #emph[extension]
+  $arrow.t lr((o)) eq brace.l s in italic(S) divides italic(p r j) lr((s)) eq o brace.r$.
+]
 
 Later we will also use an alternative projection, which we call
 #emph[restricted]. The motivation is that the standard projection above
@@ -537,18 +560,19 @@ we have that $italic(p r j) lr((phi.alt)) eq brace.l 0 comma 1 brace.r$.
 The restricted projection removes $1$ as
 $lr((1 comma 1)) in.not phi.alt$.
 
-#strong[Definition 18] (Restricted projection). A #emph[restricted
-projection] is a mapping
-$overline(italic(p r j)) colon 2^(italic(S)) arrow.r 2^O$ that maps sets
-of $k$-dimensional vectors $s in italic(S)$ to sets of $j$-dimensional
-vectors $o in O$, where $j lt.eq k$. Formally, $overline(italic(p r j))$
-is associated with a sequence of $j$ indices
-$1 lt.eq i_1 lt dots.h lt i_j lt.eq k$. Let $italic(p r j)$ be the
-corresponding (standard) projection and $phi.alt subset.eq italic(S)$.
-Then
-$overline(italic(p r j)) lr((phi.alt)) eq brace.l o in O divides brace.l s in italic(S) divides italic(p r j) lr((s)) eq o brace.r subset.eq phi.alt brace.r$.
-Again, we define
-$overline(italic(p r j)) lr((phi.alt)) eq union.big_(s in phi.alt) brace.l overline(italic(p r j)) lr((s)) brace.r$.
+#definition(name: "Restricted projection")[A #emph[restricted
+  projection] is a mapping
+  $overline(italic(p r j)) colon 2^(italic(S)) arrow.r 2^O$ that maps sets
+  of $k$-dimensional vectors $s in italic(S)$ to sets of $j$-dimensional
+  vectors $o in O$, where $j lt.eq k$. Formally, $overline(italic(p r j))$
+  is associated with a sequence of $j$ indices
+  $1 lt.eq i_1 lt dots.h lt i_j lt.eq k$. Let $italic(p r j)$ be the
+  corresponding (standard) projection and $phi.alt subset.eq italic(S)$.
+  Then
+  $overline(italic(p r j)) lr((phi.alt)) eq brace.l o in O divides brace.l s in italic(S) divides italic(p r j) lr((s)) eq o brace.r subset.eq phi.alt brace.r$.
+  Again, we define
+  $overline(italic(p r j)) lr((phi.alt)) eq union.big_(s in phi.alt) brace.l overline(italic(p r j)) lr((s)) brace.r$.
+]
 
 We will apply $overline(italic(p r j))$ only to safety
 properties $phi.alt$. The following alternative characterization may
@@ -566,15 +590,16 @@ attention to agent safety properties, where this is commonly the case.
 
 Now we can define a multi-agent LTS and MDP.
 
-#strong[Definition 19] ($n$-agent LTS/MDP). An #emph[$n$-agent LTS]
-$lr((italic(S) comma italic(A c t) comma italic(T)))$ or an
-#emph[$n$-agent MDP] $lr((italic(S) comma italic(A c t) comma P))$ have
-an $n$-dimensional action space
-$italic(A c t) eq italic(A c t)_1 times dots.h times italic(A c t)_n$
-and a family of $n$ projections $italic(p r j)_i$,
-$i eq 1 comma dots.h comma n$. Each #emph[agent] $i$ is associated with
-the projection $italic(p r j)_i colon italic(S) arrow.r O_i$ from
-$italic(S)$ to its #emph[observation space] $O_i$.
+#definition(name: [$n$-agent LTS/MDP])[An #emph[$n$-agent LTS]
+  $lr((italic(S) comma italic(A c t) comma italic(T)))$ or an
+  #emph[$n$-agent MDP] $lr((italic(S) comma italic(A c t) comma P))$ have
+  an $n$-dimensional action space
+  $italic(A c t) eq italic(A c t)_1 times dots.h times italic(A c t)_n$
+  and a family of $n$ projections $italic(p r j)_i$,
+  $i eq 1 comma dots.h comma n$. Each #emph[agent] $i$ is associated with
+  the projection $italic(p r j)_i colon italic(S) arrow.r O_i$ from
+  $italic(S)$ to its #emph[observation space] $O_i$.
+]
 
 We note that the observation space introduces partial observability.
 Obtaining optimal strategies/policies for partial observability is
@@ -585,17 +610,18 @@ impractical, we restrict ourselves to memoryless strategies/policies.
 We can apply the projection function $italic(p r j)$ to obtain a "local"
 LTS, modeling partial observability.
 
-#strong[Definition 20] (Projected LTS). For an $n$-agent LTS
-$cal(T) eq lr((italic(S) comma italic(A c t) comma italic(T)))$ and an
-agent $i$ with projection function
-$italic(p r j)_i colon italic(S) arrow.r O_i$, the #emph[projected LTS
-to agent $i$] is
-$cal(T)^i eq lr((O_i comma italic(A c t)_i comma italic(T)_i))$ where
-$italic(A c t)_i eq brace.l a lr([i]) divides a in italic(A c t) brace.r$
-and
-$italic(T)_i eq brace.l lr((italic(p r j)_i lr((s)) comma a lr([i]) comma italic(p r j)_i lr((s)) prime)) divides lr((s comma a comma s prime)) in italic(T) brace.r$.
+#definition(name: "Projected LTS")[For an $n$-agent LTS
+  $cal(T) eq lr((italic(S) comma italic(A c t) comma italic(T)))$ and an
+  agent $i$ with projection function
+  $italic(p r j)_i colon italic(S) arrow.r O_i$, the #emph[projected LTS
+  to agent $i$] is
+  $cal(T)^i eq lr((O_i comma italic(A c t)_i comma italic(T)_i))$ where
+  $italic(A c t)_i eq brace.l a lr([i]) divides a in italic(A c t) brace.r$
+  and
+  $italic(T)_i eq brace.l lr((italic(p r j)_i lr((s)) comma a lr([i]) comma italic(p r j)_i lr((s)) prime)) divides lr((s comma a comma s prime)) in italic(T) brace.r$.
+]
 
-= Distributed Shield Synthesis
+== Distributed Shield Synthesis
 <sect:shielding>
 We now turn to shielding in a multi-agent setting. The straightforward
 approach is to consider the full-dimensional system and compute a global
@@ -609,16 +635,17 @@ for each agent. A local shield still keeps its agent safe. But since we
 only consider the agent’s observation space, the shield does not require
 communication, and the computation is much cheaper.
 
-== Projection-Based Shield Synthesis
+=== Projection-Based Shield Synthesis
 <projection-based-shield-synthesis>
 Rather than enforcing the global safety property, local shields will
 enforce agent-specific properties, which we characterize next.
 
-#strong[Definition 21] ($n$-agent safety property). Given an $n$-agent
-LTS or MDP with state space $italic(S)$, a safety property
-$phi.alt subset.eq italic(S)$ is an #emph[$n$-agent safety property] if
-$phi.alt eq inter.big_(i eq 1)^n phi.alt_i$ consists of #emph[agent
-safety properties] $phi.alt_i$ for each agent $i$.
+#definition(name: [$n$-agent safety property])[Given an $n$-agent
+  LTS or MDP with state space $italic(S)$, a safety property
+  $phi.alt subset.eq italic(S)$ is an #emph[$n$-agent safety property] if
+  $phi.alt eq inter.big_(i eq 1)^n phi.alt_i$ consists of #emph[agent
+  safety properties] $phi.alt_i$ for each agent $i$.
+]
 
 Note that we can let $phi.alt_i eq phi.alt$ for all $i$, so this is not
 a restriction. But typically we are interested in properties that can be
@@ -628,35 +655,37 @@ $italic(p r j)_i lr((phi.alt_i)) eq overline(italic(p r j))_i lr((phi.alt_i))$).
 Next, we define a local shield of an agent, which, like the agent,
 operates in the observation space.
 
-#strong[Definition 22] (Local shield). Given an $n$-agent LTS
-$cal(T) eq lr((italic(S) comma italic(A c t) comma italic(T)))$ with
-observation spaces $O_i$ and an $n$-agent safety property
-$phi.alt eq inter.big_(i eq 1)^n phi.alt_i subset.eq italic(S)$, let
-$nabla_i colon O_i arrow.r 2^(italic(A c t)_i)$ be a shield
-for $cal(T)^i$ wrt. $overline(italic(p r j))_i lr((phi.alt_i))$, for
-some agent $i in brace.l 1 comma dots.h comma n brace.r$, i.e.,
-$cal(T)^i tack.r.double_(nabla_i) overline(italic(p r j))_i lr((phi.alt_i))$.
-We call $nabla_i$ a #emph[local shield] of agent $i$.
+#definition(name: "Local shield")[Given an $n$-agent LTS
+  $cal(T) eq lr((italic(S) comma italic(A c t) comma italic(T)))$ with
+  observation spaces $O_i$ and an $n$-agent safety property
+  $phi.alt eq inter.big_(i eq 1)^n phi.alt_i subset.eq italic(S)$, let
+  $shield_i colon O_i arrow.r 2^(italic(A c t)_i)$ be a shield
+  for $cal(T)^i$ wrt. $overline(italic(p r j))_i lr((phi.alt_i))$, for
+  some agent $i in brace.l 1 comma dots.h comma n brace.r$, i.e.,
+  $cal(T)^i tack.r.double_(shield_i) overline(italic(p r j))_i lr((phi.alt_i))$.
+  We call $shield_i$ a #emph[local shield] of agent $i$.
+]
 
 We define an operation to turn a $j$-dimensional (local) shield into a
 $k$-dimensional (global) shield. This global shield allows all global
 actions whose projections are allowed by the local shield.
 
-#strong[Definition 23] (Extended shield). Assume an $n$-agent LTS
-$cal(T) eq lr((italic(S) comma italic(A c t) comma italic(T)))$ with
-projections $italic(p r j)_i$, an $n$-agent safety property
-$phi.alt eq inter.big_(i eq 1)^n phi.alt_i subset.eq italic(S)$, and a
-corresponding local shield $nabla_i$. The #emph[extended
-shield] $arrow.t lr((nabla_i))$ is defined as
-$arrow.t lr((nabla_i)) lr((s)) eq brace.l a in italic(A c t) divides a lr([i]) in nabla_i lr((italic(p r j)_i lr((s)))) brace.r$.
+#definition(name: "Extended shield")[Assume an $n$-agent LTS
+  $cal(T) eq lr((italic(S) comma italic(A c t) comma italic(T)))$ with
+  projections $italic(p r j)_i$, an $n$-agent safety property
+  $phi.alt eq inter.big_(i eq 1)^n phi.alt_i subset.eq italic(S)$, and a
+  corresponding local shield $shield_i$. The #emph[extended
+  shield] $arrow.t lr((shield_i))$ is defined as
+  $arrow.t lr((shield_i)) lr((s)) eq brace.l a in italic(A c t) divides a lr([i]) in shield_i lr((italic(p r j)_i lr((s)))) brace.r$.
+]
 
 The following definition is just syntactic sugar to ease reading.
 
-<def:models_shield>
-#strong[Definition 24]. Assume an LTS $cal(T)$, a set of states
-$phi.alt$, and a shield $nabla$ for $phi.alt$. We write
-$cal(T) tack.r.double_nabla phi.alt$ as an alternative to
-$cal(T)_nabla tack.r.double phi.alt$.
+#definition()[Assume an LTS $cal(T)$, a set of states
+  $phi.alt$, and a shield $shield$ for $phi.alt$. We write
+  $cal(T) tack.r.double_shield phi.alt$ as an alternative to
+  $cal(T)_shield tack.r.double phi.alt$.
+]<def:models_shield>
 
 The following lemma says that it is sufficient to have a local shield
 ensuring the #emph[restricted] projection
@@ -664,21 +693,22 @@ $overline(italic(p r j))_i lr((phi.alt_i))$ of an agent safety
 property $phi.alt_i$ in order to guarantee safety of the extended
 shield.
 
-<lem:proj>
-#strong[Lemma 2]. #emph[Assume an $n$-agent LTS $cal(T)$, a safety
-property $phi.alt_i$, and a local shield $nabla_i$ such that
-$cal(T)^i tack.r.double_(nabla_i) overline(italic(p r j))_i lr((phi.alt_i))$.
-Then $cal(T) tack.r.double_(arrow.t lr((nabla_i))) phi.alt_i$.]
+#lemma[Assume an $n$-agent LTS $cal(T)$, a safety
+  property $phi.alt_i$, and a local shield $shield_i$ such that
+  $cal(T)^i tack.r.double_(shield_i) overline(italic(p r j))_i lr((phi.alt_i))$.
+  Then $cal(T) tack.r.double_(arrow.t lr((shield_i))) phi.alt_i$.
+]<lem:proj>
 
-#emph[Proof.] The proof is by contraposition. Assume that there is an
-unsafe outcome $rho$ in $cal(T)$ (starting in a winning state) under the
-extended shield $arrow.t lr((nabla_i))$, i.e., $rho$ contains a state
-$s in.not phi.alt$. Then the projected run
-$italic(p r j)_i lr((s_0)) thin a lr([i]) thin italic(p r j)_i lr((s_1)) dots.h$
-is an outcome of $cal(T)^i$ under local shield $nabla_i$, and
-$italic(p r j)_i lr((s)) in.not overline(italic(p r j))_i lr((phi.alt))$
-by the definition of $overline(italic(p r j))$. This contradicts
-that $nabla_i$ is a local shield. ◻
+#proof[The proof is by contraposition. Assume that there is an
+  unsafe outcome $rho$ in $cal(T)$ (starting in a winning state) under the
+  extended shield $arrow.t lr((shield_i))$, i.e., $rho$ contains a state
+  $s in.not phi.alt$. Then the projected run
+  $italic(p r j)_i lr((s_0)) thin a lr([i]) thin italic(p r j)_i lr((s_1)) dots.h$
+  is an outcome of $cal(T)^i$ under local shield $shield_i$, and
+  $italic(p r j)_i lr((s)) in.not overline(italic(p r j))_i lr((phi.alt))$
+  by the definition of $overline(italic(p r j))$. This contradicts
+  that $shield_i$ is a local shield.
+]
 
 The following example shows that the #emph[restricted] projection is
 necessary. Consider the LTS $cal(T)$ where
@@ -694,35 +724,36 @@ $phi.alt_i eq brace.l lr((0 comma 0)) comma lr((0 comma 1)) comma lr((1 comma 0)
 and $italic(p r j)_i$ project to the $i$-th component $O_i$. Then
 $italic(p r j)_i lr((phi.alt_i)) eq brace.l 0 comma 1 brace.r eq italic(p r j)_i lr((italic(S)))$,
 i.e., all states in the projection are safe, and hence a local shield
-may allow $nabla_i lr((0)) eq brace.l z comma p brace.r$. But then the
+may allow $shield_i lr((0)) eq brace.l z comma p brace.r$. But then the
 unsafe state $lr((1 comma 1))$ would be reachable in $cal(T)$.
 
-If $nabla eq inter.sq_i thin arrow.t lr((nabla_i))$ exists, we call it a
+If $shield eq inter.sq_i thin arrow.t lr((shield_i))$ exists, we call it a
 #emph[distributed shield]. This terminology is justified in the next
 theorem, which says that we can synthesize $n$ local shields in the
 projections and then combine these local shields to obtain a safe shield
 for the global system.
 
-<thm:shield_simple>
-#strong[Theorem 1] (Projection-based shield synthesis). #emph[Assume an
-$n$-agent LTS
-$cal(T) eq lr((italic(S) comma italic(A c t) comma italic(T)))$ and an
-$n$-agent safety property
-$phi.alt eq inter.big_(i eq 1)^n phi.alt_i subset.eq italic(S)$.
-Moreover, assume local shields $nabla_i$ for all
-$i eq 1 comma dots.h comma n$. If
-$nabla eq inter.sq_i thin arrow.t lr((nabla_i))$ exists, then $nabla$ is
-a shield for $cal(T)$ wrt. $phi.alt$ (i.e.,
-$cal(T)_nabla tack.r.double phi.alt$).]
+#theorem(name: "Projection-based shield synthesis")[Assume an
+  $n$-agent LTS
+  $cal(T) eq lr((italic(S) comma italic(A c t) comma italic(T)))$ and an
+  $n$-agent safety property
+  $phi.alt eq inter.big_(i eq 1)^n phi.alt_i subset.eq italic(S)$.
+  Moreover, assume local shields $shield_i$ for all
+  $i eq 1 comma dots.h comma n$. If
+  $shield eq inter.sq_i thin arrow.t lr((shield_i))$ exists, then $shield$ is
+  a shield for $cal(T)$ wrt. $phi.alt$ (i.e.,
+  $cal(T)_shield tack.r.double phi.alt$).
+]<thm:shield_simple>
 
-#emph[Proof.] By definition, each local shield $nabla_i$ ensures that
-the (#emph[restricted] projected) agent safety property $phi.alt_i$
-holds in $cal(T)^i$. Since $cal(T)^i$ is a projection of $cal(T)$, any
-distributed shield with $i$-th component $nabla_i$ also preserves
-$phi.alt_i$ in $cal(T)$ (by Lemma #link(<lem:proj>)[2]). Hence,
-$nabla eq inter.sq_i thin arrow.t lr((nabla_i))$ ensures all agent safety
-properties $phi.alt_i$ and thus
-$phi.alt eq inter.big_(i eq 1)^n phi.alt_i$. ◻
+#proof[By definition, each local shield $shield_i$ ensures that
+  the (#emph[restricted] projected) agent safety property $phi.alt_i$
+  holds in $cal(T)^i$. Since $cal(T)^i$ is a projection of $cal(T)$, any
+  distributed shield with $i$-th component $shield_i$ also preserves
+  $phi.alt_i$ in $cal(T)$ (by @lem:proj). Hence,
+  $shield eq inter.sq_i thin arrow.t lr((shield_i))$ ensures all agent safety
+  properties $phi.alt_i$ and thus
+  $phi.alt eq inter.big_(i eq 1)^n phi.alt_i$.
+]
 
 Unfortunately, the theorem is often not useful in practice because the
 local shields may not exist. The projection generally removes the
@@ -731,26 +762,26 @@ do not mean (online) communication but simply (offline) agreement on
 "who does what." Often, this coordination is necessary to achieve agent
 safety. We address this lack of coordination in the next section.
 
-== Assume-Guarantee Shield Synthesis
+=== Assume-Guarantee Shield Synthesis
 <assume-guarantee-shield-synthesis>
 Shielding an LTS removes some transitions. Thus, by repeatedly applying
 multiple shields to the same LTS, we obtain a sequence of more and more
 restricted LTSs.
 
-#strong[Definition 25] (Restricted LTS). Assume two LTSs
-$cal(T) eq lr((italic(S) comma italic(A c t) comma italic(T)))$,
-$cal(T) prime eq lr((italic(S) comma italic(A c t) comma italic(T) prime))$.
-We write $cal(T) prec.eq cal(T) prime$ if
-$italic(T) subset.eq italic(T) prime$.
+#definition(name: "Restricted LTS")[Assume two LTSs
+  $cal(T) eq lr((italic(S) comma italic(A c t) comma italic(T)))$,
+  $cal(T) prime eq lr((italic(S) comma italic(A c t) comma italic(T) prime))$.
+  We write $cal(T) prec.eq cal(T) prime$ if
+  $italic(T) subset.eq italic(T) prime$.
+]
 
-<lem:preceq>
-#strong[Lemma 3]. #emph[Let $cal(T) prec.eq cal(T) prime$ be two LTSs.
-Then
-$cal(T) prime tack.r.double phi.alt arrow.r.double.long cal(T) tack.r.double phi.alt$.]
-
-#emph[Proof.] As $italic(T) prime$ contains all transitions of
-$italic(T)$, it has at least the same outcomes. If no outcome
-of $cal(T) prime$ leaves $phi.alt$, the same holds for $cal(T)$. ◻
+#lemma[Let $cal(T) prec.eq cal(T) prime$ be two LTSs. Then
+  $cal(T) prime tack.r.double phi.alt arrow.r.double.long cal(T) tack.r.double phi.alt$.
+]<lem:preceq>
+#proof[As $italic(T) prime$ contains all transitions of
+  $italic(T)$, it has at least the same outcomes. If no outcome
+  of $cal(T) prime$ leaves $phi.alt$, the same holds for $cal(T)$.
+]
 
 We now turn to the main contribution of this section. For a safety
 property $phi.alt prime$, we assume an $n$-agent safety property
@@ -772,42 +803,57 @@ The theorem then states that if each agent guarantees its safety
 property $phi.alt_i$, and only relies on guarantees $phi.alt_j$ such
 that $j lt i$. The result is a (safe) distributed shield. The described
 condition is formally expressed as
-$lr((cal(T)_(nabla^ast.basic lr([inter.big_(j lt i) phi.alt_j]))))^i tack.r.double_(nabla_i) overline(italic(p r j))_i lr((phi.alt_i))$,
-where we use the most permissive shield $nabla^ast.basic$ for unicity.
+$lr((cal(T)_(shield^ast.basic lr([inter.big_(j lt i) phi.alt_j]))))^i tack.r.double_(shield_i) overline(italic(p r j))_i lr((phi.alt_i))$,
+where we use the most permissive shield $shield^ast.basic$ for unicity.
 
-<thm:shield_agr>
-#strong[Theorem 2] (Assume-guarantee shield synthesis). #emph[Assume an
-$n$-agent LTS
-$cal(T) eq lr((italic(S) comma italic(A c t) comma italic(T)))$ with
-projections $italic(p r j)_i$ and an $n$-agent safety property
-$phi.alt eq inter.big_i phi.alt_i$. Moreover, assume (local) shields
-$nabla_i$ for all $i$ such that
-$lr((cal(T)_(nabla^ast.basic lr([inter.big_(j lt i) phi.alt_j]))))^i tack.r.double_(nabla_i) overline(italic(p r j))_i lr((phi.alt_i))$.
-Then, if $nabla eq inter.sq_i thin arrow.t lr((nabla_i))$ exists, it is a
-shield for $cal(T)$ wrt. $phi.alt$ (i.e.,
-$cal(T)_nabla tack.r.double phi.alt$).]
+#theorem(name: [Assume-guarantee shield synthesis])[Assume an
+  $n$-agent LTS
+  $cal(T) eq lr((italic(S) comma italic(A c t) comma italic(T)))$ with
+  projections $italic(p r j)_i$ and an $n$-agent safety property
+  $phi.alt eq inter.big_i phi.alt_i$. Moreover, assume (local) shields
+  $shield_i$ for all $i$ such that
+  $lr((cal(T)_(shield^ast.basic lr([inter.big_(j lt i) phi.alt_j]))))^i tack.r.double_(shield_i) overline(italic(p r j))_i lr((phi.alt_i))$.
+  Then, if $shield eq inter.sq_i thin arrow.t lr((shield_i))$ exists, it is a
+  shield for $cal(T)$ wrt. $phi.alt$ (i.e.,
+  $cal(T)_shield tack.r.double phi.alt$).
+]<thm:shield_agr>
 
-#emph[Proof.] Assume $cal(T)$, $phi.alt$, and local shields $nabla_i$ as
-in the assumptions. Observe that for $i eq 1$,
-$inter.big_(j lt i) phi.alt_i eq italic(S)$, and that
-$cal(T)_(nabla^ast.basic lr([italic(S)])) eq cal(T)$. Then:
-$  & and.big_i lr((cal(T)_(nabla^ast.basic lr([inter.big_(j lt i) phi.alt_j]))))^i tack.r.double_(nabla_i) overline(italic(p r j))_i lr((phi.alt_i))\
-arrow.r.double.long^(upright("Lem. ") upright("lem:proj")) & and.big_i cal(T)_(nabla^ast.basic lr([inter.big_(j lt i) phi.alt_j])) tack.r.double_(arrow.t lr((nabla_i))) phi.alt_i arrow.r.double.long^(lr((ast.basic))) and.big_i cal(T)_(inter.sq_(j lt i) arrow.t lr((nabla_j))) tack.r.double_(arrow.t lr((nabla_i))) phi.alt_i\
-arrow.r.double.long^(upright("Def. ") upright("def:models_shield")) & and.big_i cal(T) tack.r.double_(inter.sq_(j lt.eq i) arrow.t lr((nabla_j))) phi.alt_i arrow.r.double.long cal(T) tack.r.double_(inter.sq_i thin arrow.t lr((nabla_i))) phi.alt arrow.r.double.long^(upright("Def. ") upright("def:models_shield")) cal(T)_nabla tack.r.double phi.alt $
+#proof[Assume $cal(T)$, $phi.alt$, and local shields $shield_i$ as
+  in the assumptions. Observe that for $i eq 1$,
+  $inter.big_(j lt i) phi.alt_i eq italic(S)$, and that
+  $cal(T)_(shield^ast.basic lr([italic(S)])) eq cal(T)$. Then:
+  
+  $  
+    & and.big_i lr((cal(T)_(shield^* lr([inter.big_(j < i) phi.alt_j]))))^i tack.r.double_(shield_i) overline(italic(p r j))_i lr((phi.alt_i))\
 
-Step $lr((ast.basic))$ holds because the composition
-$inter.sq_(j lt.eq i) arrow.t lr((nabla_j))$ of the local shields up to
-index $i$ satisfy $phi.alt_i$ under the previous guarantees $phi.alt_j$,
-$j lt i$. Thus,
-$cal(T)_(inter.sq_(j lt i) arrow.t lr((nabla_j))) prec.eq cal(T)_(nabla^ast.basic lr([inter.big_(j lt i) phi.alt_j]))$,
-and the conclusion follows by applying Lemma #link(<lem:preceq>)[3]. ◻
+    ==>^#ref(<lem:proj>, supplement: [Lem.]) 
+       & and.big_i cal(T)_(shield^* lr([inter.big_(j < i) phi.alt_j])) tack.r.double_(arrow.t lr((shield_i))) phi.alt_i 
+
+    ==>^(lr((ast.basic))) and.big_i cal(T)_(inter.sq_(j < i) arrow.t lr((shield_j))) tack.r.double_(arrow.t lr((shield_i))) phi.alt_i\
+    
+    ==>^#ref(<def:models_shield>, supplement: [Def. ]) 
+      & and.big_i cal(T) tack.r.double_(inter.sq_(j <= i) arrow.t lr((shield_j))) phi.alt_i 
+
+    ==> cal(T) tack.r.double_(inter.sq_i thin arrow.t lr((shield_i))) phi.alt 
+    ==>^#ref(<def:models_shield>, supplement: [Def. ]) 
+      cal(T)_shield tack.r.double phi.alt 
+
+  $
+
+  Step $lr((ast.basic))$ holds because the composition
+  $inter.sq_(j lt.eq i) arrow.t lr((shield_j))$ of the local shields up to
+  index $i$ satisfy $phi.alt_i$ under the previous guarantees $phi.alt_j$,
+  $j lt i$. Thus,
+  $cal(T)_(inter.sq_(j lt i) arrow.t lr((shield_j))) prec.eq cal(T)_(shield^* lr([inter.big_(j lt i) phi.alt_j]))$,
+  and the conclusion follows by applying @lem:preceq.
+]
 
 Finding the local safety properties $phi.alt_i$ is an art, and we leave
 algorithmic synthesis of these properties to future work. But we will
 show in our case studies that natural choices often exist, sometimes
 directly obtained from the (global) safety property.
 
-= Cascading Learning
+== Cascading Learning
 <sect:learning>
 In the previous section, we have seen how to efficiently compute a
 distributed shield based on assume-guarantee reasoning. In this section,
@@ -816,38 +862,41 @@ learn multi-agent policies in a similar manner.
 
 We start by defining the multi-agent learning objective.
 
-#strong[Definition 26] ($n$-agent cost function). Given an $n$-agent MDP
-$cal(M) eq lr((italic(S) comma italic(A c t) comma P))$ with
-projections $italic(p r j)_i colon italic(S) arrow.r O_i$, an
-#emph[$n$-agent cost function] $c eq lr((c_1 comma dots.h comma c_n))$
-consists of (local) cost functions
-$c_i colon O_i times italic(A c t)_i arrow.r bb(R)$. The total immediate
-cost $c colon italic(S) times italic(A c t) arrow.r bb(R)$ is
-$c lr((s comma a)) eq sum_(i eq 1)^n c_i lr((italic(p r j)_i lr((s)) comma a lr([i])))$
-for $s in italic(S)$ and $a in italic(A c t)$.
+#definition(name: [$n$-agent cost function])[Given an $n$-agent MDP
+  $cal(M) eq lr((italic(S) comma italic(A c t) comma P))$ with
+  projections $italic(p r j)_i colon italic(S) arrow.r O_i$, an
+  #emph[$n$-agent cost function] $c eq lr((c_1 comma dots.h comma c_n))$
+  consists of (local) cost functions
+  $c_i colon O_i times italic(A c t)_i arrow.r bb(R)$. The total immediate
+  cost $c colon italic(S) times italic(A c t) arrow.r bb(R)$ is
+  $c lr((s comma a)) eq sum_(i eq 1)^n c_i lr((italic(p r j)_i lr((s)) comma a lr([i])))$
+  for $s in italic(S)$ and $a in italic(A c t)$.
+]
 
 An agent policy is obtained by projection, analogous to a local shield.
 Next, we define the notion of instantiating an $n$-agent MDP with a
 policy, yielding an $lr((n minus 1))$-agent MDP.
 
-#strong[Definition 27] (Instantiating an agent). Given an $n$-agent MDP
-$cal(M) eq lr((italic(S) comma italic(A c t) comma P))$ and agent policy
-$pi colon O_i times italic(A c t)_i arrow.r lr([0 comma 1])$, the
-#emph[instantiated MDP] is
-$cal(M)_pi eq lr((italic(S) comma italic(A c t) prime comma P prime))$,
-where
-$italic(A c t) prime eq italic(A c t)_1 times dots.h times italic(A c t)_(i minus 1) times italic(A c t)_(i plus 1) times dots.h times italic(A c t)_n$
-and, for all $s comma s prime in italic(S)$ and
-$a prime in italic(A c t) prime$,
-$P prime lr((s comma a prime comma s prime)) eq sum_(a_i) #h(-1em) pi lr((italic(p r j)_i lr((s)) comma a_i)) dot.op P lr((s comma lr((a prime lr([1]) comma dots.h comma a prime lr([i minus 1]) comma a_i comma a prime lr([i]) comma dots.h comma a prime lr([n minus 1]))) comma s prime))$.
+#definition(name: "Instantiating an agent")[Given an $n$-agent MDP
+  $cal(M) eq lr((italic(S) comma italic(A c t) comma P))$ and agent policy
+  $pi colon O_i times italic(A c t)_i arrow.r lr([0 comma 1])$, the
+  #emph[instantiated MDP] is
+  $cal(M)_pi eq lr((italic(S) comma italic(A c t) prime comma P prime))$,
+  where
+  $italic(A c t) prime eq italic(A c t)_1 times dots.h times italic(A c t)_(i minus 1) times italic(A c t)_(i plus 1) times dots.h times italic(A c t)_n$
+  and, for all $s comma s prime in italic(S)$ and
+  $a prime in italic(A c t) prime$,
+  $P prime lr((s, a', s')) eq sum_(a_i) #h(-0.1em) pi lr((italic(p r j)_i lr((s)), a_i)) dot.op P lr((s, lr((a' lr([1]), dots.h, a' lr([i minus 1]), a_i, a' lr([i]), dots.h, a' lr([n minus 1]))), s'))$.
+]
 
 We will need the concept of a projected, local run of an agent.
 
-#strong[Definition 28] (Local run). Given a run
-$rho eq s_0 a_0 s_1 a_1 dots.h$ over an $n$-agent MDP
-$lr((italic(S) comma italic(A c t) comma P))$, the projection to
-agent $i$ is the #emph[local run]
-$italic(p r j)_i lr((rho)) eq italic(p r j)_i lr((s_0)) thin a_0 lr([i]) thin italic(p r j)_i lr((s_1)) thin a_1 lr([i]) dots.h$
+#definition(name: "Local run")[Given a run
+  $rho eq s_0 a_0 s_1 a_1 dots.h$ over an $n$-agent MDP
+  $lr((italic(S) comma italic(A c t) comma P))$, the projection to
+  agent $i$ is the #emph[local run]
+  $italic(p r j)_i lr((rho)) eq italic(p r j)_i lr((s_0)) thin a_0 lr([i]) thin italic(p r j)_i lr((s_1)) thin a_1 lr([i]) dots.h$
+]
 
 Given a
 policy $pi colon italic(S) times italic(A c t) arrow.r lr([0 comma 1])$,
@@ -861,26 +910,28 @@ $italic(P r) lr((rho divides pi)) eq product_(i eq 0) pi lr((s_i comma a_i)) dot
 We say that agent $i$ depends on agent $j$ if agent $j$’s action choice
 influences the probability for agent $i$ to observe a (local) run.
 
-#strong[Definition 29] (Dependency). Given an $n$-agent MDP
-$lr((italic(S) comma italic(A c t) comma P))$, agent $i$ #emph[depends]
-on agent $j$ if there exists a local run $italic(p r j)_i lr((rho))$ of
-length $ell$ and $n$-agent policies $pi comma pi prime$ that differ only
-in the $j$-th agent policy, i.e.,
-$pi eq lr((pi_1 comma dots.h comma pi_n))$ and
-$pi prime eq lr((pi_1 comma dots.h comma pi_(j minus 1) comma pi_j prime comma pi_(j plus 1) comma dots.h comma pi_n))$,
-such that the probability of observing $italic(p r j)_i lr((rho))$
-under $pi$ and $pi prime$ differ:
-$ sum_(rho prime colon italic(p r j)_i lr((rho prime)) eq italic(p r j)_i lr((rho))) italic(P r) lr((rho prime divides pi)) eq.not sum_(rho prime colon italic(p r j)_i lr((rho prime)) eq italic(p r j)_i lr((rho))) italic(P r) lr((rho prime divides pi prime)) $
-where we sum over all runs $rho prime$ of length $ell$ with the same
-projection.
+#definition(name: "Dependency")[Given an $n$-agent MDP
+  $lr((italic(S) comma italic(A c t) comma P))$, agent $i$ #emph[depends]
+  on agent $j$ if there exists a local run $italic(p r j)_i lr((rho))$ of
+  length $ell$ and $n$-agent policies $pi comma pi prime$ that differ only
+  in the $j$-th agent policy, i.e.,
+  $pi eq lr((pi_1 comma dots.h comma pi_n))$ and
+  $pi prime eq lr((pi_1 comma dots.h comma pi_(j minus 1) comma pi_j prime comma pi_(j plus 1) comma dots.h comma pi_n))$,
+  such that the probability of observing $italic(p r j)_i lr((rho))$
+  under $pi$ and $pi prime$ differ:
+  $ sum_(rho prime colon italic(p r j)_i lr((rho prime)) eq italic(p r j)_i lr((rho))) italic(P r) lr((rho prime divides pi)) eq.not sum_(rho prime colon italic(p r j)_i lr((rho prime)) eq italic(p r j)_i lr((rho))) italic(P r) lr((rho prime divides pi prime)) $
+  where we sum over all runs $rho prime$ of length $ell$ with the same
+  projection.
+]
 
 In practice, we can typically perform an equivalent syntactic check.
 Next, we show how to arrange dependencies in a graph.
 
-#strong[Definition 30] (Dependency graph). The #emph[dependency graph]
-of an $n$-agent MDP is a directed graph $lr((V comma E))$ where
-$V eq brace.l 1 comma dots.h comma n brace.r$ and
-$E eq brace.l lr((i comma j)) divides i upright(" depends on ") j brace.r$.
+#definition(name: "Dependency graph")[The #emph[dependency graph]
+  of an $n$-agent MDP is a directed graph $lr((V comma E))$ where
+  $V eq brace.l 1 comma dots.h comma n brace.r$ and
+  $E eq brace.l lr((i comma j)) divides i upright(" depends on ") j brace.r$.
+]
 
 As the main contribution of this section,
 @algo:learn shows an efficient
@@ -893,22 +944,19 @@ an attractive property.
 
 #figure(kind: "algorithm", supplement: [Algorithm], 
   pseudocode-list(numbered-title: [Cascading shielded learning of $n$-agent policies])[
-    - Input{Shielded $n$-agent MDP $cal(M)_nabla$,  $n$-agent cost function $c = (c_1, dots, c_n)$}
-    - Output{$n$-agent policy $(pi_1, dots, pi_n)$}
-    + Build dependency graph $G$ of $cal(M)_nabla$;
-    + Let $cal(M)' := cal(M)_nabla$;
-    + While(true)
-      + If{there is no node in $G$ with no outgoing edges}
-        + #line-label(<line:error>) error(``Cyclic dependencies are incompatible.''); 
+    - *Input:* Shielded $n$-agent MDP $cal(M)_shield$,  $n$-agent cost function $c = (c_1, dots, c_n)$
+    - *Output:* $n$-agent policy $(pi_1, dots, pi_n)$
+    + Build dependency graph $G$ of $cal(M)_shield$;
+    + Let $cal(M)' := cal(M)_shield$;
+    + *while* (true)
+      + *if* there is no node in $G$ with no outgoing edges
+        + #line-label(<line:error>) error("Cyclic dependencies are incompatible."); 
       + Let $i$ be a node in $G$ with no outgoing edges;
       + #line-label(<line:learn>) Train agent policy~$pi_i$ on the MDP $"sandbox"(cal(M)', i)$ wrt. cost function $c_i$; 
       + Update $G$ by removing node $i$ and all incoming edges;
-
-      + If{$G$ is empty}
-        + Return{$(pi_1, dots, pi_n)$}
-
-      + Update $cal(M)' := cal(M)'_{pi_i}$ #footnote[i.e., instantiated shielded MDP]
-    }
+      + *if* $G$ is empty
+        + *return* $(pi_1, dots, pi_n)$
+      + Update $cal(M)' := cal(M)'_{pi_i}$ #h(1fr) $triangle.r.small$ I.e., instantiated shielded MDP
   ]
 )<algo:learn>
 
@@ -928,11 +976,12 @@ Next, we show an important property of
 @algo:learn: it trains policies
 in-distribution.
 
-#strong[Definition 31] (In-distribution). Given two $1$-agent MDPs
-$cal(M) eq lr((italic(S) comma italic(A c t) comma P))$ and
-$cal(M) prime eq lr((italic(S) comma italic(A c t) comma P prime))$, an
-agent policy $pi$ is #emph[in-distribution] if the probability of any
-local run in $cal(M)$ is the same as in $cal(M) prime$.
+#definition(name: "In-distribution")[Given two $1$-agent MDPs
+  $cal(M) eq lr((italic(S) comma italic(A c t) comma P))$ and
+  $cal(M) prime eq lr((italic(S) comma italic(A c t) comma P prime))$, an
+  agent policy $pi$ is #emph[in-distribution] if the probability of any
+  local run in $cal(M)$ is the same as in $cal(M) prime$.
+]
 
 Now we show that the distribution of observations an agent policy $pi_i$
 makes during training in @algo:learn
@@ -940,20 +989,22 @@ is identical with the distribution of observations made
 in $cal(M)^ast.basic$, the instantiation with #emph[all other] agent
 policies computed by @algo:learn.
 
-#strong[Theorem 3]. #emph[Let $cal(M)$ be an $n$-agent MDP with acyclic
-dependency graph. For every agent $i$, the following holds. Let
-$cal(M)^ast.basic$ be the $1$-agent MDP obtained by iteratively
-instantiating the original MDP $cal(M)$ with policies $pi_j$ for all
-$j eq.not i$. The agent policy $pi_i$ trained with
-@algo:learn is in-distribution
-wrt. $italic(s a n d b o x) lr((cal(M) prime comma i))$ (from
-@line:learn) and $cal(M)^ast.basic$.]
+#theorem[Let $cal(M)$ be an $n$-agent MDP with acyclic
+  dependency graph. For every agent $i$, the following holds. Let
+  $cal(M)^ast.basic$ be the $1$-agent MDP obtained by iteratively
+  instantiating the original MDP $cal(M)$ with policies $pi_j$ for all
+  $j eq.not i$. The agent policy $pi_i$ trained with
+  @algo:learn is in-distribution
+  wrt. $italic(s a n d b o x) lr((cal(M) prime comma i))$ (from
+  @line:learn) and $cal(M)^ast.basic$.
+]
 
-#emph[Proof.] Fix a policy $pi_i$. If $pi_i$ is the last trained policy,
-the statement clearly holds. Otherwise, let $pi_j eq.not pi_i$ be a
-policy that has not been trained at the time when $pi_i$ is trained. The
-algorithm asserts that $pi_i$ has no dependency on $pi_j$. Thus,
-training $pi_i$ yields the same policy no matter how $pi_j$ behaves. ◻
+#proof[Fix a policy $pi_i$. If $pi_i$ is the last trained policy,
+  the statement clearly holds. Otherwise, let $pi_j eq.not pi_i$ be a
+  policy that has not been trained at the time when $pi_i$ is trained. The
+  algorithm asserts that $pi_i$ has no dependency on $pi_j$. Thus,
+  training $pi_i$ yields the same policy no matter how $pi_j$ behaves.
+]
 
 Note that, despite trained in-distribution, the policies are not
 globally optimal. This is because each policy acts egoistically and
@@ -967,24 +1018,26 @@ policy $pi_i$ that can be replaced by another policy $pi_i prime$
 without strictly increasing the expected local cost of at least one
 agent. Indeed:
 
-#strong[Theorem 4]. #emph[If the learning method in
-@line:learn of
-@algo:learn converged to the (local)
-optima, and these optima are unique, then the resulting policies are
-Pareto optimal.]
+#theorem[If the learning method in
+  @line:learn of
+  @algo:learn converged to the (local)
+  optima, and these optima are unique, then the resulting policies are
+  Pareto optimal.
+]
 
-#emph[Proof.] The proof is by induction. Assume #emph[wlog] that the
-policies are trained in the order 1 to $n$. By assumption, $pi_1$ is
-locally optimal and unique. Hence, replacing $pi_1$ by another policy
-would strictly increase its total cost. Now assume we have shown the
-claim for the first $i minus 1$ agents.
-@algo:learn trained policy $pi_i$
-wrt. the instantiation with the
-policies $pi_1 comma dots.h comma pi_(i minus 1)$, and by assumption,
-$pi_i$ is also locally optimal and unique. Thus, again, we cannot
-replace $pi_i$. ◻
+#proof[The proof is by induction. Assume #emph[wlog] that the
+  policies are trained in the order 1 to $n$. By assumption, $pi_1$ is
+  locally optimal and unique. Hence, replacing $pi_1$ by another policy
+  would strictly increase its total cost. Now assume we have shown the
+  claim for the first $i minus 1$ agents.
+  @algo:learn trained policy $pi_i$
+  wrt. the instantiation with the
+  policies $pi_1 comma dots.h comma pi_(i minus 1)$, and by assumption,
+  $pi_i$ is also locally optimal and unique. Thus, again, we cannot
+  replace $pi_i$.
+]
 
-= Evaluation
+== Evaluation
 <sect:evaluation>
 We consider two environments with discretized state spaces.
 #footnote[Available online at
@@ -999,10 +1052,10 @@ policy by partition refinement of the state space. With this learning
 method, only few episodes are needed for convergence. We also compare to
 the (deep) MARL approach MAPPO #cite(label("DBLP:conf/nips/YuVVGWBW22")) later.
 
-== Car Platoon with Adaptive Cruise Controls
+=== Car Platoon with Adaptive Cruise Controls
 <car-platoon-with-adaptive-cruise-controls>
 Recall the car platoon model from
-Section #link(<sect:platoon>)[1.0.0.1]. The front car follows a random
+@sect:platoon. The front car follows a random
 distribution depending on $v_n$ (described in #cite(label("BLS24"))).
 
 The individual cost of an agent is the sum of the observed distances to
@@ -1019,7 +1072,7 @@ properties $phi.alt_i$. Hence, instead of computing $n minus 1$ local
 shields individually, it is sufficient to compute only one local shield
 and reuse it across all agents (by simply adapting the variables).
 
-=== Relative scalability of centralized and distributed shielding
+==== Relative scalability of centralized and distributed shielding
 <relative-scalability-of-centralized-and-distributed-shielding>
 We compare the synthesis of distributed and (non-distributed) classical
 shields. We call the latter #emph[centralized] shields, as they reason
@@ -1044,7 +1097,7 @@ Synthesizing a shield for a single agent covering the full safety
 property ($0 lt d_i lt 200$) took 6.5 seconds, which we will apply to a
 platoon of 10 cars, well out of reach of a centralized shield.
 
-=== Comparing centralized, cascading and MAPPO learning
+==== Comparing centralized, cascading and MAPPO learning
 <comparing-centralized-cascading-and-mappo-learning>
 #figure([#image("../Graphics/AAMAS25/CC 400x150.svg", width: 100%)],
   caption: [
@@ -1065,13 +1118,13 @@ policies using cascading learning
 shielded policies, no safety violations were observed while evaluating
 them.
 
-In the results shown in Figure #link(<fig:cclearning>)[2], the
+In the results shown in @fig:cclearning, the
 centralized policy does not improve with more training. While it could
 theoretically outperform distributed policies through communication, the
 high dimensionality of the state and action space likely prevents that.
 It only marginally improves over the random baseline, which has an
-average cost of $71 comma 871$. On the other hand, cascading learning
-quickly converges to a much better cost as low as $26 comma 435$.
+average cost of $71 thin 871$. On the other hand, cascading learning
+quickly converges to a much better cost as low as $26 thin 435$.
 
 To examine how cascading learning under a distributed shield compares to
 traditional MARL techniques, we implemented the platoon environment in
@@ -1080,16 +1133,16 @@ and trained an unshielded policy with
 MAPPO #cite(label("DBLP:conf/nips/YuVVGWBW22")), a state-of-the-art MARL
 algorithm based on PPO #cite(label("DBLP:journals/corr/SchulmanWDRK17")), using
 default hyperparameters. To encourage safe behavior, we added a penalty
-of $1 comma 600$ to the cost function for every step upon reaching an
+of $1 thin 600$ to the cost function for every step upon reaching an
 unsafe state. (This value was obtained by starting from $100$ and
 doubling it until safety started degrading again.) Recall that shielded
 agents are safe.
 
 We include the training outcomes for MAPPO in
-Figure #link(<fig:cclearning>)[2]. Due primarily to the penalty of
+@fig:cclearning. Due primarily to the penalty of
 safety violations, the agents often have a cost greater than
-$100 comma 000$, even at the end of training. However, the best MAPPO
-policy achieved a cost of just $16 comma 854$, better than the cascading
+$100 thin 000$, even at the end of training. However, the best MAPPO
+policy achieved a cost of just $16 thin 854$, better than the cascading
 learning method. We inspected that policy and found that the cars drive
 very closely, accepting the risk of a crash. Overall, there is a large
 variance of the MAPPO policies in different runs, whereas cascading
@@ -1108,12 +1161,12 @@ effective.
 <fig:ccmappopercentagesafe>
 
 Since the MAPPO policy is not safe by construction,
-Figure #link(<fig:ccmappopercentagesafe>)[3] shows the percentage of
-safe episodes, out of $1 comma 000$ episodes. The agents tend to be
+@fig:ccmappopercentagesafe shows the percentage of
+safe episodes, out of $1 thin 000$ episodes. The agents tend to be
 safer with more training, but there is no inherent guarantee of safety,
 and a significant amount of violations remain.
 
-== Chemical Production Plant
+=== Chemical Production Plant
 <chemical-production-plant>
 In the second case study, we demonstrate that distributed shielding
 applies to complex dependencies where agents influence multiple other
@@ -1153,7 +1206,7 @@ also not run empty to ensure the consumers’ demand is met. That is, the
 safety property is
 $phi.alt eq brace.l s divides and.big_i v_i lt 50 and 0 lt v_9 and 0 lt v_10 brace.r$.
 
-=== Shielding.
+==== Shielding.
 <shielding.-1>
 The property $0 lt v_9$ cannot be enforced by a local shield for
 agent $9$ without additional assumptions that the other agents do not
@@ -1169,7 +1222,7 @@ shields, one for each variant, and adapt them to analogous agents.
 Computing a centralized shield would again be infeasible, while
 computing the distributed shield took less than 1 second.
 
-=== Comparing centralized and cascading learning
+==== Comparing centralized and cascading learning
 <comparing-centralized-and-cascading-learning>
 #figure([#image("../Graphics/AAMAS25/CP 400x150.svg", width: 100%)],
   caption: [
@@ -1188,12 +1241,12 @@ only depend on agents 9 to 10, etc. Thus, the agent training order is
 
 We compare the results of shielded cascading learning, shielded
 centralized learning, MAPPO, and shielded random agents in
-Figure #link(<fig:cplearning>)[4]. Centralized learning achieved a cost
+@fig:cplearning. Centralized learning achieved a cost
 of $292$. The lowest cost overall, $172$, was achieved by cascading
 learning. We compare this to the (unshielded) MAPPO agents, whose lowest
 cost was $291$. More background information is given in #cite(label("BLS24")).
 
-= Conclusion
+== Conclusion
 <sect:conclusion>
 In this paper, we presented distributed shielding as a scalable MA
 approach, which we made practically applicable by integrating

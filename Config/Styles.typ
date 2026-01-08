@@ -97,7 +97,7 @@
     theorem, lemma, corollary,
     remark, proposition, example,
     proof, rules: thm-rules
-  ) = default-theorems("thm-group", lang: "en")
+  ) = default-theorems("thm-group", lang: "en", thm-numbering: thm-numbering-linear, max-reset-level: 1)
 
   show: thm-rules
   
@@ -107,6 +107,16 @@
     stroke: 0.5pt,
     inset: 1em
   )
+  
+  show thm-selector("thm-group", subgroup: "definition"): it => {
+    it
+    v(-1em) // I don't know how to do this properly :< 
+  }
+  
+  show thm-selector("thm-group", subgroup: "proof"): it => {
+    v(-1em) // Proofs should come right after a lemma or something, and be visually grouped with it.
+    it
+  }
 
 
   // Gotta end with this doc or it all breaks

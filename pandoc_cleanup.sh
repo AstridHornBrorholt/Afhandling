@@ -10,6 +10,7 @@ sed -r "Mainmatter/Pandoc Conversions/Compositional Shielding and Reinforcement 
     -e 's| ?#cite\((".*"), (".*"), (".*")\)| #cite(label(\1)) #cite(label(\2)) #cite(label(\3))|g' \
     -e 's| ?#cite\((".*"), (".*")\)| #cite(label(\1)) #cite(label(\2))|g' \
     -e 's| ?#cite\((".*")\)| #cite(label(\1))|g' \
+    -e 's|[A-Za-z.]+ #link\(<(.*)>\)\[\d+\]|@\1|g' \
     -e 's|[A-Za-z.]+ #link\(<(.*)>\)\[\\\[.+\\\]\]|@\1|g' \
     > "Mainmatter/Compositional Shielding and Reinforcement Learning for Multi-agent Systems.typ"
 # [A-Z][a-z]+ #link\(\<(.*)\>\)\[\\\[.*\\\]\]
