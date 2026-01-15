@@ -52,3 +52,13 @@
   $1$, $2$, $3$,
   align: center + horizon
 )
+
+#let todo(content) = {
+  set text(font: "Fira Code", size: 8pt) 
+  h(-3.8em)
+  text(fill: green, weight: "bold")[TODO: ]
+  content
+  [ \ ]
+}
+
+#let citationneeded(content) = if (not (content == [] or content == none)) {super[\[#text(fill:red, content)\]]} else {super[\[#text(fill: red, "Citation Needed")\]]}

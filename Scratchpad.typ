@@ -3,6 +3,6 @@
 
 #show: apply_style
 
-#include "Mainmatter/Uppaal Coshy: Automatic Synthesis of Compact Shields for Hybrid Systems.typ"
+#include "Mainmatter/Introduction.typ"
 
 #bibliography("Bibliography.bib")

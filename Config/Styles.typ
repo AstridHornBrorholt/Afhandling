@@ -29,9 +29,9 @@
   set text(
     // font: "Merriweather",
     // font: "Roboto Slab",
-    font: "Gentium Book Plus",
     // font: "Noto Sans Georgian",
     // font: "EB Garamond 08", 
+    font: "Gentium Book Plus",
     size: 10pt)
 
   set par(leading: 0.54em, justify: true)  // Fiddled with it till it matched the other pdf.
