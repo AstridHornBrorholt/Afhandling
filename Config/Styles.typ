@@ -84,6 +84,10 @@
     set text(size: 10pt)
     it
   }
+  show heading.where(level: 5): it => {
+    set text(size: 10pt, weight: "regular", style: "italic")
+    it.body
+  }
 
   // Table of Contents
   show outline.entry: it => {

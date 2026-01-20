@@ -10,7 +10,7 @@
 }
 
 #let fallback = {set text(fill: white); $nabla$}
-#let shield = $fallback #h(-0.65em) #image("../Graphics/shield.svg", height: 0.6em)$
+#let shield = $fallback #h(-0.65em) #image("../Graphics/Shield.svg", height: 0.6em)$
 
 #shield
 
@@ -62,3 +62,6 @@
 }
 
 #let citationneeded(content) = if (not (content == [] or content == none)) {super[\[#text(fill:red, content)\]]} else {super[\[#text(fill: red, "Citation Needed")\]]}
+
+// Cite Label (CL) shorthand to use mostly with dblp
+#let cl(label_string) = cite(label(label_string))

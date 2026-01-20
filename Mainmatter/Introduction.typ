@@ -1,9 +1,24 @@
 #import "../Config/Macros.typ" : *
+#import "@preview/cetz:0.4.2"
+#import "@preview/subpar:0.2.2"
 
 #[
   #set heading(numbering: none)
   = Introduction 
 ]
+
+#cetz.canvas({
+  import cetz.draw: *
+  
+  content((1, 0),  text("🤖", size:  50pt) + v(25pt), name: "Agent")
+  content((10, 0),  text("🌏", size:  50pt) + v(25pt), name: "System")
+  content((5,0),  image("../Graphics/Shield.svg", height: 60pt) + v(-10pt), name: "Shield")
+  line("Agent.east", "Shield.center", stroke: (paint: alizarin, thickness: 5pt))
+  on-layer(-1, {
+    line("Agent.east", "Shield.east", stroke: (paint: alizarin, thickness: 5pt))
+    line("Shield.east", "System.west",  stroke: (paint: emerald, thickness: 5pt), mark: (end:  (symbol: ">")))
+  })
+})
 
 Digital control of physical components enables time-saving automation and efficient use of available resources.
 This can range from a simple on/off switch to a complex neural network managing multiple processes. 
@@ -43,10 +58,96 @@ Since this first article covering shielded reinforcement learning in finite MDPs
 #todo[Some figure showing the shielded reinforcement learning loop, or other.]
 
 #todo[An example around here somewhere would be helpful.]
+#todo[Define maximally permissive]
 
-==== Pre- and Post-shielding 
+== Reinforcement Learning
 
-#todo[There is confusion of definitions here. In our AISOLA23 paper, we refer to whether the shield is in place during learning. Other literature has a totally different definition of these terms. What do?]
+I do need a pretty thorough section on reinforcement learning.
+I also need to explain the idea of a separate learning phase and an operational phase. This is not a thing in normal RL I don't think but it's important for our definition of post-hoc shielding.
+
+
+== Applying the Shield
+
+The methods of corrective action taken by the shield can vary depending on the model and the application. 
+The terms pre- and post-shielding have been used in the literature to describe a shield's relationship with the controller, but with two distinct sets of meaning:
+
+ + In one part of the literature, pre- and post-shielding refer to _how_ the shield ensures only safe actions are enacted upon the enviornment #citationneeded[Most articles on the subject, actually].
+ + Alternatively the terms can refer to _when_ a shield is applied, in the process of obtaining a controller @jakobs_thesis @BrorholtJLLS23.
+
+In the following, we shall use the terms pre- and post-shielding to mean the former, while we dub the latter meaning resp. end-to-end shielding and post-hoc shielding.
+
+===== Pre-shielding
+This term to the shield restricting the behaviour the controller, by providing a set of actions that are permitted for the given state.
+The controller must be set up in such a way as to only pick an action if it is included in the set it receives from the shield. 
+
+===== Post-shielding
+Contrary to pre-shielding, this configuration is transparent to the controller.
+In post-shielding the controller outputs an action to the shield, rather than sending it directly to the environment. 
+The shield then evaluates the action, checking if it is in the set of permissible actions.
+If the action is permitted, it is sent to the environment unaltered. 
+Otherwise, the action is replaced with an alternative, permissible action. 
+
+
+
+#subpar.grid(columns: 2,
+  figure(
+    cetz.canvas({
+      import cetz.draw: *
+      
+      content((1, 0),  image("../Graphics/Intro/Student.png", height: 40pt), name: "Student")
+      content((1, 0),  v(10pt) + image("../Graphics/Shield Covering.svg", height: 55pt), name: "Shield1")
+      content((1, 0.8), [Training])
+
+      content((3, 0),  image("../Graphics/Intro/Worker.png", height: 40pt), name: "Worker")
+      content((3, 0),  v(10pt) + image("../Graphics/Shield Covering.svg", height: 55pt), name: "Shield2")
+      content((3, 0.8), [Operation])
+      
+      line("Student", "Worker", mark: (end: ">"))
+    }),
+  caption: [End-to-end shielding]
+  ),
+  figure(
+      cetz.canvas({
+      import cetz.draw: *
+      
+      content((1, 0),  image("../Graphics/Intro/Student.png", height: 40pt), name: "Student")
+      content((1, 0.8), [Training])
+
+      content((3, 0),  image("../Graphics/Intro/Worker.png", height: 40pt), name: "Worker")
+      content((3, 0),  v(10pt) + image("../Graphics/Shield Covering.svg", height: 55pt), name: "Shield2")
+      content((3, 0.8), [Operation])
+      
+      line("Student", "Worker", mark: (end: ">"))
+    }),
+    caption:[Post-hoc shielding]
+  ),
+  caption: [The shield may or may not be in place during training.],
+  label: <when_shielding>
+)
+
+===== End-to-end Shielding
+In the context of reinforcement learning, end-to-end shielding refers to having the shield in place during _both_ the learning  _and_ operational phases.
+This is necessary if the agent is interacting with a real-life system where safety violations during training are to be avoided.
+End-to-end shielding was seen in #cl("DBLP:conf/aaai/AlshiekhBEKNT18") to lead to faster convergence, as the shield acts as a teacher guiding the agent away from undesireable behaviours. 
+
+More generally, end-to-end shielding describes the process of integrating the shield in the design process of the controller,  omitting unsafe actions from consideration.
+
+===== Post-hoc Shielding
+Alternatively, the shield can be applied only in the operational phase, allowing the agent to explore unsafe actions during learning.
+This can lead to slower convergence, since the agent spends time exploring unsafe states and (ideally) learning to avoid them. 
+It is concievable that the shield does not alter the behaviour of the agent.
+This can happen if the shield is maximally permissive while the agent has learned to behave safely. 
+However, in other cases the shield may interfere with the policy learned by the agent, which violates the key assumption of RL that the environment remains static #citationneeded[].
+
+Outside the context of RL, the term describes applying the shield as a guardrail of a controller that has been designed without the shield as reference.
+Thus, an existing controller can be upgraded to give formal safety guarntees by applying a post-hoc shield in cases where altering the controller itself would be costly. 
+
+#figure(table(columns: 2,
+  table.header([Method of correction], [Time of correction]),
+  [Pre-shielding], [End-to-end shielding],
+  [Post-shielding], [Post-hoc shielding]),
+  caption: [A term from each column can be combined to describe how the shield works in tandem with the controller.],
+)
 
 ==== Convergence Guarantees
 
