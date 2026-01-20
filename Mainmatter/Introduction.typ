@@ -76,6 +76,18 @@ The terms pre- and post-shielding have been used in the literature to describe a
 
 In the following, we shall use the terms pre- and post-shielding to mean the former, while we dub the latter meaning resp. end-to-end shielding and post-hoc shielding.
 
+
+#subpar.grid(columns: 2,
+  figure(include("../Graphics/Intro/Pre-shielding.typ"),
+  caption: [Pre-shielding]
+  ),
+  figure(include("../Graphics/Intro/Post-shielding.typ"),
+    caption: [Post-shielding]
+  ),
+  caption: [The shield can enforce safety in multiple ways],
+  label: <when_shielding>
+)
+
 ===== Pre-shielding
 This term to the shield restricting the behaviour the controller, by providing a set of actions that are permitted for the given state.
 The controller must be set up in such a way as to only pick an action if it is included in the set it receives from the shield. 
@@ -90,35 +102,10 @@ Otherwise, the action is replaced with an alternative, permissible action.
 
 
 #subpar.grid(columns: 2,
-  figure(
-    cetz.canvas({
-      import cetz.draw: *
-      
-      content((1, 0),  image("../Graphics/Intro/Student.png", height: 40pt), name: "Student")
-      content((1, 0),  v(10pt) + image("../Graphics/Shield Covering.svg", height: 55pt), name: "Shield1")
-      content((1, 0.8), [Training])
-
-      content((3, 0),  image("../Graphics/Intro/Worker.png", height: 40pt), name: "Worker")
-      content((3, 0),  v(10pt) + image("../Graphics/Shield Covering.svg", height: 55pt), name: "Shield2")
-      content((3, 0.8), [Operation])
-      
-      line("Student", "Worker", mark: (end: ">"))
-    }),
+  figure(include("../Graphics/Intro/End-to-end Shielding.typ"),
   caption: [End-to-end shielding]
   ),
-  figure(
-      cetz.canvas({
-      import cetz.draw: *
-      
-      content((1, 0),  image("../Graphics/Intro/Student.png", height: 40pt), name: "Student")
-      content((1, 0.8), [Training])
-
-      content((3, 0),  image("../Graphics/Intro/Worker.png", height: 40pt), name: "Worker")
-      content((3, 0),  v(10pt) + image("../Graphics/Shield Covering.svg", height: 55pt), name: "Shield2")
-      content((3, 0.8), [Operation])
-      
-      line("Student", "Worker", mark: (end: ">"))
-    }),
+  figure(include("../Graphics/Intro/Post-hoc Shielding.typ"),
     caption:[Post-hoc shielding]
   ),
   caption: [The shield may or may not be in place during training.],
@@ -126,7 +113,7 @@ Otherwise, the action is replaced with an alternative, permissible action.
 )
 
 ===== End-to-end Shielding
-In the context of reinforcement learning, end-to-end shielding refers to having the shield in place during _both_ the learning  _and_ operational phases.
+In the context of reinforcement learning, when the shield is in place during _both_ the learning  _and_ operational phases, this is called end-to-end shielding.
 This is necessary if the agent is interacting with a real-life system where safety violations during training are to be avoided.
 End-to-end shielding was seen in #cl("DBLP:conf/aaai/AlshiekhBEKNT18") to lead to faster convergence, as the shield acts as a teacher guiding the agent away from undesireable behaviours. 
 
