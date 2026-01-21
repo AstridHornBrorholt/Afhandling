@@ -26,4 +26,4 @@ $copyright$ Copyright: Astrid Horn Brorholt
 
 #v(1em)
 
-Use of AI: This thesis explores safe reinforcement learning. Large language models have not been used to produce any text presented in this thesis. Generative AI has been used in a limited capacity for generation of source code in experiments, primarily to resolve issues of syntax and API. 
+Use of AI: This thesis explores safe reinforcement learning. Large language models have not been used to produce any text presented in this thesis. Generative AI has been used to a limited extent for generating parts of figures, and for generation of source code in experiments.
