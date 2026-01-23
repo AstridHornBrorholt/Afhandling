@@ -45,9 +45,14 @@ An MDP can be described by a tuple $(S, s_0 Act, P, R)$ where
  - and $R : S times Act -> RR$ gives the reward $R(s, a)$ for taking action $a$ in state $s$.
 
 A _policy_ (or strategy) is any method -- such as a reinforcement learning agent -- for choosing the next action from a given state. 
-Policies can either be _deterministic_ $pi : S -> Act$, uniquely selecting one specific action for each state, _probabilistic_ $rho : S times Act -> [0; 1]$, giving a probability distribution over actions, or _nondeterministic_ $sigma : S -> powerset(Act)$
+Policies can either be 
+ - _probabilistic_ $S times Act -> [0; 1]$, giving a probability distribution over actions, 
+ - _deterministic_ $S -> Act$, uniquely selecting one specific action for each state, 
+ - or _nondeterministic_ $S -> powerset(Act)$, giving a subset $A in Act$ of actions, one of which may be chosen according to some other mechanism.
 
-Given a e.g. deterministic policy $pi : S -> Act$, the outcomes of an MDP are sequences of states and actions interleaved $s_0 a_0 s_1 a_1 s_2 a_2 ...$ such that $pi(s_i) = a_i$ and $P(s_i, a_i, s_(i+1)) > 0$.
+Given an e.g. nondeterministic policy $sigma : S -> [0; 1]$, a trace $xi$ of an MDP is an interleaved series of states and actions $xi = s_0 a_0 s_1 a_1 s_2 a_2 ...$ such that $a_i in sigma(s_i)$ and $P(s_i, a_i, s_(i+1)) > 0$. 
+Traces can be both finite or infinite. 
+Given a set $phi subset S$ of safe states, we say a trace is safe (with regards to $phi$) if for every $s_i$ in $xi$, $s_i in phi$.
 
 #figure(include("../Graphics/Intro/Unshielded.typ"), caption: [The reinforcement learning loop.] )<fig:RL>
 
@@ -59,6 +64,8 @@ Technical limitations during operations may also preclude learning, such as redu
 
 == Shielding
 
+#todo[Introduce safety as a set of states, as opposed to liveness]
+
 Even when a controller cannot be verified directly, other approaches can be used to verify the safety of the system as a whole.
 In @DavidJLLLST14 it was shown how a safety property can be enforced through a maximally permissive, non-deterministic strategy.
 While acting within the constraints of this strategy, reinforcement learning was utilized to optimize for a second objective, achieving a near-optimal strategy within the safety constraints.
@@ -68,8 +75,6 @@ Thus, the behaviour of the shield and controller together is verifiably safe, as
 Contrary to runtime monitors #citationneeded[], which enforce a property by halting the system if the property is not satisfied, the shield will intervene by altering the actions of the controller without knowing future input/output.
 The authors proposed guarantees of minimal interference, and a property of $k$-stabilization, which states that the shield will at most intervene $k$ times before control is handed back to the controller.
 
-#todo[This was for finite MDPs]
-
 This concept was extended to a framework of *shielded reinforcement learning* in @AlshiekhBEKNT18.
 Here, a shield monitors and possibly corrects the actions of a learning agent, which enables safe exploration.
 This enables the safe use of complex learning agents that can achieve cost optimal behaviour.
@@ -78,6 +83,10 @@ The paper also points out that a shield can be synthesized from an *abstract mod
 Such an abstraction could be significantly simpler than the full system, allowing shielded reinforcement learning to scale to systems where other methods for safe and optimal control are infeasible.
 
 Since this first article covering shielded reinforcement learning in finite MDPs, other shielding methods building upon the same framework have been described in the literature #citationneeded[Every shielded RL article I have on hand].
+
+A shield can be viewed as a nondeterministic strategy $shield : S -> powerset(Act)$ for a safety property $phi$ on an MDP $mdp$ such that any trace $xi$ that is an outcome of $shield$ is safe with regards to $phi$.
+A shield $shield^*$ is said to be  _maximally permissive_ (or minimally interfering) @BloemKKW15 @AlshiekhBEKNT18 @PaperA if for all shields $shield$ that are safe wrt. $mdp$ and $phi$, 
+
 
 #todo[An example around here somewhere would be helpful.]
 #todo[Define maximally permissive]

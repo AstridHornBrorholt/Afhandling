@@ -55,6 +55,7 @@
 
 #let todo(content) = {
   set text(font: "Fira Code", size: 8pt, fill: wetasphalt) 
+  [\ ]
   h(-3.8em)
   text(fill: green, weight: "bold")[TODO: ]
   content
