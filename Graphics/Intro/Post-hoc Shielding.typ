@@ -1,5 +1,5 @@
 #import "@preview/cetz:0.4.2"
-#import "../../Config/Colors.typ" : *
+#import "../../Config/Colours.typ" : *
 
 #cetz.canvas({
   import cetz.draw: *

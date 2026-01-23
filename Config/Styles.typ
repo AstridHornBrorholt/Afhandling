@@ -13,7 +13,7 @@
 // Please notice that new chapters must start on a right-hand page. This can be secured in Word by using the "Breaks" functionality and choosing "Odd page". See guide for two page view
 
 #import "@preview/lemmify:0.1.8": *
-#import "Colors.typ" : *
+#import "Colours.typ" : *
 
 
 #let apply_style(doc) = {
