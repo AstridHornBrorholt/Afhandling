@@ -23,8 +23,6 @@ This performance is achieved by controllers that use a high number of neurons, m
 
 #todo[Mention the term multi-objective optimization and the trade-off between safety and efficiency.]
 
-== Safety
-
 == Reinforcement Learning
 
 Reinforcement learning @kaelbling1996reinforcement @arulkumaran2017deep is a major class of machine learning techniques along with supervised learning, and unsupervised learning @alloghani2020systematic.
@@ -218,9 +216,9 @@ There is no silver bullet.
 
 == State of the Art
 
-=== Hybrid Systems
+=== Shielding of Hybrid Systems
 
-=== Tools
+=== Tools for Shielding
 #citationneeded[uppaal] #citationneeded[storm]  #citationneeded[tempest]
 
 === Multi-agent Shielding
@@ -229,20 +227,17 @@ There is no silver bullet.
 == Research Statement and Goals
 ...
 
-== Contributions to the Field
-...
-
-== Summary of Papers
+=== Summary of Papers
 ...
 
 #[
   #set heading(numbering: none)
-  === Paper A: Shielded Reinforcement Learning for Hybrid systems
+  ==== Paper A: Shielded Reinforcement Learning for Hybrid systems
   ...
-  === Paper B: Efficient Shield Synthesis via State-space Transformation
+  ==== Paper B: Efficient Shield Synthesis via State-space Transformation
   ...
-  === Paper C: Compositional Shielding and Reinforcement Learning for Multi-agent Systems
+  ==== Paper C: Compositional Shielding and Reinforcement Learning for Multi-agent Systems
   ...
-  === Paper D: #smallcaps[Uppaal Coshy] - Automatic Synthesis of Compact Shields for Hybrid Systems
+  ==== Paper D: #smallcaps[Uppaal Coshy] - Automatic Synthesis of Compact Shields for Hybrid Systems
   ...
 ]
