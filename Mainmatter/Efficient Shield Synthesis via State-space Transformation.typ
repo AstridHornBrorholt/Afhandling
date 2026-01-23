@@ -88,7 +88,7 @@ performance of the final controller (in fact, the performance slightly
 increases).
 
 Our implementation is based on our previous work on sampling-based
-shield synthesis #cite(label("BrorholtJLLS23")). The present work integrates
+shield synthesis #cite(label("PaperA")). The present work integrates
 nicely with such a sampling-based method, but also generalizes to
 set-based methods.
 
@@ -588,7 +588,7 @@ as the special case where $f$ is the identity.
 === Shielding and Learning
 <shielding-and-learning>
 We assume the reader is familiar with the principles of reinforcement
-learning. Here we shortly recall from #cite(label("BrorholtJLLS23")) how to
+learning. Here we shortly recall from #cite(label("PaperA")) how to
 employ $sigma^(cal(G))$ for safe reinforcement learning. The input is a
 Markov decision process (MDP) and a reward function, and the output is a
 controller maximizing the expected cumulative return. The MDP is a model
@@ -637,7 +637,7 @@ available here: \
 For the first two models, we use domain knowledge to select a suitable
 transformation. For the third model, we instead derive a transformation
 experimentally. The implementation builds on our synthesis
-method #cite(label("BrorholtJLLS23")).
+method #cite(label("PaperA")).
 
 === Satellite Model
 <satellite-model>
@@ -776,7 +776,7 @@ transformed shield is both easier to compute and more precise.
 )
 
 For the second case study, we consider the model of a bouncing ball
-from #cite(label("BrorholtJLLS23")). @fig:bouncing_ball shows
+from #cite(label("PaperA")). @fig:bouncing_ball shows
 an illustration of the system, while @fig:bb_automaton
 shows the hybrid-automaton model. The state space consists of the
 velocity $v$ and the position $p$ of the ball. When the ball hits the
@@ -800,7 +800,7 @@ the total cost.
 Despite its simple nature, this model has quite intricate dynamics,
 including stochastic and hybrid events that require zero-crossing
 detection, which makes determining reachability challenging. It was
-shown in #cite(label("BrorholtJLLS23")) that a sampling-based shield synthesis
+shown in #cite(label("PaperA")) that a sampling-based shield synthesis
 is much more scalable than an approach based on guaranteed reachability
 analysis ($19$ minutes compared to $41$ hours). The grid needs to be
 quite fine-grained to obtain a fixpoint where not every cell is marked

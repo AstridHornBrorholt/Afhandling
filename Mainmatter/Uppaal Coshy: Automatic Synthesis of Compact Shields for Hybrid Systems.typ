@@ -36,7 +36,7 @@
 #v(1fr)
 
 #heading(level: 2, numbering: none)[Abstract]
-We present #smallcaps[Upppaal Coshy], a tool for automatic synthesis of a safety strategy---or _shield_---for Markov decision processes over continuous state spaces and complex hybrid dynamics. The general methodology is to partition the state space and then solve a two-player safety game #cite(label("DBLP:conf/vecos/BrorholtJLLS23")), which entails a number of algorithmically hard problems such as reachability for hybrid systems. The general philosophy of #smallcaps[Upppaal Coshy] is to approximate hard-to-obtain solutions using simulations. Our implementation is fully automatic and supports the expressive formalism of #smallcaps[Uppaal] models, which encompass stochastic hybrid automata.
+We present #smallcaps[Upppaal Coshy], a tool for automatic synthesis of a safety strategy---or _shield_---for Markov decision processes over continuous state spaces and complex hybrid dynamics. The general methodology is to partition the state space and then solve a two-player safety game #cite(label("PaperA")), which entails a number of algorithmically hard problems such as reachability for hybrid systems. The general philosophy of #smallcaps[Upppaal Coshy] is to approximate hard-to-obtain solutions using simulations. Our implementation is fully automatic and supports the expressive formalism of #smallcaps[Uppaal] models, which encompass stochastic hybrid automata.
 
 The precision of our partition-based approach benefits from using finer grids, which however are not efficient to store. We include an algorithm called  #smallcaps[caap] to efficiently compute a compact representation of a shield in the form of a decision tree, which yields significant reductions.
 
@@ -47,7 +47,7 @@ The precision of our partition-based approach benefits from using finer grids, w
 <introduction>
 In prior work, we proposed an algorithm to synthesize #emph[shields]
 (i.e., nondeterministic safety strategies) for Markov decision processes
-with hybrid dynamics #cite(label("DBLP:conf/vecos/BrorholtJLLS23")). The
+with hybrid dynamics #cite(label("PaperA")). The
 algorithm partitions the state space into finitely many cells and then
 solves a two-player safety game, where it uses approximation through
 simulation to efficiently tackle algorithmically hard problems. In this
@@ -67,7 +67,7 @@ demonstrate that this algorithm leads to significant reductions as part
 of the workflow in #smallcaps[Uppaal Coshy].
 
 An extended version of this paper is available
-online #cite(label("arxiv_version")).
+online #cite(label("PaperD_arxiv")).
 
 === Related Tools for Shield Synthesis and Compact Representation
 <related-tools-for-shield-synthesis-and-compact-representation>
@@ -110,7 +110,7 @@ boundaries.
 <sect:shielding_algorithm>
 In this section, we recall a general shield synthesis algorithm for
 hybrid systems outlined in prior
-work #cite(label("DBLP:conf/vecos/BrorholtJLLS23")). We start by recalling the
+work #cite(label("PaperA")). We start by recalling the
 formalism for control systems.
 
 === Euclidean Markov Decision Processes
@@ -134,7 +134,7 @@ For simplicity, the state space $S$ is continuous. However, the
 extension to discrete variables, e.g., locations of hybrid components,
 is straightforward. Since optimizing strategies is not our focus, we do
 not formally introduce the notion of cost and rely on the reader’s
-intuition. (See #cite(label("DBLP:conf/vecos/BrorholtJLLS23")) for details.)
+intuition. (See #cite(label("PaperA")) for details.)
 
 A #emph[run] $pi$ of an EMDP is an alternating sequence
 $pi eq s_0 a_0 s_1 a_1 dots.h$ of states and actions such that
@@ -173,7 +173,7 @@ to $phi$ if all outcomes of $sigma$ are safe.
 
 We introduce our running example: a #emph[bouncing ball] that can be hit
 by a player to keep it
-bouncing #cite(label("DBLP:conf/vecos/BrorholtJLLS23")) #cite(label("DBLP:conf/atva/JaegerJLLST19")).
+bouncing #cite(label("PaperA")) #cite(label("DBLP:conf/atva/JaegerJLLST19")).
 We shortly explain our two-component #smallcaps[Uppaal] model. The player component
 is shown in @fig:player. In the (initial) location `Choose`, there
 are two available control actions (solid lines). The player chooses
@@ -199,7 +199,7 @@ is never reached, i.e., $phi = { s | #[Ball is not in `Stop` in] s}$.
 Since an EMDP consists of infinitely many states, we employ a
 finite-state abstraction. For that, we partition the state space
 $S subset.eq bb(R)^k$ with a regular #emph[rectangular] grid.
-(In #cite(label("DBLP:conf/vecos/BrorholtJLLS23")), we only allowed a grid of
+(In #cite(label("PaperA")), we only allowed a grid of
 uniform size in all dimensions.) Formally, given a (user-defined)
 granularity vector $gamma in bb(R)^k$ and offset
 vector $omega in bb(R)^k$, we partition the state space into disjoint
@@ -241,7 +241,7 @@ $ nu_phi lr((C)) eq brace.l a in A divides forall C prime in cal(P)_gamma^omega 
 
 A shield $nu$ for $cal(T)_(cal(M) comma gamma comma omega)$ induces a
 shield $sigma$ for $cal(M)$ in the standard
-way #cite(label("DBLP:conf/vecos/BrorholtJLLS23")):
+way #cite(label("PaperA")):
 
 <thm:safety-transfer> Given an EMDP $cal(M)$, a safety
 property $phi subset.eq S$, and a grid $cal(P)_gamma^omega$, if $nu$ is
@@ -355,7 +355,7 @@ error location.
 <sect:reachability>
 We approximate cell reachability $C arrow.r^a C prime$, as defined in
 @eq:cell_reachability, similarly
-to #cite(label("DBLP:conf/vecos/BrorholtJLLS23")) but adapted to work in
+to #cite(label("PaperA")) but adapted to work in
 Uppaal. In a #smallcaps[Uppaal] model, actions $a in A$ correspond to controllable
 edges (indicating that the controller can act).
 
@@ -365,15 +365,15 @@ $a$, which gives us a new state $s prime$; starting from $s prime$, we
 simulate the environment (using the built-in simulator in #smallcaps[Uppaal]) until
 a state $s prime.double$ is reached in which the controller has the next
 choice (i.e., multiple action edges are enabled) again.
-#footnote[Where #cite(label("DBLP:conf/vecos/BrorholtJLLS23")) required a fixed
+#footnote[Where #cite(label("PaperA")) required a fixed
 control period, #smallcaps[Uppaal Coshy] supports non-periodic control.
-This is demonstrated in #cite(label("arxiv_version")).] Thus, $s prime.double$
+This is demonstrated in #cite(label("PaperD_arxiv")).] Thus, $s prime.double$
 is a witness to add the corresponding
 cell $lr([s prime.double])_(cal(P)_gamma^omega)$ to the transition
 relation $C arrow.r^a lr([s prime.double])_(cal(P)_gamma^omega)$.
 Assuming the simulator is numerically sound, the resulting transition
 system underapproximates $cal(T)_(cal(M) comma gamma comma omega)$. As
-observed in #cite(label("DBLP:conf/vecos/BrorholtJLLS23")), the more
+observed in #cite(label("PaperA")), the more
 simulations are run, the more likely do we obtain the true solution. To
 check whether this underapproximation is sufficiently accurate, the
 existing queries for statistical model checking in #smallcaps[Uppaal] can be used,
@@ -381,7 +381,7 @@ as we shall see in @sect:coshyevaluation.
 
 In general, two simulations starting in the state $s$ may not yield the
 same state $s prime.double$ due to stochasticity.
-In #cite(label("DBLP:conf/vecos/BrorholtJLLS23")), stochasticity was treated as
+In #cite(label("PaperA")), stochasticity was treated as
 additional dimensions over which to sample (systematically). This was
 possible by manually crafting the reachability sampling for each model.
 Detecting stochastic behavior in #smallcaps[Uppaal] models automatically turned out
@@ -674,7 +674,7 @@ We note that the algorithm is not guaranteed to find a local optimum.
 One reason is that the repair only expands in one dimension. This choice
 is deliberate to keep the algorithm efficient and avoid a combinatorial
 explosion. A more detailed description including pseudocode can be found
-in #cite(label("arxiv_version")).
+in #cite(label("PaperD_arxiv")).
 
 == Case Studies and Evaluation
 <sect:coshyevaluation>
@@ -755,7 +755,7 @@ benchmark the implementations on several models.
 sequence of queries on the #emph[bouncing ball] example to produce a
 safe and efficient strategy (cf. @fig:workflow).
 Documentation of the new query syntax is available online and
-in #cite(label("arxiv_version")).
+in #cite(label("PaperD_arxiv")).
 #footnote[#link("https://docs.uppaal.org/language-reference/query-syntax/controller_synthesis/#approximate-control-queries")[https://docs.uppaal.org/language-reference/query-syntax/controller\_synthesis/\#approximate-control-queries]]
 
 In Query 1, we train a strategy called , which is only concerned with
@@ -809,21 +809,21 @@ unsafe.
 )
 
 State-space transformations can be used to synthesize a shield more
-efficiently #cite(label("DBLP:conf/vecos/BrorholtHLS24")). Since #smallcaps[Uppaal]
+efficiently #cite(label("PaperB")). Since #smallcaps[Uppaal]
 supports function calls, transformations can be applied by modifying the
-model. Details can be found in #cite(label("arxiv_version")).
+model. Details can be found in #cite(label("PaperD_arxiv")).
 
 Next, we show quantitative results of the shield synthesis and
 subsequent shield reduction, for which we also use three additional
 models. Firstly, the #emph[boost
-converter] #cite(label("DBLP:conf/vecos/BrorholtJLLS23")) models a real circuit
+converter] #cite(label("PaperA")) models a real circuit
 for stepping up the voltage of a direct current (DC) input. The
 controller must keep the voltage close to a reference value, without
 exceeding safe bounds for the voltage and current. The state space is
 continuous, with significant random variation in the outcome of actions.
 
 In the #emph[random walk]
-model #cite(label("DBLP:conf/vecos/BrorholtJLLS23")) #cite(label("DBLP:conf/isola/Jaeger0BLJ20")),
+model #cite(label("PaperA")) #cite(label("DBLP:conf/isola/Jaeger0BLJ20")),
 the player must travel a certain distance before time runs out by
 choosing between a fast but expensive and a slow but cheap action. The
 state space is continuous and the outcomes of actions follow uniform
@@ -869,7 +869,7 @@ time.
 == Conclusion
 <conclusion>
 We have described our implementation of the shield synthesis algorithm
-from #cite(label("DBLP:conf/vecos/BrorholtJLLS23")) in the tool
+from #cite(label("PaperA")) in the tool
 #smallcaps[Uppaal Coshy]. Our tool can work with rich inputs modeled in
 Uppaal. We have also presented the #smallcaps[Caap] algorithm to reduce
 the shield representation significantly, which is crucial for deployment

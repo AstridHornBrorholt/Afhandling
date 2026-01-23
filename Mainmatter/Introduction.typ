@@ -110,13 +110,13 @@ When no models are available, some things like erm automata learning or uncertai
 
 #todo[Expand this section.]
 
-== Applying the Shield
+=== Applying the Shield
 
 The methods of corrective action taken by the shield can vary depending on the model and the application.
 The terms pre- and post-shielding have been used in the literature to describe a shield's relationship with the controller, but with two distinct sets of meaning:
 
  + In one part of the literature, pre- and post-shielding refer to *how* the shield ensures only safe actions reach environment #cl("DBLP:journals/corr/abs-1708-08611") #cl("DBLP:journals/cacm/KonighoferBJJP25") @MedicalShielding #cl("DBLP:conf/isola/TapplerPKMBL22").
- + Alternatively the terms can refer to *when* a shield is applied, in the process of obtaining a controller @jakobs_thesis @BrorholtJLLS23.
+ + Alternatively the terms can refer to *when* a shield is applied, in the process of obtaining a controller @jakobs_thesis @PaperA.
 
 In the following, we shall use the terms pre- and post-shielding to mean the former, while we dub the latter meaning resp. end-to-end shielding and post-hoc shielding.
 
@@ -180,14 +180,14 @@ Thus, an existing controller can be upgraded to give formal safety guarantees by
 )
 
 #infobox(title: "Terminology in Paper A")[
-  Note that what was referred to in Paper A @BrorholtJLLS23 as post-shielding, we refer to here as post-hoc shielding.
+  Note that what was referred to in Paper A @PaperA as post-shielding, we refer to here as post-hoc shielding.
   Conversely, what was referred to as pre-shielding was described in this section as end-to-end shielding.
 
   Using the terminology of this section, the paper examines the difference between end-to-end- and post-hoc shielding.
   The paper utilizes post-shields, and examines different action selection strategies when the shield intervenes.
 ]
 
-=== Effects on Convergence
+=== Effects on Convergence in RL
 
 Convergence guarantees for reinforcement learning methods usually require the environment under learning to satisfy the Markov property #citationneeded[Q-learning, DQL, PPO]. I.e the state must be fully observable, and the probability distributions within the model do not change.
 
