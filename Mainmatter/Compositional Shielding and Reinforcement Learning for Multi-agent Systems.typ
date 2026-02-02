@@ -153,7 +153,7 @@ To overcome this seemingly impossible situation, we will allow car $i$
 to #emph[assume] that the (unobservable) car $i minus 1$
 #emph[guarantees] to never crash into car $i$. This guarantee will be
 provided by the shield of car $i minus 1$ and eliminates the critical
-behavior preventing a local shield for car $i$. In that way, we
+behaviour preventing a local shield for car $i$. In that way, we
 iteratively obtain local shields for all agents. Note that this
 coincides with human driver reasoning.
 

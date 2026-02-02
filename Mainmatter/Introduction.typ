@@ -2,6 +2,7 @@
 #import "@preview/cetz:0.4.2"
 #import "@preview/subpar:0.2.2"
 
+#todo[Almost every section should have a "Related Work" or "State of the Art" subsection.]
 
 #[
   #set heading(numbering: none)
@@ -9,11 +10,11 @@
 ]
 
 Digital control of physical components enables time-saving automation and efficient use of available resources.
-This can range from a simple on/off switch to a complex neural network managing multiple processes.
+This can range from a simple if/then switch to a complex neural network managing multiple interconnected processes.
 It is not uncommon for several digital components to be deployed in concert to serve complementary purposes.
 Such cyber-physical systems @lee2006cyber @lee2008cyber are becoming more ubiquitous and more advanced.
 
-With applications such as autonomous vehicles, water management systems, industrial hydraulics, or power controllers, great care must be taken to ensure the safety of people, equipment, and resources that are directly or indirectly affected by the system.
+With applications such as autonomous vehicles, water management systems, industrial hydraulics, and power controllers, great care must be taken to ensure the safety of people, equipment, and resources that are directly or indirectly affected by the system.
 
 This can be achieved through the field of formal methods, which has a wide variety of approaches that can provide proof that a given system restricts itself ot a safe subset of behaviours. #citationneeded[handbook of model checking (?)]
 This presumes an accurate model of the (cyber-physical) system under verification and techniques are most often subject to "state-space explosion," where the complexity of verification is highly sensitive to the size of the model.
@@ -25,7 +26,7 @@ This performance is achieved by controllers that use a high number of neurons, m
 
 == Reinforcement Learning
 
-Reinforcement learning @kaelbling1996reinforcement @arulkumaran2017deep is a major class of machine learning techniques along with supervised learning, and unsupervised learning @alloghani2020systematic.
+Reinforcement learning @kaelbling1996reinforcement @arulkumaran2017deep is a major class of machine learning techniques, separate from supervised and unsupervised learning @alloghani2020systematic.
 In supervised learning, models learn from labelled data, to predict the labels of unseen data.
 Unsupervised (or self-supervised) learning similarly trains the model on a set amount of unlabelled data, to discover relevant patterns and approximations.
 In contrast, reinforcement learning _agents_ are actively interacting with a system, directing exploration and receiving observation data and reward, as the system responds to actions taken by the agent.
@@ -34,7 +35,9 @@ The interaction between an agent and a system is illustrated in @fig:RL as an un
 The agent observes its current state, and makes a decision on which action to take, based on its current policy and exploration strategy (e.g. $epsilon$-greedy).
 Taking the action yields a reward that the agent can use to update its policy, and an observation of the updated state which it will use to pick the next action.
 
-The reinforcement learning problem can be stated in many different ways -- depending on the nature of the problem -- but is perhaps most commonly defined in terms of a Markov decision process (MDP) #cl("DBLP:journals/siamrev/Feinberg96").
+#figure(include("../Graphics/Intro/Unshielded.typ"), caption: [The reinforcement learning loop.] )<fig:RL>
+
+The reinforcement learning problem can be stated in many different ways, depending on the nature of the problem, but is perhaps most commonly defined in terms of a Markov decision process (MDP) #cl("DBLP:journals/siamrev/Feinberg96").
 MDPs describe stochastic systems, where the outcomes of actions only depend on the current (observable) state of the system, and not on which actions or states were seen previously.
 An MDP can be described by a tuple $(S, s_0 Act, P, R)$ where
 
@@ -44,36 +47,54 @@ An MDP can be described by a tuple $(S, s_0 Act, P, R)$ where
  - $P : S times Act times S -> [0; 1]$ with  $forall s in S, a in Act : sum_(s' in S) P(s, a, s') = 1$ gives the probability of reaching state $s'$ from state $s$ as a result of  taking the action $a$, 
  - and $R : S times Act -> RR$ gives the reward $R(s, a)$ for taking action $a$ in state $s$.
 
-A _policy_ (or strategy) is any method -- such as a reinforcement learning agent -- for choosing the next action from a given state. 
+#todo[$S$ can be finite or infinite. Countably infinite will be covered later.]
+#todo[Mention there can be even richer models.]
+
+A _policy,_  is any method (such as a reinforcement learning agent) for choosing the next action from a given state. 
+
+
 Policies can either be 
  - _probabilistic_ $S times Act -> [0; 1]$, giving a probability distribution over actions, 
  - _deterministic_ $S -> Act$, uniquely selecting one specific action for each state, 
- - or _nondeterministic_ $S -> powerset(Act)$, giving a subset $A in Act$ of actions, one of which may be chosen according to some other mechanism.
+ - or _nondeterministic_ $S -> powerset(Act)$, giving a subset $A in Act$ of possible actions. 
 
-Given an e.g. nondeterministic policy $sigma : S -> [0; 1]$, a trace $xi$ of an MDP is an interleaved series of states and actions $xi = s_0 a_0 s_1 a_1 s_2 a_2 ...$ such that $a_i in sigma(s_i)$ and $P(s_i, a_i, s_(i+1)) > 0$. 
+Given an e.g. nondeterministic policy $sigma : S -> powerset(Act)$, a trace $xi$ of an MDP is an interleaved series of states and actions $xi = s_0 a_0 s_1 a_1 s_2 a_2 ...$ such that $a_i in sigma(s_i)$ and $P(s_i, a_i, s_(i+1))$. 
 Traces can be both finite or infinite. 
-Given a set $phi subset S$ of safe states, we say a trace is safe (with regards to $phi$) if for every $s_i$ in $xi$, $s_i in phi$.
+Given a set $phi subset.eq S$ of safe states, we say a trace $xi$ is safe (with regards to $phi$) if for every $s_i$ in $xi$, $s_i in phi$.
 
-#figure(include("../Graphics/Intro/Unshielded.typ"), caption: [The reinforcement learning loop.] )<fig:RL>
+#todo[Reward; optimization problem.]
+
+
+#todo[Q-learning as example. (Exploration policies, convergence, discretization,)]
 
 It can sometimes be useful to view machine learning as consisting of two different phases: Initial _training,_ and subsequent _operation_ as part of a real-life system.
 In the common view of reinforcement learning, the agent is continually exploring, learning, and improving, even when in operation.
 However, this is not always the case in practice.
-Legal requirements may warrant a costly re-certification every time changes are made to a controller, prohibiting the agent from adapting its behaviour during operation.
+Legal requirements may warrant a costly re-certification every time changes are made to a policy, prohibiting the agent from adapting its behaviour during operation.
 Technical limitations during operations may also preclude learning, such as reductions applied to the model, in order to deploy it to an embedded platform.
+
+#todo[Q-learning example: Frozen Lake, and Bouncing Ball.]
 
 == Shielding
 
 #todo[Introduce safety as a set of states, as opposed to liveness]
 
-Even when a controller cannot be verified directly, other approaches can be used to verify the safety of the system as a whole.
-In @DavidJLLLST14 it was shown how a safety property can be enforced through a maximally permissive, non-deterministic strategy.
+#todo[RL alone doesn't converge to safe policies.]
+
+Even when a policy cannot be verified directly,
+#todo[because it's infeasible to  do so]
+other approaches can be used to verify the safety of the system as a whole.
+#todo[why is this easier?]
+
+#todo[This goes in related work; go directly to formal definition of shielding.]
+
+In @DavidJLLLST14 it was shown how a safety property can be enforced through a maximally permissive, safe, non-deterministic strategy.
 While acting within the constraints of this strategy, reinforcement learning was utilized to optimize for a second objective, achieving a near-optimal strategy within the safety constraints.
 
-The term *shield* was coined in @BloemKKW15 to describe a component which would work in concert with a (mostly safe) controller, and intervene to prevent unsafe behaviour.
-Thus, the behaviour of the shield and controller together is verifiably safe, as long as the shield is safe.
-Contrary to runtime monitors #citationneeded[], which enforce a property by halting the system if the property is not satisfied, the shield will intervene by altering the actions of the controller without knowing future input/output.
-The authors proposed guarantees of minimal interference, and a property of $k$-stabilization, which states that the shield will at most intervene $k$ times before control is handed back to the controller.
+The term *shield* was coined in @BloemKKW15 to describe a component which would work in concert with a (mostly safe) policy, and intervene to prevent unsafe behaviour.
+Thus, the behaviour of the shield and policy together is verifiably safe, as long as the shield is safe.
+Contrary to runtime monitors #citationneeded[], which enforce a property by retroactively altering or halting a trace, the shield will intervene by altering the actions of the policy.
+The authors proposed guarantees of minimal interference, and of $k$-stabilization, which states that the shield will at most intervene $k$ times before control is handed back to the policy.
 
 This concept was extended to a framework of *shielded reinforcement learning* in @AlshiekhBEKNT18.
 Here, a shield monitors and possibly corrects the actions of a learning agent, which enables safe exploration.
@@ -85,15 +106,14 @@ Such an abstraction could be significantly simpler than the full system, allowin
 Since this first article covering shielded reinforcement learning in finite MDPs, other shielding methods building upon the same framework have been described in the literature #citationneeded[Every shielded RL article I have on hand].
 
 A shield can be viewed as a nondeterministic strategy $shield : S -> powerset(Act)$ for a safety property $phi$ on an MDP $mdp$ such that any trace $xi$ that is an outcome of $shield$ is safe with regards to $phi$.
-A shield $shield^*$ is said to be  _maximally permissive_ (or minimally interfering) @BloemKKW15 @AlshiekhBEKNT18 @PaperA if for all shields $shield$ that are safe wrt. $mdp$ and $phi$, 
+A shield is said to be  _maximally permissive_ $shield^*$ (or minimally interfering) @BloemKKW15 @AlshiekhBEKNT18 @PaperA. This $shield^*$ is the unique shield where for all shields $shield$ that are safe wrt. $mdp$ and $phi$, it holds that $a in shield (a) => a in shield^*(a)$ @BernetJW02.
 
 
-#todo[An example around here somewhere would be helpful.]
-#todo[Define maximally permissive]
+#todo[Time to shield the example.]
 
 ==== Finite- and infinite-horizon shielding
 
-In many domains, the controller will continue to function indefinitely, which warrants safety guarantees to match.
+In many domains, the controller will continue to operate indefinitely, which warrants safety guarantees to match.
 Ideally, the shield should be able to ensure that as long as the shield is applied, the system is safe forever, such as with the shielding methods described in #citationneeded[all of them].
 
 In some cases, it can make sense to only give guarantees $k$ steps into the future.
@@ -120,10 +140,10 @@ When no models are available, some things like erm automata learning or uncertai
 === Applying the Shield
 
 The methods of corrective action taken by the shield can vary depending on the model and the application.
-The terms pre- and post-shielding have been used in the literature to describe a shield's relationship with the controller, but with two distinct sets of meaning:
+The terms pre- and post-shielding have been used in the literature to describe a shield's relationship with the policy, but with two distinct sets of meaning:
 
  + In one part of the literature, pre- and post-shielding refer to *how* the shield ensures only safe actions reach environment #cl("DBLP:journals/corr/abs-1708-08611") #cl("DBLP:journals/cacm/KonighoferBJJP25") @MedicalShielding #cl("DBLP:conf/isola/TapplerPKMBL22").
- + Alternatively the terms can refer to *when* a shield is applied, in the process of obtaining a controller @jakobs_thesis @PaperA.
+ + Alternatively the terms can refer to *when* a shield is applied, in the process of obtaining a policy @jakobs_thesis @PaperA.
 
 In the following, we shall use the terms pre- and post-shielding to mean the former, while we dub the latter meaning resp. end-to-end shielding and post-hoc shielding.
 
@@ -139,17 +159,18 @@ In the following, we shall use the terms pre- and post-shielding to mean the for
   label: <when_shielding>
 )
 
+#todo[Q-learning here also.]
+
 ===== Pre-shielding
-This term refers to the shield restricting the behaviour the controller, by providing a set of actions $A subset.eq Act$ that are permitted for the given state.
-The controller must be set up in such a way as to only pick an action $a$ if it is included in the set $A$ it receives from the shield.
+This term refers to the shield restricting the behaviour of the the policy, by providing a set of actions $A subset.eq Act$ that are permitted for the given state.
+The policy must be set up in such a way as to only pick an action $a$ if it is included in the set $A$ it receives from the shield.
 
 ===== Post-shielding
-Contrary to pre-shielding, this configuration is transparent to the controller.
-In post-shielding the controller outputs an action $a$ to the shield, rather than sending it directly to the environment.
+Contrary to pre-shielding, this configuration is transparent to the policy.
+In post-shielding the policy outputs an action $a$ to the shield, rather than sending it directly to the environment.
 The shield then evaluates the action $a$, checking if it is in the set of permissible actions $a in A$s.
 If the action is permitted, $a$ is sent to the environment unaltered.
 Otherwise, the action $a$ is replaced with an alternative, permissible action $a' in A$.
-
 
 #subpar.grid(columns: 2,
   figure(include("../Graphics/Intro/End-to-end Shielding.typ"),
@@ -223,12 +244,14 @@ There is no silver bullet.
 
 #todo[Expand this section.]
 
-== State of the Art
+== Multi-agent Shielding
+
+== Hybrid MDPS 
 
 === Shielding of Hybrid Systems
 
 === Tools for Shielding
-#citationneeded[uppaal] #citationneeded[storm]  #citationneeded[tempest]
+#citationneeded[uppaal] #citationneeded[tempest]
 
 === Multi-agent Shielding
 ...
