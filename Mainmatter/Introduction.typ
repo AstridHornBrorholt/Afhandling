@@ -1,6 +1,13 @@
 #import "../Config/Macros.typ" : *
 #import "@preview/cetz:0.4.2"
 #import "@preview/subpar:0.2.2"
+#import "@preview/lemmify:0.1.8": *
+
+#let (
+  theorem, lemma, corollary,
+  remark, proposition, example,
+  proof, definition, rules: thm-rules
+) = default-theorems("thm-group", lang: "en", thm-numbering: thm-numbering-linear)
 
 #todo[Almost every section should have a "Related Work" or "State of the Art" subsection.]
 
@@ -31,24 +38,29 @@ In supervised learning, models learn from labelled data, to predict the labels o
 Unsupervised (or self-supervised) learning similarly trains the model on a set amount of unlabelled data, to discover relevant patterns and approximations.
 In contrast, reinforcement learning _agents_ are actively interacting with a system, directing exploration and receiving observation data and reward, as the system responds to actions taken by the agent.
 
-The interaction between an agent and a system is illustrated in @fig:RL as an unending loop.
-The agent observes its current state, and makes a decision on which action to take, based on its current policy and exploration strategy (e.g. $epsilon$-greedy).
+The interaction between an agent and a system is illustrated in @fig:RL:
+The agent observes its current state, and makes a decision on which action to take.
 Taking the action yields a reward that the agent can use to update its policy, and an observation of the updated state which it will use to pick the next action.
 
 #figure(include("../Graphics/Intro/Unshielded.typ"), caption: [The reinforcement learning loop.] )<fig:RL>
 
 The reinforcement learning problem can be stated in many different ways, depending on the nature of the problem, but is perhaps most commonly defined in terms of a Markov decision process (MDP) #cl("DBLP:journals/siamrev/Feinberg96").
 MDPs describe stochastic systems, where the outcomes of actions only depend on the current (observable) state of the system, and not on which actions or states were seen previously.
+
+#definition(name: "MDP")[
 An MDP can be described by a tuple $(S, s_0 Act, P, R)$ where
+  - $S$ is a set of states,
+  - $s_0 in S$ is an initial state,
+  - $Act$ is a set of actions,
+  - $P : S times Act times S -> [0; 1]$ with  $forall s in S, a in Act : sum_(s' in S) P(s, a, s') = 1$ gives the probability of reaching state $s'$ from state $s$ as a result of  taking the action $a$, 
+  - and $R : S times Act -> RR$ gives the reward $R(s, a)$ for taking action $a$ in state $s$.
+]
 
- - $S$ is a set of states,
- - $s_0 in S$ is an initial state,
- - $Act$ is a set of actions,
- - $P : S times Act times S -> [0; 1]$ with  $forall s in S, a in Act : sum_(s' in S) P(s, a, s') = 1$ gives the probability of reaching state $s'$ from state $s$ as a result of  taking the action $a$, 
- - and $R : S times Act -> RR$ gives the reward $R(s, a)$ for taking action $a$ in state $s$.
-
-#todo[$S$ can be finite or infinite. Countably infinite will be covered later.]
-#todo[Mention there can be even richer models.]
+This definition allows the state space to be finite, or countably infinite.
+There may be other forms of models, for example describing an uncountably infinite (continuous) state-space. 
+In this case, the transition probability must be modified to give a density function over a set of states, rather than giving probabilities for specific states. 
+I.e. 
+$P : S times Act -> S -> RR_(>=0)$ such that $integral_(s' in S) P(s, a)(s') = 1 d s'$.
 
 A _policy,_  is any method (such as a reinforcement learning agent) for choosing the next action from a given state. 
 
@@ -61,6 +73,49 @@ Policies can either be
 Given an e.g. nondeterministic policy $sigma : S -> powerset(Act)$, a trace $xi$ of an MDP is an interleaved series of states and actions $xi = s_0 a_0 s_1 a_1 s_2 a_2 ...$ such that $a_i in sigma(s_i)$ and $P(s_i, a_i, s_(i+1))$. 
 Traces can be both finite or infinite. 
 Given a set $phi subset.eq S$ of safe states, we say a trace $xi$ is safe (with regards to $phi$) if for every $s_i$ in $xi$, $s_i in phi$.
+
+For a finite trace, $xi = s_0 a_0 s_1 a_1 ... a_(n-1) s_n$ the (undiscounted) reward is defined as $R(xi) = sum_(i=0)^n R(s_i)$.
+This definition is less useful for infinite traces, as we will see in the following example:
+
+#example[
+  For an MDP $mdp$, the policy $sigma_1$ produces the infinite trace $xi_1$ and the policy $sigma_2$ produces the infinite trace $xi_2$. 
+  The infinite trace $xi_1 = s_0 a_0 s_1 a_1 ...$ visits states that each yield a reward of $R(s_i) = 1 $.
+  In contrast, the infinite trace $xi_2 = t_0 b_0 t_1 b_1 ...$ visits states that yield a reward of $R(t_i) = 100$.
+
+  Is the policy $sigma_2$ more useful than $sigma_1$? We see that 
+  $ R(xi_1) &= lim_(n -> infinity) sum_(i=0)^n 1 && = infinity  = 
+   R(xi_2) &= lim_(n -> infinity) sum_(i=0)^n 100 $
+]<ex:undiscounted>
+
+To measure the relative usefulness of strategies over an infinite horizon, a  discount factor $gamma in ]0; 1]$ is applied to the reward, giving preference to more immediate gains.
+This _discounted_ reward is defined as $R_gamma (xi) = sum_(i=0)^infinity gamma^i R(s_i)$. 
+Note that in the special case where $gamma = 1$, $R_gamma$ is the same as the undiscounted reward $R$.
+
+#example[
+  With $sigma_1$ and $sigma_2$ as in @ex:undiscounted, we can use a discounted reward to compare them.
+  For e.g. $gamma = 0.99$ we have the geometric series
+  $ R_0.99(xi_1) & = lim_(n -> infinity) sum_(i=0)^n 0.99^i 1 && = 1/(1-0.99) = 100  "and" \
+  R_0.99(xi_2) & = lim_(n -> infinity) sum_(i=0)^n 0.99^i 100 && = 100/(1-0.99) = 10000 $
+]<ex:discounted>
+
+// Why in the world did I try to do this from memory? To test myself I guess -- I should go through a textbook tomorrow and try to fix all this. 
+In contrast to the reward gained from just one policy, the expected discounted reward for a probabilistic policy is defined as:
+
+#definition(name: "Expected reward")[
+  Given an MDP $M = (S, s_0, Act, P, R)$, a probabilistic policy $sigma$ and a discount factor $gamma$, the expected reward of $sigma$ on $mdp$ is recursively defined as
+
+  $ EE_sigma^mdp (s) = sum_(a in Act) sigma(s, a) sum_(s' in S) P(s, a, s') (R(s') + gamma  EE_sigma^mdp (s')) $ 
+]
+
+#todo[This is well-defined.]
+
+This is used in the definition of the optimization problem of finding the policy with the highest expected discounted reward for $mdp$.
+
+#definition(name:" Optimization problem")[
+  Given an MDP $mdp = (S, s_0, Act, P, R)$ and a discount factor $gamma$, find the policy $sigma^star$ such that
+
+  $ sigma^star = arg max_(sigma) EE_gamma^mdp (sigma)$
+]<def:optimization>
 
 #todo[Reward; optimization problem.]
 
