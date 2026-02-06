@@ -603,12 +603,12 @@ $ exists lr((p comma v)) in mu dot.basic med F lr((lr((p comma v)) comma P)) in 
     - *Input:* $mu in cal(A), a in italic("Act")$
     - *Output:* $mu ->^a_italic("app") mu' "iff" mu' in R$
     + $R = emptyset$
-    + *for all* $s_i in italic("app")[mu]$ *do*
+    + *For all* $s_i in italic("app")[mu]$ *do*
       + select $s'_i ~ N(s_i, a)$
       + simulate $cal(H)$ from $s'_i$ for $P$ time units
       + let $s''_i$ be the resulting state
       + add $[s''_i]_cal(A)$ to $R$
-    - *end for*
+    - *End for*
   ]
 )<MCAlgo>
 

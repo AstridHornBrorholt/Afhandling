@@ -948,14 +948,14 @@ an attractive property.
     - *Output:* $n$-agent policy $(pi_1, dots, pi_n)$
     + Build dependency graph $G$ of $cal(M)_shield$;
     + Let $cal(M)' := cal(M)_shield$;
-    + *while* (true)
-      + *if* there is no node in $G$ with no outgoing edges
+    + *While* (true)
+      + *If* there is no node in $G$ with no outgoing edges
         + #line-label(<line:error>) error("Cyclic dependencies are incompatible."); 
       + Let $i$ be a node in $G$ with no outgoing edges;
       + #line-label(<line:learn>) Train agent policy~$pi_i$ on the MDP $"sandbox"(cal(M)', i)$ wrt. cost function $c_i$; 
       + Update $G$ by removing node $i$ and all incoming edges;
-      + *if* $G$ is empty
-        + *return* $(pi_1, dots, pi_n)$
+      + *If* $G$ is empty
+        + *Return* $(pi_1, dots, pi_n)$
       + Update $cal(M)' := cal(M)'_{pi_i}$ #h(1fr) $triangle.r.small$ I.e., instantiated shielded MDP
   ]
 )<algo:learn>
