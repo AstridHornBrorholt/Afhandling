@@ -2,6 +2,7 @@
 #import "@preview/cetz:0.4.2"
 #import "@preview/subpar:0.2.2"
 #import "@preview/lemmify:0.1.8": *
+#import "@preview/lovelace:0.3.0": *
 
 #let (
   theorem, lemma, corollary,
@@ -33,7 +34,7 @@ This performance is achieved by controllers that use a high number of neurons, m
 
 == Reinforcement Learning
 
-Reinforcement learning @kaelbling1996reinforcement @arulkumaran2017deep is a major class of machine learning techniques, separate from supervised and unsupervised learning @alloghani2020systematic.
+Reinforcement learning  #cl("DBLP:books/lib/SuttonB98") @kaelbling1996reinforcement @arulkumaran2017deep is a major class of machine learning techniques, separate from supervised and unsupervised learning @alloghani2020systematic.
 In supervised learning, models learn from labelled data, to predict the labels of unseen data.
 Unsupervised (or self-supervised) learning similarly trains the model on a set amount of unlabelled data, to discover relevant patterns and approximations.
 In contrast, reinforcement learning _agents_ are actively interacting with a system, directing exploration and receiving observation data and reward, as the system responds to actions taken by the agent.
@@ -54,13 +55,16 @@ An MDP can be described by a tuple $(S, s_0 Act, P, R)$ where
   - $Act$ is a set of actions,
   - $P : S times Act times S -> [0; 1]$ with  $forall s in S, a in Act : sum_(s' in S) P(s, a, s') = 1$ gives the probability of reaching state $s'$ from state $s$ as a result of  taking the action $a$, 
   - and $R : S times Act -> RR$ gives the reward $R(s, a)$ for taking action $a$ in state $s$.
-]
+]<def:mdp>
 
 This definition allows the state space to be finite, or countably infinite.
 There may be other forms of models, for example describing an uncountably infinite (continuous) state-space. 
 In this case, the transition probability must be modified to give a density function over a set of states, rather than giving probabilities for specific states. 
 I.e. 
 $P : S times Act -> S -> RR_(>=0)$ such that $integral_(s' in S) P(s, a)(s') = 1 d s'$.
+
+The definition also requires every action $a in Act$ to be defined for every state in $S$. 
+This assumption about the model is made w.l.o.g. to simplify notation.
 
 A _policy,_  is any method (such as a reinforcement learning agent) for choosing the next action from a given state. 
 
@@ -70,11 +74,12 @@ Policies can either be
  - _deterministic_ $S -> Act$, uniquely selecting one specific action for each state, 
  - or _nondeterministic_ $S -> powerset(Act)$, giving a subset $A in Act$ of possible actions. 
 
-Given an e.g. nondeterministic policy $sigma : S -> powerset(Act)$, a trace $xi$ of an MDP is an interleaved series of states and actions $xi = s_0 a_0 s_1 a_1 s_2 a_2 ...$ such that $a_i in sigma(s_i)$ and $P(s_i, a_i, s_(i+1))$. 
-Traces can be both finite or infinite. 
+Given an e.g. nondeterministic policy $sigma : S -> powerset(Act)$, a trace $xi$ of an MDP is an interleaved series of states and actions $xi = s_0 a_0 s_1 a_1 s_2 a_2 ...$ such that $a_i in sigma(s_i)$ and $P(s_i, a_i, s_(i+1))$.
+Since @def:mdp does not include a stopping condition, this implies infinite traces. A finite trace $s_1, a_1 ... a_(n-1), s_n$ can be defined by considering part of an infinite trace, or by introducing a stopping criterion. This could be a set of terminal states $T$, or a probability $1 - gamma$ that the system abruptly halts. 
+
 Given a set $phi subset.eq S$ of safe states, we say a trace $xi$ is safe (with regards to $phi$) if for every $s_i$ in $xi$, $s_i in phi$.
 
-For a finite trace, $xi = s_0 a_0 s_1 a_1 ... a_(n-1) s_n$ the (undiscounted) reward is defined as $R(xi) = sum_(i=0)^n R(s_i)$.
+For a finite trace, $xi = s_0 a_0 s_1 a_1 ... a_(n-1) s_n$ the (undiscounted) reward can be defined as $R(xi) = sum_(i=0)^n R(s_i)$.
 This definition is less useful for infinite traces, as we will see in the following example:
 
 #example[
@@ -90,6 +95,7 @@ This definition is less useful for infinite traces, as we will see in the follow
 To measure the relative usefulness of strategies over an infinite horizon, a  discount factor $gamma in ]0; 1]$ is applied to the reward, giving preference to more immediate gains.
 This _discounted_ reward is defined as $R_gamma (xi) = sum_(i=0)^infinity gamma^i R(s_i)$. 
 Note that in the special case where $gamma = 1$, $R_gamma$ is the same as the undiscounted reward $R$.
+The discount factor $gamma$ may be interpreted as the probability that the trace continues, while with probability $1 - gamma$ the trace may end in the next step, losing access to future rewards.
 
 #example[
   With $sigma_1$ and $sigma_2$ as in @ex:undiscounted, we can use a discounted reward to compare them.
@@ -98,35 +104,113 @@ Note that in the special case where $gamma = 1$, $R_gamma$ is the same as the un
   R_0.99(xi_2) & = lim_(n -> infinity) sum_(i=0)^n 0.99^i 100 && = 100/(1-0.99) = 10000 $
 ]<ex:discounted>
 
-// Why in the world did I try to do this from memory? To test myself I guess -- I should go through a textbook tomorrow and try to fix all this. 
-In contrast to the reward gained from just one policy, the expected discounted reward for a probabilistic policy is defined as:
+In contrast to the reward gained from just one trace, the expected discounted reward for a probabilistic policy is defined as:
+#question[Defined as or derived?]
 
 #definition(name: "Expected reward")[
-  Given an MDP $M = (S, s_0, Act, P, R)$, a probabilistic policy $sigma$ and a discount factor $gamma$, the expected reward of $sigma$ on $mdp$ is recursively defined as
+  Given an MDP $M = (S, s_0, Act, P, R)$, a probabilistic policy $sigma$ and a discount factor $gamma$, the expected reward of $sigma$ on $mdp$ is the fixed point of the following equation
 
   $ EE_sigma^mdp (s) = sum_(a in Act) sigma(s, a) sum_(s' in S) P(s, a, s') (R(s') + gamma  EE_sigma^mdp (s')) $ 
 ]
 
-#todo[This is well-defined.]
-
 This is used in the definition of the optimization problem of finding the policy with the highest expected discounted reward for $mdp$.
 
-#definition(name:" Optimization problem")[
+#definition(name:"Optimization problem")[
   Given an MDP $mdp = (S, s_0, Act, P, R)$ and a discount factor $gamma$, find the policy $sigma^star$ such that
 
-  $ sigma^star = arg max_(sigma) EE_gamma^mdp (sigma)$
+  $ sigma^star = argmax_(sigma) EE_gamma^mdp (sigma) $
 ]<def:optimization>
 
-#todo[Reward; optimization problem.]
+It may be possible to compute $sigma^star$ directly, through e.g. value- or policy iteration. #citationneeded[]
+But these methods run into scalability issues on the size of the state-space $S$, and require full knowledge of the transition probabilities $P$ and rewards $R$. 
+If the state-space is prohibitively large, or the MDP is not fully known but can be sampled from, the optimal policy may instead be approximated through learning. 
+
+State of the art reinforcement learning techniques learn intricate behaviour through deep neural networks #citationneeded[] and decision trees #citationneeded[] such as PPO #citationneeded[] and MuZero #citationneeded[].
+In the following, a description of the comparatively simple Q-learning approach will be given. The method serves to illustrate the core concepts of reinforcement learning, such as the difference between on-policy and off-policy learning, value estimation, and exploration strategies. 
+
+Q-learning @QLearning is a model-free, off-policy, reinforcement learning algorithm for models that have a finite, or countably infinite state-space.
+(Although it may not work well in practice for the latter.)
+The algorithm maintains a "Q-table" for every pair $(s, a)$ that represents the estimated expected reward for taking action $a$ in state $s$.
+This "table" will be represented here as a function $Q : S times Act -> RR$.
+The table can be initialized arbitrarily,.#footnote[However if the model has terminal states $T subset S$, then then $Q_0$ must be initialized such that $forall t in T, a in Act : Q_0 (t, a) = 0$.] e.g. $Q_0 (s, a) = 1$ for all $s in S, a in A$
+Subsequent assignments $Q_0, Q_1, Q_2$ represent the Q-table at step $t$ in the algorithm.
+A notational shorthand $Q_(t+1) (s, a) = x$ is used to define the next function, where $Q_(t+1) (s', a') = cases(x  "if"  s' = s and a' = a, Q_t)$.
+
+Updates are performed according to a learning rate $alpha: NN -> [0; 1[$, which should be a function over the learning steps such that $sum_i^infinity alpha(i) = infinity and sum_i^infinity alpha(i)^2 < infinity$.
+
+This all combines to give the Q-learning loop in @alg:QLearning, with the update rule in shown in @l:QUpdate.
+If the model includes terminal states, the algorithm can be modified with an additional loop to restart from $s_0$ when a trace ends.
+
+#figure(kind: "Algorithm", supplement: "Algorithm", pseudocode-list[
+    - *Input:* MDP $mdp = (S, s_0, Act, P, R)$,  
+      number of steps $n$,
+      discount factor $gamma$,
+      learning rate $alpha : NN -> [0; 1[$,
+      and 
+      exploration factor $epsilon in ]0; 1]$.
+      
+    - *Output:* Approximation $hat(sigma)$ of optimal policy.
+    + *Loop* $i = 0$ *up to* $n$ #h(1fr) $triangle.r$ Initially $s_i  = s_0$
+      + *With probability  $epsilon$:*  Select $a_i$ according to a uniform distribution over $Act$
+      + *Otherwise:* $a _i = argmax_a Q_i (s_i, a) $
+      + Take action $a_i$ in state $s_i$ and observe the next state $s_(i + 1)$
+      // + Select $s_(i + 1)$ according to the distribution ${(s, p) | s in S, p = P(s_i, a_i, s)}$
+      + #line-label(<l:QUpdate>) 
+        $Q_(i+1) (s_i, a_i) = Q_i (s_i, a_i) + alpha (i) (R(s_(i+1)) + gamma max_a Q_i (s_(i+1), a) - Q_i (s_i, a_i))$
+    + *Return* $hat(sigma) (s) = argmax_a Q_i (s, a)$
+  ],
+  caption: "Q-learning"
+)<alg:QLearning>
+
+The approximate policy will, with probability 1, converge $lim_(n -> infinity) hat(sigma) = sigma^star$ under the following  additional assumptions:
+ - The reward is bounded,#footnote[Trivially satisfied for MDPs with finite state space.] i.e. $exists beta in RR forall s in S : R(s) < beta$ .
+ - The initial state $s_0$ is reachable in one or more steps, from every other state in $S$.
+
+Due to the $epsilon$-greedy exploration strategy, the latter assumption is will guarantee that each reachable state $s$ is visited infinitely often. It will further guarantee that each action $a$ is taken infinitely often at each $s$. This lets the Q-update in @l:QUpdate accurately estimate the true expected value of executing $a$ in $s$. 
+In a model with terminal states, this guarantee can be met by ensuring that traces terminate with probability 1. Similarly, the model may be constructed so it resets to $s_0$ with a small probability $1 - gamma$ each step.
 
 
-#todo[Q-learning as example. (Exploration policies, convergence, discretization,)]
+#example(name: "Grid world")[
+  Initial state 🤖, slip-chance 0.2 at 🧊. 
+  Return to 🤖 when visiting 🪙 or 💀.
+  Reward 10 for visiting 🪙. Reward -100 for visiting 💀.
+
+  Parameters: $gamma = 0.99$, $epsilon = 0.01$, $alpha(i) = cases(0.1 "if" i < n/4, 0.1/(1 + 0.01*(t - i/4)))$
+  #figure(table(
+      stroke: 0.6pt,
+      columns: (4em, 4em, 4em, 4em),
+      rows: 4,
+      inset: 8pt,
+      [1], [2], [3], [4 \ #hide([🧊])],
+      [5], [6], [7], [8 \ #hide([🧊])],
+      [9], [10], [11 \ 🧊], [12],
+      [13 \ 🤖], [14], [15 \ 💀], [16 \ 🪙],
+    ),
+    caption: [A simple grid-world.]
+  )
+
+  #subpar.grid(columns: 3, 
+    figure(image("../Graphics/Intro/Q-learning 100.svg"),
+      caption: [Cumulative reward up to 100 steps]
+    ),
+    figure(image("../Graphics/Intro/V-table 100.svg"),
+      caption: [Value $max_a Q(s, a)$ after 100 steps.]
+    ),
+    figure(image("../Graphics/Intro/V-table 10000.svg"),
+      caption: [Value $max_a Q(s, a)$ after 10000 steps.]
+    ),
+  )
+]
+
+=== Training and Operation
 
 It can sometimes be useful to view machine learning as consisting of two different phases: Initial _training,_ and subsequent _operation_ as part of a real-life system.
 In the common view of reinforcement learning, the agent is continually exploring, learning, and improving, even when in operation.
 However, this is not always the case in practice.
 Legal requirements may warrant a costly re-certification every time changes are made to a policy, prohibiting the agent from adapting its behaviour during operation.
 Technical limitations during operations may also preclude learning, such as reductions applied to the model, in order to deploy it to an embedded platform.
+
+In Q-learning, the training phase would be exactly as @alg:QLearning, while the operation phase would not include @l:QUpdate of that algorithm.
 
 #todo[Q-learning example: Frozen Lake, and Bouncing Ball.]
 

@@ -62,6 +62,16 @@
   [ \ ]
 }
 
+
+#let question(content) = {
+  set text(font: "Fira Code", size: 8pt, fill: wetasphalt) 
+  [\ ]
+  h(-6.3em)
+  text(fill: peterriver, weight: "bold")[question: ]
+  content
+  [ \ ]
+}
+
 #let citationneeded(content) = {
   if (not (content == [] or content == none)) {
     [\[#text(size: 7pt, fill: red, content)\]]
@@ -76,3 +86,5 @@
 #let Act = $A c t$
 #let mdp = $cal(M)$
 #let powerset(x) = $scr(P)(#x)$
+#let argmax = $op("arg max", limits: #true)$
+#let argmin = $op("arg min", limits: #true)$
