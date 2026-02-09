@@ -8,6 +8,9 @@
   proof, definition, rules: thm-rules
 ) = default-theorems("thm-group", lang: "en", thm-numbering: thm-numbering-linear)
 
+#import "@preview/alexandria:0.2.2": *
+#show: alexandria(prefix: "C:", read: path => read(path))
+
 = Compositional Shielding and Reinforcement Learning for Multi-agent Systems
 
 #grid(columns: (1fr, 1fr), row-gutter: 2em,
@@ -35,15 +38,15 @@ We demonstrate the effectiveness and scalability of our multi-agent shielding fr
 == Introduction
 <introduction>
 Reinforcement learning
-(RL) #cite(label("DBLP:books/wi/Puterman94")) #cite(label("DBLP:books/lib/SuttonB98")), and
+(RL) #cite(label("C:DBLP:books/wi/Puterman94")) #cite(label("C:DBLP:books/lib/SuttonB98")), and
 in particular deep RL, has demonstrated success in automatically
 learning high-performance policies for complex
-systems #cite(label("DBLP:journals/nature/MnihKSRVBGRFOPB15")) #cite(label("DBLP:journals/nature/BellemareCCGMMP20")).
+systems #cite(label("C:DBLP:journals/nature/MnihKSRVBGRFOPB15")) #cite(label("C:DBLP:journals/nature/BellemareCCGMMP20")).
 However, learned policies lack guarantees, which prevents applications
 in safety-critical domains.
 
 An attractive algorithmic paradigm to provably safe RL is
-#emph[shielding] @AlshiekhBEKNT18. In this
+#emph[shielding] @C:AlshiekhBEKNT18. In this
 paradigm, one constructs a #emph[shield], which is a nondeterministic
 policy that only allows safe actions. The shield acts as a guardrail for
 the RL agent to enforce safety both during learning (of a concrete
@@ -80,12 +83,12 @@ principle is to construct a correctness proof of multi-component systems
 by smaller, "local" proofs for each individual component. In particular,
 #emph[assume-guarantee reasoning] for concurrent programs was
 popularized in seminal
-works #cite(label("OwickiG76")) #cite(label("Lamport77")) #cite(label("Pnueli84")) #cite(label("Stark85")) #cite(label("DBLP:journals/fteda/BenvenisteCNPRR18")).
+works #cite(label("C:OwickiG76")) #cite(label("C:Lamport77")) #cite(label("C:Pnueli84")) #cite(label("C:Stark85")) #cite(label("C:DBLP:journals/fteda/BenvenisteCNPRR18")).
 By writing $chevron.l A chevron.r C chevron.l G chevron.r$ for "assuming $A$,
 component $C$ will guarantee $G$," the standard (acyclic)
 assume-guarantee rule for finite state machines with handshake
 synchronization looks as
-follows #cite(label("DBLP:reference/mc/GiannakopoulouNP18")):
+follows #cite(label("C:DBLP:reference/mc/GiannakopoulouNP18")):
 
 $ frac(
   chevron.l top chevron.r C_1 chevron.l G_1 chevron.r comma chevron.l G_1 chevron.r C_2 chevron.l G_2 chevron.r comma dots.h comma chevron.l G_(n minus 2) chevron.r C_(n minus 1) chevron.l G_(n minus 1) chevron.r comma chevron.l G_(n minus 1) chevron.r C_n chevron.l phi.alt chevron.r,
@@ -116,7 +119,7 @@ individual agent shields via standard shield synthesis.
 === Motivating Example
 <sect:platoon>
 A multi-agent car platoon with adaptive cruise controls consists of $n$
-cars, numbered from back to front #cite(label("DBLP:conf/birthday/LarsenMT15"))
+cars, numbered from back to front #cite(label("C:DBLP:conf/birthday/LarsenMT15"))
 (@fig:platoon). The cars 1 to $n minus 1$ are each
 controlled by an agent, while (front) car $n$ is driven by the
 environment. The state variables are the car velocities $v_i$ and
@@ -159,7 +162,7 @@ coincides with human driver reasoning.
 
 Beside synthesis of a distributed shield, we also study learning
 policies for shielded agents. In general, multi-agent reinforcement
-learning (MARL) #cite(label("DBLP:journals/corr/ZhangYB19")) is complex due to
+learning (MARL) #cite(label("C:DBLP:journals/corr/ZhangYB19")) is complex due to
 high-dimensional state and action spaces, which impede convergence to
 optimal policies.
 
@@ -197,17 +200,17 @@ which prevents an agent from taking unsafe actions. Thus, any policy
 under a shield is safe, which makes it attractive for safety both during
 learning and after deployment. Shields are typically based on
 game-theoretic results, where they are called #emph[winning
-strategies] #cite(label("DBLP:reference/mc/BloemCJ18")). Early applications of
+strategies] #cite(label("C:DBLP:reference/mc/BloemCJ18")). Early applications of
 shields in learning were proposed for timed
-systems #cite(label("DBLP:conf/atva/DavidJLLLST14")) and discrete
-systems @AlshiekhBEKNT18. The idea has since been
+systems #cite(label("C:DBLP:conf/atva/DavidJLLLST14")) and discrete
+systems @C:AlshiekhBEKNT18. The idea has since been
 extended to probabilistic
-systems #cite(label("DBLP:conf/concur/0001KJSB20")) #cite(label("DBLP:conf/ijcai/YangMRR23")),
-partial observability #cite(label("DBLP:conf/aaai/Carr0JT23")), and
+systems #cite(label("C:DBLP:conf/concur/0001KJSB20")) #cite(label("C:DBLP:conf/ijcai/YangMRR23")),
+partial observability #cite(label("C:DBLP:conf/aaai/Carr0JT23")), and
 continuous-time
-dynamics #cite(label("PaperA")) #cite(label("PaperB")).
+dynamics #cite(label("C:PaperA")) #cite(label("C:PaperB")).
 For more background we refer to
-surveys #cite(label("DBLP:conf/birthday/KonighoferBEP22")) #cite(label("DBLP:journals/tmlr/KrasowskiTM0WA23")).
+surveys #cite(label("C:DBLP:conf/birthday/KonighoferBEP22")) #cite(label("C:DBLP:journals/tmlr/KrasowskiTM0WA23")).
 In this work, we focus on discrete but multi-agent systems, which we now
 review in detail.
 
@@ -216,7 +219,7 @@ review in detail.
 An early work on multi-agent enforcement considered a very restricted
 setting with deterministic environments where the specification is
 already given in terms of valid actions and not in terms of
-states #cite(label("DBLP:conf/amcc/BharadwajBDKT19")). Thus, the shield does
+states #cite(label("C:DBLP:conf/amcc/BharadwajBDKT19")). Thus, the shield does
 not reason about the dynamics and simply overrides forbidden actions.
 
 Model-predictive shielding assumes a backup policy together with a set
@@ -226,13 +229,13 @@ combined with another (typically learned) policy. First, a step with the
 second policy is simulated and, when the target state is recoverable,
 this step is executed; otherwise, the fallback policy is executed.
 Crucially, this assumes that the environment is deterministic. Zhang et
-al. proposed a multi-agent version #cite(label("DBLP:journals/corr/ZhangB19")),
+al. proposed a multi-agent version #cite(label("C:DBLP:journals/corr/ZhangB19")),
 where the key insight is that only some agents need to use the backup
 policy. For scalability, the authors propose a greedy algorithm to
 identify a sufficiently small subset of agents. However, the "shield" is
 centralized, which makes this approach not scalable.
 
-Another work computes a safe policy online #cite(label("RajuBDT21")), which may
+Another work computes a safe policy online #cite(label("C:RajuBDT21")), which may
 be slow. Agents in close proximity create a communication group, and
 they communicate their planned trajectories for the next $k$ steps. Each
 agent has an agreed-on priority in which they have to resolve safety
@@ -241,7 +244,7 @@ higher-priority agents. The approach requires strong assumptions like
 deterministic system dynamics and immediate communication.
 
 One work suggests to directly reinforcement-learn policies by simply
-encouraging safety #cite(label("DBLP:conf/iclr/QinZCCF21")). Here, the loss
+encouraging safety #cite(label("C:DBLP:conf/iclr/QinZCCF21")). Here, the loss
 function encodes a safety proof called #emph[barrier certificate]. But,
 as with any reward engineering, this approach does not guarantee safety
 in any way.
@@ -249,13 +252,13 @@ in any way.
 Another way to scale up shielding for multi-agent systems is a so-called
 #emph[factored shield], which safeguards only a subset of the state
 space, independent of the number of
-agents #cite(label("DBLP:conf/atal/Elsayed-AlyBAET21")). When an agent moves,
+agents #cite(label("C:DBLP:conf/atal/Elsayed-AlyBAET21")). When an agent moves,
 it joins or leaves a shield at border states. However, this approach
 relies on very few agents ever interacting with each other, as
 otherwise, there is no significant scalability gain.
 
 Factored shields were extended to #emph[dynamic
-shields] #cite(label("DBLP:conf/atal/XiaoLD23")). The idea is that, in order to
+shields] #cite(label("C:DBLP:conf/atal/XiaoLD23")). The idea is that, in order to
 reduce the communication overhead, an agent’s shield should "merge"
 dynamically with the shields of other agents in the proximity. Since the
 shields are computed with a $k$-step lookahead only, safety is not
@@ -265,18 +268,18 @@ guaranteed invariantly.
 <multi-agent-verification.>
 #emph[Rational verification] proposes to study specifications only from
 initial states in Nash equilibria, i.e., assuming that all agents act
-completely rationally #cite(label("DBLP:journals/apin/AbateGHHKNPSW21")). While
+completely rationally #cite(label("C:DBLP:journals/apin/AbateGHHKNPSW21")). While
 that assumption may be useful for rational/optimal agents, we typically
 have learned agents in mind, which do not always act optimally.
 
 The tool #emph[Verse] lets users specify multi-agent scenarios in a
 Python dialect and provides black-box (simulations) and white-box
 (formal proofs; our setting) analysis for time-bounded
-specifications #cite(label("DBLP:conf/cav/LiZBSM23")).
+specifications #cite(label("C:DBLP:conf/cav/LiZBSM23")).
 
 Assume-guarantee reasoning has been applied to multi-agent systems
-in #cite(label("DBLP:conf/amcc/PartoviL14")) and
-in #cite(label("DBLP:conf/prima/MikulskiJK22")), but not yet to (multi-agent)
+in #cite(label("C:DBLP:conf/amcc/PartoviL14")) and
+in #cite(label("C:DBLP:conf/prima/MikulskiJK22")), but not yet to (multi-agent)
 shielding.
 
 ==== Outline.
@@ -370,7 +373,7 @@ restricting the actions to sensible choices.
 
 Note that our strategies and policies are memoryless. This is justified
 as we will only consider safety properties in this work, for which
-memory is not required #cite(label("DBLP:reference/mc/BloemCJ18")). Strategies
+memory is not required #cite(label("C:DBLP:reference/mc/BloemCJ18")). Strategies
 and policies restrict the possible runs, and we call these runs the
 outcomes.
 
@@ -402,7 +405,7 @@ Given an LTS, a safety property $phi.alt subset.eq italic(S)$ partitions
 the states into two sets: the #emph[winning states], from which a
 strategy exists whose outcomes are all safe, and the complement. The
 latter can be computed as the attractor set of the
-complement $italic(S) backslash phi.alt$ #cite(label("DBLP:reference/mc/BloemCJ18")).
+complement $italic(S) backslash phi.alt$ #cite(label("C:DBLP:reference/mc/BloemCJ18")).
 Since it is hopeless to ensure safe behavior from the complement states,
 in the following we will only be interested in outcomes starting in
 winning states, which we abstain from mentioning explicitly.
@@ -426,7 +429,7 @@ $shield^ast.basic lr([phi.alt])$ is the shield that allows the largest
 set of actions for each state $s in italic(S)$.
 ]
 
-#lemma(name: cite(label("DBLP:reference/mc/BloemCJ18")))[
+#lemma(name: cite(label("C:DBLP:reference/mc/BloemCJ18")))[
   $shield^ast.basic$ is unique and obtained as the union of all
   shields $shield$ for $phi.alt$:
   $shield^ast.basic lr((s)) eq brace.l a in italic(A c t) divides exists shield colon a in shield lr((s)) brace.r$.
@@ -604,7 +607,7 @@ Now we can define a multi-agent LTS and MDP.
 We note that the observation space introduces partial observability.
 Obtaining optimal strategies/policies for partial observability is
 difficult and generally requires infinite
-memory #cite(label("DBLP:journals/jcss/ChatterjeeCT16")). Since this is
+memory #cite(label("C:DBLP:journals/jcss/ChatterjeeCT16")). Since this is
 impractical, we restrict ourselves to memoryless strategies/policies.
 
 We can apply the projection function $italic(p r j)$ to obtain a "local"
@@ -1012,7 +1015,7 @@ optimizes its local cost, which may yield suboptimal global cost.
 
 What we can show is that the agent policies
 $lr((pi_1 comma dots.h comma pi_n))$ are #emph[Pareto
-optimal] #cite(label("marl-book")), i.e., they cannot all be strictly improved
+optimal] #cite(label("C:marl-book")), i.e., they cannot all be strictly improved
 without raising the cost of at least one agent. That is, there is no
 policy $pi_i$ that can be replaced by another policy $pi_i prime$
 without strictly increasing the expected local cost of at least one
@@ -1046,17 +1049,17 @@ were repeated 10 times; solid lines in plots represent the mean cost of
 these 10 repetitions, while ribbons mark the minimum and maximum costs.
 Costs are evaluated as the mean of $1 comma 000$ episodes. We use the
 learning method implemented in #smallcaps[Uppaal
-Stratego] #cite(label("DBLP:conf/atva/JaegerJLLST19")) because the
+Stratego] #cite(label("C:DBLP:conf/atva/JaegerJLLST19")) because the
 implementation has a native interface for shields. This method learns a
 policy by partition refinement of the state space. With this learning
 method, only few episodes are needed for convergence. We also compare to
-the (deep) MARL approach MAPPO #cite(label("DBLP:conf/nips/YuVVGWBW22")) later.
+the (deep) MARL approach MAPPO #cite(label("C:DBLP:conf/nips/YuVVGWBW22")) later.
 
 === Car Platoon with Adaptive Cruise Controls
 <car-platoon-with-adaptive-cruise-controls>
 Recall the car platoon model from
 @sect:platoon. The front car follows a random
-distribution depending on $v_n$ (described in #cite(label("PaperC_arxiv")), appendix).
+distribution depending on $v_n$ (described in #cite(label("C:PaperC_arxiv")), appendix).
 
 The individual cost of an agent is the sum of the observed distances to
 the car immediately in front of it, during a 100-second episode (i.e.,
@@ -1099,7 +1102,7 @@ platoon of 10 cars, well out of reach of a centralized shield.
 
 ==== Comparing centralized, cascading and MAPPO learning
 <comparing-centralized-cascading-and-mappo-learning>
-#figure([#image("../Graphics/AAMAS25/CC 400x150.svg", width: 100%)],
+#figure([#image("../Graphics/AAMAS25/CC 400x150.svg", width: 80%)],
   caption: [
     Graph of learning outcomes. Comparison of different learning methods
     on the 10-car platoon. The centralized and the MAPPO policy were
@@ -1128,10 +1131,10 @@ quickly converges to a much better cost as low as $26 thin 435$.
 
 To examine how cascading learning under a distributed shield compares to
 traditional MARL techniques, we implemented the platoon environment in
-the benchmark suite BenchMARL #cite(label("DBLP:journals/corr/abs-2312-01472"))
+the benchmark suite BenchMARL #cite(label("C:DBLP:journals/corr/abs-2312-01472"))
 and trained an unshielded policy with
-MAPPO #cite(label("DBLP:conf/nips/YuVVGWBW22")), a state-of-the-art MARL
-algorithm based on PPO #cite(label("DBLP:journals/corr/SchulmanWDRK17")), using
+MAPPO #cite(label("C:DBLP:conf/nips/YuVVGWBW22")), a state-of-the-art MARL
+algorithm based on PPO #cite(label("C:DBLP:journals/corr/SchulmanWDRK17")), using
 default hyperparameters. To encourage safe behavior, we added a penalty
 of $1 thin 600$ to the cost function for every step upon reaching an
 unsafe state. (This value was obtained by starting from $100$ and
@@ -1184,7 +1187,7 @@ consumers with periodically varying demand. Arrows from source to target
 nodes denote potential flow at no incurred cost. Arrows without a source
 node denote potential flow from external providers, at a cost that
 individually and periodically varies. Consumption patterns and examples
-of the cost patterns are shown in the appendix of #cite(label("PaperC_arxiv")). The flow rate in all
+of the cost patterns are shown in the appendix of #cite(label("C:PaperC_arxiv")). The flow rate in all
 arrows follows a uniform random distribution in the range
 $lr([2.15 semi 3.15])$ $ell$/s.
 
@@ -1224,7 +1227,7 @@ computing the distributed shield took less than 1 second.
 
 ==== Comparing centralized and cascading learning
 <comparing-centralized-and-cascading-learning>
-#figure([#image("../Graphics/AAMAS25/CP 400x150.svg", width: 100%)],
+#figure([#image("../Graphics/AAMAS25/CP 400x150.svg", width: 80%)],
   caption: [
     Comparison of different learning methods on the chemical production
     plant. The centralized policy was trained for the total episodes
@@ -1244,7 +1247,7 @@ centralized learning, MAPPO, and shielded random agents in
 @fig:cplearning. Centralized learning achieved a cost
 of $292$. The lowest cost overall, $172$, was achieved by cascading
 learning. We compare this to the (unshielded) MAPPO agents, whose lowest
-cost was $291$. More background information is given in #cite(label("PaperC_arxiv")).
+cost was $291$. More background information is given in #cite(label("C:PaperC_arxiv")).
 
 == Conclusion
 <sect:conclusion>
@@ -1258,14 +1261,26 @@ that coming up with useful guarantees is reasonably simple.
 While we focused on demonstrating the feasibility in this work by
 providing the guarantees manually, a natural future direction is to
 learn them. As discussed, this is much simpler in the classical
-setting #cite(label("DBLP:reference/mc/GiannakopoulouNP18")) because the
+setting #cite(label("C:DBLP:reference/mc/GiannakopoulouNP18")) because the
 agents/components are fixed. We believe that in our setting where both
 the guarantees and the agents are not given, a trial-and-error approach
 (e.g., a genetic algorithm) is a fruitful direction to explore. Another
 relevant future direction is to generalize our approach to continuous
-systems #cite(label("PaperA")).
+systems #cite(label("C:PaperA")).
 
 This research was partly supported by the Independent Research Fund
 Denmark under reference number 10.46540/3120-00041B, DIREC - Digital
 Research Centre Denmark under reference number 9142-0001B, and the
 Villum Investigator Grant S4OS under reference number 37819.
+
+
+
+#[
+  #set heading(numbering: none) 
+  == References
+
+  #bibliographyx("../Bibliography.bib",
+    prefix: "C:",
+    title: none,
+  )
+]

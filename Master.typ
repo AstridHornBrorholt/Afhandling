@@ -1,16 +1,5 @@
 #import "Config/Styles.typ": apply_style
 
-// /* Regexes
-// #cite\("(.*)", "(.*)", "(.*)"\)
-// #cite\("(.*)", "(.*)""\)
-// #cite\("(.*)""\)
-// Section #link\(<(.*)>\)\[\d+\]
-// Fig\. #link\(<(.*)>\)\[\\\[.*\\\]\]
-// Fig\. #link\(<(.*)>\)\[\d+\](\(\w\))?
-// [A-Z][a-z]+ #link\(<(.*)>\)\[\\\[.*\\\]\]
-// @(DBLP:[^ ]+)
-//    #label("$1")
-
 #show: apply_style
 
 #set document(
@@ -43,5 +32,3 @@
 #pagebreak(to: "odd", weak: true)
 #include "Mainmatter/Uppaal Coshy: Automatic Synthesis of Compact Shields for Hybrid Systems.typ"
 #pagebreak(to: "odd", weak: true)
-
-#bibliography("Bibliography.bib")

@@ -8,6 +8,17 @@
   proof, definition, rules: thm-rules
 ) = default-theorems("thm-group", lang: "en", thm-numbering: thm-numbering-linear)
 
+#show ref: it => {
+  if query(it.target).len() == 0 {
+    "[" + str(it.target) + "]"
+  } else {
+    it
+  }
+}
+
+#import "@preview/alexandria:0.2.2": *
+#show: alexandria(prefix: "D:", read: path => read(path))
+
 = #smallcaps[Uppaal Coshy]: Automatic Synthesis of Compact Shields for Hybrid Systems
 
 #grid(columns: (1fr, 1fr), row-gutter: 2em,
@@ -36,7 +47,7 @@
 #v(1fr)
 
 #heading(level: 2, numbering: none)[Abstract]
-We present #smallcaps[Upppaal Coshy], a tool for automatic synthesis of a safety strategy---or _shield_---for Markov decision processes over continuous state spaces and complex hybrid dynamics. The general methodology is to partition the state space and then solve a two-player safety game #cite(label("PaperA")), which entails a number of algorithmically hard problems such as reachability for hybrid systems. The general philosophy of #smallcaps[Upppaal Coshy] is to approximate hard-to-obtain solutions using simulations. Our implementation is fully automatic and supports the expressive formalism of #smallcaps[Uppaal] models, which encompass stochastic hybrid automata.
+We present #smallcaps[Upppaal Coshy], a tool for automatic synthesis of a safety strategy---or _shield_---for Markov decision processes over continuous state spaces and complex hybrid dynamics. The general methodology is to partition the state space and then solve a two-player safety game #cite(label("D:PaperA")), which entails a number of algorithmically hard problems such as reachability for hybrid systems. The general philosophy of #smallcaps[Upppaal Coshy] is to approximate hard-to-obtain solutions using simulations. Our implementation is fully automatic and supports the expressive formalism of #smallcaps[Uppaal] models, which encompass stochastic hybrid automata.
 
 The precision of our partition-based approach benefits from using finer grids, which however are not efficient to store. We include an algorithm called  #smallcaps[caap] to efficiently compute a compact representation of a shield in the form of a decision tree, which yields significant reductions.
 
@@ -47,7 +58,7 @@ The precision of our partition-based approach benefits from using finer grids, w
 <introduction>
 In prior work, we proposed an algorithm to synthesize #emph[shields]
 (i.e., nondeterministic safety strategies) for Markov decision processes
-with hybrid dynamics #cite(label("PaperA")). The
+with hybrid dynamics #cite(label("D:PaperA")). The
 algorithm partitions the state space into finitely many cells and then
 solves a two-player safety game, where it uses approximation through
 simulation to efficiently tackle algorithmically hard problems. In this
@@ -67,7 +78,7 @@ demonstrate that this algorithm leads to significant reductions as part
 of the workflow in #smallcaps[Uppaal Coshy].
 
 An extended version of this paper is available
-online #cite(label("PaperD_arxiv")).
+online #cite(label("D:PaperD_arxiv")).
 
 === Related Tools for Shield Synthesis and Compact Representation
 <related-tools-for-shield-synthesis-and-compact-representation>
@@ -75,32 +86,32 @@ online #cite(label("PaperD_arxiv")).
 <shielding.>
 Shields are obtained by solving games, for which there exist a wide
 selection of tools for discrete state
-spaces #cite(label("DBLP:conf/cav/ChatterjeeHJR10")) #cite(label("DBLP:conf/tacas/ChatterjeeHJS11")) #cite(label("DBLP:conf/cav/KwiatkowskaN0S20")).
+spaces #cite(label("D:DBLP:conf/cav/ChatterjeeHJR10")) #cite(label("D:DBLP:conf/tacas/ChatterjeeHJS11")) #cite(label("D:DBLP:conf/cav/KwiatkowskaN0S20")).
 Notably,
-#link("https://tempest-synthesis.org/")[#smallcaps[Tempest]] #cite(label("DBLP:conf/atva/PrangerKPB21"))
+#link("https://tempest-synthesis.org/")[#smallcaps[Tempest]] #cite(label("D:DBLP:conf/atva/PrangerKPB21"))
 synthesizes shields for discrete systems and facilitates learning
 through integration with
-#smallcaps[Prism] #cite(label("DBLP:conf/cav/KwiatkowskaNP11")).
+#smallcaps[Prism] #cite(label("D:DBLP:conf/cav/KwiatkowskaNP11")).
 #smallcaps[Uppaal Tiga] synthesizes shields for timed
-games #cite(label("DBLP:conf/cav/BehrmannCDFLL07")).
+games #cite(label("D:DBLP:conf/cav/BehrmannCDFLL07")).
 
 In contrast, our tool applies to a richer class of models, including
 stochastic hybrid systems with non-periodic control and calls to
 external C libraries.
 
 One benefit of our tool is the full integration with
-#smallcaps[Uppaal Stratego] #cite(label("DBLP:conf/tacas/DavidJLMT15")) to directly use the
+#smallcaps[Uppaal Stratego] #cite(label("D:DBLP:conf/tacas/DavidJLMT15")) to directly use the
 synthesized shield in reinforcement learning.
 
 ==== Decision trees.
 <decision-trees.>
 Encoding strategies as decision trees is a popular approach to achieving
 compactness and
-interpretability #cite(label("DuLH20")) #cite(label("Quinlan96")) #cite(label("BreimanFOS84")) #cite(label("DBLP:conf/hybrid/AshokJJKWZ20")) #cite(label("DBLP:conf/tacas/AshokJKWWY21")).
+interpretability #cite(label("D:DuLH20")) #cite(label("D:Quinlan96")) #cite(label("D:BreimanFOS84")) #cite(label("D:DBLP:conf/hybrid/AshokJJKWZ20")) #cite(label("D:DBLP:conf/tacas/AshokJKWWY21")).
 However, these works focus on creating approximate representations from
 tabular data. For a fixed set of predicates, the smallest possible tree
 can be obtained by enumeration
-techniques #cite(label("DBLP:journals/jmlr/DemirovicLHCBLR22")) #cite(label("DemirovicSL25")).
+techniques #cite(label("D:DBLP:journals/jmlr/DemirovicLHCBLR22")) #cite(label("D:DemirovicSL25")).
 In contrast, our method transforms a given decision tree into an
 #emph[equivalent] decision tree. Our method is specifically designed to
 efficiently cope with strategies of many axis-aligned decision
@@ -110,7 +121,7 @@ boundaries.
 <sect:shielding_algorithm>
 In this section, we recall a general shield synthesis algorithm for
 hybrid systems outlined in prior
-work #cite(label("PaperA")). We start by recalling the
+work #cite(label("D:PaperA")). We start by recalling the
 formalism for control systems.
 
 === Euclidean Markov Decision Processes
@@ -134,7 +145,7 @@ For simplicity, the state space $S$ is continuous. However, the
 extension to discrete variables, e.g., locations of hybrid components,
 is straightforward. Since optimizing strategies is not our focus, we do
 not formally introduce the notion of cost and rely on the reader’s
-intuition. (See #cite(label("PaperA")) for details.)
+intuition. (See #cite(label("D:PaperA")) for details.)
 
 A #emph[run] $pi$ of an EMDP is an alternating sequence
 $pi eq s_0 a_0 s_1 a_1 dots.h$ of states and actions such that
@@ -173,7 +184,7 @@ to $phi$ if all outcomes of $sigma$ are safe.
 
 We introduce our running example: a #emph[bouncing ball] that can be hit
 by a player to keep it
-bouncing #cite(label("PaperA")) #cite(label("DBLP:conf/atva/JaegerJLLST19")).
+bouncing #cite(label("D:PaperA")) #cite(label("D:DBLP:conf/atva/JaegerJLLST19")).
 We shortly explain our two-component #smallcaps[Uppaal] model. The player component
 is shown in @fig:player. In the (initial) location `Choose`, there
 are two available control actions (solid lines). The player chooses
@@ -199,7 +210,7 @@ is never reached, i.e., $phi = { s | #[Ball is not in `Stop` in] s}$.
 Since an EMDP consists of infinitely many states, we employ a
 finite-state abstraction. For that, we partition the state space
 $S subset.eq bb(R)^k$ with a regular #emph[rectangular] grid.
-(In #cite(label("PaperA")), we only allowed a grid of
+(In #cite(label("D:PaperA")), we only allowed a grid of
 uniform size in all dimensions.) Formally, given a (user-defined)
 granularity vector $gamma in bb(R)^k$ and offset
 vector $omega in bb(R)^k$, we partition the state space into disjoint
@@ -230,18 +241,18 @@ $ cal(C)_phi eq cal(C)_phi^0 inter brace.l C in cal(P)_gamma^omega divides exist
 Given the finiteness of $cal(P)_gamma^omega$ and monotonicity of
 @eq:safecells, $cal(C)_phi$ may be obtained in
 a finite number of iterations using Tarski’s fixed-point
-theorem #cite(label("Tarski55")).
+theorem #cite(label("D:Tarski55")).
 
 A (nondeterministic) strategy for
 $cal(T)_(cal(M) comma gamma comma omega)$ is a function
 $nu colon cal(P)_gamma^omega arrow.r 2^A$. The most permissive
 shield $nu_phi$ (i.e., safe strategy) obtained from
-$cal(C)_phi$ #cite(label("BernetJW02")) is given by
+$cal(C)_phi$ #cite(label("D:BernetJW02")) is given by
 $ nu_phi lr((C)) eq brace.l a in A divides forall C prime in cal(P)_gamma^omega dot.basic med C arrow.r^a C prime arrow.r.double.long C prime in cal(C)_phi brace.r dot.basic $
 
 A shield $nu$ for $cal(T)_(cal(M) comma gamma comma omega)$ induces a
 shield $sigma$ for $cal(M)$ in the standard
-way #cite(label("PaperA")):
+way #cite(label("D:PaperA")):
 
 <thm:safety-transfer> Given an EMDP $cal(M)$, a safety
 property $phi subset.eq S$, and a grid $cal(P)_gamma^omega$, if $nu$ is
@@ -302,7 +313,7 @@ Second, determining
 solve reachability questions for infinitely many states. While this can
 be done for simple classes of systems, we deal with very general systems
 (e.g., nonlinear hybrid dynamics), for which reachability is
-undecidable #cite(label("DFPP18")). This motivated us to instead compute an
+undecidable #cite(label("D:DFPP18")). This motivated us to instead compute an
 approximate solution, which we outline in
 @sect:reachability.
 
@@ -355,7 +366,7 @@ error location.
 <sect:reachability>
 We approximate cell reachability $C arrow.r^a C prime$, as defined in
 @eq:cell_reachability, similarly
-to #cite(label("PaperA")) but adapted to work in
+to #cite(label("D:PaperA")) but adapted to work in
 Uppaal. In a #smallcaps[Uppaal] model, actions $a in A$ correspond to controllable
 edges (indicating that the controller can act).
 
@@ -365,15 +376,15 @@ $a$, which gives us a new state $s prime$; starting from $s prime$, we
 simulate the environment (using the built-in simulator in #smallcaps[Uppaal]) until
 a state $s prime.double$ is reached in which the controller has the next
 choice (i.e., multiple action edges are enabled) again.
-#footnote[Where #cite(label("PaperA")) required a fixed
+#footnote[Where #cite(label("D:PaperA")) required a fixed
 control period, #smallcaps[Uppaal Coshy] supports non-periodic control.
-This is demonstrated in #cite(label("PaperD_arxiv")).] Thus, $s prime.double$
+This is demonstrated in #cite(label("D:PaperD_arxiv")).] Thus, $s prime.double$
 is a witness to add the corresponding
 cell $lr([s prime.double])_(cal(P)_gamma^omega)$ to the transition
 relation $C arrow.r^a lr([s prime.double])_(cal(P)_gamma^omega)$.
 Assuming the simulator is numerically sound, the resulting transition
 system underapproximates $cal(T)_(cal(M) comma gamma comma omega)$. As
-observed in #cite(label("PaperA")), the more
+observed in #cite(label("D:PaperA")), the more
 simulations are run, the more likely do we obtain the true solution. To
 check whether this underapproximation is sufficiently accurate, the
 existing queries for statistical model checking in #smallcaps[Uppaal] can be used,
@@ -381,7 +392,7 @@ as we shall see in @sect:coshyevaluation.
 
 In general, two simulations starting in the state $s$ may not yield the
 same state $s prime.double$ due to stochasticity.
-In #cite(label("PaperA")), stochasticity was treated as
+In #cite(label("D:PaperA")), stochasticity was treated as
 additional dimensions over which to sample (systematically). This was
 possible by manually crafting the reachability sampling for each model.
 Detecting stochastic behavior in #smallcaps[Uppaal] models automatically turned out
@@ -468,7 +479,7 @@ in @fig:leave_bounds.
 
 === Omitting Variables from Consideration
 <sect:missing_variables>
-As emphasized in @AlshiekhBEKNT18, a shield can
+As emphasized in @D:AlshiekhBEKNT18, a shield can
 be obtained from an abstract model that only simulates behaviors
 relevant to the safety specification. For example, cost variables may
 only be relevant during learning. While every variable in a model can be
@@ -674,7 +685,7 @@ We note that the algorithm is not guaranteed to find a local optimum.
 One reason is that the repair only expands in one dimension. This choice
 is deliberate to keep the algorithm efficient and avoid a combinatorial
 explosion. A more detailed description including pseudocode can be found
-in #cite(label("PaperD_arxiv")).
+in #cite(label("D:PaperD_arxiv")).
 
 == Case Studies and Evaluation
 <sect:coshyevaluation>
@@ -755,7 +766,7 @@ benchmark the implementations on several models.
 sequence of queries on the #emph[bouncing ball] example to produce a
 safe and efficient strategy (cf. @fig:workflow).
 Documentation of the new query syntax is available online and
-in #cite(label("PaperD_arxiv")).
+in #cite(label("D:PaperD_arxiv")).
 #footnote[#link("https://docs.uppaal.org/language-reference/query-syntax/controller_synthesis/#approximate-control-queries")[https://docs.uppaal.org/language-reference/query-syntax/controller\_synthesis/\#approximate-control-queries]]
 
 In Query 1, we train a strategy called , which is only concerned with
@@ -779,7 +790,7 @@ shielded but randomized strategy is not efficient and hits the ball more
 often than needed, as visualized in @fig:safe.
 
 In Query 9, we learn a strategy `shielded efficient` under the shield using
-Uppaal Stratego #cite(label("DBLP:conf/tacas/DavidJLMT15")). This strategy
+Uppaal Stratego #cite(label("D:DBLP:conf/tacas/DavidJLMT15")). This strategy
 keeps the ball in the air without excessive hitting, as shown by the
 output of Query 10 in @fig:shielded_efficient. The result of
 Query 11 shows the expected cost, and Query 12 shows that the safety
@@ -789,15 +800,15 @@ unsafe.
 === Further Examples
 <sect:benchmarks>
 #subpar.grid(columns: 3,
-  [#figure([#image("../Graphics/RP25/under_efficient.png", width: 100%)],
+  [#figure([#image("../Graphics/RP25/under_efficient.png", width: 95%)],
     caption: [ `efficient` ]
   )<fig:efficient>],
 
-  [#figure([#image("../Graphics/RP25/under_safe.png", width: 100%)],
+  [#figure([#image("../Graphics/RP25/under_safe.png", width: 95%)],
     caption: [ `compact_shield` ]
   )<fig:safe>],
 
-  [#figure([#image("../Graphics/RP25/under_safe_and_efficient.png", width: 100%)],
+  [#figure([#image("../Graphics/RP25/under_safe_and_efficient.png", width: 95%)],
     caption: [ `shielded_efficient` ]
   )<fig:shielded_efficient>],
 
@@ -809,28 +820,28 @@ unsafe.
 )
 
 State-space transformations can be used to synthesize a shield more
-efficiently #cite(label("PaperB")). Since #smallcaps[Uppaal]
+efficiently #cite(label("D:PaperB")). Since #smallcaps[Uppaal]
 supports function calls, transformations can be applied by modifying the
-model. Details can be found in #cite(label("PaperD_arxiv")).
+model. Details can be found in #cite(label("D:PaperD_arxiv")).
 
 Next, we show quantitative results of the shield synthesis and
 subsequent shield reduction, for which we also use three additional
 models. Firstly, the #emph[boost
-converter] #cite(label("PaperA")) models a real circuit
+converter] #cite(label("D:PaperA")) models a real circuit
 for stepping up the voltage of a direct current (DC) input. The
 controller must keep the voltage close to a reference value, without
 exceeding safe bounds for the voltage and current. The state space is
 continuous, with significant random variation in the outcome of actions.
 
 In the #emph[random walk]
-model #cite(label("PaperA")) #cite(label("DBLP:conf/isola/Jaeger0BLJ20")),
+model #cite(label("D:PaperA")) #cite(label("D:DBLP:conf/isola/Jaeger0BLJ20")),
 the player must travel a certain distance before time runs out by
 choosing between a fast but expensive and a slow but cheap action. The
 state space is continuous and the outcomes of actions follow uniform
 distributions.
 
 In the #emph[water tank] model inspired
-from @AlshiekhBEKNT18, a tank must be kept from
+from @D:AlshiekhBEKNT18, a tank must be kept from
 overflowing or running dry. Water flows from the tank at a rate that
 varies periodically. At each time step, the player can control the
 inflow by switching a pump on or off. The state space is discrete.
@@ -869,7 +880,7 @@ time.
 == Conclusion
 <conclusion>
 We have described our implementation of the shield synthesis algorithm
-from #cite(label("PaperA")) in the tool
+from #cite(label("D:PaperA")) in the tool
 #smallcaps[Uppaal Coshy]. Our tool can work with rich inputs modeled in
 Uppaal. We have also presented the #smallcaps[Caap] algorithm to reduce
 the shield representation significantly, which is crucial for deployment
@@ -890,3 +901,13 @@ shield would help in debugging a model.
 This research was partly supported by the Independent Research Fund
 Denmark under reference number 10.46540/3120-00041B and the Villum
 Investigator Grant S4OS under reference number 37819.
+
+#[
+  #set heading(numbering: none) 
+  == References
+
+  #bibliographyx("../Bibliography.bib",
+    prefix: "D:",
+    title: none,
+  )
+]

@@ -2,6 +2,9 @@
 #import "@preview/lovelace:0.3.0": *
 #import "@preview/lemmify:0.1.8": *
 
+#import "@preview/alexandria:0.2.2": *
+#show: alexandria(prefix: "A:", read: path => read(path))
+
 #let (
   theorem, lemma, corollary,
   remark, proposition, example,
@@ -37,18 +40,18 @@ Safe and optimal controller synthesis for switched-controlled hybrid systems, wh
 Digital controllers are key components of cyber-physical systems.
 Unfortunately, the algorithmic construction of controllers is intricate
 for any but the simplest
-systems #cite(label("lewis2012optimal")) #cite(label("doyle2013feedback")). This motivates
+systems #cite(label("A:lewis2012optimal")) #cite(label("A:doyle2013feedback")). This motivates
 the usage of rl, which is a powerful machine-learning method applicable
-to systems with complex and stochastic dynamics #cite(label("BusoniuBTKP18")).
+to systems with complex and stochastic dynamics #cite(label("A:BusoniuBTKP18")).
 
 However, while controllers obtained from rl provide near-optimal
 average-case performance, they do not provide guarantees about
 worst-case performance, which limits their application in many relevant
 but safety-critical domains, ranging from power converters to traffic
-control #cite(label("VlachogiannisH04")) #cite(label("NoaeenNGCAABF22")). A typical way to
+control #cite(label("A:VlachogiannisH04")) #cite(label("A:NoaeenNGCAABF22")). A typical way to
 tackle this challenge is to integrate safety into the optimization
 objective via #emph[reward shaping] during the learning phase, which
-punishes unsafe behavior #cite(label("10.5555/2789272.2886795")). This will
+punishes unsafe behavior #cite(label("A:10.5555/2789272.2886795")). This will
 make the controller more robust to a certain degree, but safety
 violations will still be possible, and the integration of safety into
 the optimization objective can reduce the performance, thus yielding a
@@ -74,7 +77,7 @@ controller that is neither safe nor optimal.
 
 A principled approach to obtain worst-case guarantees is to use a
 #emph[shield] that restricts the available
-actions #cite(label("DBLP:conf/tacas/BloemKKW15")). This makes it possible to
+actions #cite(label("A:DBLP:conf/tacas/BloemKKW15")). This makes it possible to
 construct correct-by-design and yet near-optimal controllers.
 @fig:shieldingTypes depicts two ways of shielding RL
 agents: #emph[pre-] and #emph[post-shielding]. Pre-shielding is already
@@ -97,10 +100,10 @@ as #emph[hybrid Markov decision processes] (HMDPs). In short, these are
 control systems where the controller can choose an action in a periodic
 manner, to which the environment chooses a stochastic continuous
 trajectory modeled by a stochastic hybrid
-automaton #cite(label("DBLP:journals/corr/abs-1208-3856")). While HMDPs
+automaton #cite(label("A:DBLP:journals/corr/abs-1208-3856")). While HMDPs
 represent many real-world systems, they are a rich extension of hybrid
 automata, and thus their algorithmic analysis is intractable even under
-serious restrictions #cite(label("HenzingerKPV98")). These complexity barriers
+serious restrictions #cite(label("A:HenzingerKPV98")). These complexity barriers
 unfortunately also carry over to the above problem of constructing a
 shield.
 
@@ -112,7 +115,7 @@ computation reduces to the (undecidable) reachability problem. Our key
 to get around this limitation is to approximate the transition relation
 through systematic sampling, in a way that is akin to the #emph[barbaric
 method] (a term credited to Oded
-Maler #cite(label("KapinskiKMS03")) #cite(label("Donze10"))).
+Maler #cite(label("A:KapinskiKMS03")) #cite(label("A:Donze10"))).
 
 We combine our technique with the tool #smallcaps[Uppaal Stratego] to
 learn a shielded near-optimal controller, which we evaluate in a series
@@ -125,31 +128,31 @@ of samples is sufficient in practice.
 
 #emph[Related work.] Enforcing safety during RL by limiting the choices
 available to the agent is a known concept, which is for instance applied
-in the tool #smallcaps[Uppaal Stratego] #cite(label("stratego")). The term
+in the tool #smallcaps[Uppaal Stratego] #cite(label("A:stratego")). The term
 "shielding" was coined by Bloem et
-al. #cite(label("DBLP:conf/tacas/BloemKKW15")), who introduced special
+al. #cite(label("A:DBLP:conf/tacas/BloemKKW15")), who introduced special
 conditions on the enforcer like #emph[shields with minimal interference]
 and #emph[k-stabilizing shields] and later demonstrated shielding for RL
-agents @AlshiekhBEKNT18, where they correct potentially
+agents @A:AlshiekhBEKNT18, where they correct potentially
 unsafe actions chosen by the RL agent. Jansen et
-al. #cite(label("jansen2020safe")) introduced shielding in the context of RL
+al. #cite(label("A:jansen2020safe")) introduced shielding in the context of RL
 for probabilistic systems. A concept similar to shielding has also been
 proposed for safe model predictive
-control #cite(label("BastaniL21")) #cite(label("WabersichZ21")). Carr et
-al. #cite(label("Carr0JT23")) show how to shield partially observable
+control #cite(label("A:BastaniL21")) #cite(label("A:WabersichZ21")). Carr et
+al. #cite(label("A:Carr0JT23")) show how to shield partially observable
 environments. In a related spirit, Maderbacher et al. start from a safe
 policy and switch to a learned policy if safe at run
-time #cite(label("MaderbacherSBBNK23")).
+time #cite(label("A:MaderbacherSBBNK23")).
 
 (Pre-)Shielding requires a model of the environment in order to provide
 safety guarantees during learning. Orthogonal to shielding, several
 model-free approaches explore an rl environment in a #emph[safer] way,
 but without any guarantees. Several works are based on barrier
-certificates and adversarial examples #cite(label("ChengOMB19")) #cite(label("LuoM21")) or
-Lyapunov functions #cite(label("HasanbeigAK20")). Similarly, Berkenkamp et
+certificates and adversarial examples #cite(label("A:ChengOMB19")) #cite(label("A:LuoM21")) or
+Lyapunov functions #cite(label("A:HasanbeigAK20")). Similarly, Berkenkamp et
 al. describe a method to provide a safe policy with high
-probability #cite(label("BerkenkampTS017")). Chow et al. consider a relaxed
-version of safety based on expected cumulative cost #cite(label("ChowNDG18")).
+probability #cite(label("A:BerkenkampTS017")). Chow et al. consider a relaxed
+version of safety based on expected cumulative cost #cite(label("A:ChowNDG18")).
 In contrast to these model-free approaches, we assume a model of the
 environment, which allows us to safely synthesize a shield just from
 simulations before the learning phase. We believe that the assumption of
@@ -158,17 +161,17 @@ that our formalism allows for probabilistic modeling of uncertainties.
 To the best of our knowledge, none of the above works can be used in
 practice for safe rl in the complex class of HMDPs.
 
-Larsen et al. #cite(label("10.1007/978-3-030-23703-5_6")) used a set-based
+Larsen et al. #cite(label("A:10.1007/978-3-030-23703-5_6")) used a set-based
 Euler method to overapproximate reachability for continuous systems.
 This method was used to obtain a safety strategy and a safe near-optimal
 controller. Contrary to that work, we apply both pre- and
 post-shielding, and our method is applicable to more general hybrid
 systems. We employ state-space partitioning, which is common for control
-synthesis #cite(label("MajumdarOS20")) and reachability
-analysis #cite(label("KlischatA20")) and is also used in recent work on
+synthesis #cite(label("A:MajumdarOS20")) and reachability
+analysis #cite(label("A:KlischatA20")) and is also used in recent work on
 learning a safe controller for discrete stochastic systems in a
-teacher-learner framework #cite(label("ZikelicLHC23")). Contemporary work by
-Badings et al. #cite(label("badings_robust_2023")) also uses a finite
+teacher-learner framework #cite(label("A:ZikelicLHC23")). Contemporary work by
+Badings et al. #cite(label("A:badings_robust_2023")) also uses a finite
 state-space abstraction along with sample-based reachability estimation,
 to compute a reach-avoid controller. The method assumes linear dynamical
 systems with stochastic disturbances, to obtain upper and lower bounds
@@ -178,9 +181,9 @@ allows for further optimization of secondary objectives.
 
 A special case of the HMDPs we consider is the class of stochastic
 hybrid systems (SHSs). Existing reachability approaches are based on
-state-space partitioning #cite(label("AbateAPLS07")) #cite(label("ShmarovZ15")), which we
+state-space partitioning #cite(label("A:AbateAPLS07")) #cite(label("A:ShmarovZ15")), which we
 also employ in this work, or have a statistical
-angle #cite(label("Bujorianu12")). We are not aware of any works that extended
+angle #cite(label("A:Bujorianu12")). We are not aware of any works that extended
 SHSs to HMDPs.
 
 #emph[Outline.] The remainder of the paper is structured as follows. In
@@ -202,7 +205,7 @@ stochastic dynamics.
 === Euclidean Markov Decision Processes
 <euclidean-markov-decision-processes>
 A Euclidean Markov decision process
-(EMDP) #cite(label("DBLP:conf/atva/JaegerJLLST19")) #cite(label("randomwalk")) is a
+(EMDP) #cite(label("A:DBLP:conf/atva/JaegerJLLST19")) #cite(label("A:randomwalk")) is a
 continuous-space extension of a Markov decision process (MDP). We recall
 its definition below.
 
@@ -285,7 +288,7 @@ In a more refined view, the agent proposes actions with some period $P$,
 and the response of the environment is a stochastic, time-bounded
 trajectory (bounded by the period $P$) over the state space. For this
 response, we use a stochastic hybrid system
-(SHS) #cite(label("DBLP:journals/corr/abs-1208-3856")) #cite(label("DBLP:conf/formats/Larsen12")),
+(SHS) #cite(label("A:DBLP:journals/corr/abs-1208-3856")) #cite(label("A:DBLP:conf/formats/Larsen12")),
 which allows the environment to interleave continuous evolution and
 discrete jumps.
 
@@ -328,7 +331,7 @@ $H eq lr((cal(S) comma F comma mu comma eta))$ where
 
 #example(name: "Bouncing ball")[
   To represent an SHS, we use a stochastic hybrid automaton
-  (SHA) #cite(label("DBLP:journals/corr/abs-1208-3856")), which we only introduce
+  (SHA) #cite(label("A:DBLP:journals/corr/abs-1208-3856")), which we only introduce
   informally here. @fig:BBBehaviour shows an SHA of a
   bouncing ball, which we use as a running example. Here the state of the
   ball is given by a pair $lr((p comma v))$ of continuous variables, where
@@ -501,7 +504,7 @@ are safe.
 === Partitioning and Strategies
 <partitioning-and-strategies>
 Given the infinite-state nature of the EMDP $M$, we will resort to
-finite partitioning (similar to  #cite(label("ZikelicLHC23"))) of the state
+finite partitioning (similar to  #cite(label("A:ZikelicLHC23"))) of the state
 space in order to algorithmically synthesize nondeterministic safety
 strategies. Given a predefined granularity $gamma$, we partition the
 state space into disjoint regions of equal size (we do this for
@@ -559,11 +562,11 @@ $ bb(S)_phi eq phi^A inter brace.l mu divides exists a dot.basic med forall mu p
 Given the finiteness of $A$ and monotonicity
 of @defeq, $bb(S)_phi$ may be obtained in a finite
 number of interations using Tarski’s fixed-point
-theorem #cite(label("Tarski55")).
+theorem #cite(label("A:Tarski55")).
 
 A (nondeterministic) strategy for $T_M^A$ is a function
 $nu colon A arrow.r 2^(italic("Act"))$. The most permissive safety
-strategy $nu_phi$ obtained from $bb(S)_phi$ #cite(label("BernetJW02")) is given
+strategy $nu_phi$ obtained from $bb(S)_phi$ #cite(label("A:BernetJW02")) is given
 by
 $ nu_phi lr((mu)) eq brace.l a divides forall mu prime dot.basic med mu arrow.r^a mu prime arrow.r.double.long mu prime in bb(S)_phi brace.r dot.basic $
 
@@ -613,11 +616,11 @@ $ exists lr((p comma v)) in mu dot.basic med F lr((lr((p comma v)) comma P)) in 
 )<MCAlgo>
 
 For this simple example, the validity of the formula can be
-decided #cite(label("Tarski48")), which may however require doubly exponential
-time #cite(label("DavenportH88")), and worse, when considering nonlinear
+decided #cite(label("A:Tarski48")), which may however require doubly exponential
+time #cite(label("A:DavenportH88")), and worse, when considering nonlinear
 dynamics with, e.g., trigonometric functions, the problem becomes
-undecidable #cite(label("Laczkovich03")). One can obtain a conservative answer
-via over-approximate reachability analysis #cite(label("DFPP18")); in
+undecidable #cite(label("A:Laczkovich03")). One can obtain a conservative answer
+via over-approximate reachability analysis #cite(label("A:DFPP18")); in
 @sec:experiments we compare to such an approach and
 demonstrate that, while effective, that approach also does not scale.
 This motivates to use an efficient and robust alternative. We propose to
@@ -695,7 +698,7 @@ action that leads to the highest performance.
 )
 <fig:StrategoMyPreShielding>
 
-We use #smallcaps[Uppaal Stratego] #cite(label("stratego")) to train a shielded
+We use #smallcaps[Uppaal Stratego] #cite(label("A:stratego")) to train a shielded
 agent based on $sigma_phi$. The complete workflow of pre-shielding and
 learning is depicted in @fig:StrategoMyPreShielding.
 Starting from the EMDP, we partition the state space, obtain the
@@ -718,7 +721,7 @@ aspects of our shields. In addition to the random walk
 benchmark cases:
 
 - #emph[Cruise
-  control] #cite(label("larsen2015cruisecontrol")) #cite(label("10.1007/978-3-030-23703-5_6")) #cite(label("DBLP:conf/qest/AshokKLCTW19")):
+  control] #cite(label("A:larsen2015cruisecontrol")) #cite(label("A:10.1007/978-3-030-23703-5_6")) #cite(label("A:DBLP:conf/qest/AshokKLCTW19")):
   A car is controlled to follow another car as closely as possible
   without crashing. Either car can accelerate, keep its speed, or
   decelerate freely, which makes finding a strategy challenging. This
@@ -726,13 +729,13 @@ benchmark cases:
   was carefully designed, while our method can be directly applied
   without human effort.
 
-- #emph[DC-DC converter] #cite(label("dcdcconverter")): This industrial DC-DC
+- #emph[DC-DC converter] #cite(label("A:dcdcconverter")): This industrial DC-DC
   boost converter transforms input voltage of $10$V to output voltage of
   $15$V. The controller switches between storing energy in an inductor
   and releasing it. The output must stay in $plus.minus 0.5$V around
   $15$V, and the amount of switching should be minimized.
 
-- #emph[Oil pump] #cite(label("hydac")): In this industrial case, flow of oil
+- #emph[Oil pump] #cite(label("A:hydac")): In this industrial case, flow of oil
   into an accumulator is controlled to satisfy minimum and maximum
   volume constraints, given a consumption pattern that is
   piecewise-constant and repeats every $20$ seconds. Since the exact
@@ -796,8 +799,8 @@ the potential of post-optimization for post-shielding.<lab:exp:postopt>
 
 All experiments are conducted on an AMD Ryzen 7 5700x with 33 GiB RAM.
 Our implementation is written in Julia, and we use #smallcaps[Uppaal
-Stratego] #cite(label("stratego")) for learning and statistical model checking.
-The experiments are available online #cite(label("REP")).
+Stratego] #cite(label("A:stratego")) for learning and statistical model checking.
+The experiments are available online #cite(label("A:REP")).
 
 === Quality of the Approximated Transition System
 <quality-of-the-approximated-transition-system>
@@ -835,11 +838,11 @@ alternative to @MCAlgo one can use a
 reachability algorithm to obtain an overapproximation of the transition
 relation $arrow.r^a$. Here we analyze the performance of such an
 approach based on the reachability tool
-#smallcaps[JuliaReach] #cite(label("JuliaReach")). Given a set of initial
+#smallcaps[JuliaReach] #cite(label("A:JuliaReach")). Given a set of initial
 states of a hybrid automaton where we have substituted probabilities by
 nondeterminism, #smallcaps[JuliaReach] can compute an overapproximation
 of the successor states. In #smallcaps[JuliaReach], we select the
-reachability algorithm from #cite(label("GuernicG09")). This algorithm uses
+reachability algorithm from #cite(label("A:GuernicG09")). This algorithm uses
 time discretization, which requires a small time step to give precise
 answers. This makes the approach expensive. For instance, for the
 bouncing-ball system, the time period is $P eq 0.1$ time units, and a
@@ -1174,7 +1177,7 @@ leaves room for further optimization, for which we can use
 three ways to resolve nondeterminism:
 1) minimizing interventions,
 2) minimizing cost and
-3) at the preference of the shielded agent (the so-called Q-value #cite(label("Watkins89"))).
+3) at the preference of the shielded agent (the so-called Q-value #cite(label("A:Watkins89"))).
 
 @tab:CCPostShieldComparison shows the effect of
 post-optimization on the cost and the number of interventions for the
@@ -1202,4 +1205,15 @@ performance compared to post-shielding.
 
 Future work includes applying the method to more complex systems, and
 using formal methods to verify the resulting safety strategies, maybe
-based on #cite(label("ForetsFS20")).
+based on #cite(label("A:ForetsFS20")).
+
+
+#[
+  #set heading(numbering: none) 
+  == References
+
+  #bibliographyx("../Bibliography.bib",
+    prefix: "A:",
+    title: none,
+  )
+]

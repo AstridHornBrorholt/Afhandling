@@ -4,6 +4,6 @@
 #show: apply_style
 
 #include "MyNotes.typ"
+
 #include "Mainmatter/Introduction.typ"
 
-#bibliography("Bibliography.bib")
