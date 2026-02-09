@@ -56,15 +56,15 @@ An MDP can be described by a tuple $(S, s_0 Act, P, R)$ where
   - $S$ is a set of states,
   - $s_0 in S$ is an initial state,
   - $Act$ is a set of actions,
-  - $P : S times Act times S -> [0; 1]$ with  $forall s in S, a in Act : sum_(s' in S) P(s, a, s') = 1$ gives the probability of reaching state $s'$ from state $s$ as a result of  taking the action $a$, 
-  - and $R : S times Act -> RR$ gives the reward $R(s, a)$ for taking action $a$ in state $s$.
+  - $P : S times Act times S -> [0; 1]$ with  $forall s in S, a in Act : sum_(s' in S) P(s, a, s') = 1$ is the transition function, which gives the  probability of reaching state $s'$ from state $s$ as a result of  taking the action $a$, 
+  - and $R : S times Act times S -> RR$ gives the reward $R(s, a, s')$ for reaching $s'$ by taking $a$ in $s$.
 ]<def:mdp>
 
 This definition allows the state space to be finite, or countably infinite.
 There may be other forms of models, for example describing an uncountably infinite (continuous) state-space. 
 In this case, the transition probability must be modified to give a density function over a set of states, rather than giving probabilities for specific states. 
 I.e. 
-$P : S times Act -> S -> RR_(>=0)$ such that $integral_(s' in S) P(s, a)(s') = 1 d s'$.
+$P : S times Act -> (S -> RR_(>=0))$ such that $integral_(s' in S) P(s, a)(s') = 1 d s'$.
 
 The definition also requires every action $a in Act$ to be defined for every state in $S$. 
 This assumption about the model is made w.l.o.g. to simplify notation.
@@ -75,10 +75,10 @@ A _policy,_  is any method (such as a reinforcement learning agent) for choosing
 Policies can either be 
  - _probabilistic_ $S times Act -> [0; 1]$, giving a probability distribution over actions, 
  - _deterministic_ $S -> Act$, uniquely selecting one specific action for each state, 
- - or _nondeterministic_ $S -> powerset(Act)$, giving a subset $A in Act$ of possible actions. 
+ - or _nondeterministic_ $S -> powerset(Act)$, giving a subset $A subset.eq Act$ of possible actions. 
 
-Given an e.g. nondeterministic policy $sigma : S -> powerset(Act)$, a trace $xi$ of an MDP is an interleaved series of states and actions $xi = s_0 a_0 s_1 a_1 s_2 a_2 ...$ such that $a_i in sigma(s_i)$ and $P(s_i, a_i, s_(i+1))$.
-Since @def:mdp does not include a stopping condition, this implies infinite traces. A finite trace $s_1, a_1 ... a_(n-1), s_n$ can be defined by considering part of an infinite trace, or by introducing a stopping criterion. This could be a set of terminal states $T$, or a probability $1 - gamma$ that the system abruptly halts. 
+Given an e.g. nondeterministic policy $sigma : S -> powerset(Act)$, a trace $xi$ of an MDP is an interleaved series of states and actions $xi = s_0 a_0 s_1 a_1 s_2 a_2 ...$ such that $a_i in sigma(s_i)$ and $P(s_i, a_i, s_(i+1))$. Traces are defined similarly for deterministic and probabilistic functions.
+Since @def:mdp does not include a stopping condition, traces will be infinite. A finite trace $s_1, a_1 ... a_(n-1), s_n$ can be defined as the first $n$ steps of an infinite trace, or by introducing a stopping criterion. This could be a set of terminal states $T$, or a probability $1 - gamma$ that the system abruptly halts. 
 
 Given a set $phi subset.eq S$ of safe states, we say a trace $xi$ is safe (with regards to $phi$) if for every $s_i$ in $xi$, $s_i in phi$.
 
@@ -97,8 +97,8 @@ This definition is less useful for infinite traces, as we will see in the follow
 
 To measure the relative usefulness of strategies over an infinite horizon, a  discount factor $gamma in ]0; 1]$ is applied to the reward, giving preference to more immediate gains.
 This _discounted_ reward is defined as $R_gamma (xi) = sum_(i=0)^infinity gamma^i R(s_i)$. 
-Note that in the special case where $gamma = 1$, $R_gamma$ is the same as the undiscounted reward $R$.
-The discount factor $gamma$ may be interpreted as the probability that the trace continues, while with probability $1 - gamma$ the trace may end in the next step, losing access to future rewards.
+Note that in the special case where $gamma = 1$, $R_1$ is the same as the undiscounted reward $R$.
+The discount factor $gamma$ may be interpreted as the probability of the trace continuing, while with probability $1 - gamma$ the trace may end in the next step, losing access to future rewards.
 
 #example[
   With $sigma_1$ and $sigma_2$ as in @ex:undiscounted, we can use a discounted reward to compare them.
@@ -149,6 +149,7 @@ If the model includes terminal states, the algorithm can be modified with an add
       number of steps $n$,
       discount factor $gamma$,
       learning rate $alpha : NN -> [0; 1[$,
+      initial $Q_0 : S -> RR$,
       and 
       exploration factor $epsilon in ]0; 1]$.
       
@@ -159,17 +160,18 @@ If the model includes terminal states, the algorithm can be modified with an add
       + Take action $a_i$ in state $s_i$ and observe the next state $s_(i + 1)$
       // + Select $s_(i + 1)$ according to the distribution ${(s, p) | s in S, p = P(s_i, a_i, s)}$
       + #line-label(<l:QUpdate>) 
-        $Q_(i+1) (s_i, a_i) = Q_i (s_i, a_i) + alpha (i) (R(s_(i+1)) + gamma max_a Q_i (s_(i+1), a) - Q_i (s_i, a_i))$
-    + *Return* $hat(sigma) (s) = argmax_a Q_i (s, a)$
+        $Q_(i+1) (s_i, a_i) &= \ &Q_i (s_i, a_i) + alpha (i) (R(s_i, a, s_(i+1)) + gamma max_a Q_i (s_(i+1), a) - Q_i (s_i, a_i))$
+    + *Return* $hat(sigma) (s) = argmax_a Q_(i + 1) (s, a)$
   ],
   caption: "Q-learning"
 )<alg:QLearning>
 
 The approximate policy will, with probability 1, converge $lim_(n -> infinity) hat(sigma) = sigma^star$ under the following  additional assumptions:
- - The reward is bounded,#footnote[Trivially satisfied for MDPs with finite state space.] i.e. $exists beta in RR forall s in S : R(s) < beta$ .
+ - The reward attainable in a single step is bounded,#footnote[Trivially satisfied for MDPs with finite state space.] i.e. $exists beta in RR forall s in S : R(s, a, s') < beta$ .
  - The initial state $s_0$ is reachable in one or more steps, from every other state in $S$.
 
-Due to the $epsilon$-greedy exploration strategy, the latter assumption is will guarantee that each reachable state $s$ is visited infinitely often. It will further guarantee that each action $a$ is taken infinitely often at each $s$. This lets the Q-update in @l:QUpdate accurately estimate the true expected value of executing $a$ in $s$. 
+Due to the $epsilon$-greedy exploration strategy, the latter assumption is will guarantee that each reachable state $s$ is visited infinitely often. It will further guarantee that each action $a$ is taken infinitely often at each $s$, that is reachable from $s_0$.
+This lets the Q-update in @l:QUpdate accurately estimate the true expected value of executing $a$ in $s$. 
 In a model with terminal states, this guarantee can be met by ensuring that traces terminate with probability 1. Similarly, the model may be constructed so it resets to $s_0$ with a small probability $1 - gamma$ each step.
 
 
@@ -178,30 +180,37 @@ In a model with terminal states, this guarantee can be met by ensuring that trac
   Return to 🤖 when visiting 🪙 or 💀.
   Reward 10 for visiting 🪙. Reward -100 for visiting 💀.
 
-  Parameters: $gamma = 0.99$, $epsilon = 0.01$, $alpha(i) = cases(0.1 "if" i < n/4, 0.1/(1 + 0.01*(t - i/4)))$
-  #figure(table(
-      stroke: 0.6pt,
-      columns: (4em, 4em, 4em, 4em),
-      rows: 4,
-      inset: 8pt,
-      [1], [2], [3], [4 \ #hide([🧊])],
-      [5], [6], [7], [8 \ #hide([🧊])],
-      [9], [10], [11 \ 🧊], [12],
-      [13 \ 🤖], [14], [15 \ 💀], [16 \ 🪙],
-    ),
-    caption: [A simple grid-world.]
-  )
+  Parameters: $gamma = 0.99$, $epsilon(i) = alpha(i) = cases(0.1 "if" i < n/4, 0.1/(1 + 0.01*(t - i/4)))$
+    #figure(
+      {
+        set text(size: 6pt, fill: alizarin)
+        table(
+          stroke: 0.6pt,
+          columns: (4em, 4em, 4em, 4em),
+          rows: 4,
+          inset: 3pt,
+          [ 1], [ 2], [ 3], [ 4 \ #hide([🧊])],
+          [ 5], [ 6], [ 7], [ 8 \ #hide([🧊])],
+          [ 9], [ 10], [ 11 \ 🧊], [12],
+          [ 13 \ 🤖], [ 14], [ 15 \ 💀], [ 16 \ 🪙],
+        )
+      },
+      caption: [A simple grid-world.]
+    )
+  
 
   #subpar.grid(columns: 3, 
-    figure(image("../Graphics/Intro/Q-learning 100.svg"),
-      caption: [Cumulative reward up to 100 steps]
+    figure(image("../Graphics/Intro/Q-learning 100.png"),
+      caption: [Cumulative reward up to 100 steps \ #hide("hello")]
     ),
-    figure(image("../Graphics/Intro/V-table 100.svg"),
-      caption: [Value $max_a Q(s, a)$ after 100 steps.]
+    figure(image("../Graphics/Intro/V-table 100.png"),
+      caption: [Action and value $max_a Q(s, a)$ \ after 100 steps.]
     ),
-    figure(image("../Graphics/Intro/V-table 10000.svg"),
-      caption: [Value $max_a Q(s, a)$ after 10000 steps.]
+    figure(image("../Graphics/Intro/V-table 10000.png"),
+      caption: [Action and value $max_a Q(s, a)$ \ after 10000 steps.]
     ),
+    label: <fig:gridQ>,
+    caption: [Q-learning in the grid world.]
   )
 ]
 

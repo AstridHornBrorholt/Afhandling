@@ -22,6 +22,7 @@ begin
 	using PlutoUI
 	using PlutoTest
 	using Distributions
+	using StatsBase
 end
 
 # ╔═╡ 486fa7ef-cc79-4b3c-a739-8af9b5cae326
@@ -47,8 +48,8 @@ S = [
 
 # ╔═╡ 05e698fa-9cdd-4ef9-a2b3-be29e6d53eff
 begin
-	🧊 = 11
-	s₀ = 13
+	🧊 = Set([10, 11])
+	🤖 = 14
 	💀 = 15
 	🪙 = 16
 end;
@@ -98,10 +99,12 @@ let
 		annotate!(y - 0.90, x - 0.90, text(S[x, y], 10))
 	end
 
-	x, y = indexof(🧊)
-	annotate!(y - 0.50, x - 0.50, text("⁣🧊", 30, "Fira sans"))
+	for 🧊′ in 🧊
+		x, y = indexof(🧊′)
+		annotate!(y - 0.50, x - 0.50, text("⁣🧊", 30, "Fira sans"))
+	end
 
-	x, y = indexof(s₀)
+	x, y = indexof(🤖)
 	annotate!(y - 0.50, x - 0.50, text("⁣🤖", 30, "Fira sans"))
 
 	x, y = indexof(💀)
@@ -124,7 +127,7 @@ function f(s, a)
 	end
 
 	# Chance to slip
-	if s == 🧊 && rand(1:5) == 1
+	if s ∈ 🧊 && rand(1:2) == 1
 		a = rand(A)
 	end
 
@@ -158,7 +161,7 @@ end
 f(s, a)
 
 # ╔═╡ 25742c1b-2577-42ff-85b9-7a1271f8ae38
-[f(🧊, :→) for _ in 1:20]
+[f(10, :→) for _ in 1:20]
 
 # ╔═╡ ac71275d-18b4-4e8c-aa94-220f4a6f5bee
 @test f(5, :←) == 5
@@ -170,7 +173,7 @@ f(s, a)
 @test f(3, :→) == 4
 
 # ╔═╡ 7fb3f565-9005-4759-a0a6-10fb8fbec5b9
-@test f(11, :→) == 12
+@test f(9, :→) == 10
 
 # ╔═╡ 0a1e6927-5e45-430c-848f-cdd68e4321f0
 @test f(12, :↓) == 🪙
@@ -181,31 +184,6 @@ f(s, a)
 # ╔═╡ 6a18cd77-9373-4883-a474-9edcd73612db
 md"""
 ## Mainmatter
-"""
-
-# ╔═╡ 9e578974-ba8d-4df9-95c4-b312f6020e35
-# ϵ-greedy choice from Q.
-function ϵ_greedy(ϵ::Number, Q, s)
-	if rand(Uniform(0, 1)) < ϵ
-		return rand(A)
-	else
-		return argmax((a) -> Q[s, a], A)
-	end
-end
-
-# ╔═╡ 65ce31d7-3efc-45f0-8aa7-e635aa5138c9
-# It's important for the Q-updates that the terminal states are zero
-Q_init = Dict{Tuple{Int64, Symbol}, Float64}(
-	(s, a) => 0 
-	for s in S, a in A
-)
-
-# ╔═╡ e84716bf-f49f-460d-96e8-2e68aec1077d
-[ϵ_greedy(0.2, Q_init, 1) for _ in 1:10]
-
-# ╔═╡ 3b4e1eec-f41f-4fe2-9332-f550f58b6cb3
-md"""
-### This is Where Training Happens
 """
 
 # ╔═╡ 824959db-709c-4981-b41f-21cd84534a7e
@@ -221,15 +199,48 @@ md"""
 # ╔═╡ 031ee7b6-924d-48ba-82ea-d8c0ccf7ad48
 @bind γ NumberField(0.0001:0.0001:1, default=0.99)
 
-# ╔═╡ 1aacbba5-faf8-4c11-8637-5d5ca6548e9b
-best_a(Q, s) = argmax(a -> Q[s, a], A)
+# ╔═╡ 65ce31d7-3efc-45f0-8aa7-e635aa5138c9
+# It's important for the Q-updates that the terminal states are zero
+Q_init = Dict{Tuple{Int64, Symbol}, Float64}(
+	(s, a) => 0 
+	for s in S, a in A
+)
+
+# ╔═╡ 2a60f299-1284-49ab-b06f-9cd1a9865d05
+begin
+	epsilon_proc = Ref(0)
+	steps = Ref(0)
+end
+
+# ╔═╡ 9e578974-ba8d-4df9-95c4-b312f6020e35
+# ϵ-greedy choice from Q.
+function ϵ_greedy(ϵ::Number, Q, s)
+	steps[] += 1
+	if rand(Uniform(0, 1)) < ϵ
+		epsilon_proc[] += 1
+		return rand(A)
+	else
+		return argmax((a) -> Q[s, a], A)
+	end
+end
+
+# ╔═╡ e84716bf-f49f-460d-96e8-2e68aec1077d
+[ϵ_greedy(0.2, Q_init, 1) for _ in 1:10]
+
+# ╔═╡ 1794648d-5d7c-4e9e-b402-6d7a352f3d32
+epsilon_proc[]/steps[]
+
+# ╔═╡ 3b4e1eec-f41f-4fe2-9332-f550f58b6cb3
+md"""
+### This is Where Training Happens
+"""
 
 # ╔═╡ 7aa16fa3-4473-400d-9dac-278994fa2952
 @bind episodes NumberField(0:typemax(Int64), default=5)
 
 # ╔═╡ ce77f7fd-f877-40a2-b463-da2932f42fe6
 function ϵ(t; episodes=episodes)
-	return ϵ_base
+	#return ϵ_base
 	if t < episodes/4
 		ϵ_base
 	else
@@ -261,8 +272,8 @@ end
 # ╔═╡ 2f9c55d9-afb8-440b-98c5-17321ce58d36
 function Q_episode!(Q, i)
 	R =  0
-	Sₜ = s₀
-	Aₜ = rand(A)
+	Sₜ = 🤖
+	Aₜ = ϵ_greedy(ϵ(i), Q, Sₜ)
 	ξ = []
 	for t ∈ 1:T
 		Sₜ₊₁ = f(Sₜ, Aₜ)
@@ -299,6 +310,9 @@ function Q_learn!(Q)
 	return rewards
 end
 
+# ╔═╡ def7620e-3170-4542-8098-22edfd4f91f4
+ϵ(1000)
+
 # ╔═╡ db10ce55-cf88-4caf-8b18-913be69687a1
 begin
 	episodes
@@ -307,21 +321,30 @@ begin
 end
 
 # ╔═╡ b72996b7-0f3c-43ae-8141-1d907d26bb13
-plot(rewards, 
-	 label=nothing, 
-	 xlabel="Step",
-	 ylabel="Reward",
-	 ylim=(-150, 15), 
-	 yticks=[-150, -100, -50, 0, 10],
-	 size=(400, 400))
+if episodes < 100000
+	plot(rewards, 
+		 fontfamily="times",
+		 label=nothing, 
+		 xlabel="Episode",
+		 ylabel="Reward",
+		 ylim=(-150, 15), 
+		 yticks=[-150, -100, -50, 0, 10],
+		 size=(400, 400))
+else
+	"too much to plot"
+end
 
 # ╔═╡ e5185211-21f8-4918-93b5-5e221baa7487
-rewards; V = [max([Q[s, a] for a in A]...) for s in S]
+V = [max([Q[s, a] for a in A]...) for s in S]
+
+# ╔═╡ 1aacbba5-faf8-4c11-8637-5d5ca6548e9b
+best_a(Q, s) = argmax(a -> Q[s, a], A)
 
 # ╔═╡ cf2299a3-6533-4f24-8e44-7d42fd51a2cb
 let
 	mm = Plots.Measures.mm
 	heatmap(V,
+		fontfamily="times",
 		color=cgrad([:white, :wheat]),
 		xlabel="x",
 		ylabel="y",
@@ -333,29 +356,37 @@ let
 		margin=2mm,
 		size=(400, 400))
 
-	x, y = indexof(🧊)
-	annotate!(y - 0.10, x - 0.30, text("⁣🧊", 15, "Fira sans"))
+	for 🧊′ in 🧊
+		x, y = indexof(🧊′)
+		annotate!(y + 0.05, x - 0.30, text("⁣🧊", 15, "Fira sans"))
+	end
 
-	x, y = indexof(s₀)
-	annotate!(y - 0.10, x - 0.30, text("⁣s₀", 15, "Fira sans"))
+	x, y = indexof(🤖)
+	annotate!(y + 0.05, x - 0.30, text("⁣🤖", 15, "Fira sans"))
 
 	x, y = indexof(💀)
-	annotate!(y - 0.10, x - 0.30, text("⁣💀", 15, "Fira sans"))
+	annotate!(y + 0.05, x - 0.30, text("⁣💀", 15, "Fira sans"))
 
 	x, y = indexof(🪙)
-	annotate!(y - 0.10, x - 0.30, text("⁣🪙", 15, "Fira sans"))
+	annotate!(y + 0.05, x - 0.30, text("⁣🪙", 15, "Fira sans"))
 	
 	for x in 1:4, y in 1:4
 		annotate!(y - 0.30, x - 0.30, text(S[x, y], :crimson, 10))
 		is_terminal(S[x, y]) && continue
 		annotate!(y, x + 0.00, text(best_a(Q, S[x, y]), :gray))
-		annotate!(y, x + 0.30, text(round(V[x, y], digits=2)), :black)
+		annotate!(y, x + 0.30, text(round(V[x, y], digits=2), "times"), :black)
 	end
 	plot!()
 end
 
 # ╔═╡ ce581d0e-a772-4c15-ae96-3eba9ff79a3f
 Q[14, :→]
+
+# ╔═╡ 1bc2ba1a-9634-4b92-95ce-38b79c571f55
+0.5*0.25
+
+# ╔═╡ 6e0a220d-4ce6-4762-89c5-c7036b5e1624
+r(💀)*γ^2*0.5*0.25*0.5*0.25
 
 # ╔═╡ 00000000-0000-0000-0000-000000000001
 PLUTO_PROJECT_TOML_CONTENTS = """
@@ -364,12 +395,14 @@ Distributions = "31c24e10-a181-5473-b8eb-7969acd0382f"
 Plots = "91a5bcdd-55d7-5caf-9e0b-520d859cae80"
 PlutoTest = "cb4044da-4d16-4ffa-a6a3-8cad7f73ebdc"
 PlutoUI = "7f904dfe-b85e-4ff6-b463-dae2292396a8"
+StatsBase = "2913bbd2-ae8a-5f71-8c99-4fb6c76f3a91"
 
 [compat]
 Distributions = "~0.25.120"
 Plots = "~1.41.1"
 PlutoTest = "~0.2.2"
 PlutoUI = "~0.7.73"
+StatsBase = "~0.34.9"
 """
 
 # ╔═╡ 00000000-0000-0000-0000-000000000002
@@ -378,7 +411,7 @@ PLUTO_MANIFEST_TOML_CONTENTS = """
 
 julia_version = "1.11.5"
 manifest_format = "2.0"
-project_hash = "0679934663699c644f542f83b6093e929b95883a"
+project_hash = "89350a35fae678cc6b1e39f921e7e8f7c7fa1867"
 
 [[deps.AbstractPlutoDingetjes]]
 deps = ["Pkg"]
@@ -1616,25 +1649,30 @@ version = "1.13.0+0"
 # ╠═0a1e6927-5e45-430c-848f-cdd68e4321f0
 # ╠═a58cc125-a624-47e5-8a87-ded8bbdd1400
 # ╟─6a18cd77-9373-4883-a474-9edcd73612db
+# ╠═824959db-709c-4981-b41f-21cd84534a7e
+# ╠═b38a2695-8674-4cb2-aa64-19e036dba201
+# ╠═ab7ee3f2-79f0-4f92-b98f-95ea8758d4cd
+# ╠═031ee7b6-924d-48ba-82ea-d8c0ccf7ad48
 # ╠═9e578974-ba8d-4df9-95c4-b312f6020e35
 # ╠═65ce31d7-3efc-45f0-8aa7-e635aa5138c9
 # ╠═e84716bf-f49f-460d-96e8-2e68aec1077d
-# ╟─3b4e1eec-f41f-4fe2-9332-f550f58b6cb3
-# ╠═824959db-709c-4981-b41f-21cd84534a7e
-# ╠═b38a2695-8674-4cb2-aa64-19e036dba201
 # ╠═ce77f7fd-f877-40a2-b463-da2932f42fe6
 # ╠═cc8676e4-57fd-4bcc-bd82-b0fe05f3faaa
 # ╠═fca65903-1802-4829-a3a6-649cf150bf1d
-# ╠═ab7ee3f2-79f0-4f92-b98f-95ea8758d4cd
-# ╠═031ee7b6-924d-48ba-82ea-d8c0ccf7ad48
 # ╠═14b48ff2-a8a5-4750-a66a-91e86aa5754e
 # ╠═2f9c55d9-afb8-440b-98c5-17321ce58d36
-# ╠═db10ce55-cf88-4caf-8b18-913be69687a1
-# ╠═1aacbba5-faf8-4c11-8637-5d5ca6548e9b
+# ╠═2a60f299-1284-49ab-b06f-9cd1a9865d05
+# ╠═1794648d-5d7c-4e9e-b402-6d7a352f3d32
+# ╟─3b4e1eec-f41f-4fe2-9332-f550f58b6cb3
 # ╠═7aa16fa3-4473-400d-9dac-278994fa2952
+# ╠═def7620e-3170-4542-8098-22edfd4f91f4
+# ╠═db10ce55-cf88-4caf-8b18-913be69687a1
 # ╠═b72996b7-0f3c-43ae-8141-1d907d26bb13
 # ╠═e5185211-21f8-4918-93b5-5e221baa7487
+# ╠═1aacbba5-faf8-4c11-8637-5d5ca6548e9b
 # ╠═cf2299a3-6533-4f24-8e44-7d42fd51a2cb
 # ╠═ce581d0e-a772-4c15-ae96-3eba9ff79a3f
+# ╠═1bc2ba1a-9634-4b92-95ce-38b79c571f55
+# ╠═6e0a220d-4ce6-4762-89c5-c7036b5e1624
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002
