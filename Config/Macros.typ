@@ -1,10 +1,10 @@
 #import "Colours.typ" : *
 
 
-#let infobox(content, title: none, width: 100%) = {
+#let infobox(content, name: none, width: 100%) = {
   set align(left)
   stack(dir: ttb,
-    box({set text(fill: white); title}, stroke: none, inset: 1em, fill: wetasphalt, width: width),
+    box({set text(fill: white); name}, stroke: none, inset: 1em, fill: wetasphalt, width: width),
     box(content, stroke: none, inset: 1em, fill: clouds, width: width),
   )
 }

@@ -144,23 +144,6 @@
   doi          = {10.5555/2789272.2886795}
 }
 
-@inproceedings{Carr0JT23,
-  author       = {Steven Carr and
-                  Nils Jansen and
-                  Sebastian Junges and
-                  Ufuk Topcu},
-  editor       = {Brian Williams and
-                  Yiling Chen and
-                  Jennifer Neville},
-  title        = {Safe Reinforcement Learning via Shielding under Partial Observability},
-  booktitle    = {{AAAI}},
-  pages        = {14748--14756},
-  publisher    = {{AAAI} Press},
-  year         = {2023},
-  url          = {https://doi.org/10.1609/aaai.v37i12.26723},
-  doi          = {10.1609/aaai.v37i12.26723}
-}
-
 @inproceedings{jansen2020safe,
   author       = {Nils Jansen and
                   Bettina K{\"{o}}nighofer and
@@ -2552,3 +2535,94 @@ publisher = "Aalborg University Open Publishing",
   bibsource    = {dblp computer science bibliography, https://dblp.org}
 }
 
+
+@inproceedings{giacobbe_shielding_2021,
+	location = {Richland, {SC}},
+	title = {Shielding Atari Games with Bounded Prescience},
+	isbn = {978-1-4503-8307-3},
+	url = {https://dl.acm.org/doi/10.5555/3463952.3464141},
+	series = {{AAMAS} '21},
+	abstract = {We present the first explicit-state method for analysing and ensuring the safety of {DRL} agents for Atari games. Our method only requires access to the emulator. We give a suite of 42 properties that characterise "safe behaviour" for 31 games. We evaluate the safety of the best available {DRL} agents which, as our experiments show, violate most of our properties. We propose a countermeasure that implements shielding using bounded explicit-state exploration. Our method improved their overall safety, producing the safest {DRL} agents for Atari games currently available.},
+	pages = {1507--1509},
+	booktitle = {Proceedings of the 20th International Conference on Autonomous Agents and {MultiAgent} Systems},
+	publisher = {International Foundation for Autonomous Agents and Multiagent Systems},
+	author = {Giacobbe, Mirco and Hasanbeig, Mohammadhosein and Kroening, Daniel and Wijk, Hjalmar},
+	urldate = {2026-02-20},
+	date = {2021},
+}
+
+
+@misc{xiao_model-based_2023,
+	title = {Model-based Dynamic Shielding for Safe and Efficient Multi-Agent Reinforcement Learning},
+	url = {http://arxiv.org/abs/2304.06281},
+	doi = {10.48550/arXiv.2304.06281},
+	abstract = {Multi-Agent Reinforcement Learning ({MARL}) discovers policies that maximize reward but do not have safety guarantees during the learning and deployment phases. Although shielding with Linear Temporal Logic ({LTL}) is a promising formal method to ensure safety in single-agent Reinforcement Learning ({RL}), it results in conservative behaviors when scaling to multi-agent scenarios. Additionally, it poses computational challenges for synthesizing shields in complex multi-agent environments. This work introduces Model-based Dynamic Shielding ({MBDS}) to support {MARL} algorithm design. Our algorithm synthesizes distributive shields, which are reactive systems running in parallel with each {MARL} agent, to monitor and rectify unsafe behaviors. The shields can dynamically split, merge, and recompute based on agents' states. This design enables efficient synthesis of shields to monitor agents in complex environments without coordination overheads. We also propose an algorithm to synthesize shields without prior knowledge of the dynamics model. The proposed algorithm obtains an approximate world model by interacting with the environment during the early stage of exploration, making our {MBDS} enjoy formal safety guarantees with high probability. We demonstrate in simulations that our framework can surpass existing baselines in terms of safety guarantees and learning performance.},
+	number = {{arXiv}:2304.06281},
+	publisher = {{arXiv}},
+	author = {Xiao, Wenli and Lyu, Yiwei and Dolan, John},
+	urldate = {2023-08-16},
+	date = {2023-04-13},
+	eprinttype = {arxiv},
+	eprint = {2304.06281 [cs]},
+	keywords = {Computer Science - Artificial Intelligence, Computer Science - Machine Learning, Computer Science - Multiagent Systems, Computer Science - Robotics, Study Circle},
+	file = {arXiv Fulltext PDF:/home/asger/Zotero/storage/QCCQJJ27/Xiao et al. - 2023 - Model-based Dynamic Shielding for Safe and Efficie.pdf:application/pdf;arXiv.org Snapshot:/home/asger/Zotero/storage/TCQT3DLP/2304.html:text/html},
+}
+
+
+@inproceedings{yang_safe_2023,
+	title = {Safe Reinforcement Learning via Probabilistic Logic Shields},
+	volume = {5},
+	issn = {1045-0823},
+	url = {https://www.ijcai.org/proceedings/2023/637},
+	doi = {10.24963/ijcai.2023/637},
+	abstract = {Electronic proceedings of {IJCAI} 2023},
+	eventtitle = {Thirty-Second International Joint Conference on Artificial Intelligence},
+	pages = {5739--5749},
+	author = {Yang, Wen-Chi and Marra, Giuseppe and Rens, Gavin and Raedt, Luc De},
+	urldate = {2023-10-05},
+	date = {2023-08-19},
+	langid = {english},
+	keywords = {Study Circle, Code Available},
+	file = {Full Text PDF:/home/asger/Zotero/storage/IKS5HM3F/Yang et al. - 2023 - Safe Reinforcement Learning via Probabilistic Logi.pdf:application/pdf},
+}
+
+
+@article{bloem_its_2020,
+	title = {It's Time to Play Safe: Shield Synthesis for Timed Systems},
+	volume = {abs/2006.16688},
+	url = {https://arxiv.org/abs/2006.16688},
+	shorttitle = {It's Time to Play Safe},
+	journaltitle = {{CoRR}},
+	author = {Bloem, Roderick and Jensen, Peter Gjøl and Könighofer, Bettina and Larsen, Kim Guldstrand and Lorber, Florian and Palmisano, Alexander},
+	urldate = {2026-02-20},
+	date = {2020},
+	eprinttype = {arxiv},
+	eprint = {2006.16688},
+	file = {arXiv Fulltext PDF:/home/asger/Zotero/storage/BXNV8Y8U/Bloem et al. - 2020 - It's Time to Play Safe Shield Synthesis for Timed.pdf:application/pdf;arXiv.org Snapshot:/home/asger/Zotero/storage/88T7NNJ7/2006.html:text/html},
+}
+
+@article{carr_compositional_2025,
+	title = {Compositional Shield Synthesis for Safe Reinforcement Learning in Partial Observability},
+	issn = {2694-085X},
+	url = {https://ieeexplore.ieee.org/abstract/document/11172329},
+	doi = {10.1109/OJCSYS.2025.3611725},
+	pages = {1--12},
+	journaltitle = {{IEEE} Open Journal of Control Systems},
+	author = {Carr, Steven and Bakirtzis, Georgios and Topcu, Ufuk},
+	urldate = {2025-10-06},
+	date = {2025},
+	keywords = {reinforcement learning, Reinforcement learning, Control systems, Safety, safety, Runtime, Uncertainty, Scalability, Markov decision processes, and shielding, Cognition, compositionality, History, Sensors, uncertainty},
+}
+
+@misc{court_probabilistic_2025,
+	title = {Probabilistic Shielding for Safe Reinforcement Learning},
+	url = {http://arxiv.org/abs/2503.07671},
+	doi = {10.48550/arXiv.2503.07671},
+	publisher = {{arXiv}},
+	author = {Court, Edwin Hamel-De le and Belardinelli, Francesco and Goodall, Alexander W.},
+	urldate = {2025-09-25},
+	date = {2025-03-25},
+	eprinttype = {arxiv},
+	eprint = {2503.07671 [stat]},
+	keywords = {Computer Science - Artificial Intelligence, Computer Science - Machine Learning, Statistics - Machine Learning},
+}

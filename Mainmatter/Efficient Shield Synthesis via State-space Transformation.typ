@@ -648,7 +648,7 @@ method #cite(label("B:PaperA")).
 
 #figure(grid(columns: (3fr, 5fr), align: horizon, gutter: 2em,
     image("../Graphics/AISOLA24/Spiral/Unsafe Spiral Trace.svg"),
-    infobox(title: "State Space")[
+    infobox(name: "State Space")[
       #set math.equation(numbering: none)
       $lr((x comma y)) in S eq bracket.l minus 2 semi 2 bracket.l times bracket.l minus 2 semi 2 bracket.l$\
       $lr((theta comma r)) in T eq bracket.l minus pi semi pi bracket.l times bracket.l 0 semi 2 bracket.l$\
@@ -743,7 +743,7 @@ transformed shield is both easier to compute and more precise.
 <bouncing-ball-model>
 #figure(grid(columns: (3fr, 5fr), align: horizon, gutter: 2em,
     image("../Graphics/AISOLA24/Bouncing Ball/Bouncing Ball.svg", width: 75%),
-    infobox(title: "State Space")[
+    infobox(name: "State Space")[
       $lr((v comma p)) in S eq bracket.l minus 13 semi 13 bracket.l times bracket.l 0 semi 8 bracket.l$  \
       $lr((E_m comma v)) in T eq bracket.l 0 semi 100 bracket.l times bracket.l minus 13 semi 13 bracket.l$ \
       $f lr((v comma p)) eq lr((m g p plus 1 / 2 m v^2 comma v))^top$ \
@@ -849,7 +849,7 @@ overall the shapes are similar.
 <cart-pole-model>
 #figure(grid(columns: (3fr, 5fr), align: horizon, gutter: 2em,
     image("../Graphics/AISOLA24/Cart Pole/Cart Pole.svg", width: 75%),
-    infobox(title: "State Space")[
+    infobox(name: "State Space")[
       $lr((theta comma omega)) in S eq bracket.l minus 2.095 semi 2.095 bracket.l times bracket.l minus 3 semi 3 bracket.l$ \
       $lr((theta comma p lr((theta comma omega)))) in T eq bracket.l minus 2.095 semi 2.095 bracket.l times bracket.l minus 3 semi 3 bracket.l$ \
       $f lr((theta comma omega)) eq lr((theta comma omega minus p lr((theta))))^top$

@@ -10,3 +10,7 @@ I use this file to compile parts of the document, mostly just so that scrolling 
 
 #include "Mainmatter/Introduction.typ"
 
+#[  // HACK: Dummy forward-references to allow the introduction to compile even though contains labels pointing to the papers.
+  #set heading(numbering: n => "DUMMY ①")
+  = DUMMY <post-shielding-optimization>
+]

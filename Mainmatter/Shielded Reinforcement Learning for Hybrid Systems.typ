@@ -11,7 +11,7 @@
   proof, rules: thm-rules
 ) = default-theorems("thm-group", lang: "en")
 
-= Shielded Reinforcement Learning \ for Hybrid Systems
+= Shielded Reinforcement Learning \ for Hybrid Systems <paper:A>
 #grid(columns: (1fr, 1fr), row-gutter: 2em,
   [Asger Horn Brorholt \
   _Department of Computer Science \ Aalborg University, Aalborg, Denmark_],
@@ -139,7 +139,7 @@ al. #cite(label("A:jansen2020safe")) introduced shielding in the context of RL
 for probabilistic systems. A concept similar to shielding has also been
 proposed for safe model predictive
 control #cite(label("A:BastaniL21")) #cite(label("A:WabersichZ21")). Carr et
-al. #cite(label("A:Carr0JT23")) show how to shield partially observable
+al. #cite(label("A:DBLP:conf/aaai/Carr0JT23")) show how to shield partially observable
 environments. In a related spirit, Maderbacher et al. start from a safe
 policy and switch to a learned policy if safe at run
 time #cite(label("A:MaderbacherSBBNK23")).
@@ -1153,8 +1153,8 @@ detrimental.
     columns: (3fr, 1fr, 1fr, 1fr, 1fr),
     align: (col, row) => (left,center,center,center,center,).at(col),
     inset: 6pt,
-    table.header([#strong[Configuration]], [#strong[Cost]], table.cell(colspan: 3)[#strong[Interventions]]),
-    [Baseline with uniform \ random choice],  [11371],  table.cell(colspan: 3)[13.50],
+    table.header([#strong[Configuration]], table.cell(colspan: 2)[#strong[Cost]], table.cell(colspan: 2)[#strong[Interventions]]),
+    [Baseline with \ uniformly  random choice],  table.cell(colspan: 2)[11371],  table.cell(colspan: 2)[13.50],
     table.hline(),
     [Minimizing interventions],  [11791],  [($plus 3.7 percent$)],  [11.43],  [($minus 15.3 percent$)],
     [Minimizing cost],  [10768],  [($minus 5.3 percent$)],  [17.43],  [($plus 29.1 percent$)],
