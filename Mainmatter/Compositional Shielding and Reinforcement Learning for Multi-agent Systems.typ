@@ -950,7 +950,7 @@ an attractive property.
     - *Input:* Shielded $n$-agent MDP $cal(M)_shield$,  $n$-agent cost function $c = (c_1, dots, c_n)$
     - *Output:* $n$-agent policy $(pi_1, dots, pi_n)$
     + Build dependency graph $G$ of $cal(M)_shield$;
-    + Let $cal(M)' := cal(M)_shield$;
+    + Let $cal(M)' ← cal(M)_shield$;
     + *While* (true)
       + *If* there is no node in $G$ with no outgoing edges
         + #line-label(<line:error>) error("Cyclic dependencies are incompatible."); 
@@ -959,7 +959,7 @@ an attractive property.
       + Update $G$ by removing node $i$ and all incoming edges;
       + *If* $G$ is empty
         + *Return* $(pi_1, dots, pi_n)$
-      + Update $cal(M)' := cal(M)'_{pi_i}$ #h(1fr) $triangle.r.small$ I.e., instantiated shielded MDP
+      + Update $cal(M)' ← cal(M)'_{pi_i}$ #h(1fr) $triangle.r.small$ I.e., instantiated shielded MDP
   ]
 )<algo:learn>
 

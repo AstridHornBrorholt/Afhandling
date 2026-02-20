@@ -136,14 +136,17 @@ Q-learning @I:QLearning is a model-free, off-policy, reinforcement learning algo
 The algorithm maintains a "Q-table" for every pair $(s, a)$ that represents the estimated expected reward for taking action $a$ in state $s$.
 This "table" will be represented here as a function $Q : S times Act -> RR$ which is updated in every step.
 The table can be initialized arbitrarily,.#footnote[However if the model has terminal states $T subset S$, then $Q$ must be initialized such that $forall t in T, a in Act : Q (t, a) = 0$.] e.g. $Q (s, a) = 0.1$ for all $s in S, a in A$.
-The notational shorthand $Q (s, a) = x$ is used to describe updates to the function where its value is changed to $x$ for $Q(s, a)$, while remaining unaltered for all other values in its domain.
+Although there is no theoretical requirement on the initialization of $Q$ it may be natural to use a random values, to use 0, or a small positive number.
+The notational shorthand $Q (s, a) ← x$ is used to describe updates to the function where its value is changed to $x$ for $Q(s, a)$, while remaining unaltered for all other values in its domain.
+The symbol $←$ is also  used for variable updates, e.g. $i ← 0$.
 
 By gradual updates to $Q$, the function should approximate the expected value of taking action $a$ in state $s$, both in terms of immediate reward, and discounted future reward.
 The method of approximation is given in @alg:QLearning, with the update rule in shown in @l:QUpdate.
 Note the similarity of the update rule to @eq:ExpectedReward.
 The algorithm has additional input parameters, which will be described in the following.
 
-#figure(kind: "Algorithm", supplement: "Algorithm", pseudocode-list[
+#figure(kind: "algorithm", supplement: "Algorithm", 
+  pseudocode-list(numbered-title: [Q-learning])[
     - *Input:* MDP $mdp = (S, s_0, Act, P, R)$, 
       discount factor $gamma$,
       initial $Q : S -> RR$,
@@ -151,21 +154,20 @@ The algorithm has additional input parameters, which will be described in the fo
       episode length $m$,
       learning rate $alpha : NN -> [0; 1[$,
       and 
-      exploration factor $epsilon : NN ->  ]0; 1]$.
+      exploration factor $epsilon : NN -> #h(0.3em)   ] 0; 1]$.
       
     - *Output:* Approximation $hat(pi)$ of optimal policy.
-    + *Loop*  $i=0$ *up to* $n$
-      + $s = s_0$
+    + *Loop*  $i ← 0$ *up to* $n$
+      + $s ← s_0$
       + *Loop* $m$                          #line-label(<l:EpisodeLoop>)
         + Flip a weighted coin that has probability $epsilon(i)$ of landing on heads.
         + *If* heads *then*  select $a$ according to a uniform distribution over $Act$
-        + *Else* $a  = argmax_(a' in Act) Q (s, a') $
-        + Take action $a$ in state $s$ of $mdp$ and let the next state be  $s'$
+        + *Else* $a  ← argmax_(a' in Act) Q (s, a') $
+        + $s' ~ P(s, a)$ #comment[Take action $a$ in state $s$, call the next state $s'$.]
         + #line-label(<l:QUpdate>) 
-          $Q (s, a) = Q (s, a) + alpha (i) (R(s, a, s') + gamma max_(a' in Act) Q (s', a') - Q (s, a))$
+          $Q (s, a) ← Q (s, a) + alpha (i) (R(s, a, s') + gamma max_(a' in Act) Q (s', a') - Q (s, a))$
     + *Return* $hat(pi) (s) = argmax_(a in Act) Q (s, a)$
   ],
-  caption: "Q-learning"
 )<alg:QLearning>
 
 The algorithm explores the model $mdp$ over a number of episodes $n$, which are finite traces that are cut off at length $m$.
