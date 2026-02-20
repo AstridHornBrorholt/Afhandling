@@ -90,3 +90,30 @@
 #let powerset(x) = $scr(P)(#x)$
 #let argmax = $op("arg max", limits: #true)$
 #let argmin = $op("arg min", limits: #true)$
+
+
+// The Elder Futhark
+#let fehu = "ᚠ"
+#let uruz = "ᚢ"
+#let thurisaz = "ᚦ"
+#let ansuz = "ᚨ"
+#let raido = "ᚱ"
+#let kaunan = "ᚲ"
+#let gebo = "ᚷ"
+#let wunjo = "ᚹ"
+#let hagalaz = "ᚺ"
+#let naudiz = "ᚾ"
+#let isaz = "ᛁ"
+#let jera = "ᛃ"
+#let eiwaz = "ᛇ"
+#let perth = "ᛈ"
+#let algiz = "ᛉ"
+#let sowilo = "ᛊ"
+#let tiwaz = "ᛏ"
+#let berkanan = "ᛒ"
+#let ehwaz = "ᛖ"
+#let mannaz = "ᛗ"
+#let laguz = "ᛚ"
+#let ingwaz = "ᛜ"
+#let dagaz = "ᛞ"
+#let othala = "ᛟ"
