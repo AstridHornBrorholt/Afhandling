@@ -9,7 +9,7 @@
   )
 }
 
-#let fallback = {set text(fill: white); $nabla$}
+#let fallback = {set text(fill: rgb(0, 0, 0, 0)); $nabla$}
 #let shield = $fallback #h(-0.65em) #image("../Graphics/Shield.svg", height: 0.6em)$
 
 #shield
