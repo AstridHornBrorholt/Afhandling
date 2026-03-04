@@ -292,6 +292,9 @@ In Q-learning, the training phase would be exactly as @alg:QLearning, while the 
 == Shielding <sec:Shielding>
 
 Consider again an MDP $mdp = (S, s_0, Act, P, R)$. Besides optimizing for maximum reward, there may be other requirements for a policy $pi$ to be useful in practice. 
+
+=== Safety
+
 One such set of requirements are safety properties, stating that a state (or finite sequence of states) will never occur in the system.
 #todo[Give examples that are based on _states_ and definitely not time. E.g. state 11 is visited at most 3 times.]
 Examples could be statements like "orders are always processed within 10 minutes" or "all tests are taken before the sample is discarded," or in @ex:GridWorld: "The state 💀 is never reached."
@@ -317,6 +320,9 @@ In the following, safety will be discussed in terms of invariants, given as a se
 ]
 
 The optimization problem stated in @def:Optimization does not include a notion of safety, and it is not straightforward to define a reward function in such a way that the policy will converge to the desired safe behaviour.
+
+=== Safety Through Shielding
+
 Among the many approaches to enforcing safety in reinforcement learning, #citationneeded[Citations from Paper A and Alshiekh18], shielding @I:AlshiekhBEKNT18 @I:BloemKKW15 is a promising technique which restricts the actions available to the agent to ensure safe behaviour.
 Since shields work by restricting actions, it can be applied to any existing reinforcement learning method, including deep learning, allowing it to work in concert with state of the art methods to achieve safe and optimized behaviour.
 
@@ -330,6 +336,25 @@ Since shields work by restricting actions, it can be applied to any existing rei
 
 The maximally permissive shield for an invariant of an MDP is unique @I:BernetJW02 @I:PaperB. 
 
+=== Origin of the Term
+
+In @I:DavidJLLLST14 it was shown how a safety property can be enforced through a maximally permissive, safe, non-deterministic strategy.
+While acting within the constraints of this strategy, reinforcement learning was utilized to optimize for a second objective, achieving a near-optimal strategy within the safety constraints.
+
+The term *shield* was coined in @I:BloemKKW15 to describe a component which would work in concert with a (mostly safe) policy, and intervene to prevent unsafe behaviour.
+Thus, the behaviour of the shield and policy together is verifiably safe, as long as the shield is safe.
+Contrary to runtime monitors #citationneeded[], which enforce a property by retroactively altering or halting a trace, the shield will intervene by altering the actions of the policy.
+The authors proposed guarantees of minimal interference, and of $k$-stabilization, which states that the shield will at most intervene $k$ times before control is handed back to the policy.
+
+This concept was extended to a framework of *shielded reinforcement learning* in @I:AlshiekhBEKNT18.
+Here, a shield monitors and possibly corrects the actions of a learning agent, which enables safe exploration.
+This enables the safe use of complex learning agents that can achieve cost optimal behaviour.
+Approaches such as deep Q-learning or proximal policy optimization can be safely used in this framework, even though these methods cannot feasibly be verified directly.
+The paper also points out that a shield can be synthesized from an *abstract model* of the system, one which only models behaviour relevant to the safety property being enforced.
+Such an abstraction could be significantly simpler than the full system, allowing shielded reinforcement learning to scale to systems where other methods for safe and optimal control are infeasible.
+
+Since this first article covering shielded reinforcement learning in finite MDPs, other shielding methods building upon the same framework have been described in the literature #citationneeded[Every shielded RL article I have on hand].
+
 #example(name: "Safety in Grid World")[
   Recall the MDP $cal(G)=(S, s_0, Act, P, R)$ from @ex:GridWorld.
   Let the safe set be $phi=S \\ {💀}$. 
@@ -338,9 +363,6 @@ The maximally permissive shield for an invariant of an MDP is unique @I:BernetJW
   Next, any action in state 11 carries a risk of slipping and ending up in  💀, so state 11 should never be entered.
   Lastly, any action in state 10 can cause the agent to slip onto state 11, so this state should be avoided as well. 
   
-  The maximally permissive shield is shown in @fig:GridWorldShield.
-  This figure was generated using a publicly available#footnote(link("https://github.com/AstridHornBrorholt/GridShielding.jl")) library which implements the shielding method described in Paper A (With shielding parameters $gamma=1.0, n=4$).
-
   @fig:GridWorldShield shows the resulting maximally permissive safe strategy for @ex:GridWorld. 
   This strategy was generated using a publicly available package#footnote(link("https://github.com/AstridHornBrorholt/GridShielding.jl")) which implements the method described in Paper A (to be discussed in later sections).
 
@@ -351,23 +373,8 @@ The maximally permissive shield for an invariant of an MDP is unique @I:BernetJW
 ]<ex:GridWorldSafety>
 
 
-==== Finite- and infinite-horizon shielding
 
-Note that @def:Shielding requires safety over all infinite traces that are outcomes of the shield.
-This generally requires computing a safety strategy offline, which can be computationally infeasible for some models. 
-Instead, it can make sense to only give guarantees $k$ steps into the future, computed on-line at each step.
-These finite horizon shields are often referred to as _bounded prescience_  shields @I:giacobbe_shielding_2021, or $k$-step lookahead shields @I:xiao_model-based_2023 @I:yang_safe_2023.
-
-One example of such a safety guarantee @I:giacobbe_shielding_2021  was given for a deterministic MDP, but here extended to include probabilistic outcomes: 
-For an MDP $mdp$, action $a_0$  is $k$-safe at state $s_0$, if there exists a deterministic strategy $pi$ such that for all traces $xi = s_0 a_0 ... s_k...$ with $pi(s_i) = a_i$ for $i > 0$, then $xi_0^k$ is safe.
-This extends to other states $s$ by redefining the starting state of $mdp$ to $s$.
-
-==== Probabilistic shielding
-
-#todo[Write this section]
-
-
-=== Applying the Shield
+=== Shielding a Policy
 
 How a policy is shielded can vary depending on the model and the application.
 The terms pre-shielding and post-shielding have been used in the literature to describe a shield's relationship with the policy, but with two distinct sets of meaning:
@@ -384,13 +391,23 @@ In the following, we shall use the terms pre- and post-shielding to mean the for
   [#figure(include("../Graphics/Intro/Post-shielding.typ"),
     caption: [Post-shielding],
   )<fig:PostShielding>], 
-  caption: [How the shield ensures only safe actions reach the environment.],
+  caption: [*How* the shield ensures only safe actions reach the environment.],
   label: <fig:PrePostShielding>
+)
+#subpar.grid(columns: 2,
+  [#figure(include("../Graphics/Intro/End-to-end Shielding.typ"),
+  caption: [End-to-end shielding]
+  )<fig:EndToEnd>],
+  [#figure(include("../Graphics/Intro/Post-hoc Shielding.typ"),
+    caption:[Post-hoc shielding]
+  )<fig:PostHoc>],
+  caption: [*When* the shied is applied in the process of obtaining a policy.],
+  label: <when_shielding>
 )
 
 #todo[Describe the need (or lack thereof) of keeping the shield after learning.]
 
-===== Pre-shielding
+==== Pre-shielding
 Illustrated in @fig:PreShielding, this term refers to the shield restricting the behaviour of the the policy by providing a set of actions $A subset.eq Act$, that are permitted for the given state.
 The learning must be set up in such a way as to only pick an action $a$ if it is included in the set $A$.
 
@@ -399,7 +416,7 @@ $ Q (s, a) = Q (s, a) + alpha (i) (R(s, a, s') + gamma max_(a' in shield(s')) Q 
 A similar approach works for gradient methods @I:arulkumaran2017deep #cl("I:DBLP:journals/corr/abs-2006-14171").
 
 
-===== Post-shielding
+==== Post-shielding
 Contrary to pre-shielding, this configuration is transparent to the reinforcement learning algorithm.
 As shown in @fig:PostShielding, the algorithm's actions are sent to the shield, which passes it on to the environment.
 
@@ -423,18 +440,8 @@ Both pre- and post-shielding preserve the assumptions necessary to guarantee con
 Pre-shielding will likely converge faster than post-shielding in general. If a model has a state $s$, with one safe action $a_1$ and unsafe actions $a_2, a_3$, a post-shielded agent will have to explore actions $a_1, a_2$ and $a_3$ in order to learn the expected reward attainable in $s$. However, a post-shielded agent will only have to learn the expected reward of $a_1$, since the other actions are masked.
 Thus, it will likely gain a more precise estimate of the expected value of $s$ from the same amount of visits to the state.
 
-#subpar.grid(columns: 2,
-  [#figure(include("../Graphics/Intro/End-to-end Shielding.typ"),
-  caption: [End-to-end shielding]
-  )<fig:EndToEnd>],
-  [#figure(include("../Graphics/Intro/Post-hoc Shielding.typ"),
-    caption:[Post-hoc shielding]
-  )<fig:PostHoc>],
-  caption: [The shield may or may not be in place during training.],
-  label: <when_shielding>
-)
 
-===== End-to-end Shielding
+==== End-to-end Shielding
 When the shield is in place during _both_ the learning  _and_ operational phases, this is called end-to-end shielding (@fig:PostHoc).
 This is a necessity if the agent is interacting with a real-life system where safety violations should also be avoided during training.
 
@@ -445,7 +452,7 @@ The authors speculate that the shield acts as a teacher guiding the agent away f
 Shielding leading to better policies has also been observed in other works @I:carr_compositional_2025 #cl("I:DBLP:conf/aaai/Carr0JT23") #cl("I:DBLP:conf/ijcai/YangMRR23") @I:PaperA, though there are examples where this is not the case @I:bloem_its_2020 @I:court_probabilistic_2025.
 This is because the shield may prevent the agent from exploiting risky but rewarding behaviour.
 
-===== Post-hoc Shielding
+==== Post-hoc Shielding
 Alternatively, the shield can be applied only in the operational phase, allowing the agent to explore unsafe actions during learning.
 This can lead to slower convergence, since the agent spends time exploring unsafe states and (ideally) learning to avoid them.
 If the agent learns to avoid unsafe states perfectly, a maximally permissive shield would never interfere with its operation.
@@ -460,25 +467,20 @@ Thus, an existing controller can be upgraded to give formal safety guarantees by
   Conversely, what it calls _pre-shielding_ is called _end-to-end shielding_  in this section.
 ]
 
-=== Related Work
+=== Finite- and Infinite-horizon Shielding
 
+Note that @def:Shielding requires safety over all infinite traces that are outcomes of the shield.
+This generally requires computing a safety strategy offline, which can be computationally infeasible for some models. 
+Instead, it can make sense to only give guarantees $k$ steps into the future, computed on-line at each step.
+These finite horizon shields are often referred to as _bounded prescience_  shields @I:giacobbe_shielding_2021, or $k$-step lookahead shields @I:xiao_model-based_2023 @I:yang_safe_2023.
 
-In @I:DavidJLLLST14 it was shown how a safety property can be enforced through a maximally permissive, safe, non-deterministic strategy.
-While acting within the constraints of this strategy, reinforcement learning was utilized to optimize for a second objective, achieving a near-optimal strategy within the safety constraints.
+One example of such a safety guarantee @I:giacobbe_shielding_2021  was given for a deterministic MDP, but here extended to include probabilistic outcomes: 
+For an MDP $mdp$, action $a_0$  is $k$-safe at state $s_0$, if there exists a deterministic strategy $pi$ such that for all traces $xi = s_0 a_0 ... s_k...$ with $pi(s_i) = a_i$ for $i > 0$, then $xi_0^k$ is safe.
+This extends to other states $s$ by redefining the starting state of $mdp$ to $s$.
 
-The term *shield* was coined in @I:BloemKKW15 to describe a component which would work in concert with a (mostly safe) policy, and intervene to prevent unsafe behaviour.
-Thus, the behaviour of the shield and policy together is verifiably safe, as long as the shield is safe.
-Contrary to runtime monitors #citationneeded[], which enforce a property by retroactively altering or halting a trace, the shield will intervene by altering the actions of the policy.
-The authors proposed guarantees of minimal interference, and of $k$-stabilization, which states that the shield will at most intervene $k$ times before control is handed back to the policy.
+=== Probabilistic Shielding
 
-This concept was extended to a framework of *shielded reinforcement learning* in @I:AlshiekhBEKNT18.
-Here, a shield monitors and possibly corrects the actions of a learning agent, which enables safe exploration.
-This enables the safe use of complex learning agents that can achieve cost optimal behaviour.
-Approaches such as deep Q-learning or proximal policy optimization can be safely used in this framework, even though these methods cannot feasibly be verified directly.
-The paper also points out that a shield can be synthesized from an *abstract model* of the system, one which only models behaviour relevant to the safety property being enforced.
-Such an abstraction could be significantly simpler than the full system, allowing shielded reinforcement learning to scale to systems where other methods for safe and optimal control are infeasible.
-
-Since this first article covering shielded reinforcement learning in finite MDPs, other shielding methods building upon the same framework have been described in the literature #citationneeded[Every shielded RL article I have on hand].
+#todo[Write this section]
 
 
 == Multi-agent Shielding
