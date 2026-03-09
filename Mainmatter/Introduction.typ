@@ -134,18 +134,18 @@ This is used in the definition of the optimization problem of finding the policy
   $ pi^star = argmax_(pi) EE_gamma^mdp (pi) $
 ]<def:Optimization>
 
-It may be possible to compute $pi^star$ directly, through e.g. value- or policy iteration. #citationneeded[]
-#strike[But these methods run into scalability issues on the size of the state-space $S$], and require full knowledge of the transition probabilities $P$ and rewards $R$.
-#todo[It's not really scalability issues in the size of the state space. Rather, the issue is state-space explosion. Give more credit to these methods. Also, value iteration is another approximate method. It's linear programming that gives the true values.]
+It may be possible to compute $pi^star$ directly, through e.g. direct search, through dynamic- or linear programming, or to accurately approximate them using value iteration #cl("I:DBLP:books/lib/SuttonB98").
+These methods require full knowledge of the transition probabilities $P$ and rewards $R$, and have polynomial runtime on the number of states $|S|$ which make them suitable for a wide range of problems, with up to millions of states on modern hardware.
+However, MDPs are often described using several variables or components. Known as the _curse of dimensionality,_ the size of the state-space is exponential in the number of these components or variables.  
+
 If the state-space is prohibitively large, or the MDP is not fully known but can be sampled from, the optimal policy may instead be approximated through learning. 
 
-State of the art reinforcement learning techniques learn intricate behaviour through deep neural networks #citationneeded[] and decision trees #citationneeded[] such as PPO #citationneeded[] and MuZero #citationneeded[].
+State of the art reinforcement learning techniques learn intricate behaviour through deep neural networks #citationneeded[] such as PPO #citationneeded[], and decision trees #citationneeded[], or a combination of the two like MuZero #citationneeded[].
 In the following, a description of the comparatively simple Q-learning approach will be given. The method serves to illustrate the core concepts of reinforcement learning, such as the difference between on-policy and off-policy learning, value estimation, and exploration strategies. 
 
 === Q-learning
 
-#todo[Cite also Sutton and the 89 thesis. Write a sentence that mentions the citations explicitly.]
-Q-learning @I:QLearning is a model-free, off-policy, reinforcement learning algorithm for models that have finite state-space.
+Q-learning @I:QLearning @I:Watkins89 #cl("I:DBLP:books/lib/SuttonB98") is a model-free, off-policy, reinforcement learning algorithm for models that have finite state-space.
 The algorithm maintains a "Q-table"  that represents for every pair $(s, a)$ the estimated expected reward for taking action $a$ in state $s$.
 It is the function $Q : S times Act -> RR$, which is updated in every step.
 
