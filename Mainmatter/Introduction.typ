@@ -90,7 +90,7 @@ This definition is less useful for infinite traces, as we will see in the follow
   A contaminated mould may compromise quality, but as stipulated by the contract this does not factor in to the price paid per unit.
 
   #figure(image("../Graphics/Intro/Factory.png", width: 120pt),
-    caption: [MDP representing an injection moulding process.]
+    caption: [MDP representing an injection moulding process. Solid lines represent actions. Dashed lines show possible outcomes of actions, giving a probability of occurring (as percentage) and the resulting reward.]
   )<fig:InjectionMoulding>
   
   The MDP $cal(I) = (S, s_0, Act, P, R)$ modelling this system is shown in @fig:InjectionMoulding.
@@ -308,7 +308,7 @@ Safety properties are a subset of properties on a system, that say a state (or f
 For @ex:InjectionMoulding, the safety property could be "the mould is cleaned as soon as it becomes contaminated," i.e. the state $◍$  is always followed by $○$. (See @ex:QualityInjectionMoulding)
 A safety property for @ex:GridWorld could be "the state 💀 is never reached." (See @ex:GridWorldSafety.)
 
-Opposite to safety properties are liveness properties, which state that an event will eventually occur in the system, without a time bound. This could be e.g. "orders are eventually fulfilled" or "the state 🏁 is eventually reached."
+Opposite to safety properties are liveness properties, which state that an event will eventually occur in the system, without a time bound. This could be e.g. "the mould is eventually cleaned" or "the state 🏁 is eventually reached."
 The focus in this thesis is on safety:
 
 Consider again an MDP $mdp = (S, s_0, Act, P, R)$. Formally, a property is a safety property iff for every trace $xi = s_0 a_0 s_1 a_1 ...$ that violates the property, there exists an $i in NN$ such that the finite sub-trace $xi_0^i = s_0 a_0 ... a_(i-1) s_i$ is enough to show the property is violated #cl("I:DBLP:reference/mc/ClarkeHV18").
@@ -386,12 +386,12 @@ Since this first article covering shielded reinforcement learning in finite MDPs
 Specific implementation details of how a shield is applied to a reinforcement learning agent can vary.
 The terms _pre-shielding_ and _post-shielding_ have been used to describe the relationship between the agent and the shield, but the terms have been used in the literature to describe two distinct concepts:
 
- + In one part of the literature, pre- and post-shielding refer to *how* the shield ensures only safe actions reach environment #cl("I:DBLP:journals/corr/abs-1708-08611") #cl("I:DBLP:journals/cacm/KonighoferBJJP25") @I:MedicalShielding #cl("I:DBLP:conf/isola/TapplerPKMBL22") @I:bloem_its_2020.
+ + In one part of the literature, pre- and post-shielding refer to *how* the shield ensures only safe actions reach the environment #cl("I:DBLP:journals/corr/abs-1708-08611") #cl("I:DBLP:journals/cacm/KonighoferBJJP25") @I:MedicalShielding #cl("I:DBLP:conf/isola/TapplerPKMBL22") @I:bloem_its_2020.
  + Alternatively the terms can refer to *when* a shield is applied, i.e. whether the shield is in place during training @I:jakobs_thesis @I:PaperA.
 
 This section will coin an additional set of terms, to disambiguate these meanings.
 The terms _pre-_ and _post-shielding_ shall refer to the first and more widely used definition, i.e. *how* the shield is integrated into the reinforcement learning loop.
-The second set of terms which describe *when* the shield is in place, will be re-named in this section to _end-to-end shielding_ and _post-hoc shielding._
+The second set of terms to describe *when* the shield is in place, will be re-named in this section to _end-to-end shielding_ and _post-hoc shielding._
 
 #figure(table(columns: 2,
     table.header( [*@sec:ApplyingTheShield*], [*Paper A*] ),
@@ -493,14 +493,6 @@ Otherwise, the shield will interfere with the policy, disrupting its optimized b
 
 Outside the context of RL, the term describes applying the shield as a guardrail of a controller that has been designed to be mostly safe, but without using the shield as reference.
 Thus, an existing controller can be upgraded to give formal safety guarantees by applying a post-hoc shield in cases where altering the controller itself would be costly.
-
-#remark(name: "Terminology in Paper A")[
-  Note that some terms used in Paper A @I:PaperA differ from the definitions in this section.
-  What the paper calls _post-shielding,_ this section defines as _post-hoc shielding._ 
-  Conversely, what it calls _pre-shielding_ is called _end-to-end shielding_  in this section.
-]
-
-
 
 #example(name: "Safety in Grid World")[
   Recall the MDP $cal(G)=(S, s_0, Act, P, R)$ from @ex:GridWorld.
