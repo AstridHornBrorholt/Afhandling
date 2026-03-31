@@ -114,8 +114,8 @@ The discount factor $gamma$ may be interpreted as the probability of the trace c
 #example[
   With $mdp, pi$ and $pi'$ as in @ex:InjectionMoulding, a discounted reward can be used to compare them.
   For example, $gamma = 0.99$ gives the geometric series
-  $ & lim_(n -> infinity) sum_(i=0)^n 0.99^i times 1 && = 1/(1-0.99) = 100  "and" \
-     & lim_(n -> infinity) sum_(i=0)^n 0.99^i times 100 && = 100/(1-0.99) = 10000 $
+  $ & lim_(n -> infinity) sum_(i=0)^n 0.99^i times 1 && = 1/(1-0.99) = 100  & "and" \
+     & lim_(n -> infinity) sum_(i=0)^n 0.99^i times 100 && = 100/(1-0.99) = 10000 & "" $
 ]<ex:discounted>
 
 In contrast to the reward gained from just one trace, the expected discounted reward for a probabilistic policy is defined as:
@@ -266,7 +266,7 @@ This is ensured by the fact that $s_0$ is visited infinitely often as $n -> infi
 
   The final policy is not safe, in the sense that it has a non-zero chance of reaching the state 💀.
   This can be avoided by making changes to the reward function, giving a heavier penalty for reaching this state.
-  However it is not straightforward to determine how the reward function should be structured in order to guarantee safety, or whether this is even possible for a given model.
+  However it is not straightforward to determine how the reward function should be defined in order to guarantee safety, or whether this is even possible for a given model.
 ]<ex:GridWorld>
 
 #example(name: "Prism")[
@@ -346,9 +346,9 @@ Since shields work by restricting actions, it can be applied to any existing rei
 The maximally permissive shield for an invariant of an MDP is unique @I:BernetJW02 @I:PaperB. 
 
 #example(name: "Quality standards for injection moulding")[
-  Due to concerns over quality, the contract from @ex:InjectionMoulding is re-negotiated to require that the mould is immediately cleaned once it becomes contaminated. 
+  Due to concerns over quality, the contract from @ex:InjectionMoulding is re-negotiated to require that the mould is immediately cleaned whenever it becomes contaminated. 
 
-  Recall the MDP $cal(I) = ({○, ◍},○, { p, c }, P, R)$ shown in @fig:InjectionMoulding. This new requirement in the contract corresponds to the safety property "all traces $xi = s_0, a_0, s_1, a_1$ satisfy that for every $s_i$ in $xi$, $s_i = ◍  => s_(i+1) = ○$."
+  Recall the MDP $cal(I) = ({○, ◍},○, { p, c }, P, R)$ shown in @fig:InjectionMoulding. This new requirement in the contract corresponds to the safety property "for any trace $xi = s_0, a_0, s_1, a_1...$, for every $s_i$ in $xi$, $s_i = ◍  => s_(i+1) = ○$."
 
   This safety property can be turned into an invariant, by extending the state-space to $S={○, ◍, ●}$ with the safe set $phi = {○, ◍}$.
   The state $●$ is reached when a batch is produced in a contaminated mould, as shown in @fig:QualityInjectionMoulding. 
@@ -358,6 +358,15 @@ The maximally permissive shield for an invariant of an MDP is unique @I:BernetJW
   )<fig:QualityInjectionMoulding>
 
   The maximally permissive shield which enforces the invariant $phi$ is  respectively $shield(○) = {p, c}$, $shield(◍) = {c}$ and $shield(●) = emptyset$.
+  The optimal policy under this shield is straightforwardly $pi(○) = p, pi(◍) = c$.
+  The expected reward for this policy as defined in @eq:ExpectedReward can be found by hand for e.g. $gamma = 0.9$:
+
+  #let expectation = $EE^cal(I)_pi$
+  $ expectation(○) &= P(○, p, ○)(R(○, p, ○) + gamma expectation(○)) \
+    &+ P(○, p, ◍)(R(○, p, ◍) + gamma expectation(◍)) \
+    &=0.95(100 + 0.9 expectation(○)) + 0.05(100 + 0.9 expectation(◍)) \
+  $
+  With $expectation(◍) = 1 + 0.9 expectation(○)$, the equation contains just a single variable which reduces to  $expectation(○) = (100 + 0.05 times 0.9)/(1 - 0.95 times 0.9 - 0.05 times 0.9^2) approx 957.368$.
 ] <ex:QualityInjectionMoulding>
 
 === Origin of the Term
