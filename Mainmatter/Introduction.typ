@@ -123,7 +123,7 @@ In contrast to the reward gained from just one trace, the expected discounted re
 #definition(name: "Expected reward")[
   Given an MDP $M = (S, s_0, Act, P, R)$, a probabilistic policy $pi$ and a discount factor $gamma in [0; 1[$, the expected reward of $pi$ on $mdp$ is the unique fixed point of the following equation
 
-  $ EE_pi^mdp (s) = sum_(a in Act) pi(s, a) sum_(s' in S) P(s, a, s') (R(s') + gamma  EE_pi^mdp (s')) $ 
+  $ EE_pi^mdp (s) = sum_(a in Act) pi(s, a) sum_(s' in S) P(s, a, s') (R(s, a, s') + gamma  EE_pi^mdp (s')) $ 
 ]<eq:ExpectedReward>
 
 This is used in the definition of the optimization problem of finding the policy with the highest expected discounted reward for $mdp$.
@@ -304,36 +304,39 @@ These requirements system may be in tension with each other, and it could be tha
 
 === Safety
 
-Safety properties are a subset of properties on a system, that say a state (or finite sequence of states) will never be reached.
-For @ex:InjectionMoulding, the safety property could be "the mould is cleaned as soon as it becomes contaminated," i.e. the state $◍$  is always followed by $○$. (See @ex:QualityInjectionMoulding)
+Safety properties are a subset of properties on a system, which describe a state, or finite sequence of states, that should never be reached.
+In @ex:InjectionMoulding, the safety property could be "the mould is cleaned as soon as it becomes contaminated," i.e. the state $◍$  is always followed by $○$. (See @ex:QualityInjectionMoulding)
 A safety property for @ex:GridWorld could be "the state 💀 is never reached." (See @ex:GridWorldSafety.)
 
-Opposite to safety properties are liveness properties, which state that an event will eventually occur in the system, without a time bound. This could be e.g. "the mould is eventually cleaned" or "the state 🏁 is eventually reached."
+Besides safety, the other category of properties to describe a system is liveness.  
+Such properties state that an event will eventually occur in the system, with no time bound on when this should be fulfilled.
+This could be e.g. "the mould is eventually cleaned" or "the state 🏁 is eventually reached."
+If a time bound is given on the event(s) occurring, the statement becomes a safety property, since any finite sequence of states where the bound is exceeded becomes a witness of its violation.
+
 The focus in this thesis is on safety:
-
 Consider again an MDP $mdp = (S, s_0, Act, P, R)$. Formally, a property is a safety property iff for every trace $xi = s_0 a_0 s_1 a_1 ...$ that violates the property, there exists an $i in NN$ such that the finite sub-trace $xi_0^i = s_0 a_0 ... a_(i-1) s_i$ is enough to show the property is violated #cl("I:DBLP:reference/mc/ClarkeHV18").
-An important fragment of the safety properties is invariants, expressing that some proposition holds in every state.
+An important fragment of the safety properties are invariants, expressing that some proposition holds in every state.
 The safety property $forall s_i : s_i != 💀$, is an invariant.
-These properties can be given as a set of states, $phi$, or as the LTL #cl("I:DBLP:reference/mc/ClarkeHV18") safety fragment "$#strong("G") psi$" where $psi$ is a predicate on $S$.
+These properties can be given as a set of states, $phi$, or as the LTL #cl("I:DBLP:reference/mc/ClarkeHV18") safety fragment "$#strong("AG") psi$" where $psi$ is a predicate on $S$.
 
-A safety property can be re-formulated as an invariant by modifying the MDP, so it includes a "monitor" that will move the model to a sink state if the property is violated. 
+A safety property can be re-formulated as an invariant by modifying the MDP, so it includes a "monitor" that will move the model to a specific state if the property is violated. 
 In the following, safety will be discussed in terms of invariants, given as a set of safe states.
 
 #definition(name: "Safe states, traces and policies")[
   For an MDP $mdp$ and a safe set $phi subset.eq S$, a state $s in S$ is safe if $s in phi$. 
-  Furthermore, a trace $xi$ is safe (with regards to $phi$) if for every $s_i$ in $xi$, $s_i in phi$.
+  Given a safe set $phi$, a trace $xi$ is safe if for every $s_i$ in $xi$, $s_i in phi$.
   This extends to sections of traces $xi_n^m$ in the natural way.
-  A policy $pi$ is safe wrt. $phi$ if every trace that is an outcome of $pi$ is safe.
- 
- Safety with regards to $phi$ is indicated with $models$, as respectively $s models phi$, $xi models phi$ and $pi models phi$.
+  A policy $pi$ is safe with regard to $phi$ if every trace that is an outcome of $pi$ is safe.
+ Safety according to $phi$ is indicated with $models$, as respectively $s models phi$, $xi models phi$ and $pi models phi$.
 ]
 
-The optimization problem stated in @def:Optimization does not include a notion of safety, and it is not straightforward to define a reward function in such a way that the policy will converge to the desired safe behaviour.
+The optimization problem stated in @def:Optimization does not include a notion of safety, and as noted in @ex:GridWorld, a policy might not converge to safe behaviour.
+Even then, the convergence guarantee for Q-learning relies on an infinite number of traces, meaning that models trained in practice may not have learned fully safe behaviour even if the reward function is somehow designed to encourage it.
 
 === Safety Through Shielding
 
-Among the many approaches to enforcing safety in reinforcement learning, #citationneeded[Citations from Paper A and Alshiekh18], shielding @I:AlshiekhBEKNT18 @I:BloemKKW15 is a promising technique which restricts the actions available to the agent to ensure safe behaviour.
-Since shields work by restricting actions, it can be applied to any existing reinforcement learning method, including deep learning, allowing it to work in concert with state of the art methods to achieve safe and optimized behaviour.
+Among the many approaches to enforcing safety in reinforcement learning, #citationneeded[Citations from Paper A and Alshiekh18], shielding @I:AlshiekhBEKNT18 @I:BloemKKW15 is a promising technique which restricts the actions available to the agent, in order to ensure safe behaviour.
+Since shields work by restricting actions, they can be applied to any existing reinforcement learning method, including deep learning, allowing it to work in concert with state of the art methods to achieve safe and optimized behaviour.
 
 #definition(name: "Shield, maximally permissive shield, shielded policy")[
   For an MDP $mdp$ and safe set $phi$, a shield is a nondeterministic policy $shield : S -> powerset(Act)$ such that every trace $xi$ that is an outcome of $shield$ is safe.
@@ -519,8 +522,8 @@ Thus, an existing controller can be upgraded to give formal safety guarantees by
     caption: [Most permissive shield for Grid World. A shield icon 🛡️ indicates the action is not permitted.]
   )<fig:GridWorldShield>
 
-  This can be applied as a post-shield by initializing the Q-values as $Q(s) = cases(-infinity " if " |shield(s)| = 0, 0  )$.
-  The result of end-to-end post-shielding of the Grid World example is shown in ....
+  This can be applied as a pre-shield by initializing the Q-values as $Q(s, a) = cases(-infinity " if " a in.not shield(s), 0  )$.
+  The result of end-to-end pre-shielding of the Grid World example is shown in ....
   #todo[Code this up]
 
 ]<ex:GridWorldSafety>
