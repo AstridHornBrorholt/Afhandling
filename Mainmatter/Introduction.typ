@@ -449,28 +449,29 @@ If the action is safe, the shield passes it on to the environment unaltered.
 Otherwise an alternative, safe, action is chosen.
 
 This is akin to modifying the the MDP $mdp = (S, s_0, Act, P, R)$ with a new transition function.
-In addition to a shield $shield$, post-shielding requires a probabilistic fallback policy $fehu$, with $fehu(s, a) > 0 <=> a in shield(s)$. The shielded transition function used in place of $P$ in $mdp$, is 
+In addition to a shield $shield$, post-shielding requires a probabilistic fallback policy $fehu : S times Act -> [0; 1]$, with $fehu(s, a) > 0 <=> a in shield(s)$. The shield $shield$ and fallback policy $fehu$ are used to create a new transition function for a shielded MDP $mdp^shield = (S, s_0, Act, P', R)$ with
 
 $ P'(s, a, s') = cases(
   P(s, a, s') & " if " a in shield(s), 
-  product_(a in Act) fehu(s, a) P(s, a, s')
+  product_(a' in Act) fehu(s, a') P(s, a', s')
 ) $
 
-The fallback policy $fehu$ has to remain static during learning, to preserve convergence guarantees. It could simply give a uniform distribution over safe actions, pick actions deterministically from an ordering, or according to a model-specific heuristic. It could also be a trained policy, as discussed in @post-shielding-optimization of Paper A.
+The fallback policy $fehu$ has to remain static during learning, to preserve convergence guarantees. It could simply give a uniform distribution over safe actions, pick actions deterministically from an ordering, or choose according to a model-specific heuristic. It could also be a trained policy, as discussed in @post-shielding-optimization of Paper A.
 
 #remark(name: "Value Updates in Post-shielding")[
-  The value updates for post-shielding are done in the natural way, but there is a risk of making subtle mistakes.
-  Some care must be taken when updating e.g. the Q-values for a post-shielded MDP with an altered transition function $P'$.
+  The value updates for post-shielding are performed in the natural way, but it is possible to make subtle mistakes in the implementation.
+  Consider Q-learning performed on a post-shielded MDP with an altered transition function $P'$.
   Say that in state $s$,  the shield alters an unsafe action $a in.not shield(s)$ to the safe alternative $fehu(s) = a'$, reaching state $s'$.
-  The update should be performed for $a$ and not $a'$, i.e. updating $Q(s, a)$ with reward $R(s, a, s')$ as in @alg:QLearning, @l:QUpdate.
+  The update should be performed for $a$ and not $a'$, i.e. updating $Q(s, a)$ with reward $R(s, a', s')$ as in @alg:QLearning, @l:QUpdate.
+  It would be unsound to only update $Q(s, a')$, or to use the reward $R(s, a, s')$.
 
-  It would be unsound to only update $Q(s, a')$.
-  However it was shown in  #cl("I:DBLP:conf/ijcnn/SeurinPP20"), that the number of interventions of a shield was reduced by updating $Q(s, a')$ with a penalty of e.g. $-50$ (set as a hyper-parameter).
+  However it was shown in  #cl("I:DBLP:conf/ijcnn/SeurinPP20"), that the number of interventions of a shield was reduced by updating both $Q(s, a')$ with  $R(s, a', s')$, and $Q(s, a)$ with a penalty of e.g. $-50$. (This penalty is set as a hyper-parameter.)
 ]
 
 
 Both pre- and post-shielding preserve the assumptions necessary to guarantee convergence to an optimal policy for e.g. Q-learning. 
-Pre-shielding will likely converge faster than post-shielding in general. If a model has a state $s$, with one safe action $a_1$ and unsafe actions $a_2, a_3$, a post-shielded agent will have to explore actions $a_1, a_2$ and $a_3$ in order to learn the expected reward attainable in $s$. However, a post-shielded agent will only have to learn the expected reward of $a_1$, since the other actions are masked.
+Pre-shielding will likely converge faster than post-shielding in general:
+If a model has a state $s$, with one safe action $a_1$ and unsafe actions $a_2, a_3$, a post-shielded agent will have to explore actions $a_1, a_2$ and $a_3$ in order to estimate the expected reward attainable in $s$. However, a post-shielded agent will only have to learn the expected reward of $a_1$, since the other actions are masked.
 Thus, it will likely gain a more precise estimate of the expected value of $s$ from the same amount of visits to the state.
 
 
