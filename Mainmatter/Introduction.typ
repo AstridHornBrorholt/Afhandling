@@ -270,7 +270,7 @@ This is ensured by the fact that $s_0$ is visited infinitely often as $n -> infi
 ]<ex:GridWorld>
 
 #example(name: "Prism")[
-  The same MDP can be modelled in the model-checking tool Prism @I:Prism, and the optimal strategy can be approximated precisely and quickly by its built-in value iteration method. #footnote[Prism does not support negative rewards, but since the model contains no positive rewards, the reward structure can be re-formulated as a minimization problem, `Rmin=? [F "goal"]`.]
+  The same MDP can be modelled in the model-checking tool Prism @I:Prism, and the optimal policy can be approximated precisely and quickly by its built-in value iteration method. #footnote[Prism does not support negative rewards, but since the model contains no positive rewards, the reward structure can be re-formulated as a minimization problem, `Rmin=? [F "goal"]`.]
    Prism does not support discounted reward, but since the optimal policy leads to a terminal state,  Q-learning with undiscounted reward ($gamma=1$) can be used as comparison.
 
   #subpar.grid(columns: 3, 
@@ -278,7 +278,7 @@ This is ensured by the fact that $s_0$ is visited infinitely often as $n -> infi
       caption: [Value $max_a Q(s, a)$ and best action after 1 000 000 steps, with $gamma=1$.]
     )<fig:VTableGamma1>],
     [#figure(image("../Graphics/Intro/V-table Prism.png"),
-      caption: [Strategy and expected costs produced by Prism.]
+      caption: [Policy and expected costs produced by Prism.]
     )<fig:VTablePrism>],
     label: <fig:GridPrism>,
     caption: [Grid World outcomes.]
@@ -377,8 +377,8 @@ The maximally permissive shield for an invariant of an MDP is unique @I:BernetJW
 
 === Origin of the Term
 
-In @I:DavidJLLLST14 it was shown how a safety property can be enforced through a maximally permissive, safe, non-deterministic strategy.
-While acting within the constraints of this strategy, reinforcement learning was utilized to optimize for a second objective, achieving a near-optimal strategy within the safety constraints.
+In @I:DavidJLLLST14 it was shown how a safety property can be enforced through a maximally permissive, safe, non-deterministic policy.
+While acting within the constraints of this policy, reinforcement learning was utilized to optimize for a second objective, achieving near-optimal behaviour within the safety constraints.
 
 The term *shield* was coined in @I:BloemKKW15 to describe a component which would work in concert with a (mostly safe) policy, and intervene to prevent unsafe behaviour.
 Thus, the behaviour of the shield and policy together is verifiably safe, as long as the shield is safe.
@@ -393,8 +393,6 @@ The paper also points out that a shield can be synthesized from an *abstract mod
 Such an abstraction could be significantly simpler than the full system, allowing shielded reinforcement learning to scale to systems where other methods for safe and optimal control are infeasible.
 
 Since this first article covering shielded reinforcement learning in finite MDPs, other shielding methods building upon the same framework have been described in the literature #citationneeded[Every shielded RL article I have on hand].
-
-
 
 === Shielding a Policy <sec:ApplyingTheShield>
 
@@ -518,8 +516,8 @@ Thus, an existing controller can be upgraded to give formal safety guarantees by
   Next, any action in state 11 carries a risk of slipping and ending up in  💀, so state 11 should never be entered.
   Lastly, any action in state 10 can cause the agent to slip onto state 11, so this state should be avoided as well. 
   
-  @fig:GridWorldShield shows the resulting maximally permissive safe strategy for @ex:GridWorld. 
-  This strategy was generated using a publicly available package#footnote(link("https://github.com/AstridHornBrorholt/GridShielding.jl")) which implements the method described in Paper A (to be discussed in later sections).
+  @fig:GridWorldShield shows the resulting maximally permissive safe policy for @ex:GridWorld. 
+  This policy was generated using a publicly available package#footnote(link("https://github.com/AstridHornBrorholt/GridShielding.jl")) which implements the method described in Paper A (to be discussed in later sections).
 
   #figure(image("../Graphics/Intro/Shielded.png", width: 40%),
     caption: [Most permissive shield for Grid World. A shield icon 🛡️ indicates the action is not permitted.]
@@ -534,12 +532,12 @@ Thus, an existing controller can be upgraded to give formal safety guarantees by
 === Finite- and Infinite-horizon Shielding
 
 Note that @def:Shielding requires safety over all infinite traces that are outcomes of the shield.
-This generally requires computing a safety strategy offline, which can be computationally infeasible for some models. 
+This generally requires computing the shield offline, which can be computationally infeasible for some models. 
 Instead, it can make sense to only give guarantees $k$ steps into the future, computed on-line at each step.
 These finite horizon shields are often referred to as _bounded prescience_  shields @I:giacobbe_shielding_2021, or $k$-step lookahead shields @I:xiao_model-based_2023 @I:yang_safe_2023.
 
 One example of such a safety guarantee @I:giacobbe_shielding_2021  was given for a deterministic MDP, but here extended to include probabilistic outcomes: 
-For an MDP $mdp$, action $a_0$  is $k$-safe at state $s_0$, if there exists a deterministic strategy $pi$ such that for all traces $xi = s_0 a_0 ... s_k...$ with $pi(s_i) = a_i$ for $i > 0$, then $xi_0^k$ is safe.
+For an MDP $mdp$, action $a_0$  is $k$-safe at state $s_0$, if there exists a deterministic policy $pi$ such that for all traces $xi = s_0 a_0 ... s_k...$ with $pi(s_i) = a_i$ for $i > 0$, then $xi_0^k$ is safe.
 This extends to other states $s$ by redefining the starting state of $mdp$ to $s$.
 
 === Probabilistic Shielding
