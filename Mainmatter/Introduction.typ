@@ -285,22 +285,24 @@ This is ensured by the fact that $s_0$ is visited infinitely often as $n -> infi
   )
 ]
 
-=== Training and Operation <sec:TrainingAndOperation>
+=== Training and Operation Phases <sec:TrainingAndOperation>
 
-It can sometimes be useful to view machine learning as consisting of two different phases: Initial _training,_ and subsequent _operation_ as part of a real-life system.
+It can sometimes be useful to view machine learning as consisting of two different phases: Initial training, and subsequent operation as part of a real-life system.
+The *training phase* is defined as the period where the agent changes its policy to gradually improve expected reward, possibly in a controlled environment. 
+This is in contrast to the *operation phase* where the policy is no longer mutable, always taking the best action according to the policy at the time when training ended.
+
 In the common view of reinforcement learning, the agent is continually exploring, learning, and improving, even when in operation.
 However, this is not always the case in practice.
 Legal requirements may warrant a costly re-certification every time changes are made to a policy, prohibiting the agent from adapting its behaviour during operation.
-Technical limitations during operations may also preclude learning, such as reductions applied to the model, in order to deploy it to an embedded platform.
-
-In Q-learning, the training phase would be exactly as @alg:QLearning, while the operation phase would not include @l:QUpdate of that algorithm.
+Technical limitations during operations may also preclude learning, such as in embedded platforms. Reductions may have even been applied to the model, in order to stay within memory limits.
+Such a reduction could be the transformation from a Q-table to a list of state-action pairs, discarding the exact Q-values and keeping only the optimal action for each state
 
 #todo[Q-learning advanced example: Bouncing Ball.]
 
 == Shielding <sec:Shielding>
 
 Complex physical systems may have multiple requirements placed upon them, which cannot always be combined into a single reward signal.
-These requirements system may be in tension with each other, and it could be that some concerns should always come first, such as the safety of people or equipment. 
+These requirements may be in tension with each other, and it could be that some concerns should always come first, such as the safety of people or equipment. 
 
 === Safety
 
@@ -361,15 +363,16 @@ The maximally permissive shield for an invariant of an MDP is unique @I:BernetJW
   )<fig:QualityInjectionMoulding>
 
   The maximally permissive shield which enforces the invariant $phi$ is  respectively $shield(○) = {p, c}$, $shield(◍) = {c}$ and $shield(●) = emptyset$.
-  The optimal policy under this shield is straightforwardly $pi(○) = p, pi(◍) = c$.
-  The expected reward for this policy as defined in @eq:ExpectedReward can be found by hand for e.g. $gamma = 0.9$:
+  The optimal policy under this shield is $pi(○) = p, pi(◍) = c$.
+  Let $gamma = 0.9$. The expected reward for this policy as given by @eq:ExpectedReward is:
 
   #let expectation = $EE^cal(I)_pi$
-  $ expectation(○) &= P(○, p, ○)(R(○, p, ○) + gamma expectation(○)) \
-    &+ P(○, p, ◍)(R(○, p, ◍) + gamma expectation(◍)) \
-    &=0.95(100 + 0.9 expectation(○)) + 0.05(100 + 0.9 expectation(◍)) \
+  $ expectation(○) = &P(○, p, ○)(R(○, p, ○) + gamma expectation(○)) \
+    + &P(○, p, ◍)(R(○, p, ◍) + gamma expectation(◍)) \
+    = &0.95(100 + 0.9 expectation(○)) + 0.05(100 + 0.9 expectation(◍)) \
   $
-  With $expectation(◍) = 1 + 0.9 expectation(○)$, the equation contains just a single variable which reduces to  $expectation(○) = (100 + 0.05 times 0.9)/(1 - 0.95 times 0.9 - 0.05 times 0.9^2) approx 957.368$.
+  Since $expectation(◍) = 1 + 0.9 expectation(○)$, the equation reduces to  \
+  $expectation(○) = (100 + 0.05 times 0.9)/(1 - 0.95 times 0.9 - 0.05 times 0.9^2) approx 957.368$.
 ] <ex:QualityInjectionMoulding>
 
 === Origin of the Term
