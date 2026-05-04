@@ -204,22 +204,37 @@ f(s, a)
 
 # ╔═╡ 2a754cfb-a824-4fbb-999b-27e2b1439e1f
 md"""
-# Synthesizing a Shield
+## Synthesizing a Shield
 
 This is done using the [GridShielding.jl](https://github.com/AstridHornBrorholt/GridShielding.jl) package
 """
 
 # ╔═╡ 6455a04a-3729-44cd-a9c9-2109706f794a
-is_safe(s) = s != 💀
+begin
+	# Defining the is_safe(bounds) function
+	
+	is_safe(s) = s != 💀
 
-# ╔═╡ e43cbff8-b9b4-418f-950b-cafa999d2d5e
-is_safe(bounds::Bounds) = is_safe(bounds.lower[1])
+	is_safe(bounds::Bounds) = is_safe(bounds.lower[1])
+end
 
 # ╔═╡ d5eedc70-c808-474d-b8e2-98f87bb21d7f
-@enum action up down left right
+#actions must be enums
+@enum Action up down left right
 
 # ╔═╡ 30e8d819-fbc2-4e60-90fc-6882925fc833
-any_action, no_action = actions_to_int(instances(action)), actions_to_int([])
+any_action, no_action = actions_to_int(instances(Action)), actions_to_int([])
+
+# ╔═╡ 0ce51653-1f4b-451f-b8b3-d5b0480707af
+enum_to_action = Dict(up => :↑, down => :↓, left => :←, right => :→)
+
+# ╔═╡ 3fb26ecf-d11e-404a-ab16-08676b81d124
+action_to_enum = Dict(v => k for (k, v) in enum_to_action)
+
+# ╔═╡ 952a7f42-364a-460f-bbde-c13239d55459
+md"""
+### Configuring Parameters & Setting Everyting Up
+"""
 
 # ╔═╡ eac046eb-392d-4a84-bc6a-837480a76765
 begin
@@ -236,9 +251,6 @@ samples_per_axis_random = [2, 4]
 # ╔═╡ d37c80b0-0cef-42aa-a878-ade06954f442
 randomness_space = Bounds([eps(), eps()], [1., 1.])
 
-# ╔═╡ 0ce51653-1f4b-451f-b8b3-d5b0480707af
-enum_to_action = Dict(up => :↑, down => :↓, left => :←, right => :→)
-
 # ╔═╡ 060c4170-aba1-4b1b-9710-86beb904a602
 simulation_function(s, a, r) = f(s[1], enum_to_action[a], r)
 
@@ -251,11 +263,13 @@ model = SimulationModel(simulation_function, randomness_space, samples_per_axis,
 # ╔═╡ 0ae4c6af-cfa1-4a4e-abb7-7e7db97698a5
 reachability_function = get_barbaric_reachability_function(model)
 
-# ╔═╡ 3fb26ecf-d11e-404a-ab16-08676b81d124
-action_to_enum = Dict(v => k for (k, v) in enum_to_action)
+# ╔═╡ fc61b87d-9097-44cb-ab8b-8d3b3db98a43
+md"""
+### Synthesis
+"""
 
 # ╔═╡ 57cd2a0d-3462-4924-8198-af907c763074
-shield, max_steps_reached = make_shield(reachability_function, action, grid)
+shield, max_steps_reached = make_shield(reachability_function, Action, grid)
 
 # ╔═╡ ec0c414f-1c6a-4a2d-99cf-468fa617f36b
 shield.array
@@ -300,7 +314,7 @@ let
 	
 	for (s, allowed) in enumerate(shield.array)
 		x, y = indexof(s)
-		allowed = [enum_to_action[a] for a in int_to_actions(action, allowed)]
+		allowed = [enum_to_action[a] for a in int_to_actions(Action, allowed)]
 		
 		annotate!(y - 0.00, x - 0.0, 
 				  :↑ in allowed ? text("↑", :green, 12) : text("⁣🛡️", :red, 12, "sans"))
@@ -317,9 +331,45 @@ let
 	plot!()
 end
 
+# ╔═╡ b7c00112-ebe4-454e-a35a-7ba4e19ba9ea
+md"""
+### Shielding Functions
+"""
+
+# ╔═╡ cc49eb4b-7393-49e8-84ad-167f3853f4f3
+function allowed(shield::Grid, state)
+	partition = box(shield, state)
+	allowed = int_to_actions(Action, get_value(partition))
+	if length(allowed) == 0 
+		allowed = instances(Action)
+	end
+	allowed = [enum_to_action[a] for a in allowed]
+	return allowed
+end
+
+# ╔═╡ 312adb87-4ad8-4d98-b751-b49a1dfde418
+allowed(shield, 14)
+
+# ╔═╡ 20328a59-110e-4cd9-a02e-f5eb197d5ae7
+allowed(shield, 15)
+
+# ╔═╡ 3ac3936c-c011-42f2-a8d3-f2b590b60a82
+begin
+	function allows(shield::Grid, state, a::Action)
+		enum_to_action[a] in allowed(shield, state)
+	end
+	
+	function allows(shield::Grid, state, a::Symbol)
+		return a in allowed(shield, state)
+	end
+end
+
+# ╔═╡ ea419be2-1b1e-40f2-b823-673a4c38f543
+allows(shield, 14, :↑)
+
 # ╔═╡ 8a78e939-8005-4eb1-b072-5d4c427cbc3a
 md"""
-## Try it out! -- Test the shield
+## Try it out! 🎈 Test the shield
 Using the power of Pluto Notebooks reactivity, you can play the Grid World example yourself.
 
 Optionally (checkbox below) you can explore the grid-world safely by having the shield override unsafe actions.
@@ -330,17 +380,6 @@ md"""
 **Enable Shield**
 $(@bind enable_shield CheckBox(default=false))
 """
-
-# ╔═╡ 3ac3936c-c011-42f2-a8d3-f2b590b60a82
-function allows(shield::Grid, state, a)
-	a = action_to_enum[a]
-	partition = box(shield, state)
-	allowed = int_to_actions(action, get_value(partition))
-	return a in allowed || length(allowed) == 0
-end
-
-# ╔═╡ ea419be2-1b1e-40f2-b823-673a4c38f543
-allows(shield, 14, :→)
 
 # ╔═╡ c5e1c1bc-f127-42a7-bb63-ca6c83d126c3
 @bind reset_button CounterButton("Reset")
@@ -427,7 +466,7 @@ let
 	vline!(0:4, width=1, color=:gray, label=nothing)
 	
 	for x in 1:4, y in 1:4
-		annotate!(y - 0.80, x - 0.90, text("$x, $y", 10))
+		annotate!(y - 0.80, x - 0.90, text("$(S[x, y])", 10))
 	end
 
 	for 🧊′ in 🧊
@@ -437,7 +476,7 @@ let
 
 	x, y = indexof(💀)
 	if state[] == 💀
-		annotate!(y - 0.70, x - 0.70, text("⁣💀", 20, "Helvetica"))
+		annotate!(y - 0.75, x - 0.70, text("⁣💀", 20, "Helvetica"))
 	else
 		annotate!(y - 0.50, x - 0.50, text("⁣💀", 30, "Helvetica"))
 	end
@@ -455,17 +494,238 @@ let
 	plot!()
 end
 
-# ╔═╡ 3d372884-bab0-40f9-901a-7e5bccb258c6
-function shield_action(shield::Grid, state, a)
-	a = action_to_enum[a]
-	partition = box(shield, state)
-	allowed = int_to_actions(action, get_value(partition))
-	if a in allowed || length(allowed) == 0
-		return a
+# ╔═╡ 66dd9d38-7ef7-4b4c-805b-d26f21f2859f
+md"""
+## Shielded Q-learning
+Re-visiting the Q-learning code from our other notebook.
+
+Instead of considering the full action space, we only choose from allowed actions `🛡️(s)`.
+
+Note especially how 🛡️ is used in the functions `ϵ_greedy` and `Q_episode!`.
+"""
+
+# ╔═╡ f7e8d34a-a02b-4f91-9b1e-8785ecb52768
+🛡️(s) = allowed(shield, s) # Shielded actions
+
+# ╔═╡ fbce7689-eb9d-4120-8d3d-6a01e66cb4fe
+@bind ϵ_base NumberField(0.0001:0.0001:1, default=0.1)
+
+# ╔═╡ 073098a8-0ee4-4817-ae8b-0a6a8ba3804f
+@bind α_base NumberField(0.0001:0.0001:1, default=0.1)
+
+# ╔═╡ 4883874d-c0e8-4984-be4d-a4c082367f74
+# Episode max length
+@bind T NumberField(1:typemax(Int64), default=1000)
+
+# ╔═╡ 5eda40c9-f10c-4a12-a458-e76d844e7419
+@bind γ NumberField(0.0001:0.0001:1, default=0.99)
+
+# ╔═╡ 7fa924a2-e89b-488c-8f46-c6067eede854
+# ϵ-greedy choice from Q.
+function ϵ_greedy(ϵ::Number, Q, s)
+	if rand(Uniform(0, 1)) < ϵ
+		return rand(🛡️(s))
 	else
-		return rand(allowed)
+		return argmax((a) -> Q[s, a], 🛡️(s))
 	end
 end
+
+# ╔═╡ 218cbaf2-175e-477e-815e-706d95cbfec2
+# It's important for the Q-updates that the terminal states are zero
+Q_init = Dict{Tuple{Int64, Symbol}, Float64}(
+	(s, a) => 0 
+	for s in S, a in A
+)
+
+# ╔═╡ 135a5791-f61d-48a9-9e31-fabfb72c0e69
+[ϵ_greedy(0.2, Q_init, 1) for _ in 1:10]
+
+# ╔═╡ 466621e0-9448-46d6-bff5-de76ff0e25e5
+md"""
+### This is Where Training Happens
+"""
+
+# ╔═╡ d2f6ea71-2b10-4816-bade-d66565cdd73a
+@bind episodes NumberField(0:typemax(Int64), default=5)
+
+# ╔═╡ f6345e37-c257-491c-9a35-820c62a18c86
+function ϵ(t; episodes=episodes)
+	#return ϵ_base
+	if t < episodes/2
+		ϵ_base
+	else
+		ϵ_base/(1 + 0.01*(t - episodes/2))
+	end
+end
+
+# ╔═╡ 2641f88e-d3a6-4cc1-b9a9-dd651c850a16
+function α(t; episodes=episodes)
+	if t < episodes/2
+		α_base
+	else
+		α_base/(1 + 0.01*(t - episodes/2))
+	end
+end
+
+# ╔═╡ 1170955f-c3fe-47fd-8e01-af6bccd7a6a5
+let
+	episodes = 1000
+	p1 = plot(xlabel="t", size=(300, 300))
+	plot!(y -> ϵ(y; episodes), xlim=(0, episodes), label="ϵ")
+	hline!([0], line=:black, label=nothing)
+	p2 = plot(xlabel="t", size=(300, 300))
+	plot!(y -> α(y; episodes), xlim=(0, episodes), label="α", color=:orange)
+	hline!([0], line=:black, label=nothing)
+	plot(p1, p2, size=(600, 300))
+end
+
+# ╔═╡ 167769f4-024b-44ce-b3bf-a94b3d2a5006
+function Q_episode!(Q, i)
+	Σr =  0
+	Sₜ = 🤖
+	Aₜ = ϵ_greedy(ϵ(i), Q, Sₜ)
+	ξ = []
+	for t ∈ 1:T
+		Sₜ₊₁ = f(Sₜ, Aₜ)
+		rₜ₊₁ = r(Sₜ₊₁)
+		Σr += rₜ₊₁
+		
+		Q[Sₜ, Aₜ] = 
+			Q[Sₜ, Aₜ] + 
+			α(i)*(rₜ₊₁ + γ*max([Q[Sₜ₊₁, a′] for a′ in 🛡️(Sₜ₊₁)]...) -  Q[Sₜ, Aₜ])
+		
+		Aₜ₊₁ = ϵ_greedy(ϵ(i), Q, Sₜ₊₁)
+		
+		# @info "" Sₜ Aₜ Sₜ₊₁ r(Sₜ₊₁) Q[Sₜ, Aₜ]
+		push!(ξ, (Sₜ, Aₜ, rₜ₊₁))
+
+		if is_terminal(Sₜ₊₁)
+			push!(ξ, (Sₜ₊₁, A[1], 0))
+			return Σr, ξ
+		end
+		
+		Sₜ, Aₜ = Sₜ₊₁, Aₜ₊₁
+	end
+	return Σr, ξ
+end
+
+# ╔═╡ c6c020d2-3f0e-4764-9d86-d6d8a202113a
+function Q_learn!(Q)
+	rewards = []
+	traces = []
+	
+	@progress for i ∈ 1:episodes
+		R, ξ = Q_episode!(Q, i)
+		push!(rewards, R)
+		push!(traces, ξ)
+	end
+
+	return rewards, traces
+end
+
+# ╔═╡ 525f5979-c0e4-46ef-aa35-1232d1d2c17b
+begin
+	episodes
+	Q = copy(Q_init)
+	rewards, traces = Q_learn!(Q)
+end
+
+# ╔═╡ 76249b97-8022-482a-be78-930b9fc22aa0
+let
+	any_unsafe = false
+	for ξ in traces
+		for (S, a, S′) in ξ
+			if !is_safe(S)
+				@error "Unsafe state reached!" S ξ
+				any_unsafe = true
+			end
+		end
+	end
+	if !any_unsafe
+		"All episodes were safe 👍"
+	end
+end
+
+# ╔═╡ c53ca4b4-4d7d-4ee2-b86b-fbd696f98547
+if episodes < 100000
+	plot(rewards, 
+		 fontfamily="times",
+		 label=nothing, 
+		 xlabel="Episode",
+		 ylabel="Reward",
+		 ylim=(-70, 1), 
+		 #yticks=[-150, -100, -50, 0, 10],
+		 size=(400, 400))
+else
+	"too much to plot"
+end
+
+# ╔═╡ a7859862-e251-4db4-8172-eec4e66abeaf
+@bind example_trace_button CounterButton("Example Trace")
+
+# ╔═╡ 16ef1ce1-1e04-4839-bc4e-e3e40462cc5b
+if example_trace_button > 0
+	Q_episode!(Q, episodes)
+end
+
+# ╔═╡ b430b41a-23e4-4bc1-afd9-5fe08f8bd52b
+ϵ(episodes)
+
+# ╔═╡ 8eb6eca4-2ae5-41ae-9796-09dc7c25a8be
+V = [max([Q[s, a] for a in 🛡️(s)]...) for s in S]
+
+# ╔═╡ 9cde860e-9aa8-4a9f-90d1-5932928878ea
+best_a(Q, s) = argmax(a -> Q[s, a], 🛡️(s))
+
+# ╔═╡ 3e17f889-ffc5-4fd1-8853-940a3dd64d86
+let
+	example_trace_button # This button updates the weights by one episode
+	
+	mm = Plots.Measures.mm
+	heatmap(V,
+		fontfamily="times",
+		color=cgrad([:white, :wheat]),
+		xlabel="x",
+		ylabel="y",
+		yflip=true,
+		ticks=nothing,
+		clim=(-10, 1),
+		#title="heatmap of V and strategy π",
+		#title="$episodes episodes",
+		margin=2mm,
+		size=(400, 400))
+
+	for 🧊′ in 🧊
+		x, y = indexof(🧊′)
+		annotate!(y + 0.05, x - 0.30, text("⁣🧊", 15, "Fira sans"))
+	end
+
+	x, y = indexof(🤖)
+	annotate!(y + 0.05, x - 0.30, text("⁣🤖", 15, "Fira sans"))
+
+	x, y = indexof(💀)
+	annotate!(y + 0.05, x - 0.30, text("⁣💀", 15, "Fira sans"))
+
+	x, y = indexof(🏁)
+	annotate!(y + 0.05, x - 0.30, text("⁣🏁", 15, "Fira sans"))
+	
+	for x in 1:4, y in 1:4
+		annotate!(y - 0.30, x - 0.30, text(S[x, y], :crimson, 10))
+		is_terminal(S[x, y]) && continue
+		annotate!(y, x + 0.00, text(best_a(Q, S[x, y]), :gray))
+		annotate!(y, x + 0.30, text(round(V[x, y], digits=2), "times"), :black)
+	end
+	plot!()
+end
+
+# ╔═╡ ed9fc005-a745-4249-bbcc-ffd605d9498a
+Q[10, :→]
+
+# ╔═╡ be32cd9f-2ab8-48e1-8813-f9e5cba6177d
+0.5*0.25
+
+# ╔═╡ de3ff694-9466-49a8-9138-da2d70a2211b
+r(💀)*γ^2*(0.5*0.25)*(0.5*0.25)
 
 # ╔═╡ Cell order:
 # ╠═42548379-376c-45fc-b2e2-fd3b4fc51872
@@ -493,9 +753,11 @@ end
 # ╠═713e8cdb-1d9f-4e8e-8b05-71d14c047f73
 # ╟─2a754cfb-a824-4fbb-999b-27e2b1439e1f
 # ╠═6455a04a-3729-44cd-a9c9-2109706f794a
-# ╠═e43cbff8-b9b4-418f-950b-cafa999d2d5e
-# ╠═30e8d819-fbc2-4e60-90fc-6882925fc833
 # ╠═d5eedc70-c808-474d-b8e2-98f87bb21d7f
+# ╠═30e8d819-fbc2-4e60-90fc-6882925fc833
+# ╠═0ce51653-1f4b-451f-b8b3-d5b0480707af
+# ╠═3fb26ecf-d11e-404a-ab16-08676b81d124
+# ╟─952a7f42-364a-460f-bbde-c13239d55459
 # ╠═eac046eb-392d-4a84-bc6a-837480a76765
 # ╠═fa05187e-3f6a-437a-853d-93b29c352782
 # ╠═9c61cada-df4a-49d0-93d4-45d3a7bae866
@@ -504,11 +766,14 @@ end
 # ╠═0af99598-9e2a-494e-b2e9-0d3911670900
 # ╠═d48f7d1c-3aee-4f96-92cd-34925bd8abf8
 # ╠═0ae4c6af-cfa1-4a4e-abb7-7e7db97698a5
-# ╠═0ce51653-1f4b-451f-b8b3-d5b0480707af
-# ╠═3fb26ecf-d11e-404a-ab16-08676b81d124
+# ╟─fc61b87d-9097-44cb-ab8b-8d3b3db98a43
 # ╠═57cd2a0d-3462-4924-8198-af907c763074
 # ╠═ec0c414f-1c6a-4a2d-99cf-468fa617f36b
 # ╟─403a5a86-1fb8-498b-bd83-a418f9165fa3
+# ╟─b7c00112-ebe4-454e-a35a-7ba4e19ba9ea
+# ╠═cc49eb4b-7393-49e8-84ad-167f3853f4f3
+# ╠═312adb87-4ad8-4d98-b751-b49a1dfde418
+# ╠═20328a59-110e-4cd9-a02e-f5eb197d5ae7
 # ╠═3ac3936c-c011-42f2-a8d3-f2b590b60a82
 # ╠═ea419be2-1b1e-40f2-b823-673a4c38f543
 # ╟─8a78e939-8005-4eb1-b072-5d4c427cbc3a
@@ -524,4 +789,31 @@ end
 # ╟─123b7ba1-38af-4915-b1b7-4c91a8136b61
 # ╟─4c9bce7f-a55d-4315-b128-aef21acf15bc
 # ╟─b984a1f7-309f-47d2-b45d-43e32793419c
-# ╠═3d372884-bab0-40f9-901a-7e5bccb258c6
+# ╟─66dd9d38-7ef7-4b4c-805b-d26f21f2859f
+# ╠═f7e8d34a-a02b-4f91-9b1e-8785ecb52768
+# ╠═fbce7689-eb9d-4120-8d3d-6a01e66cb4fe
+# ╠═073098a8-0ee4-4817-ae8b-0a6a8ba3804f
+# ╠═4883874d-c0e8-4984-be4d-a4c082367f74
+# ╠═5eda40c9-f10c-4a12-a458-e76d844e7419
+# ╠═7fa924a2-e89b-488c-8f46-c6067eede854
+# ╠═218cbaf2-175e-477e-815e-706d95cbfec2
+# ╠═135a5791-f61d-48a9-9e31-fabfb72c0e69
+# ╠═f6345e37-c257-491c-9a35-820c62a18c86
+# ╠═2641f88e-d3a6-4cc1-b9a9-dd651c850a16
+# ╠═1170955f-c3fe-47fd-8e01-af6bccd7a6a5
+# ╠═c6c020d2-3f0e-4764-9d86-d6d8a202113a
+# ╠═167769f4-024b-44ce-b3bf-a94b3d2a5006
+# ╟─466621e0-9448-46d6-bff5-de76ff0e25e5
+# ╠═d2f6ea71-2b10-4816-bade-d66565cdd73a
+# ╠═525f5979-c0e4-46ef-aa35-1232d1d2c17b
+# ╠═76249b97-8022-482a-be78-930b9fc22aa0
+# ╟─c53ca4b4-4d7d-4ee2-b86b-fbd696f98547
+# ╠═a7859862-e251-4db4-8172-eec4e66abeaf
+# ╠═16ef1ce1-1e04-4839-bc4e-e3e40462cc5b
+# ╠═b430b41a-23e4-4bc1-afd9-5fe08f8bd52b
+# ╠═8eb6eca4-2ae5-41ae-9796-09dc7c25a8be
+# ╠═9cde860e-9aa8-4a9f-90d1-5932928878ea
+# ╟─3e17f889-ffc5-4fd1-8853-940a3dd64d86
+# ╠═ed9fc005-a745-4249-bbcc-ffd605d9498a
+# ╠═be32cd9f-2ab8-48e1-8813-f9e5cba6177d
+# ╠═de3ff694-9466-49a8-9138-da2d70a2211b
