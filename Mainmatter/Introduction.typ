@@ -49,30 +49,33 @@ The reinforcement learning problem can be stated in many different ways, dependi
 MDPs describe stochastic systems, where the outcomes of actions only depend on the current (observable) state of the system, and not on which actions or states were seen previously.
 
 #definition(name: "MDP")[
-An MDP can be described by a tuple $(S, s_0, Act, P, R)$ where
+An MDP can be described by a tuple $(S, s_0, A, P, R)$ where
   - $S$ is a finite set of states,
   - $s_0 in S$ is an initial state,
-  - $Act$ is a set of actions,
-  - $P : S times Act times S -> [0; 1]$ with  $forall s in S, a in Act : sum_(s' in S) P(s, a, s') = 1$ is the transition function, which gives the  probability of reaching state $s'$ from state $s$ as a result of  taking the action $a$, 
-  - and $R : S times Act times S -> RR$ gives the reward $R(s, a, s')$ for reaching $s'$ by taking $a$ in $s$.
+  - $A$ is a set of actions,
+  - $P : S times A → (S → [0; 1])$ with  $forall s in S, a in A : sum_(s' in S) P(s, a)(s') = 1$ is the transition function, which gives the  probability of reaching state $s'$ from state $s$ as a result of  taking the action $a$, 
+  - and $R : S times A times S -> RR$ gives the reward $R(s, a, s')$ for reaching $s'$ by taking $a$ in $s$.
 ]<def:mdp>
 
 In this definition, the state-space is assumed to be finite, though it would be straightforward to generalize to a countably infinite state-space. 
 If $S$ were instead to be uncountably infinite, the transition function $P$ should be modified to give a density function over a set of states, rather than giving probabilities for specific states. 
 I.e. 
-$P : S times Act -> (S -> RR_(>=0))$ such that $integral_(s' in S) P(s, a)(s') d s' = 1$.
+$P : S times A -> (S -> RR_(>=0))$ such that $integral_(s' in S) P(s, a)(s') d s' = 1$.
 
-The definition also requires every action $a in Act$ to be defined for every state in $S$. 
-This assumption about the model is made w.l.o.g. to simplify notation.
+The definition also requires every action $a in A$ to be defined for every state in $S$. 
+This assumption is made w.l.o.g. to simplify notation.
 
-A _policy,_  is a function that chooses the next action from a given state. 
+Sometimes models are defined as having a cost $C$ to be minimized, rather than reward $R$ to be maximised. These definitions are effectively interchangeable, as any cost can be re-defined as reward by flipping its sign: $R(s, a, s') = -C(s, a, s')$.
 
-Policies can either be 
- - _probabilistic_ $S times Act -> [0; 1]$, giving a probability distribution over actions, 
- - _deterministic_ $S -> Act$, uniquely selecting one specific action for each state, 
- - or _nondeterministic_ $S -> powerset(Act)$, giving a subset $A subset.eq Act$ of possible actions. 
+#definition(name: "Policy")[
+  A policy,  is a function that chooses the next action from a given state. 
+  There are three different kinds of policy:
+    - _deterministic_ $S -> A$, uniquely selecting one specific action for each state, 
+    - _probabilistic_ $S times A -> [0; 1]$, giving a probability distribution over actions, 
+    - or _nondeterministic_ $S -> powerset(A)$, giving a subset $A' subset.eq A$ of possible actions. 
+]
 
-Given an e.g. nondeterministic policy $pi : S -> powerset(Act)$, a trace $xi$ is an outcome of an MDP $mdp$ and policy $pi$ is an interleaved series of states and actions $xi = s_0 a_0 s_1 a_1 s_2 a_2 ...$ such that $a_i in pi(s_i)$ and $P(s_i, a_i, s_(i+1)) > 0$.
+Given an e.g. nondeterministic policy $pi : S -> powerset(A)$, a trace $xi$ is an outcome of an MDP $mdp$ and policy $pi$ is an interleaved series of states and actions $xi = s_0 a_0 s_1 a_1 s_2 a_2 ...$ such that $a_i in pi(s_i)$ and $P(s_i, a_i)(s_(i+1)) > 0$.
 Traces are defined similarly for deterministic and probabilistic functions.
 Since @def:mdp does not include a stopping condition, traces will be infinite.
 A finite section of a trace $xi_m^n = s_m a_m ... a_(n-1) s_n$ contain the steps from state and action pairs from $s_m$ up to $s_n$.
@@ -93,10 +96,10 @@ This definition is less useful for infinite traces, as we will see in the follow
     caption: [MDP representing an injection moulding process. Solid lines represent actions. Dashed lines show possible outcomes of actions, giving a probability of occurring (as percentage) and the resulting reward.]
   )<fig:InjectionMoulding>
   
-  The MDP $cal(I) = (S, s_0, Act, P, R)$ modelling this system is shown in @fig:InjectionMoulding.
-  It has state space $S = { ○, ◍ }$ with initial state $s_0 = ○$, and actions $Act = { p, c }$. 
+  The MDP $cal(I) = (S, s_0, A, P, R)$ modelling this system is shown in @fig:InjectionMoulding.
+  It has state space $S = { ○, ◍ }$ with initial state $s_0 = ○$, and actions $A = { p, c }$. 
 
-  The transition function is given as $ P(○, p, ○) = 0.95, P(○, p, ◍) = 0.05$ and deterministically $1.00 = P(◍, p, ◍) = & P(○, c, ○) = P(◍, c, ○) $. 
+  The transition function is given as $ P(○, p)(○) = 0.95, P(○, p)(◍) = 0.05$ and deterministically $1.00 = P(◍, p)(◍) = & P(○, c)(○) = P(◍, c)(○) $. 
   For all $s, s' in S$ the reward is $R(s, p, s') = 100$ and $R(s, c, s') = 1$.
 
   Imagine one policy that cleans the moulds after each unit produced, and another policy that always produces a batch of units without concern for quality. 
@@ -121,15 +124,15 @@ The discount factor $gamma$ may be interpreted as the probability of the trace c
 In contrast to the reward gained from just one trace, the expected discounted reward for a probabilistic policy is defined as:
 
 #definition(name: "Expected reward")[
-  Given an MDP $M = (S, s_0, Act, P, R)$, a probabilistic policy $pi$ and a discount factor $gamma in [0; 1[$, the expected reward of $pi$ on $mdp$ is the unique fixed point of the following equation
+  Given an MDP $M = (S, s_0, A, P, R)$, a probabilistic policy $pi$ and a discount factor $gamma in [0; 1[$, the expected reward of $pi$ on $mdp$ is the unique fixed point of the following equation
 
-  $ EE_pi^mdp (s) = sum_(a in Act) pi(s, a) sum_(s' in S) P(s, a, s') (R(s, a, s') + gamma  EE_pi^mdp (s')) $ 
+  $ EE_pi^mdp (s) = sum_(a in A) pi(s, a) sum_(s' in S) P(s, a)(s') (R(s, a, s') + gamma  EE_pi^mdp (s')) $ 
 ]<eq:ExpectedReward>
 
 This is used in the definition of the optimization problem of finding the policy with the highest expected discounted reward for $mdp$.
 
 #definition(name:"Optimization problem")[
-  Given an MDP $mdp = (S, s_0, Act, P, R)$ and a discount factor $gamma$, find the policy $pi^star$ such that
+  Given an MDP $mdp = (S, s_0, A, P, R)$ and a discount factor $gamma$, find the policy $pi^star$ such that
 
   $ pi^star = argmax_(pi) EE_gamma^mdp (pi) $
 ]<def:Optimization>
@@ -147,14 +150,13 @@ In the following, a description of the comparatively simple Q-learning approach 
 
 Q-learning @I:QLearning @I:Watkins89 #cl("I:DBLP:books/lib/SuttonB98") is a model-free, off-policy, reinforcement learning algorithm for models that have finite state-space.
 The algorithm maintains a "Q-table"  that represents for every pair $(s, a)$ the estimated expected reward for taking action $a$ in state $s$.
-It is the function $Q : S times Act -> RR$, which is updated in every step.
+It is the function $Q : S times A -> RR$, which is updated in every step.
 
-The table can be initialized arbitrarily,.#footnote[However if the model has terminal states $T subset S$, then $Q$ must be initialized such that $forall t in T, a in Act : Q (t, a) = 0$.] e.g. $Q (s, a) = 0.1$ for all $s in S, a in A$.
+The table can be initialized arbitrarily,.#footnote[However if the model has terminal states $T subset S$, then $Q$ must be initialized such that $forall t in T, a in A : Q (t, a) = 0$.] e.g. $Q (s, a) = 0.1$ for all $s in S, a in A$.
 Although there is no theoretical requirement on the initialization of $Q$ it may be natural to use a random values, to use 0, or a small positive number.
 If the initial value is greater in each state than the expected rewards, this will induce a breadth-first search as the Q-learning agent seeks out unexplored states, that appear to have higher rewards compared to known states.
 
-The notational shorthand $Q (s, a) ← x$ is used to describe updates to the function where its value is changed to $x$ for $Q(s, a)$, while remaining unaltered for all other values in its domain.
-The symbol $←$ is also  used for variable updates, e.g. $i ← 0$.
+The notational shorthand $Q [(s, a) mapsto x]$ is used to describe updates to the function where its value is changed to $x$ for $Q(s, a)$, while remaining unaltered for all other values in its domain. I.e. $Q [(s, a) mapsto x](s', a') = cases(x " if " (s', a') = (s, a), Q(s', a'))$.
 
 By gradual updates to $Q$, the function will approximate the expected value of taking action $a$ in state $s$, both in terms of immediate reward, and discounted future reward.
 The method of approximation is given in @alg:QLearning, with the update rule in shown in @l:QUpdate.
@@ -163,9 +165,9 @@ The algorithm has additional input parameters, which will be described in the fo
 
 #figure(kind: "algorithm", supplement: "Algorithm", 
   pseudocode-list(numbered-title: [Q-learning])[
-    - *Input:* MDP $mdp = (S, s_0, Act, P, R)$, 
+    - *Input:* MDP $mdp = (S, s_0, A, P, R)$, 
       discount factor $gamma$,
-      initial $Q : S times Act -> RR$,
+      initial $Q : S times A -> RR$,
       number of episodes $n$,
       episode length $m$,
       learning rate $alpha : NN -> [0; 1[$,
@@ -177,12 +179,12 @@ The algorithm has additional input parameters, which will be described in the fo
       + $s ← s_0$
       + *Loop* $m$                          #line-label(<l:EpisodeLoop>)
         + Flip a weighted coin that has probability $epsilon(i)$ of landing on heads.
-        + *If* heads *then*  select $a$ according to a uniform distribution over $Act$
-        + *Else* $a  ← argmax_(a' in Act) Q (s, a') $
+        + *If* heads *then*  select $a$ according to a uniform distribution over $A$
+        + *Else* $a  ← argmax_(a' in A) Q (s, a') $
         + $s' ~ P(s, a)$ #comment[Take action $a$ in state $s$, call the next state $s'$.]
         + #line-label(<l:QUpdate>) 
-          $Q (s, a) ← Q (s, a) + alpha (i) (R(s, a, s') + gamma max_(a' in Act) Q (s', a') - Q (s, a))$
-    + *Return* $hat(pi) (s) = argmax_(a in Act) Q (s, a)$
+          $Q[(s, a) mapsto Q (s, a) + alpha (i) (R(s, a, s') + gamma max_(a' in A) Q (s', a') - Q (s, a)) ]$
+    + *Return* $hat(pi) (s) = argmax_(a in A) Q (s, a)$
   ],
 )<alg:QLearning>
 
@@ -195,7 +197,7 @@ Updates are performed according to a learning rate $alpha: NN -> [0; 1[$, a func
 This represents how much the new experience should influence the estimation of $Q(s,a)$.
 As the number of episodes increases, so does the number of times $Q(s,a)$ is updated, and a decreasing learning rate reflects growing confidence in the estimate.
 
-@alg:QLearning uses an $epsilon$-greedy exploration policy, to guarantee that every transition triple $(s, a, s')$  with $P(s, a, s') > 0)$  is seen infinitely often in an infinite number of episodes.
+@alg:QLearning uses an $epsilon$-greedy exploration policy, to guarantee that every transition triple $(s, a, s')$  with $P(s, a)(s') > 0)$  is seen infinitely often in an infinite number of episodes.
 The guarantee holds since $epsilon : NN -> ]0;1]$ cannot go to 0. 
 #todo[Write that Q-learning is off-policy because the Q-update does not factor in the $epsilon$ probability of taking another action.]
 #todo[Name-drop other exploration policies.]
@@ -208,15 +210,15 @@ This is ensured by the fact that $s_0$ is visited infinitely often as $n -> infi
 
 #example(name: "Grid World")[
   A robot 🤖 can move around along the cardinal directions on a $4 times 4$ grid, and must find an efficient path towards a goal 🏁 while avoiding a harmful tile 💀.  Movement is deterministic except for the ice tiles 🧊 where there is a chance of slipping in a different random direction. 
-  The system is defined by the MDP $cal(G) = ({1, 2, ... 16}, 14, {←, ↑, →, ↓}, P, R)$. 
+  The system is defined by the MDP $cal(G) = ({1, 2, ... 16}, 14, {⬅, ⬆, ➡, ⬇}, P, R)$. 
   The state-space is laid out in a $4 times 4$ grid as illustrated in @fig:GridWorld, with $s_0$ marked by 🤖.
   With the exception of states 10, 11, (🧊) 15 (💀) and 16(🏁), transitions deterministically follow the cardinal direction indicated by the action. If the action would cause the agent to leave the grid, it stays in the same state.
   
-  For example, $P(1, →, 2)  = 1$ (0 for any other $(1, →, s)$), $P(2, ↓, 6) = 1$ and $P(5, ←, 5) = 1$.
+  For example, $P(1, ➡)(2)  = 1$ (0 for any other $P(1, ➡)(s)$), $P(2, ⬇)(6) = 1$ and $P(5, ⬅)(5) = 1$.
 
 
   
-  In states 10 and 11, there is a 0.625 probability of moving in the manner described above, while the remaining probability mass is distributed among the other directions, i.e. $P(11, →, 15) = 0.125$. States 15 and 16 are terminal, which is modelled as $P(15, a, 15) = 1$ and $P(16, a, 16) = 1$ for any $a$. 
+  In states 10 and 11, there is a 0.625 probability of moving in the manner described above, while the remaining probability mass is distributed among the other directions, i.e. $P(11, ➡)(15) = 0.125$. States 15 and 16 are terminal, which is modelled as $P(15, a)(15) = 1$ and $P(16, a)(16) = 1$ for any $a$. 
   
     #figure(
       {
@@ -306,7 +308,7 @@ This could be e.g. "the mould is eventually cleaned" or "the state 🏁 is event
 If a time bound is given on the event(s) occurring, the statement becomes a safety property, since any finite sequence of states where the bound is exceeded becomes a witness of its violation.
 
 The focus in this thesis is on safety:
-Consider again an MDP $mdp = (S, s_0, Act, P, R)$. Formally, a property is a safety property iff for every trace $xi = s_0 a_0 s_1 a_1 ...$ that violates the property, there exists an $i in NN$ such that the finite sub-trace $xi_0^i = s_0 a_0 ... a_(i-1) s_i$ is enough to show the property is violated #cl("I:DBLP:reference/mc/ClarkeHV18").
+Consider again an MDP $mdp = (S, s_0, A, P, R)$. Formally, a property is a safety property iff for every trace $xi = s_0 a_0 s_1 a_1 ...$ that violates the property, there exists an $i in NN$ such that the finite sub-trace $xi_0^i = s_0 a_0 ... a_(i-1) s_i$ is enough to show the property is violated #cl("I:DBLP:reference/mc/ClarkeHV18").
 An important fragment of the safety properties are invariants, expressing that some proposition holds in every state.
 The safety property $forall s_i : s_i != 💀$, is an invariant.
 These properties can be given as a set of states, $phi$, or as the LTL #cl("I:DBLP:reference/mc/ClarkeHV18") safety fragment "$#strong("AG") psi$" where $psi$ is a predicate on $S$.
@@ -331,7 +333,7 @@ Among the many approaches to enforcing safety in reinforcement learning, #citati
 Since shields work by restricting actions, they can be applied to any existing reinforcement learning method, including deep learning, allowing it to work in concert with state of the art methods to achieve safe and optimized behaviour.
 
 #definition(name: "Shield, maximally permissive shield, shielded policy")[
-  For an MDP $mdp$ and safe set $phi$, a shield is a nondeterministic policy $shield : S -> powerset(Act)$ such that every trace $xi$ that is an outcome of $shield$ is safe.
+  For an MDP $mdp$ and safe set $phi$, a shield is a nondeterministic policy $shield : S -> powerset(A)$ such that every trace $xi$ that is an outcome of $shield$ is safe.
   
   A shield $shield$ for a safe set $phi$, is maximally permissive if for all states $s in S$, there is no other shield $shield'$ for $phi$ such that $shield(s) subset shield'(s)$.
 
@@ -357,8 +359,8 @@ The maximally permissive shield for an invariant of an MDP is unique @I:BernetJW
   Let $gamma = 0.9$. The expected reward for this policy as given by @eq:ExpectedReward is:
 
   #let expectation = $EE^cal(I)_pi$
-  $ expectation(○) = &P(○, p, ○)(R(○, p, ○) + gamma expectation(○)) \
-    + &P(○, p, ◍)(R(○, p, ◍) + gamma expectation(◍)) \
+  $ expectation(○) = &P(○, p)(○)(R(○, p, ○) + gamma expectation(○)) \
+    + &P(○, p)(◍)(R(○, p, ◍) + gamma expectation(◍)) \
     = &0.95(100 + 0.9 expectation(○)) + 0.05(100 + 0.9 expectation(◍)) \
   $
   Since $expectation(◍) = 1 + 0.9 expectation(○)$, the equation reduces to  \
@@ -432,10 +434,10 @@ As illustrated in @tab:NamingDiscrepancy, what Paper A calls pre-shielding is he
 )
 
 ==== Pre-shielding
-Illustrated in @fig:PreShielding, this term refers to the shield restricting the behaviour of the the policy by providing a set of actions $A subset.eq Act$, that are permitted for the given state.
-The learning must be set up in such a way as to only pick an action $a$ if it is included in the set $A$.
+Illustrated in @fig:PreShielding, this term refers to the shield $shield$ restricting the behaviour of the the policy by providing a set of actions $shield(s) subset.eq A$, that are permitted for the given state $s$.
+The learning must be set up in such a way as to only pick an action $a$ if it is included in the set $shield(s)$.
 
-For Q-learning, this can be implemented by modifying @alg:QLearning to maximize only over safe actions $max_(a in shield(s))$, rather than all of $Act$.  For example, in @l:QUpdate:
+For Q-learning, this can be implemented by modifying @alg:QLearning to maximize only over safe actions $max_(a in shield(s))$, rather than all of $A$.  For example, in @l:QUpdate:
 
 $ Q (s, a) = Q (s, a) + alpha (i) (R(s, a, s') + gamma max_(a' in shield(s')) Q (s', a') - Q (s, a)) $
 
@@ -451,12 +453,12 @@ As shown in @fig:PostShielding, the algorithm's actions are sent to the shield.
 If the action is safe, the shield passes it on to the environment unaltered.
 Otherwise an alternative, safe, action is chosen.
 
-This is akin to modifying the the MDP $mdp = (S, s_0, Act, P, R)$ with a new transition function.
-In addition to a shield $shield$, post-shielding requires a probabilistic fallback policy $fehu : S times Act -> [0; 1]$, with $fehu(s, a) > 0 <=> a in shield(s)$. The shield $shield$ and fallback policy $fehu$ are used to create a new transition function for a shielded MDP $mdp^shield = (S, s_0, Act, P', R)$ with
+This is akin to modifying the the MDP $mdp = (S, s_0, A, P, R)$ with a new transition function $P'$ .
+In addition to a shield $shield$, post-shielding requires a probabilistic fallback policy $fehu : S times A -> [0; 1]$, with $fehu(s, a) > 0 <=> a in shield(s)$. The shield $shield$ and fallback policy $fehu$ are used to create a new transition function for a shielded MDP $mdp^shield = (S, s_0, A, P', R)$ with
 
-$ P'(s, a, s') = cases(
-  P(s, a, s') & " if " a in shield(s), 
-  product_(a' in Act) fehu(s, a') P(s, a', s')
+$ P'(s, a)(s') = cases(
+  P(s, a)(s') & " if " a in shield(s), 
+  product_(a' in A) fehu(s, a') P(s, a')(s')
 ) $
 
 The fallback policy $fehu$ has to remain static during learning, to preserve convergence guarantees. It could simply give a uniform distribution over safe actions, pick actions deterministically from an ordering, or choose according to a model-specific heuristic. It could also be a trained policy, as discussed in @post-shielding-optimization of Paper A.
@@ -464,11 +466,11 @@ The fallback policy $fehu$ has to remain static during learning, to preserve con
 #remark(name: "Value Updates in Post-shielding")[
   The value updates for post-shielding are performed in the natural way, but it is possible to make subtle mistakes in the implementation.
   Consider Q-learning performed on a post-shielded MDP with an altered transition function $P'$.
-  Say that in state $s$,  the shield alters an unsafe action $a in.not shield(s)$ to the safe alternative $fehu(s) = a'$, reaching state $s'$.
+  Say that in state $s$,  the shield alters an unsafe action $a in.not shield(s)$ to the safe alternative $a' ~ fehu(s, ·)$, reaching state $s'$.
   The update should be performed for $a$ and not $a'$, i.e. updating $Q(s, a)$ with reward $R(s, a', s')$ as in @alg:QLearning, @l:QUpdate.
   It would be unsound to only update $Q(s, a')$, or to use the reward $R(s, a, s')$.
 
-  However it was shown in  #cl("I:DBLP:conf/ijcnn/SeurinPP20"), that the number of interventions of a shield was reduced by updating both $Q(s, a')$ with  $R(s, a', s')$, and $Q(s, a)$ with a penalty of e.g. $-50$. (This penalty is set as a hyper-parameter.)
+  When updated correctly, the model will learn the outcome of picking $a in.not shield(s)$ as $sum_(a') fehu(s, a') sum_(s') P(s, a')(s')R(s, a', s')$.
 ]
 
 
@@ -498,11 +500,11 @@ Otherwise, the shield will interfere with the policy, disrupting its optimized b
 Outside the context of RL, the term describes applying the shield as a guardrail of a controller that has been designed to be mostly safe, but without using the shield as reference.
 Thus, an existing controller can be upgraded to give formal safety guarantees by applying a post-hoc shield in cases where altering the controller itself would be costly.
 
-#example(name: "Safety in Grid World")[
-  Recall the MDP $cal(G)=(S, s_0, Act, P, R)$ from @ex:GridWorld.
+#example(name: "Staying safe in Grid World")[
+  Recall the MDP $cal(G)=(S, s_0, A, P, R)$ from @ex:GridWorld.
   Let the safe set be $phi=S \\ {💀}$. 
   What is the most permissive shield for $cal(G)$?
-  Certainly, taking → in state 14 is prohibited.
+  Certainly, taking $➡$ in state 14 is prohibited.
   Next, any action in state 11 carries a risk of slipping and ending up in  💀, so state 11 should never be entered.
   Lastly, any action in state 10 can cause the agent to slip onto state 11, so this state should be avoided as well. 
   
