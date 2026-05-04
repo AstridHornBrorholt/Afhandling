@@ -699,9 +699,17 @@ benchmark the implementations on several models.
 
 #[
   #set par(justify: false)
+
   #set table(
-    fill: (_, y) => (none, cmyk(0%, 0%, 0%, 4%)).at(calc.rem(y, 2))
+    fill: (_, y) => {
+      if y == 5 {
+         cmyk(6%, 0%, 0%, 6%)
+      } else {
+        (none, cmyk(0%, 0%, 0%, 4%)).at(calc.rem(y, 2))
+      }
+    }
   )
+
 
   #show regex("acontrol"): set text(fill: emerald, weight: "bold")
   #show regex("minE"): set text(fill: nephritis, weight: "bold")
