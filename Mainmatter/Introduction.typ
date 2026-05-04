@@ -210,15 +210,19 @@ This is ensured by the fact that $s_0$ is visited infinitely often as $n -> infi
 
 #example(name: "Grid World")[
   A robot 🤖 can move around along the cardinal directions on a $4 times 4$ grid, and must find an efficient path towards a goal 🏁 while avoiding a harmful tile 💀.  Movement is deterministic except for the ice tiles 🧊 where there is a chance of slipping in a different random direction. 
-  The system is defined by the MDP $cal(G) = ({1, 2, ... 16}, 14, {⬅, ⬆, ➡, ⬇}, P, R)$. 
+  The system is defined by the MDP $cal(G) = (S, s_0, A, P, R)$, with $S={1, 2, ... 16}$, $s_0=14$ and $A={⬅, ⬆, ➡, ⬇}$. $P$ and $R$ are described below:
+
   The state-space is laid out in a $4 times 4$ grid as illustrated in @fig:GridWorld, with $s_0$ marked by 🤖.
-  With the exception of states 10, 11, (🧊) 15 (💀) and 16(🏁), transitions deterministically follow the cardinal direction indicated by the action. If the action would cause the agent to leave the grid, it stays in the same state.
-  
-  For example, $P(1, ➡)(2)  = 1$ (0 for any other $P(1, ➡)(s)$), $P(2, ⬇)(6) = 1$ and $P(5, ⬅)(5) = 1$.
+  With the exception of states 10, 11, (🧊) 15 (💀) and 16(🏁), transitions deterministically follow the cardinal direction indicated by the action. If the action would cause the agent to leave the grid, it remains in the same state.  
 
-
+  For example, $P(1, ➡)(2)  = 1$ (for $s!=2$ then $P(1, ➡)(s) = 0$), $P(2, ⬇)(6) = 1$ and $P(5, ⬅)(5) = 1$.
   
   In states 10 and 11, there is a 0.625 probability of moving in the manner described above, while the remaining probability mass is distributed among the other directions, i.e. $P(11, ➡)(15) = 0.125$. States 15 and 16 are terminal, which is modelled as $P(15, a)(15) = 1$ and $P(16, a)(16) = 1$ for any $a$. 
+  
+  The reward $R$ is defined for any action $a$ as 
+   - $R(15, a, 15) = 0$ and $R(16, a, 16) = 0$. (Terminate in 💀 and 🏁.)
+   - $R(s, a, 15) = -50$ for $s != 15$. (💀)
+   - $R(s, a, s') = -1$ otherwise.
   
     #figure(
       {
@@ -234,33 +238,29 @@ This is ensured by the fact that $s_0$ is visited infinitely often as $n -> infi
           [ 13 #hide([🧊])], [ 14 🤖], [ 15 💀], [ 16 🏁],
         )
       },
-      caption: [A map showing the initial state of Grid World with 🧊 slippery tiles, 💀 an untimely end, 🏁 a goal state, and 🤖 agent.]
+      caption: [A map showing the initial state of Grid World with 🧊 slippery tiles, 💀 an untimely end, 🏁 a goal state, and 🤖 initial agent position.]
     )<fig:GridWorld>
-  
-  The reward is defined for any action $a$ as 
-   - $R(15, a, 15) = 0$ and $R(16, a, 16) = 0$. (Terminate in 💀 and 🏁.)
-   - $R(s, a, 15) = -50$ for $s != 15$. (💀)
-   - $R(s, a, s') = -1$ otherwise.
   
   Consider a discount factor of  $gamma = 0.9$, episode length $m=100$, initial $Q(s) = 0$ for all $s in S$, and learning rate $alpha$ and exploration factor $epsilon$:
 
 $ alpha(i) = epsilon(i) = cases(0.1 "if" i < n/2, 0.1/(1 + 0.01*(t - i/2))) $
 
-  Outcomes of Q-learning in Grid World $cal(G)$ with these parameters are shown in @fig:gridQ. The graph in @fig:QGraph100 shows the sum of rewards collected in each episode, up to $n=100$.
-  The resulting policy is visualized in @fig:VTable100, which shows for every state $s$, the policy's action $a = argmax_a' Q(s, a')$, and the value $Q(s, a)$.
+  Outcomes of Q-learning in Grid World $cal(G)$ with these parameters are shown in @fig:gridQ. The graph in @fig:QGraph shows the sum of rewards collected in each episode, up to $n=500$.
+  The resulting policy is visualized in @fig:VTable, which shows for every state $s$, the policy's action $a = argmax_a' Q(s, a')$, and the value $Q(s, a)$.
   Since the learning process is stochastic, the resulting policy will vary. 
-  In this case, the policy traverses both states 10 and 11, taking a fast but risky route to the 🏁 goal. 
+  In this case, the policy visits state 10 but not 11, taking a fast but somewhat risky route to the 🏁 goal. 
+
   Notice how the values have still not converged, and that the estimates are least accurate for the states furthest from the policy's route. 
   For example the value of state 8 has converged to $Q(8, ⬇) = R(8, ⬇, 12) + gamma Q(12, ⬇) = -1 + 0.99 times 10 = 8.9$. 
-  This policy passes through state 10 but avoids state 11.
+  However, the action suggested in state 1 is not helpful, and the estimated reward for following it is not low enough.
 
   #subpar.grid(columns: 3, align: top,
     [#figure(image("../Graphics/Intro/Q-learning 500.png"),
       caption: [Cumulative reward.]
-    )<fig:QGraph100>],
+    )<fig:QGraph>],
     [#figure(image("../Graphics/Intro/V-table 500.png"),
       caption: [Value $max_a Q(s, a)$ and best action \ after 500 episodes.]
-    )<fig:VTable100>],
+    )<fig:VTable>],
     [#figure(image("../Graphics/Intro/V-table Prism.png"),
       caption: [Expected reward computed by Prism.]
     )<fig:VTablePrism>],
@@ -269,7 +269,7 @@ $ alpha(i) = epsilon(i) = cases(0.1 "if" i < n/2, 0.1/(1 + 0.01*(t - i/2))) $
   )
 
     The same MDP can be modelled in the model-checking tool Prism @I:Prism, and the optimal policy can be approximated precisely and quickly by its built-in value iteration method.
-    #footnote[A discounted reward was simulated using a variable `t` that increments each step, to give the reward `gamma^t*1`. The query used was `Rmin=? [ C<=100 ]`.]
+    #footnote[A discounted reward was simulated using a variable `t` that increments each step, multiplying the reward with `gamma^t`. The query used was `Rmin=?[C<=100]`.]
 
   The final policy is not safe, in the sense that it has a non-zero chance of reaching the state 💀.
   This can be avoided by making changes to the reward function, giving a heavier penalty for reaching this state.
@@ -325,7 +325,7 @@ In the following, safety will be discussed in terms of invariants, given as a se
 ]
 
 The optimization problem stated in @def:Optimization does not include a notion of safety, and as noted in @ex:GridWorld, a policy might not converge to safe behaviour.
-Even then, the convergence guarantee for Q-learning relies on an infinite number of traces, meaning that models trained in practice may not have learned fully safe behaviour even if the reward function is somehow designed to encourage it.
+Even then, the convergence guarantee for Q-learning relies on an infinite number of traces, meaning that models trained in practice may not have learned fully safe behaviour even if the reward function is correctly designed to encourage it.
 
 === Safety Through Shielding
 
