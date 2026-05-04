@@ -240,50 +240,40 @@ This is ensured by the fact that $s_0$ is visited infinitely often as $n -> infi
    - $R(s, a, 15) = -50$ for $s != 15$. (💀)
    - $R(s, a, s') = -1$ otherwise.
   
-  Consider a discount factor of  $gamma = 0.9$, episode length $m=100$, initial $Q(s) = 0$ for all $s in S$, and learning rate and exploration factor \ $alpha(i) = epsilon(i) = cases(0.1 "if" i < n/2, 0.1/(1 + 0.01*(t - i/2)))$.
+  Consider a discount factor of  $gamma = 0.9$, episode length $m=100$, initial $Q(s) = 0$ for all $s in S$, and learning rate $alpha$ and exploration factor $epsilon$:
+
+$ alpha(i) = epsilon(i) = cases(0.1 "if" i < n/2, 0.1/(1 + 0.01*(t - i/2))) $
 
   Outcomes of Q-learning in Grid World $cal(G)$ with these parameters are shown in @fig:gridQ. The graph in @fig:QGraph100 shows the sum of rewards collected in each episode, up to $n=100$.
   The resulting policy is visualized in @fig:VTable100, which shows for every state $s$, the policy's action $a = argmax_a' Q(s, a')$, and the value $Q(s, a)$.
   Since the learning process is stochastic, the resulting policy will vary. 
   In this case, the policy traverses both states 10 and 11, taking a fast but risky route to the 🏁 goal. 
   Notice how the values have still not converged, and that the estimates are least accurate for the states furthest from the policy's route. 
-  A better estimate is given in @fig:VTable10e6. For example the value of state 8 has converged to $Q(8, ↓) = R(8, ↓, 12) + gamma Q(12, ↓) = -1 + 0.99 times 10 = 8.9$. 
+  For example the value of state 8 has converged to $Q(8, ⬇) = R(8, ⬇, 12) + gamma Q(12, ⬇) = -1 + 0.99 times 10 = 8.9$. 
   This policy passes through state 10 but avoids state 11.
 
-  #subpar.grid(columns: 3, 
+  #subpar.grid(columns: 3, align: top,
     [#figure(image("../Graphics/Intro/Q-learning 500.png"),
-      caption: [Cumulative reward up to 500 steps. \ #hide("empty")]
+      caption: [Cumulative reward.]
     )<fig:QGraph100>],
     [#figure(image("../Graphics/Intro/V-table 500.png"),
-      caption: [Value $max_a Q(s, a)$ and best action \ after 500 steps.]
+      caption: [Value $max_a Q(s, a)$ and best action \ after 500 episodes.]
     )<fig:VTable100>],
-    [#figure(image("../Graphics/Intro/V-table 1e6.png"),
-      caption: [Value $max_a Q(s, a)$ and best action \ after 1 000 000 steps.]
-    )<fig:VTable10e6>],
+    [#figure(image("../Graphics/Intro/V-table Prism.png"),
+      caption: [Expected reward computed by Prism.]
+    )<fig:VTablePrism>],
     label: <fig:gridQ>,
     caption: [Q-learning in the grid world.]
   )
+
+    The same MDP can be modelled in the model-checking tool Prism @I:Prism, and the optimal policy can be approximated precisely and quickly by its built-in value iteration method.
+    #footnote[A discounted reward was simulated using a variable `t` that increments each step, to give the reward `gamma^t*1`. The query used was `Rmin=? [ C<=100 ]`.]
 
   The final policy is not safe, in the sense that it has a non-zero chance of reaching the state 💀.
   This can be avoided by making changes to the reward function, giving a heavier penalty for reaching this state.
   However it is not straightforward to determine how the reward function should be defined in order to guarantee safety, or whether this is even possible for a given model.
 ]<ex:GridWorld>
 
-#example(name: "Prism")[
-  The same MDP can be modelled in the model-checking tool Prism @I:Prism, and the optimal policy can be approximated precisely and quickly by its built-in value iteration method. #footnote[Prism does not support negative rewards, but since the model contains no positive rewards, the reward structure can be re-formulated as a minimization problem, `Rmin=? [F "goal"]`.]
-   Prism does not support discounted reward, but since the optimal policy leads to a terminal state,  Q-learning with undiscounted reward ($gamma=1$) can be used as comparison.
-
-  #subpar.grid(columns: 3, 
-    [#figure(image("../Graphics/Intro/V-table γ=1 1e6.png"),
-      caption: [Value $max_a Q(s, a)$ and best action after 1 000 000 steps, with $gamma=1$.]
-    )<fig:VTableGamma1>],
-    [#figure(image("../Graphics/Intro/V-table Prism.png"),
-      caption: [Policy and expected costs produced by Prism.]
-    )<fig:VTablePrism>],
-    label: <fig:GridPrism>,
-    caption: [Grid World outcomes.]
-  )
-]
 
 === Training and Operation Phases <sec:TrainingAndOperation>
 
