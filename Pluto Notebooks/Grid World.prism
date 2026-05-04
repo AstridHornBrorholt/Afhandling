@@ -1,13 +1,16 @@
 mdp
 
+const int s0;
+
 const int M = 4;
 const int N = 4;
 
-const int S0 = 14;
+const double GAMMA = 0.9;
+const int MAX_STEPS = 100;
 
 const int SKULL = 15;
 const int GOAL = 16;
-formula terminal = (s=SKULL | s=GOAL);
+formula terminal = (s=SKULL | s=GOAL | t=MAX_STEPS);
 
 formula ice  = (s=10 | s = 11);
 
@@ -20,7 +23,8 @@ label "terminal" = terminal;
 const double p_intended = 0.625;
 const double p_slip     = (1.0 - p_intended)/3.0; // each other direction
 
-  // row r in [0..M-1], col c in [0..N-1]
+
+// row r in [0..M-1], col c in [0..N-1]
 formula r  = floor((s-1)/N);
 formula c  = s-(r*N)-1;
 
@@ -31,26 +35,27 @@ formula move_down = (r=M-1   ? s : s+N);
 
 module grid
   // Single integer state, 1..M*N (row-major)
-  s : [1..M*N] init S0;
+  s : [1..M*N] init s0;
+  t : [0..MAX_STEPS] init 0;
 
   // ---- Non-ice, non-terminal: deterministic cardinal moves ----
-  [left]  (!terminal & !ice) -> 1:(s'=move_left);
-  [up]    (!terminal & !ice) -> 1:(s'=move_up);
-  [right] (!terminal & !ice) -> 1:(s'=move_right);
-  [down]  (!terminal & !ice) -> 1:(s'=move_down);
+  [left]  (!terminal & !ice) -> 1:(s'=move_left) & (t'=t+1);
+  [up]    (!terminal & !ice) -> 1:(s'=move_up) & (t'=t+1);
+  [right] (!terminal & !ice) -> 1:(s'=move_right) & (t'=t+1);
+  [down]  (!terminal & !ice) -> 1:(s'=move_down) & (t'=t+1);
 
   // ---- Ice tiles: slip dynamics ----
   // Intended direction with p_intended, each other dir with p_slip
-  [left]  (!terminal & ice) -> p_intended:(s'=move_left) + p_slip:(s'=move_up) + p_slip:(s'=move_right) + p_slip: (s'=move_down);
-  [up]    (!terminal & ice) -> p_intended:(s'=move_up) + p_slip:(s'=move_left) + p_slip:(s'=move_right) + p_slip:(s'=move_down);
-  [right] (!terminal & ice) -> p_intended:(s'=move_right) + p_slip:(s'=move_up) + p_slip:(s'=move_left) + p_slip:(s'=move_down);
-  [down]  (!terminal & ice) -> p_intended:(s'=move_down) + p_slip:(s'=move_up) + p_slip:(s'=move_right) + p_slip:(s'=move_left);
+  [left]  (!terminal & ice) -> p_intended:(s'=move_left) & (t'=t+1)  + p_slip:(s'=move_up) & (t'=t+1)   + p_slip:(s'=move_right) & (t'=t+1) + p_slip: (s'=move_down) & (t'=t+1);
+  [up]    (!terminal & ice) -> p_intended:(s'=move_up) & (t'=t+1)    + p_slip:(s'=move_left) & (t'=t+1) + p_slip:(s'=move_right) & (t'=t+1) + p_slip:(s'=move_down) & (t'=t+1);
+  [right] (!terminal & ice) -> p_intended:(s'=move_right) & (t'=t+1) + p_slip:(s'=move_up) & (t'=t+1)   + p_slip:(s'=move_left) & (t'=t+1)  + p_slip:(s'=move_down) & (t'=t+1);
+  [down]  (!terminal & ice) -> p_intended:(s'=move_down) & (t'=t+1)  + p_slip:(s'=move_up) & (t'=t+1)   + p_slip:(s'=move_right) & (t'=t+1) + p_slip:(s'=move_left)  & (t'=t+1);
 
   [ouch] s=SKULL -> 1:(s'=GOAL);
 endmodule
 
 
 rewards
-  !terminal: 1;
-  (s=SKULL) : 50;
+  !terminal: GAMMA^t*1;
+  (s=SKULL) : GAMMA^t*50;
 endrewards

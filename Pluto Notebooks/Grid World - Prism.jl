@@ -116,58 +116,35 @@ vector_file, _ = mktemp()
 strategy_file, _ = mktemp()
 
 # ╔═╡ 7f1d18dd-d82e-408d-b845-0d2163884f1a
-begin
-	@use_file grid_world
-	
-	prism_output = readchomp(`$prism $grid_world \
-		-pf 'Rmin=? [F "goal"]' \
-		--exportvector $vector_file \
-		--exportstrat $strategy_file`)
-	
-end |> multiline
+function get_for_state(s)
+	result_file, _ = mktemp()
 
-# ╔═╡ 52b1aa71-1572-48e1-baa5-df9d7c71ff20
-function put_into_matrix(file, m, n)
-	probs = zeros(Float64, (m, n))
-	x = y = 1
-	for p in file |> IOBuffer |> eachline
-		probs[x, y] = parse(Float64, p)
-		y = y + 1 
-		if y > m
-			x = x + 1
-			y = 1
-		end
-	end
-	probs
+	cmd = `$prism $grid_world \
+		-pf 'Rmin=? [ C<=100 ]' \
+		--exportresults $result_file \
+		--const s0=$s`
+	
+	run(pipeline(cmd, stdout=devnull))
+	parse(Float64, split(read(result_file, String), "\n")[2])
 end
 
-# ╔═╡ 7ae50b21-082b-4759-9014-65e8faba3f8a
-begin
-	prism_output # for reactivity
-	V = -1*put_into_matrix(vector_file |> readchomp, 4, 4)
-end
+# ╔═╡ e96c4324-6e1d-4997-be99-4bdfcdfb1860
+get_for_state(14)
+
+# ╔═╡ 0d203715-29d6-49c7-9999-0e75e71efba7
+V = [get_for_state(s) for s in S]
 
 # ╔═╡ 29560769-260a-490a-932e-66e8a0c30663
 action = Dict("up" => "↑", "down" => "↓", "left" => "←", "right" => "→", "ouch" => "")
-
-# ╔═╡ 3f56daf1-6ec0-4232-946e-ab8dd1542478
-begin
-	prism_output # for reactivity
-	π = ["" for _ in 1:16]
-	for line in eachline(strategy_file)
-		m = match(r"\((\d+)\)=(\w+)", line)
-		s = parse(Int, m[1])
-		a = action[m[2]]
-		π[s] = a
-	end
-	π
-end
 
 # ╔═╡ 24b22f9c-0ccc-11f1-33ae-eb8d4ffd683b
 let
 	
 	mm = Plots.Measures.mm
-	heatmap(V,
+	
+	V′ = -V
+	
+	heatmap(V′,
 		fontfamily="times",
 		color=cgrad([:white, :wheat]),
 		xlabel="x",
@@ -196,9 +173,7 @@ let
 	
 	for x in 1:4, y in 1:4
 		annotate!(y - 0.30, x - 0.30, text(S[x, y], :crimson, 10))
-		is_terminal(S[x, y]) && continue
-		annotate!(y, x + 0.00, text(π[S[x, y]], :gray))
-		annotate!(y, x + 0.30, text(round(V[x, y], digits=2), "times"), :black)
+		annotate!(y, x + 0.30, text(round(V′[x, y], digits=2), "times"), :black)
 	end
 	plot!()
 end
@@ -1414,10 +1389,9 @@ version = "1.13.0+0"
 # ╠═3c55e4df-2c74-43e4-8e1a-e6f78e811f16
 # ╠═780525e4-5a55-449f-adc1-415f96827c83
 # ╠═7f1d18dd-d82e-408d-b845-0d2163884f1a
-# ╠═52b1aa71-1572-48e1-baa5-df9d7c71ff20
-# ╠═7ae50b21-082b-4759-9014-65e8faba3f8a
+# ╠═e96c4324-6e1d-4997-be99-4bdfcdfb1860
+# ╠═0d203715-29d6-49c7-9999-0e75e71efba7
 # ╠═29560769-260a-490a-932e-66e8a0c30663
-# ╠═3f56daf1-6ec0-4232-946e-ab8dd1542478
 # ╠═24b22f9c-0ccc-11f1-33ae-eb8d4ffd683b
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002
