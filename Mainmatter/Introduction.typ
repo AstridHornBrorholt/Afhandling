@@ -179,8 +179,8 @@ The algorithm has additional input parameters, which will be described in the fo
       + $s ← s_0$
       + *Loop* $m$                          #line-label(<l:EpisodeLoop>)
         + Flip a weighted coin that has probability $epsilon(i)$ of landing on heads.
-        + *If* heads *then*  select $a$ according to a uniform distribution over $A$
-        + *Else* $a  ← argmax_(a' in A) Q (s, a') $
+        + *If* heads *then*  select $a$ according to a uniform distribution over $A$ #line-label(<l:Explore>) 
+        + *Else* $a  ← argmax_(a' in A) Q (s, a') $   #line-label(<l:Exploit>) 
         + $s' ~ P(s, a)$ #comment[Take action $a$ in state $s$, call the next state $s'$.]
         + #line-label(<l:QUpdate>) 
           $Q[(s, a) mapsto Q (s, a) + alpha (i) (R(s, a, s') + gamma max_(a' in A) Q (s', a') - Q (s, a)) ]$
@@ -243,7 +243,7 @@ This is ensured by the fact that $s_0$ is visited infinitely often as $n -> infi
   
   Consider a discount factor of  $gamma = 0.9$, episode length $m=100$, initial $Q(s) = 0$ for all $s in S$, and learning rate $alpha$ and exploration factor $epsilon$:
 
-$ alpha(i) = epsilon(i) = cases(0.1 "if" i < n/2, 0.1/(1 + 0.01*(t - i/2))) $
+  $ alpha(i) = epsilon(i) = cases(0.1 "if" i < n/2, 0.1/(1 + 0.01*(t - i/2))) $
 
   Outcomes of Q-learning in Grid World $cal(G)$ with these parameters are shown in @fig:gridQ. The graph in @fig:QGraph shows the sum of rewards collected in each episode, up to $n=500$.
   The resulting policy is visualized in @fig:VTable, which shows for every state $s$, the policy's action $a = argmax_a' Q(s, a')$, and the value $Q(s, a)$.
@@ -508,13 +508,24 @@ A shield can then be synthesized at a later time, in order to add formal safety 
   @fig:GridWorldShield shows the resulting maximally permissive safe policy for @ex:GridWorld. 
   This policy was generated using a publicly available package#footnote(link("https://github.com/AstridHornBrorholt/GridShielding.jl")) which implements the method described in Paper A (to be discussed in later sections).
 
-  #figure(image("../Graphics/Intro/Shielded.png", width: 40%),
+#subpar.grid(columns: 3, align: bottom,
+  [#figure(image("../Graphics/Intro/Shielded.png", width: 66.666%),
     caption: [Most permissive shield for Grid World. A shield icon 🛡️ indicates the action is not permitted.]
-  )<fig:GridWorldShield>
+  )<fig:GridWorldShield>],
+  [#figure(image("../Graphics/Intro/Shielded Q-learning 500.png", width: 66.666%),
+    caption: [Most permissive shield for Grid World. A shield icon 🛡️ indicates the action is not permitted.]
+  )<fig:GridWorldShieldedTraining>],
+)
 
-  This can be applied as a pre-shield by initializing the Q-values as $Q(s, a) = cases(-infinity " if " a in.not shield(s), 0  )$.
-  The result of end-to-end pre-shielding of the Grid World example is shown in ....
-  #todo[Code this up]
+  This can be applied as a pre-shield by 
+  1. Initializing the Q-values as $Q(s, a) = cases(-infinity " if " a in.not shield(s), 0  )$.
+  2. Modifying the $epsilon$-greedy exploration policy (@l:Explore in @alg:QLearning) to explore safe actions $shield(s)$ only, instead of the full action space $A$.
+
+
+  The result of end-to-end pre-shielding of the Grid World example is shown in @fig:GridWorldShieldedTraining.
+  Compared to @fig:QGraph, this shielded learning graph has no sudden drops in episode rewards.
+  Such drops in @fig:QGraph are present and indicate episodes where the agent is penalised for reaching state 15 💀.
+  With the shield acting as a teacher, a reliable policy is quickly found, and no safety violations were encountered during training.
 
 ]<ex:GridWorldSafety>
 

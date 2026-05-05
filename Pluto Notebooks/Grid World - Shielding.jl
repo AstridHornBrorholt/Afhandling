@@ -501,11 +501,49 @@ Re-visiting the Q-learning code from our other notebook.
 
 Instead of considering the full action space, we only choose from allowed actions `🛡️(s)`.
 
-Note especially how 🛡️ is used in the functions `ϵ_greedy` and `Q_episode!`.
+This is achieved by two modifications to the algorithm.
+
+1. Modifying the function `ϵ_greedy` to choose only from `🛡️(s)` during exploration.
+2. Modifying the initial $Q(s, a)$ values such that 
+$Q(s, a) = \begin{cases}
+	0.0 ~\text{ if }~ a \in 🛡️(s)\\
+	-\infty
+\end{cases}$
+"""
+
+# ╔═╡ 36a8f83d-20fd-450d-bbae-aae7fc909580
+md"""
+**Shielded Learning** $(@bind shielded_learning CheckBox(default = true))
 """
 
 # ╔═╡ f7e8d34a-a02b-4f91-9b1e-8785ecb52768
-🛡️(s) = allowed(shield, s) # Shielded actions
+if shielded_learning
+	🛡️(s) = allowed(shield, s) # Shielded actions
+else
+	🛡️(s) = A
+end
+
+# ╔═╡ 7fa924a2-e89b-488c-8f46-c6067eede854
+# ϵ-greedy choice from Q.
+function ϵ_greedy(ϵ::Number, Q, s)
+	if rand(Uniform(0, 1)) < ϵ
+		return rand(🛡️(s))
+	else
+		return argmax((a) -> Q[s, a], A)
+	end
+end
+
+# ╔═╡ 99f0398d-2e8f-4835-be1d-b0f4bbd7ebdf
+∞ = Inf
+
+# ╔═╡ 218cbaf2-175e-477e-815e-706d95cbfec2
+# Initializing Q-values using the shield. 
+# Unsafe actions have an expected reward of -∞.
+# Note also that it's important for the Q-updates that the terminal states are zero
+Q_init = Dict{Tuple{Int64, Symbol}, Float64}(
+	(s, a) => a ∈ 🛡️(s) ? 0.0 : -∞
+	for s in S, a in A
+)
 
 # ╔═╡ fbce7689-eb9d-4120-8d3d-6a01e66cb4fe
 @bind ϵ_base NumberField(0.0001:0.0001:1, default=0.1)
@@ -519,23 +557,6 @@ Note especially how 🛡️ is used in the functions `ϵ_greedy` and `Q_episode!
 
 # ╔═╡ 5eda40c9-f10c-4a12-a458-e76d844e7419
 @bind γ NumberField(0.0001:0.0001:1, default=0.99)
-
-# ╔═╡ 7fa924a2-e89b-488c-8f46-c6067eede854
-# ϵ-greedy choice from Q.
-function ϵ_greedy(ϵ::Number, Q, s)
-	if rand(Uniform(0, 1)) < ϵ
-		return rand(🛡️(s))
-	else
-		return argmax((a) -> Q[s, a], 🛡️(s))
-	end
-end
-
-# ╔═╡ 218cbaf2-175e-477e-815e-706d95cbfec2
-# It's important for the Q-updates that the terminal states are zero
-Q_init = Dict{Tuple{Int64, Symbol}, Float64}(
-	(s, a) => 0 
-	for s in S, a in A
-)
 
 # ╔═╡ 135a5791-f61d-48a9-9e31-fabfb72c0e69
 [ϵ_greedy(0.2, Q_init, 1) for _ in 1:10]
@@ -592,7 +613,7 @@ function Q_episode!(Q, i)
 		
 		Q[Sₜ, Aₜ] = 
 			Q[Sₜ, Aₜ] + 
-			α(i)*(rₜ₊₁ + γ*max([Q[Sₜ₊₁, a′] for a′ in 🛡️(Sₜ₊₁)]...) -  Q[Sₜ, Aₜ])
+			α(i)*(rₜ₊₁ + γ*max([Q[Sₜ₊₁, a′] for a′ in A]...) -  Q[Sₜ, Aₜ])
 		
 		Aₜ₊₁ = ϵ_greedy(ϵ(i), Q, Sₜ₊₁)
 		
@@ -623,12 +644,36 @@ function Q_learn!(Q)
 	return rewards, traces
 end
 
+# ╔═╡ b430b41a-23e4-4bc1-afd9-5fe08f8bd52b
+ϵ(episodes)
+
 # ╔═╡ 525f5979-c0e4-46ef-aa35-1232d1d2c17b
 begin
-	episodes
 	Q = copy(Q_init)
 	rewards, traces = Q_learn!(Q)
 end
+
+# ╔═╡ c53ca4b4-4d7d-4ee2-b86b-fbd696f98547
+if episodes < 100000
+	plot(rewards, 
+		 fontfamily="times",
+		 label=nothing, 
+		 xlabel="Episode",
+		 ylabel="Reward",
+		 ylim=(-70, 1), 
+		 #yticks=[-150, -100, -50, 0, 10],
+		 size=(400, 400))
+else
+	"too much to plot"
+end
+
+# ╔═╡ 58e6adbf-e43b-4352-b3f6-3128bf89c573
+md"""
+### Evaluating safety
+The following loop checks every training episodes, to see if state 15 💀 is entered. (This will be the last state in the trace but all states are checked for good measure.)
+
+It prints out erros when an unsafe episode was produced during training, and outputs "👍" otherwise. Try un-checking the [Shielded Learning](#Shielded-Q-learning) option to see some unsafe episodes.
+"""
 
 # ╔═╡ 76249b97-8022-482a-be78-930b9fc22aa0
 let
@@ -646,40 +691,21 @@ let
 	end
 end
 
-# ╔═╡ c53ca4b4-4d7d-4ee2-b86b-fbd696f98547
-if episodes < 100000
-	plot(rewards, 
-		 fontfamily="times",
-		 label=nothing, 
-		 xlabel="Episode",
-		 ylabel="Reward",
-		 ylim=(-70, 1), 
-		 #yticks=[-150, -100, -50, 0, 10],
-		 size=(400, 400))
-else
-	"too much to plot"
-end
-
-# ╔═╡ a7859862-e251-4db4-8172-eec4e66abeaf
-@bind example_trace_button CounterButton("Example Trace")
-
-# ╔═╡ 16ef1ce1-1e04-4839-bc4e-e3e40462cc5b
-if example_trace_button > 0
-	Q_episode!(Q, episodes)
-end
-
-# ╔═╡ b430b41a-23e4-4bc1-afd9-5fe08f8bd52b
-ϵ(episodes)
-
-# ╔═╡ 8eb6eca4-2ae5-41ae-9796-09dc7c25a8be
-V = [max([Q[s, a] for a in 🛡️(s)]...) for s in S]
+# ╔═╡ e8c15e5a-1282-4f6a-927f-fd00e19e200d
+md"""
+### V-table
+Visualization showing the best value V for every state, and the corresponding actions.
+"""
 
 # ╔═╡ 9cde860e-9aa8-4a9f-90d1-5932928878ea
-best_a(Q, s) = argmax(a -> Q[s, a], 🛡️(s))
+best_a(Q, s) = argmax(a -> Q[s, a], A)
+
+# ╔═╡ 8eb6eca4-2ae5-41ae-9796-09dc7c25a8be
+V = [Q[s, best_a(Q, s)] for s in S]
 
 # ╔═╡ 3e17f889-ffc5-4fd1-8853-940a3dd64d86
 let
-	example_trace_button # This button updates the weights by one episode
+	
 	
 	mm = Plots.Measures.mm
 	heatmap(V,
@@ -718,19 +744,10 @@ let
 	plot!()
 end
 
-# ╔═╡ ed9fc005-a745-4249-bbcc-ffd605d9498a
-Q[10, :→]
-
-# ╔═╡ be32cd9f-2ab8-48e1-8813-f9e5cba6177d
-0.5*0.25
-
-# ╔═╡ de3ff694-9466-49a8-9138-da2d70a2211b
-r(💀)*γ^2*(0.5*0.25)*(0.5*0.25)
-
 # ╔═╡ Cell order:
 # ╠═42548379-376c-45fc-b2e2-fd3b4fc51872
 # ╟─c6f38301-5eb7-4e98-bafd-6a0bcd2fb1b6
-# ╟─0f6f658f-56a3-4de3-b1ef-0c3de76a2d37
+# ╠═0f6f658f-56a3-4de3-b1ef-0c3de76a2d37
 # ╟─8ab142ac-2bb9-42fd-bb52-781a3bdee3f9
 # ╠═7c634330-d307-4f32-9649-a79c849c12af
 # ╠═a5bba2c0-d04d-4995-b55a-3e1928b7da62
@@ -790,13 +807,15 @@ r(💀)*γ^2*(0.5*0.25)*(0.5*0.25)
 # ╟─4c9bce7f-a55d-4315-b128-aef21acf15bc
 # ╟─b984a1f7-309f-47d2-b45d-43e32793419c
 # ╟─66dd9d38-7ef7-4b4c-805b-d26f21f2859f
+# ╟─36a8f83d-20fd-450d-bbae-aae7fc909580
 # ╠═f7e8d34a-a02b-4f91-9b1e-8785ecb52768
+# ╠═7fa924a2-e89b-488c-8f46-c6067eede854
+# ╠═99f0398d-2e8f-4835-be1d-b0f4bbd7ebdf
+# ╠═218cbaf2-175e-477e-815e-706d95cbfec2
 # ╠═fbce7689-eb9d-4120-8d3d-6a01e66cb4fe
 # ╠═073098a8-0ee4-4817-ae8b-0a6a8ba3804f
 # ╠═4883874d-c0e8-4984-be4d-a4c082367f74
 # ╠═5eda40c9-f10c-4a12-a458-e76d844e7419
-# ╠═7fa924a2-e89b-488c-8f46-c6067eede854
-# ╠═218cbaf2-175e-477e-815e-706d95cbfec2
 # ╠═135a5791-f61d-48a9-9e31-fabfb72c0e69
 # ╠═f6345e37-c257-491c-9a35-820c62a18c86
 # ╠═2641f88e-d3a6-4cc1-b9a9-dd651c850a16
@@ -805,15 +824,12 @@ r(💀)*γ^2*(0.5*0.25)*(0.5*0.25)
 # ╠═167769f4-024b-44ce-b3bf-a94b3d2a5006
 # ╟─466621e0-9448-46d6-bff5-de76ff0e25e5
 # ╠═d2f6ea71-2b10-4816-bade-d66565cdd73a
-# ╠═525f5979-c0e4-46ef-aa35-1232d1d2c17b
-# ╠═76249b97-8022-482a-be78-930b9fc22aa0
-# ╟─c53ca4b4-4d7d-4ee2-b86b-fbd696f98547
-# ╠═a7859862-e251-4db4-8172-eec4e66abeaf
-# ╠═16ef1ce1-1e04-4839-bc4e-e3e40462cc5b
 # ╠═b430b41a-23e4-4bc1-afd9-5fe08f8bd52b
-# ╠═8eb6eca4-2ae5-41ae-9796-09dc7c25a8be
+# ╠═525f5979-c0e4-46ef-aa35-1232d1d2c17b
+# ╟─c53ca4b4-4d7d-4ee2-b86b-fbd696f98547
+# ╟─58e6adbf-e43b-4352-b3f6-3128bf89c573
+# ╠═76249b97-8022-482a-be78-930b9fc22aa0
+# ╟─e8c15e5a-1282-4f6a-927f-fd00e19e200d
 # ╠═9cde860e-9aa8-4a9f-90d1-5932928878ea
+# ╠═8eb6eca4-2ae5-41ae-9796-09dc7c25a8be
 # ╟─3e17f889-ffc5-4fd1-8853-940a3dd64d86
-# ╠═ed9fc005-a745-4249-bbcc-ffd605d9498a
-# ╠═be32cd9f-2ab8-48e1-8813-f9e5cba6177d
-# ╠═de3ff694-9466-49a8-9138-da2d70a2211b
