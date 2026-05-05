@@ -1,3 +1,4 @@
+#import "Config/Macros.typ" : *
 
 == Terminology
 
@@ -13,9 +14,14 @@ I would do well to define these terms in the text and use them consistently.
 / Trace: Created from a controller and a model. 
 / Real-world outcome: Created from a controller acting upon a system.
 
-== Some feedback that I got on the 11th of February 
-The new Q-learning subsection was generally well-received, and Kim told me I will have done well if I write the rest of the thesis in the same style. 
-A lot of the feedback has been about me trying to be needlessly clever. I should generally not leave things implied, assume knowledge from the reader, or try to couch my language to allow for esoteric edge-cases. 
-It sounds like the introduction should almost be like a textbook, so stuff like initialization of Q-values should be included.
+==  The Post-shielding Question
 
-#pagebreak()
+So in the article, it's really a mess. In the implementation I do both post-shielding and pre-shielding, depending on the model.
+Mercifully, this is not written in the text of the article, just buried in the code.
+And in the introduction, we conflate post-shielding with post-hoc shielding.
+
+Maybe this should be the story in the thesis: Paper A compared post-shielding + post-hoc shielding, with pre-shielding + end-to-end shielding.
+It is therefore unclear what made the difference, but we speculate it's the post-hoc vs end-to-end shielding which has the most impact on the learning outcome. 
+Yes, that would do nicely. 
+
+Maybe we can re-do the bouncing ball experiment for a full parameter sweep.
