@@ -71,7 +71,7 @@ Sometimes models are defined as having a cost $C$ to be minimized, rather than r
   A policy,  is a function that chooses the next action from a given state. 
   There are three different kinds of policy:
     - _deterministic_ $S -> A$, uniquely selecting one specific action for each state, 
-    - _probabilistic_ $S times A -> [0; 1]$, giving a probability distribution over actions, 
+    - _probabilistic_ $S -> (A -> [0; 1])$, giving a probability distribution over actions, 
     - or _nondeterministic_ $S -> powerset(A)$, giving a subset $A' subset.eq A$ of possible actions. 
 ]
 
@@ -121,12 +121,12 @@ The discount factor $gamma$ may be interpreted as the probability of the trace c
      & lim_(n -> infinity) sum_(i=0)^n 0.99^i times 100 && = 100/(1-0.99) = 10000 & "" $
 ]<ex:discounted>
 
-In contrast to the reward gained from just one trace, the expected discounted reward for a probabilistic policy is defined as:
+In contrast to the reward gained from just one trace, the expected discounted reward #cl("I:DBLP:books/lib/SuttonB98") for a probabilistic policy is defined as:
 
 #definition(name: "Expected reward")[
-  Given an MDP $M = (S, s_0, A, P, R)$, a probabilistic policy $pi$ and a discount factor $gamma in [0; 1[$, the expected reward of $pi$ on $mdp$ is the unique fixed point of the following equation
+  Given an MDP $M = (S, s_0, A, P, R)$, a probabilistic policy $pi : S -> (A -> [0; 1])$ and a discount factor $gamma in [0; 1[$, the expected reward of $pi$ on $mdp$ is the unique fixed point of the following equation
 
-  $ EE_pi^mdp (s) = sum_(a in A) pi(s, a) sum_(s' in S) P(s, a)(s') (R(s, a, s') + gamma  EE_pi^mdp (s')) $ 
+  $ EE_pi^mdp (s) = sum_(a in A) pi(s)(a) sum_(s' in S) P(s, a)(s') (R(s, a, s') + gamma  EE_pi^mdp (s')) $ 
 ]<eq:ExpectedReward>
 
 This is used in the definition of the optimization problem of finding the policy with the highest expected discounted reward for $mdp$.
@@ -134,9 +134,10 @@ This is used in the definition of the optimization problem of finding the policy
 #definition(name:"Optimization problem")[
   Given an MDP $mdp = (S, s_0, A, P, R)$ and a discount factor $gamma$, find the policy $pi^star$ such that
 
-  $ pi^star = argmax_(pi) EE_gamma^mdp (pi) $
+  $ pi^star = argmax_(pi) EE_pi^mdp (s_0) $
 ]<def:Optimization>
 
+For an MDP, the optimal policy is deterministic #cl("I:DBLP:books/lib/SuttonB98").
 It may be possible to compute $pi^star$ directly, through e.g. direct search, through dynamic- or linear programming, or to accurately approximate them using value iteration #cl("I:DBLP:books/lib/SuttonB98").
 These methods require full knowledge of the transition probabilities $P$ and rewards $R$, and have polynomial runtime on the number of states $|S|$ which make them suitable for a wide range of problems, with up to millions of states on modern hardware.
 However, MDPs are often described using several variables or components. Known as the _curse of dimensionality,_ the size of the state-space is exponential in the number of these components or variables.  
@@ -174,7 +175,7 @@ The algorithm has additional input parameters, which will be described in the fo
       and 
       exploration factor $epsilon : NN -> #h(0.3em)   ] 0; 1]$.
       
-    - *Output:* Approximation $hat(pi)$ of optimal policy.
+    - *Output:* Approximation $hat(pi) : S -> A$ of the optimal deterministic policy.
     + *Loop*  $i ← 0$ *up to* $n$
       + $s ← s_0$
       + *Loop* $m$                          #line-label(<l:EpisodeLoop>)
