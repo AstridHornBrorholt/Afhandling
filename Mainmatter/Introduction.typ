@@ -567,22 +567,20 @@ One example of such a safety guarantee @I:giacobbe_shielding_2021  was given for
 For an MDP $mdp$, action $a_0$  is $k$-safe at state $s_0$, if there exists a deterministic policy $pi$ such that for all traces $xi = s_0 a_0 ... s_k...$ with $pi(s_i) = a_i$ for $i > 0$, then $xi_0^k$ is safe.
 This extends to other states $s$ by redefining the starting state of $mdp$ to $s$.
 
-=== Probabilistic Shielding
-
-#todo[Write this section]
-
+== Probabilistic Shielding
+...
 
 == Multi-agent Shielding
+...
 
 == Hybrid MDPS 
+...
 
 === Shielding of Hybrid Systems
-
-=== Tools for Shielding
-#citationneeded[uppaal] #citationneeded[tempest]
-
-=== Multi-agent Shielding
 ...
+
+== Tools for Shielding
+#citationneeded[uppaal] #citationneeded[tempest]
 
 == Research Statement and Goals
 ...
