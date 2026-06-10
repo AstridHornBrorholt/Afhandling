@@ -32,7 +32,7 @@ Neural networks are notable for having achieved impressive performance in a wide
 This performance is achieved by controllers that use a high number of neurons, making direct formal verification infeasible.
 
 
-== Reinforcement Learning
+== Reinforcement Learning <sec:rl>
 
 Reinforcement learning  #cl("I:DBLP:books/lib/SuttonB98") @I:kaelbling1996reinforcement @I:arulkumaran2017deep is a major class of machine learning techniques, separate from supervised and unsupervised learning @I:alloghani2020systematic.
 In supervised learning, models learn from labelled data, to predict the labels of unseen data.
@@ -78,7 +78,7 @@ Sometimes models are defined as having a cost $C$ to be minimized, rather than r
 Given an e.g. nondeterministic policy $pi : S -> powerset(A)$, a trace $xi$ is an outcome of an MDP $mdp$ and policy $pi$ is an interleaved series of states and actions $xi = s_0 a_0 s_1 a_1 s_2 a_2 ...$ such that $a_i in pi(s_i)$ and $P(s_i, a_i)(s_(i+1)) > 0$.
 Traces are defined similarly for deterministic and probabilistic functions.
 Since @def:mdp does not include a stopping condition, traces will be infinite.
-A finite section of a trace $xi_m^n = s_m a_m ... a_(n-1) s_n$ contain the steps from state and action pairs from $s_m$ up to $s_n$.
+A finite section of a trace $xi_m^n = s_m a_m s_(m + 1) a_(m + 1) ... a_(n-1) s_n$ contain the steps from state and action pairs from $s_m$ up to $s_n$.
 Other types of model may produce finite traces, if they have a stopping criterion, e.g. a set of terminal states $T$, or a probability $1 - gamma$ that the system abruptly halts. 
 
 For a finite trace, $xi_1^n = s_0 a_0 s_1 a_1 ... a_(n-1) s_n$ the (undiscounted) reward can be defined as $R(xi) = sum_(i=0)^(n - 1) R(s_i, a_i, s_(i+1))$.
@@ -399,18 +399,17 @@ This section will coin an additional set of terms, to disambiguate these meaning
 The terms _pre-_ and _post-shielding_ will be taken to mean the first and more widely used definition, i.e. *how* the shield is integrated into the reinforcement learning loop.
 The second set of terms, to describe *when* the shield is in place, will be re-named in this section to _end-to-end shielding_ and _post-hoc shielding._
 
-These terms are described formally below.
-In short, _pre-shielding_ (@fig:PreShielding) provides a set of safe actions to the agent, which it then chooses from.
-With _post-shielding,_  (@fig:PostShielding) the agent may choose any action, but if the shield deems that action unsafe, it will exchange the unsafe action with a different, safe action.
-For _post-hoc shielding,_ (@fig:PostHoc) a shield is added during operation to a policy that was trained with no shield in place.
-In contrast, _end-to-end shielding,_ (@fig:EndToEnd) has a shield in place during both training and operation. 
+In short, pre-shielding (@fig:PreShielding) provides a set of safe actions to the agent, which it then chooses from.
+With post-shielding,  (@fig:PostShielding) the agent may choose any action, but if the shield deems that action unsafe, it will exchange the unsafe action with a different, safe action.
+For post-hoc shielding, (@fig:PostHoc) a shield is added during operation to a policy that was trained with no shield in place.
+In contrast, end-to-end shielding, (@fig:EndToEnd) has a shield in place during both training and operation. 
 When exporting a policy for operation, it may not be necessary to represent the shield explicitly (@fig:VarEndToEnd).
 
 #remark[
   The terminology introduced in this section does not align with Paper A.
   As~shown in @tab:NamingDiscrepancy, this section distinguishes two sets of concepts which are described by the paper as linked.
-  The distinction between post- and post-hoc shielding is not present in Paper A, which uses _post-shielding_ to mean both things. 
-  Likewise, the paper uses _pre-shielding_ to mean end-to-end pre-shielding.
+  The distinction between post- and post-hoc shielding is not present in Paper A, which uses _post-shielding_ to mean post-hoc post-shielding.
+  Conversely, the paper uses _pre-shielding_ to mean end-to-end pre-shielding.
 
   #figure(table(columns: 2, align: center,
       table.header( [*Term used in Paper A*], [*Corresponding terms in this section*] ),

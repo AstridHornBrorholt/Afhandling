@@ -2,7 +2,7 @@
 #import "Config/Macros.typ" : *
 
 #show: apply_style
-
+#set page(numbering: "I")
 
 _I use this file to compile parts of the document, mostly just so that scrolling to the end of the document goes to somewhere meaningful. For even bigger documents it's also a good way to ensure sub-second compile times, but that's not a concern here._
 
@@ -12,6 +12,8 @@ _I use this file to compile parts of the document, mostly just so that scrolling
 #include "MyNotes.typ"
 #pagebreak()
 
+#counter(page).update(1)
+#set page(numbering: "1")
 
 #include "Mainmatter/Introduction.typ"
 

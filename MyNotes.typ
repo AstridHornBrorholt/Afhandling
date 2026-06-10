@@ -39,7 +39,7 @@ The paper focuses instead on "local" safety properties that can be enforced "wit
 Melcer et al. 2022 has a similar concept of local safety, but call the safety property _cartesian._
 
 I should really read up on constrained cost optimization. This stuff looks like what actually works in practice. 
-In Gu et al. 2023, (Safe MARL for mlti-agent robot control) they define some nice theoretical guarantees for multi-agent constrained policy optimization.
+In Gu et al. 2023, (Safe MARL for multi-agent robot control) they define some nice theoretical guarantees for multi-agent constrained policy optimization.
 
 Similarly, Qin et al 2021 describe a way to estimate barrier certificates using neural networks, and use it to run a drone swarm of up to 1024 drones at once.
 This is not absolute safety but has safety rates above 95%.
