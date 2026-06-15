@@ -68,13 +68,13 @@ This assumption is made w.l.o.g. to simplify notation.
 Sometimes models are defined as having a cost $C$ to be minimized, rather than reward $R$ to be maximised. These definitions are effectively interchangeable, as any cost can be re-defined as reward by flipping its sign: $R(s, a, s') = -C(s, a, s')$.
 
 #definition(name: "Policy")[
-  A policy,  is a function that chooses the next action from a given state. 
+  A policy  is a function that chooses the next action from a given state. 
   There are three different kinds of policy:
     - _deterministic_ $S -> A$, uniquely selecting one specific action for each state, 
     - _probabilistic_ $S -> (A -> [0; 1])$, giving a probability distribution over actions, 
     - or _nondeterministic_ $S -> powerset(A)$, giving a subset $A' subset.eq A$ of possible actions. 
-]
 
+]<def:policy>
 Given an e.g. nondeterministic policy $pi : S -> powerset(A)$, a trace $xi$ is an outcome of an MDP $mdp$ and policy $pi$ is an interleaved series of states and actions $xi = s_0 a_0 s_1 a_1 s_2 a_2 ...$ such that $a_i in pi(s_i)$ and $P(s_i, a_i)(s_(i+1)) > 0$.
 Traces are defined similarly for deterministic and probabilistic functions.
 Since @def:mdp does not include a stopping condition, traces will be infinite.
@@ -211,7 +211,7 @@ This is ensured by the fact that $s_0$ is visited infinitely often as $n -> infi
 
 #example(name: "Grid World")[
   A robot 🤖 can move around along the cardinal directions on a $4 times 4$ grid, and must find an efficient path towards a goal 🏁 while avoiding a harmful tile 💀.  Movement is deterministic except for the ice tiles 🧊 where there is a chance of slipping in a different random direction. 
-  The system is defined by the MDP $cal(G) = (S, s_0, A, P, R)$, with $S={1, 2, ... 16}$, $s_0=14$ and $A={⬅, ⬆, ➡, ⬇}$. $P$ and $R$ are described below:
+  The system is defined by the MDP $cal(W) = (S, s_0, A, P, R)$, with $S={1, 2, ... 16}$, $s_0=14$ and $A={⬅, ⬆, ➡, ⬇}$. $P$ and $R$ are described below:
 
   The state-space is laid out in a $4 times 4$ grid as illustrated in @fig:GridWorld, with $s_0$ marked by 🤖.
   With the exception of states 10, 11, (🧊) 15 (💀) and 16(🏁), transitions deterministically follow the cardinal direction indicated by the action. If the action would cause the agent to leave the grid, it remains in the same state.  
@@ -246,7 +246,7 @@ This is ensured by the fact that $s_0$ is visited infinitely often as $n -> infi
 
   $ alpha(i) = epsilon(i) = cases(0.1 "if" i < n/2, 0.1/(1 + 0.01*(t - i/2))) $
 
-  Outcomes of Q-learning in Grid World $cal(G)$ with these parameters are shown in @fig:gridQ. The graph in @fig:QGraph shows the sum of rewards collected in each episode, up to $n=500$.
+  Outcomes of Q-learning in Grid World $cal(W)$ with these parameters are shown in @fig:gridQ. The graph in @fig:QGraph shows the sum of rewards collected in each episode, up to $n=500$.
   The resulting policy is visualized in @fig:VTable, which shows for every state $s$, the policy's action $a = argmax_a' Q(s, a')$, and the value $Q(s, a)$.
   Since the learning process is stochastic, the resulting policy will vary. 
   In this case, the policy visits state 10 but not 11, taking a fast but somewhat risky route to the 🏁 goal. 
@@ -525,9 +525,9 @@ This could happen if a shield was not available while training a policy, and the
 A shield can then be synthesized at a later time, in order to add formal safety guarantees for the policy.
 
 #example(name: "Staying safe in Grid World")[
-  Recall the MDP $cal(G)=(S, s_0, A, P, R)$ from @ex:GridWorld.
+  Recall the MDP $cal(W)=(S, s_0, A, P, R)$ from @ex:GridWorld.
   Let the safe set be $phi=S \\ {💀}$. 
-  What is the most permissive shield for $cal(G)$?
+  What is the most permissive shield for $cal(W)$?
   Certainly, taking $➡$ in state 14 is prohibited.
   Next, any action in state 11 carries a risk of slipping and ending up in  💀, so state 11 should never be entered.
   Lastly, any action in state 10 can cause the agent to slip onto state 11, so this state should be avoided as well. 
@@ -570,9 +570,77 @@ This extends to other states $s$ by redefining the starting state of $mdp$ to $s
 ...
 
 == Multi-agent Shielding
-...
 
-== Hybrid MDPS 
+Many environments have multiple agents interacting.
+These multi-agent settings present unique challenges.
+
+#definition(name:[$n$-player Markov Game])[
+  A Markov Game (MG) with $n$ agents @I:zhang2021multi@I:busoniu_multi-agent_2010 is a tuple $cal(G) = (S, s_0, A, P, R)$
+  where
+  - $S$ is a finite set of states,
+  - $s_0 in S$ is an initial state,
+  - $A = A_1 times A_2 times ... A_n$ is the joint action space,
+  - $P : S times A -> (S -> [0, 1])$ gives the transition probability from one state to another by a joint action,
+  - and $R : S times A -> RR^n$ is the reward function.
+
+  $R$ induces individual reward functions $R_1, R_2, ...R_n$ where each $R_i$ gives the $i^"th"$ value of the vector: If $R(s, a) = r$ then $R_i (s, a) = r_i$.
+]
+
+Note that $S$, $s_0$ and $P$ are as in @def:mdp while the action space $A$ and reward function $R$ is changed to accommodate multiple agents.
+The joint action $a$ is the combination of agents' individual choices $a = (a_1, a_2, ...a_n)^top$.
+When $a$ is taken in state $s$, the agent $i$ receives reward $R_i (s, a) = (R(s, a))_i$.
+
+For an MG, there is one policy for each of the $n$ agents, $(pi_1, pi_2, ...pi_n)$.
+These are as in @def:policy, except that each policy $pi_i$ is over the agent's own action space $A_i$.
+For example, a deterministic policy would be $pi_i : S → A_i$.
+
+#definition(name:[Expected reward of an MG])[
+  Given an MG $cal(G) =  (S, s_0, A, P, R)$, a discount factor $gamma$, and probabilistic policies $pi_i : S → (A_i → [0, 1])$ for $1 <= i <= n$, the expected reward is the unique fixed point of the equation
+
+  $ EE_(pi_1, pi_2, ...pi_n)^cal(G) = $
+
+  #todo[Is this even, like can this make sense? I probably have to define the joint polichy]
+]
+The joint action is selected as a combination of all policies and so the combined policies produce traces in the same manner as described in @sec:rl.
+
+Recall that Q-learning assumes a static environment in order to prove convergence.
+This assumption fails if multiple policies are acting upon the same environment and continually updating.
+Agents can change their policy to optimize reward by given the current policy of all other agents, only for other agents to update their policies in turn.
+This prompts further policy changes in a cycle that can continue _ad infinitum._
+
+It may not even be clear what the joint policy should converge to, depending on how the reward is defined.
+An MG can fall into one of three different categories which describe the reward structure @I:zhang2021multi@I:busoniu_multi-agent_2010.
+ - Cooperative, where reward values are identical for all agents, for $1 <= i < j <= n$ then $R_i (s, a) = R_j (s, a)$.
+ - Competitive, in which the reward is zero-sum, $sum_(i = 0)^n R_i (s, a) = 0$.
+ - Mixed, if the reward $R$ is neither competitive or cooperative. 
+ 
+ For mixed reward structures, the set of policies which give the highest possible reward to agent $i$, is usually not the same as the set of policies that give the highest mean reward among all agents.
+Optimization objectives are often formulated instead as reaching a _Nash equilibrium_ or a _Pareto optimum._
+
+#definition(name: [Nash equilibrium])[
+   #todo[do.]
+   @I:zhang2021multi page 8. This is the one where no individual agent can improve its gain.
+]
+
+#definition(name: [Pareto optimal])[
+   #todo[do.]
+]
+
+MARL has some common variations.
+
+ - Observability: Agents can only observe part of the state-space.
+ - The number of agents is not static. Agents can join and leave the game.
+ - Communication
+  - In partial observability, nearby agents can share observations.
+  - Agents know what other agents intend to do next time-step.
+  - Some agents may be antagonistic.
+  - Often, agents can communicate and send signals by their actions.
+
+And when it comes to safety, there may be some restrictions to safety properties.
+Like, a single agent won't be able to enforce that all agents stay on the path.
+Just as with single-agent safety, not all safety properties are feasible, and the feasibility of a safety property depends on the assumption about the environment.
+
+== Hybrid MDPs
 ...
 
 === Shielding of Hybrid Systems

@@ -972,7 +972,7 @@ The procedure $italic(s a n d b o x) lr((cal(M) comma i))$ in
 @line:learn takes an $n$-agent MDP $cal(M)$
 and an agent index $i in brace.l 1 comma dots.h comma n brace.r$. The
 purpose is to instantiate every agent except agent $i$. Since agent $i$
-does not depend on these agents, we arbitrary choose a uniform policy
+does not depend on these agents, we arbitrarily choose a uniform policy
 for the instantiation.
 
 Next, we show an important property of
