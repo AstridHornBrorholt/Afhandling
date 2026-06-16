@@ -75,11 +75,15 @@ Sometimes models are defined as having a cost $C$ to be minimized, rather than r
     - or _nondeterministic_ $S -> powerset(A)$, giving a subset $A' subset.eq A$ of possible actions. 
 
 ]<def:policy>
-Given an e.g. nondeterministic policy $pi : S -> powerset(A)$, a trace $xi$ is an outcome of an MDP $mdp$ and policy $pi$ is an interleaved series of states and actions $xi = s_0 a_0 s_1 a_1 s_2 a_2 ...$ such that $a_i in pi(s_i)$ and $P(s_i, a_i)(s_(i+1)) > 0$.
-Traces are defined similarly for deterministic and probabilistic functions.
-Since @def:mdp does not include a stopping condition, traces will be infinite.
-A finite section of a trace $xi_m^n = s_m a_m s_(m + 1) a_(m + 1) ... a_(n-1) s_n$ contain the steps from state and action pairs from $s_m$ up to $s_n$.
-Other types of model may produce finite traces, if they have a stopping criterion, e.g. a set of terminal states $T$, or a probability $1 - gamma$ that the system abruptly halts. 
+
+#definition(name: "Traces, trace segments")[
+  Given an e.g. nondeterministic policy $pi : S -> powerset(A)$, a trace $xi$ is an outcome of an MDP $mdp$ and policy $pi$.
+  It is an interleaved series of states and actions $xi = s_0 a_0 s_1 a_1 s_2 a_2 ...$ such that $a_i in pi(s_i)$ and $P(s_i, a_i)(s_(i+1)) > 0$.
+  Traces are defined similarly for deterministic and probabilistic functions.
+  Since @def:mdp does not include a stopping condition, traces will be infinite.
+  A finite section of a trace $xi_m^n = s_m a_m s_(m + 1) a_(m + 1) ... a_(n-1) s_n$ contain the steps from state and action pairs from $s_m$ up to $s_n$.
+  Other types of model may produce finite traces, if they have a stopping criterion, e.g. a set of terminal states $T$, or a probability $1 - gamma$ that the system abruptly halts. 
+]<def:trace>
 
 For a finite trace, $xi_1^n = s_0 a_0 s_1 a_1 ... a_(n-1) s_n$ the (undiscounted) reward can be defined as $R(xi) = sum_(i=0)^(n - 1) R(s_i, a_i, s_(i+1))$.
 This definition is less useful for infinite traces, as we will see in the following example:
@@ -127,7 +131,7 @@ In contrast to the reward gained from just one trace, the expected discounted re
   Given an MDP $M = (S, s_0, A, P, R)$, a probabilistic policy $pi : S -> (A -> [0; 1])$ and a discount factor $gamma in [0; 1[$, the expected reward of $pi$ on $mdp$ is the unique fixed point of the following equation
 
   $ EE_pi^mdp (s) = sum_(a in A) pi(s)(a) sum_(s' in S) P(s, a)(s') (R(s, a, s') + gamma  EE_pi^mdp (s')) $ 
-]<eq:ExpectedReward>
+]<def:expected-reward>
 
 This is used in the definition of the optimization problem of finding the policy with the highest expected discounted reward for $mdp$.
 
@@ -161,7 +165,7 @@ The notational shorthand $Q [(s, a) mapsto x]$ is used to describe updates to th
 
 By gradual updates to $Q$, the function will approximate the expected value of taking action $a$ in state $s$, both in terms of immediate reward, and discounted future reward.
 The method of approximation is given in @alg:QLearning, with the update rule in shown in @l:QUpdate.
-Note the similarity of the update rule to @eq:ExpectedReward.
+Note the similarity of the update rule to @def:expected-reward.
 The algorithm has additional input parameters, which will be described in the following.
 
 #figure(kind: "algorithm", supplement: "Algorithm", 
@@ -357,7 +361,7 @@ The maximally permissive shield for an invariant of an MDP is unique @I:BernetJW
 
   The maximally permissive shield which enforces the invariant $phi$ is  respectively $shield(○) = {p, c}$, $shield(◍) = {c}$ and $shield(●) = emptyset$.
   The optimal policy under this shield is $pi(○) = p, pi(◍) = c$.
-  Let $gamma = 0.9$. The expected reward for this policy as given by @eq:ExpectedReward is:
+  Let $gamma = 0.9$. The expected reward for this policy as given by @def:expected-reward is:
 
   #let expectation = $EE^cal(I)_pi$
   $ expectation(○) = &P(○, p)(○)(R(○, p, ○) + gamma expectation(○)) \
@@ -569,53 +573,64 @@ This extends to other states $s$ by redefining the starting state of $mdp$ to $s
 == Probabilistic Shielding
 ...
 
-== Multi-agent Shielding
+== Multi-agent Shielding <sec:marl>
 
 Many environments have multiple agents interacting.
 These multi-agent settings present unique challenges.
 
 #definition(name:[$n$-player Markov Game])[
-  A Markov Game (MG) with $n$ agents @I:zhang2021multi@I:busoniu_multi-agent_2010 is a tuple $cal(G) = (S, s_0, A, P, R)$
+  A Markov Game (MG) with $n$ agents @I:zhang2021multi@I:busoniu_multi-agent_2010 is a tuple $mg = (S, s_0, A, P, R)$
   where
   - $S$ is a finite set of states,
   - $s_0 in S$ is an initial state,
   - $A = A_1 times A_2 times ... A_n$ is the joint action space,
-  - $P : S times A -> (S -> [0, 1])$ gives the transition probability from one state to another by a joint action,
-  - and $R : S times A -> RR^n$ is the reward function.
+  - $P : S times A -> (S -> [0; 1])$ gives the transition probability from one state to another by a joint action,
+  - and $R : S times A times S -> RR^n$ is the reward function.
 
-  $R$ induces individual reward functions $R_1, R_2, ...R_n$ where each $R_i$ gives the $i^"th"$ value of the vector: If $R(s, a) = r$ then $R_i (s, a) = r_i$.
-]
+  $R$ induces individual reward functions $R_1, R_2, ...R_n$ where each $R_i$ gives the $i^"th"$ value of the vector: If $R(s, a, s) = r$ then $R_i (s, a, s) = r_i$.
+]<def:mg>
 
 Note that $S$, $s_0$ and $P$ are as in @def:mdp while the action space $A$ and reward function $R$ is changed to accommodate multiple agents.
 The joint action $a$ is the combination of agents' individual choices $a = (a_1, a_2, ...a_n)^top$.
-When $a$ is taken in state $s$, the agent $i$ receives reward $R_i (s, a) = (R(s, a))_i$.
+When $a$ is taken in state $s$, the agent $i$ receives reward $R_i (s, a, s) = (R(s, a, s))_i$.
 
 For an MG, there is one policy for each of the $n$ agents, $(pi_1, pi_2, ...pi_n)$.
 These are as in @def:policy, except that each policy $pi_i$ is over the agent's own action space $A_i$.
-For example, a deterministic policy would be $pi_i : S → A_i$.
 
-#definition(name:[Expected reward of an MG])[
-  Given an MG $cal(G) =  (S, s_0, A, P, R)$, a discount factor $gamma$, and probabilistic policies $pi_i : S → (A_i → [0, 1])$ for $1 <= i <= n$, the expected reward is the unique fixed point of the equation
+#definition(name:[Individual and joint policies])[
+  In an MG $mg$, individual policies $pi_i$ represent one agent $i$ choosing from its own action space $A_i$.
+  Deterministic, probabilistic and nondeterministic policies are respectively $S -> A_i$,\
+   $S -> (A_i  → [0; 1])$, and $S → powerset(A_i)$ for each $1 <= i <= n$. 
 
-  $ EE_(pi_1, pi_2, ...pi_n)^cal(G) = $
+   A full complement of individual policies $(pi_1, pi_2, ...pi_n)$ induce a joint policy:
+   - A _deterministic joint policy_ as $pi(s) = (pi_1 (s), pi_2 (s), ... pi_n (s))^top$,
+   - a _probabilistic joint policy_ as $pi(s)(a) = product_(i=0)^n pi_i (s)(a)$, and
+   - a _nondeterministic joint policy_ as $pi(s) = times.big_(i=0)^n pi_i (s)$
+]<def:joint-policy>
 
-  #todo[Is this even, like can this make sense? I probably have to define the joint polichy]
-]
-The joint action is selected as a combination of all policies and so the combined policies produce traces in the same manner as described in @sec:rl.
+Traces are defined from joint policies in the same manner as @def:trace.
+Likewise, the definition of a joint policy can be used to describe the expected reward of an agent:
+
+#definition(name: [Expected individual reward])[
+  Given an MG $mg$, a joint probabilistic policy $pi : S -> (A -> [0; 1])$ and a discount factor $gamma in [0; 1[$, the expected reward of agent $i$ on $mg$ is the unique fixed point of the following equation
+
+  $ EE_pi^(mg, i) (s) = sum_(a in A) pi(s)(a) sum_(s' in S) P(s, a)(s') (R_i (s, a, s') + gamma  EE_pi^(mg, i) (s')) $ 
+]<def:individual-reward>
+
 
 Recall that Q-learning assumes a static environment in order to prove convergence.
-This assumption fails if multiple policies are acting upon the same environment and continually updating.
+This assumption fails if multiple policies are acting upon the same environment while being continually updated.
 Agents can change their policy to optimize reward by given the current policy of all other agents, only for other agents to update their policies in turn.
-This prompts further policy changes in a cycle that can continue _ad infinitum._
+This prompts further policy changes in a cycle that may continue _ad infinitum._
 
 It may not even be clear what the joint policy should converge to, depending on how the reward is defined.
 An MG can fall into one of three different categories which describe the reward structure @I:zhang2021multi@I:busoniu_multi-agent_2010.
- - Cooperative, where reward values are identical for all agents, for $1 <= i < j <= n$ then $R_i (s, a) = R_j (s, a)$.
- - Competitive, in which the reward is zero-sum, $sum_(i = 0)^n R_i (s, a) = 0$.
+ - Cooperative, where reward values are identical for all agents: For $1 <= i < j <= n$ then $R_i (s, a) = R_j (s, a)$.
+ - Competitive, in which the reward is zero-sum: $sum_(i = 0)^n R_i (s, a) = 0$.
  - Mixed, if the reward $R$ is neither competitive or cooperative. 
  
- For mixed reward structures, the set of policies which give the highest possible reward to agent $i$, is usually not the same as the set of policies that give the highest mean reward among all agents.
-Optimization objectives are often formulated instead as reaching a _Nash equilibrium_ or a _Pareto optimum._
+For mixed reward structures, the set of policies which give the highest possible reward to agent $i$, is usually not the same as the set of policies that give the highest mean reward among all agents.
+Optimization objectives are often formulated instead a _Nash equilibrium_ or a _Pareto optimum._
 
 #definition(name: [Nash equilibrium])[
    #todo[do.]

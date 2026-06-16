@@ -87,6 +87,7 @@
 
 #let Act = $A c t$
 #let mdp = $cal(M)$
+#let mg = $cal(G)$
 #let powerset(x) = $scr(P)(#x)$
 #let argmax = $op("arg max", limits: #true)$
 #let argmin = $op("arg min", limits: #true)$
