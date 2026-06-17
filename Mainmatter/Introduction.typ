@@ -636,8 +636,12 @@ For mixed reward structures, the set of policies which give the highest possible
 Optimization objectives are often formulated instead a _Nash equilibrium_ or a _Pareto optimum._
 
 #definition(name: [Nash equilibrium])[
-   #todo[do.]
-   @I:zhang2021multi page 8. This is the one where no individual agent can improve its gain.
+   For an MG $mg$, a joint policy $pi^*$ is a Nash equilibrium @I:zhang2021multi if no agent $i$ can change its individual policy $pi_i$ to gain a higher expected reward. It may be that changing multiple policies can lead to higher reward for some agents, but no single agent can improve its policy.
+   Formally, for every agent $i$ and state $s$, 
+
+   $ E^(mg, i)_(pi^*)(s) >= E^(mg, i)_(pi')(s) $
+   
+   where $pi'$ is induced by $(pi^*_1, pi^*_2, ... pi_i, ... pi^*_n)$ for any $pi_i $ .
 ]
 
 #definition(name: [Pareto optimal])[
