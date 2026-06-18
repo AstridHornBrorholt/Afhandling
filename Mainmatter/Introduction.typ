@@ -304,9 +304,12 @@ These requirements may be in tension with each other, and it could be that some 
 
 === Safety
 
-Safety properties are a subset of properties on a system, which describe a state, or finite sequence of states, that should never be reached.
-In @ex:InjectionMoulding, the safety property could be "the mould is cleaned as soon as it becomes contaminated," i.e. the state $◍$  is always followed by $○$. (See @ex:QualityInjectionMoulding)
+Safety properties are a subset of properties on a system, which describe a state, or finite sequence of states, that should never occur.
+In @ex:InjectionMoulding, the safety property could be "the mould is cleaned as soon as it becomes contaminated." 
+I.e. the state $◍$  is always followed by $○$, or equivalently, the sequence ◍ ◍ never occurs. (See @ex:QualityInjectionMoulding)
 A safety property for @ex:GridWorld could be "the state 💀 is never reached." (See @ex:GridWorldSafety.)
+A subset of safety properties are invariants, that are sets of individual states that should not be reached.
+The aforementioned safety property "never 💀" is an invariant, while "never ◍ ◍" is not.
 
 Besides safety, the other category of properties to describe a system is liveness.  
 Such properties state that an event will eventually occur in the system, with no time bound on when this should be fulfilled.
@@ -343,10 +346,13 @@ Since shields work by restricting actions, they can be applied to any existing r
   
   A shield $shield$ for a safe set $phi$, is maximally permissive if for all states $s in S$, there is no other shield $shield'$ for $phi$ such that $shield(s) subset shield'(s)$.
 
-  A deterministic policy $pi$ is shielded by $shield$ if $forall s in S : pi(s) in shield(s)$. Similarly for a nondeterministic policy $pi$ if $forall s in S : pi(s) subset.eq shield(s)$. And for a probabilistic policy $pi(s, a) > 0 => a in shield(s)$.
+  A deterministic policy $pi$ is shielded by $shield$ if $forall s in S : pi(s) in shield(s)$.
+  Similarly for a nondeterministic policy $pi$ if $forall s in S : pi(s) subset.eq shield(s)$.
+  And for a probabilistic policy $pi(s, a) > 0 => a in shield(s)$.
+  The application of a shield in a reinforcement learning setting is discussed in @sec:ApplyingTheShield.
 ]<def:Shielding>
 
-The maximally permissive shield for an invariant of an MDP is unique @I:BernetJW02 @I:PaperB. 
+The maximally permissive shield $shield$ for a safe set $phi$ of an MDP $mdp$ is unique @I:BernetJW02 @I:PaperB.
 
 #example(name: "Quality standards for injection moulding")[
   Due to concerns over quality, the contract from @ex:InjectionMoulding is re-negotiated to require that the mould is immediately cleaned whenever it becomes contaminated. 
@@ -372,6 +378,17 @@ The maximally permissive shield for an invariant of an MDP is unique @I:BernetJW
   Since $expectation(◍) = 1 + 0.9 expectation(○)$, the equation reduces to  \
   $expectation(○) = (100 + 0.05 times 0.9)/(1 - 0.95 times 0.9 - 0.05 times 0.9^2) approx 957.368$.
 ] <ex:QualityInjectionMoulding>
+
+Some safe sets are not possible to enforce. For example, consider a Grid World $cal(W)' = (S, s_0, A, P, R)$ as described in @ex:GridWorld, except with $s_0 = 10$.
+From this initial state, there is a nonzero probability of reaching 💀 regardless of which actions are taken.
+The safe set $S \\ {💀}$ is said to be infeasible for $cal(W)'$.
+
+
+#definition(name: "Feasibility")[
+  A safe set $phi$ is said to be feasible for an MDP $mdp$ if there exists at least one shield $shield$ for $phi$ and $mdp$.
+]<def:Feasibility>
+
+However, some policies may be safe with higher probability than others. For a discussion of probabilistic safety and shielding, see @sec:ProbabilisticShielding.
 
 === Origin of the Term
 
@@ -573,7 +590,7 @@ One example of such a safety guarantee @I:giacobbe_shielding_2021  was given for
 For an MDP $mdp$, action $a_0$  is $k$-safe at state $s_0$, if there exists a deterministic policy $pi$ such that for all traces $xi = s_0 a_0 ... s_k...$ with $pi(s_i) = a_i$ for $i > 0$, then $xi_0^k$ is safe.
 This extends to other states $s$ by redefining the starting state of $mdp$ to $s$.
 
-== Probabilistic Shielding
+== Probabilistic Shielding <sec:ProbabilisticShielding>
 ...
 
 == Multi-agent Shielding <sec:marl>
@@ -586,7 +603,7 @@ These multi-agent settings present unique challenges.
   where
   - $S$ is a finite set of states,
   - $s_0 in S$ is an initial state,
-  - $N = (1, 2, ... n)$ represent the players,
+  - $N = (1, 2, ... n)$ represents the players,
   - $A = A_1 times A_2 times ... A_n$ is the joint action space,
   - $P : S times A -> (S -> [0; 1])$ gives the transition probability from one state to another by a joint action,
   - and $R : S times A times S -> RR^n$ is the reward function.
@@ -645,7 +662,7 @@ For a joint policy $pi$ induced by $(pi_1, pi_2, ... pi_n)$ and some individual 
 
   $ EE^(mg, i)_(pi)(s) >= EE^(mg, i)_((pi'_i, pi_(-i)))(s) " for any policy " pi'_i $
 ]
-#question[↑  Should this just be from the initial state? I.e. $EE^(G, i)_pi (s_0)$ ? ]
+#question[ Should this ↑ just be from the initial state? I.e. $EE^(G, i)_pi (s_0)$ ? ]
 
 It may be that changing multiple policies can lead to higher reward, but no single player can improve its policy.
 Pareto optimality is a related, but stronger concept.
@@ -662,19 +679,46 @@ Pareto optimality is a related, but stronger concept.
 
 ]
 
-MARL has some common variations.
+=== Partial Observability
 
- - Observability: Players can only observe part of the state-space.
- - The number of players is not static. Players can join and leave the game.
- - Communication
-  - In partial observability, nearby players can share observations.
-  - Players know what other players intend to do next time-step.
-  - Some players may be antagonistic.
-  - Often, players can communicate and send signals by their actions.
+The assumption of full observability is particularly strong in MGs, and may even be computationally infeasible for a large number of players $n$.
+The size of the state-space increases with the number of agents, which in some parts of the literature can be in the hundreds or low thousands #citationneeded[].
+A state-space of this size can strain many RL algorithms, and the behaviour and positions of other agents far away, may not have a substantial impact on individual reward.
 
-And when it comes to safety, there may be some restrictions to safety properties.
-Like, a single player won't be able to enforce that all players stay on the path.
-Just as with single-agent safety, not all safety properties are feasible, and the feasibility of a safety property depends on the assumption about the environment.
+The limits of on-board sensors makes this omniscience technically impractical as well, and thus it is a common assumption that the game is _partially observable._
+Agents may only be able to perceive the state of the game locally, or based on line of sight. 
+
+In general, the optimal policy for a partially observable game requires memory of all previous observations.
+If the trace $zeta_1^n = o_1 a_1 o_2 a_2, ... o_n$ is an alternating sequence of observations and actions, a policy with memory would choose the next action as $pi(zeta_1^n) = a_n$, while a memoryless policy would as only rely on the last observation $pi(o_n) = a_n$.
+The difference in performance between the optimal memoryless policy and the optimal policy with memory depends on the game $mg$.
+
+=== Communication
+
+While players can directly interact through their choice of actions, additional communication is sometimes assumed.
+For example #citationneeded[] assumes players choose their actions in a specific order, and that each player knows the choices of others if they are lower in the order.
+In a partially observable setting, #citationneeded[] assumes that players are able to share their observations with other players within a certain range.
+
+=== Safety
+
+#definition(name: "Global shield")[
+  For an MG $mg = (S, s_0, N, A, P, R)$ and safe set $phi subset.eq S$, a nondeterministic global policy is a _global shield_ $shield : S → A$ if every trace $xi$ that is an outcome of $shield$ is safe.
+]<def:GlobalShield>
+
+#definition(name: "Local shield")[
+  For an MG $mg$, player $i in N$, and safe set $phi subset.eq S$, a nondeterministic individual policy is a local shield $shield_i : S -> A_i$ if  for any joint policy $pi$, every trace $xi$ that is an outcome of $(shield_i, pi_(-i))$ is safe.
+]<def:LocalShield>
+
+Recall @def:Feasibility on feasibility, and note how many more safe sets are feasible in MGs for global shields, than for local ones.
+
+#example(name: "2-player Grid World")[
+  Recall the Grid World $cal(W)$ from @ex:GridWorld. 
+  Let the two-player version $cal(W)^2 = (S^2, s_0, N, A^2, P^2)$ be...
+  - $S^2 = S times S$
+  - $s_0 = (14, 2)$
+  - $N = { 1, 2 }$
+  - $A^2 = A times A $
+  - $P^2$ is independent movement in the natural way. It is possible in the model for agents to occupy the same space.
+]
 
 == Hybrid MDPs
 ...
