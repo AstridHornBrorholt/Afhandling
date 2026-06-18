@@ -578,14 +578,15 @@ This extends to other states $s$ by redefining the starting state of $mdp$ to $s
 
 == Multi-agent Shielding <sec:marl>
 
-Many environments have multiple agents interacting.
+Many environments have multiple agents -- or _players_ -- interacting.
 These multi-agent settings present unique challenges.
 
 #definition(name:[$n$-player Markov Game])[
-  A Markov Game (MG) with $n$ agents @I:zhang2021multi@I:busoniu_multi-agent_2010 is a tuple $mg = (S, s_0, A, P, R)$
+  A Markov Game (MG)~@I:zhang2021multi@I:busoniu_multi-agent_2010@I:marl-book with~$n$ players is a tuple $mg = (S, s_0, N, A, P, R)$
   where
   - $S$ is a finite set of states,
   - $s_0 in S$ is an initial state,
+  - $N = (1, 2, ... n)$ represent the players,
   - $A = A_1 times A_2 times ... A_n$ is the joint action space,
   - $P : S times A -> (S -> [0; 1])$ gives the transition probability from one state to another by a joint action,
   - and $R : S times A times S -> RR^n$ is the reward function.
@@ -593,29 +594,29 @@ These multi-agent settings present unique challenges.
   $R$ induces individual reward functions $R_1, R_2, ...R_n$ where each $R_i$ gives the $i^"th"$ value of the vector: If $R(s, a, s) = r$ then $R_i (s, a, s) = r_i$.
 ]<def:mg>
 
-Note that $S$, $s_0$ and $P$ are as in @def:mdp while the action space $A$ and reward function $R$ is changed to accommodate multiple agents.
-The joint action $a$ is the combination of agents' individual choices $a = (a_1, a_2, ...a_n)^top$.
-When $a$ is taken in state $s$, the agent $i$ receives reward $R_i (s, a, s) = (R(s, a, s))_i$.
+Note that $S$, $s_0$ and $P$ are as in @def:mdp while the action space $A$ and reward function $R$ is changed to accommodate multiple players.
+The joint action $a$ is the combination of players' individual choices $a = (a_1, a_2, ...a_n)^top$.
+When $a$ is taken in state $s$, the player $i$ receives reward $R_i (s, a, s) = (R(s, a, s))_i$.
 
-For an MG, there is one policy for each of the $n$ agents, $(pi_1, pi_2, ...pi_n)$.
-These are as in @def:policy, except that each policy $pi_i$ is over the agent's own action space $A_i$.
+For an MG, there is one policy for each of the $n$ players, $(pi_1, pi_2, ...pi_n)$.
+These are as in @def:policy, except that each policy $pi_i$ is over the player's own action space $A_i$.
 
 #definition(name:[Individual and joint policies])[
-  In an MG $mg$, individual policies $pi_i$ represent one agent $i$ choosing from its own action space $A_i$.
+  In an MG $mg$, individual policies $pi_i$ represent one player $i$ choosing from its own action space $A_i$.
   Deterministic, probabilistic and nondeterministic policies are respectively $S -> A_i$,\
-   $S -> (A_i  → [0; 1])$, and $S → powerset(A_i)$ for each $1 <= i <= n$. 
+   $S -> (A_i  → [0; 1])$, and $S → powerset(A_i)$ for each $i in N$. 
 
    A full complement of individual policies $(pi_1, pi_2, ...pi_n)$ induce a joint policy:
    - A _deterministic joint policy_ as $pi(s) = (pi_1 (s), pi_2 (s), ... pi_n (s))^top$,
-   - a _probabilistic joint policy_ as $pi(s)(a) = product_(i=0)^n pi_i (s)(a)$, and
-   - a _nondeterministic joint policy_ as $pi(s) = times.big_(i=0)^n pi_i (s)$
+   - a _probabilistic joint policy_ as $pi(s)(a) = product_(i in N) pi_i (s)(a)$, and
+   - a _nondeterministic joint policy_ as $pi(s) = times.big_(i in N) pi_i (s)$
 ]<def:joint-policy>
 
 Traces are defined from joint policies in the same manner as @def:trace.
-Likewise, the definition of a joint policy can be used to describe the expected reward of an agent:
+Likewise, the definition of a joint policy can be used to describe the expected reward of a player:
 
 #definition(name: [Expected individual reward])[
-  Given an MG $mg$, a joint probabilistic policy $pi : S -> (A -> [0; 1])$ and a discount factor $gamma in [0; 1[$, the expected reward of agent $i$ on $mg$ is the unique fixed point of the following equation
+  Given an MG $mg$, a joint probabilistic policy $pi : S -> (A -> [0; 1])$ and a discount factor $gamma in [0; 1[$, the expected reward of player $i in N$ from $mg$, is the unique fixed point of the following equation
 
   $ EE_pi^(mg, i) (s) = sum_(a in A) pi(s)(a) sum_(s' in S) P(s, a)(s') (R_i (s, a, s') + gamma  EE_pi^(mg, i) (s')) $ 
 ]<def:individual-reward>
@@ -623,43 +624,56 @@ Likewise, the definition of a joint policy can be used to describe the expected 
 
 Recall that Q-learning assumes a static environment in order to prove convergence.
 This assumption fails if multiple policies are acting upon the same environment while being continually updated.
-Agents can change their policy to optimize reward by given the current policy of all other agents, only for other agents to update their policies in turn.
+Players can change their policy to optimize reward based on the current policy of all others, only for other players to update their policies in turn.
 This prompts further policy changes in a cycle that may continue _ad infinitum._
 
 It may not even be clear what the joint policy should converge to, depending on how the reward is defined.
-An MG can fall into one of three different categories which describe the reward structure @I:zhang2021multi@I:busoniu_multi-agent_2010.
- - Cooperative, where reward values are identical for all agents: For $1 <= i < j <= n$ then $R_i (s, a) = R_j (s, a)$.
+An MG can fall into one of three different categories which describe the reward structure @I:zhang2021multi@I:busoniu_multi-agent_2010@I:marl-book.
+ - Cooperative, where reward values are identical for all players: For $1 <= i < j <= n$ then $R_i (s, a) = R_j (s, a)$.
  - Competitive, in which the reward is zero-sum: $sum_(i = 0)^n R_i (s, a) = 0$.
  - Mixed, if the reward $R$ is neither competitive or cooperative. 
  
-For mixed reward structures, the set of policies which give the highest possible reward to agent $i$, is usually not the same as the set of policies that give the highest mean reward among all agents.
+For mixed reward structures, the set of policies which give the highest possible reward to player $i$, is usually not the same as the set of policies that give the highest mean reward among all players.
 Optimization objectives are often formulated instead a _Nash equilibrium_ or a _Pareto optimum._
 
-#definition(name: [Nash equilibrium])[
-   For an MG $mg$, a joint policy $pi^*$ is a Nash equilibrium @I:zhang2021multi if no agent $i$ can change its individual policy $pi_i$ to gain a higher expected reward. It may be that changing multiple policies can lead to higher reward for some agents, but no single agent can improve its policy.
-   Formally, for every agent $i$ and state $s$, 
+Nash equilibria are concerned with changes to individual policies.
+For a joint policy $pi$ induced by $(pi_1, pi_2, ... pi_n)$ and some individual policy $pi'_i$, let $(pi'_i, pi_(-i))$ be the joint policy induced by $(pi_1, pi_2, ... pi'_i, ... pi_n)$.
 
-   $ E^(mg, i)_(pi^*)(s) >= E^(mg, i)_(pi')(s) $
-   
-   where $pi'$ is induced by $(pi^*_1, pi^*_2, ... pi_i, ... pi^*_n)$ for any $pi_i $ .
+#definition(name: [Nash equilibrium])[
+  For an MG $mg$, a joint policy $pi$ is a Nash equilibrium @I:zhang2021multi if no player $i$ can gain  a higher reward by changing its individual policy $pi_i$ to some other $pi'_i$. 
+  That is to say, $pi$ is a Nash equilibrium if for every player $i$ and every state $s$,
+
+  $ EE^(mg, i)_(pi)(s) >= EE^(mg, i)_((pi'_i, pi_(-i)))(s) " for any policy " pi'_i $
 ]
+#question[↑  Should this just be from the initial state? I.e. $EE^(G, i)_pi (s_0)$ ? ]
+
+It may be that changing multiple policies can lead to higher reward, but no single player can improve its policy.
+Pareto optimality is a related, but stronger concept.
 
 #definition(name: [Pareto optimal])[
-   #todo[do.]
+   For an MG $mg = (S, s_0, N, A, P, R)$, the joint policy $pi$ is Pareto optimal~@I:marl-book if there is no other policy where the players' reward is just as high or higher.
+
+   Specifically, a policy $pi'$ is Pareto dominated by $pi$ if 
+
+   $ forall i in N, s in S : EE^(G, i)_pi (s) &>= EE^(G, i)_pi' (s) " and " \
+   exists i in N, s in S : EE^(G, i)_pi (s) &> EE^(G, i)_pi' (s) $
+
+   A policy $pi$ is Pareto optimal if it is not Pareto dominated by any other policy.
+
 ]
 
 MARL has some common variations.
 
- - Observability: Agents can only observe part of the state-space.
- - The number of agents is not static. Agents can join and leave the game.
+ - Observability: Players can only observe part of the state-space.
+ - The number of players is not static. Players can join and leave the game.
  - Communication
-  - In partial observability, nearby agents can share observations.
-  - Agents know what other agents intend to do next time-step.
-  - Some agents may be antagonistic.
-  - Often, agents can communicate and send signals by their actions.
+  - In partial observability, nearby players can share observations.
+  - Players know what other players intend to do next time-step.
+  - Some players may be antagonistic.
+  - Often, players can communicate and send signals by their actions.
 
 And when it comes to safety, there may be some restrictions to safety properties.
-Like, a single agent won't be able to enforce that all agents stay on the path.
+Like, a single player won't be able to enforce that all players stay on the path.
 Just as with single-agent safety, not all safety properties are feasible, and the feasibility of a safety property depends on the assumption about the environment.
 
 == Hybrid MDPs
