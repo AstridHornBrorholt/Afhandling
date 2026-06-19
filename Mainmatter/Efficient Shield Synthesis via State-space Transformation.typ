@@ -358,7 +358,7 @@ the granularity.
   )<fig:oscillator:a>],
 
   [#figure(image("../Graphics/AISOLA24/After Fixpoint Iteration.svg"),
-    caption: [After fixpoint iteration. \ #hide[x]]
+    caption: [After fixpoint \ iteration. \ #hide[x]]
   )<fig:oscillator:b>],
 
   [#figure(image("../Graphics/AISOLA24/Transformed State Space.svg"),
@@ -366,6 +366,7 @@ the granularity.
   )<fig:oscillator:c>],
 
   columns: 3,
+  align: top,
   // placement: bottom,
   caption: [
     Harmonic oscillator in $x slash y$ state space with an obstacle $O$

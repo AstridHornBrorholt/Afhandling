@@ -600,7 +600,7 @@ $ exists lr((p comma v)) in mu dot.basic med F lr((lr((p comma v)) comma P)) in 
  & F lr((lr((p comma v)) comma t prime)) eq lr((0 comma v prime)) and F lr((lr((0 comma minus beta dot.op v prime)) comma P minus t prime)) in mu prime $
 
 #figure(kind: "algorithm", supplement: [Algorithm], placement: bottom,
-  pseudocode-list(numbered-title: [Approximation of $->^a$], booktabs: true)[
+  pseudocode-list(numbered-title: [Approximation of $->^a$])[
     - *Input:* $mu in cal(A), a in italic("Act")$
     - *Output:* $mu ->^a_italic("app") mu' "iff" mu' in R$
     + $R = emptyset$
