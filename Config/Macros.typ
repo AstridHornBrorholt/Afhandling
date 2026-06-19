@@ -92,6 +92,9 @@
 #let argmax = $op("arg max", limits: #true)$
 #let argmin = $op("arg min", limits: #true)$
 
+#let intersection = $inter$
+#let intersect = $intersection$
+
 
 // The Elder Futhark
 #let fehu = "ᚠ"

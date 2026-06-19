@@ -232,11 +232,12 @@ This is ensured by the fact that $s_0$ is visited infinitely often as $n -> infi
   
     #figure(
       {
-        set text(fill: alizarin)
+        set text(fill: alizarin, size: 8pt)
         table(
           stroke: 0.4pt,
           columns: (auto, auto, auto, auto),
           align: left,
+          inset: (bottom: 12pt),
           rows: 4,
           [ 1], [ 2], [ 3], [ 4],
           [ 5], [ 6], [ 7], [ 8],
@@ -244,7 +245,7 @@ This is ensured by the fact that $s_0$ is visited infinitely often as $n -> infi
           [ 13 #hide([🧊])], [ 14 🤖], [ 15 💀], [ 16 🏁],
         )
       },
-      caption: [A map showing the initial state of Grid World with 🧊 slippery tiles, 💀 an untimely end, 🏁 a goal state, and 🤖 initial agent position.]
+      caption: [A map showing the initial state of Grid World with slippery tiles 🧊, an untimely end 💀, a goal state 🏁, and  initial agent position 🤖.]
     )<fig:GridWorld>
   
   Consider a discount factor of  $gamma = 0.9$, episode length $m=100$, initial $Q(s) = 0$ for all $s in S$, and learning rate $alpha$ and exploration factor $epsilon$:
@@ -276,10 +277,11 @@ This is ensured by the fact that $s_0$ is visited infinitely often as $n -> infi
 
     The same MDP can be modelled in the model-checking tool Prism @I:Prism, and the optimal policy can be approximated precisely and quickly by its built-in value iteration method.
     #footnote[A discounted reward was simulated using a variable `t` that increments each step, multiplying the reward with `gamma^t`. The query used was `Rmin=?[C<=100]`.]
+    The resulting state values are shown in @fig:VTablePrism.
 
   The final policy is not safe, in the sense that it has a non-zero chance of reaching the state 💀.
   This can be avoided by making changes to the reward function, giving a heavier penalty for reaching this state.
-  However it is not straightforward to determine how the reward function should be defined in order to guarantee safety, or whether this is even possible for a given model.
+  However it is not straightforward to determine how the reward function should be defined in order to guarantee convergence to a safe policy, or whether this is even possible for a given model.
 ]<ex:GridWorld>
 
 
@@ -331,7 +333,7 @@ In the following, safety will be discussed in terms of invariants, given as a se
   This extends to sections of traces $xi_n^m$ in the natural way.
   A policy $pi$ is safe with regard to $phi$ if every trace that is an outcome of $pi$ is safe.
  Safety according to $phi$ is indicated with $models$, as respectively $s models phi$, $xi models phi$ and $pi models phi$.
-]
+]<def:Safety>
 
 The optimization problem stated in @def:Optimization does not include a notion of safety, and as noted in @ex:GridWorld, a policy might not converge to safe behaviour.
 Even then, the convergence guarantee for Q-learning relies on an infinite number of traces, meaning that models trained in practice may not have learned fully safe behaviour even if the reward function is correctly designed to encourage it.
@@ -342,7 +344,7 @@ Among the many approaches to enforcing safety in reinforcement learning, #citati
 Since shields work by restricting actions, they can be applied to any existing reinforcement learning method, including deep learning, allowing it to work in concert with state of the art methods to achieve safe and optimized behaviour.
 
 #definition(name: "Shield, maximally permissive shield, shielded policy")[
-  For an MDP $mdp$ and safe set $phi$, a shield is a nondeterministic policy $shield : S -> powerset(A)$ such that every trace $xi$ that is an outcome of $shield$ is safe.
+  For an MDP $mdp$ and safe set $phi$, a _shield_ is a safe nondeterministic policy $shield : S -> powerset(A)$.
   
   A shield $shield$ for a safe set $phi$, is maximally permissive if for all states $s in S$, there is no other shield $shield'$ for $phi$ such that $shield(s) subset shield'(s)$.
 
@@ -679,6 +681,69 @@ Pareto optimality is a related, but stronger concept.
 
 ]
 
+=== Safety
+
+Safety as given in @def:Safety, described by safe sets $phi subset.eq S$, can be extended directly to MGs for states, traces and joint policies.
+An individual policy is safe if it ensures the entire MG stays within the safe set, regardless of the behaviour of other agents. 
+Formally, an individual policy $pi_i$ is safe if -- for any joint policy $pi$ -- every trace $xi$ that is an outcome of $(shield_i, pi_(-i))$ is safe.
+
+Analogously to joint and individual policies, a shield is called either _global_ or _local._
+
+#definition(name: "Global and local shields")[
+  For an MG $mg = (S, s_0, N, A, P, R)$ and a safe set $phi subset.eq S$, a nondeterministic global policy is a global shield $shield : S → A$ if it is safe.
+
+  A safe nondeterministic individual policy is called a local shield $shield_i : S -> A_i$.
+]<def:GlobalAndLocalShields>
+
+The concepts of maximally permissive shields and shielded global/local policies extend naturally from @def:Shielding.
+
+A safe set may be feasible (@def:Feasibility) with a global shield, but not feasible for any of the players as a local shield.
+This is shown in @ex:2PlayerGridWorld.
+
+
+#example(name: "2-player Grid World")[
+  Recall the Grid World $cal(W) = (S, s_0, A, P, R)$ from @ex:GridWorld. 
+  Let the two-player version be $cal(W)^2 = (S^2, s'_0, N, A^2, P^2, R^2)$ with agents $N = { 🤖, 👾 }$.
+  Here, the state space $S^2$ is $S times S$, the initial state $s_0 = (14, 2)$ and the action space $A^2 = A times A $.
+  The transition probability function $P^2 : S^2 times A^2 → (S^2 → [0, 1])$ extends movement to two players in the natural way, while allowing both players to occupy the same space.
+  A mixed reward structure is given by the function $R^2$ where $R_🤖(vec(s_1, s_2), a, vec(s'_1, s'_2)) = R(s_1, a_1, s'_1)$ and $R_👾(vec(s_1, s_2), a, vec(s'_1, s'_2)) = R(s_2, a_2, s'_2)$.
+
+
+    #figure(
+      {
+        set text(fill: alizarin, size: 8pt)
+        table(
+          stroke: 0.4pt,
+          columns: (auto, auto, auto, auto),
+          align: left,
+          inset: (bottom: 12pt),
+          rows: 4,
+          [ 1], [ 2 👾], [ 3], [ 4],
+          [ 5], [ 6], [ 7], [ 8],
+          [ 9], [ 10 🧊], [ 11 🧊], [12],
+          [ 13 #hide([🧊])], [ 14 🤖], [ 15 💀], [ 16 🏁],
+        )
+      },
+      caption: [Initial state of 2-player Grid World with slippery tiles 🧊, an untimely end 💀, a goal state 🏁, and initial positions of players 🤖 and 👾.]
+    )<fig:2PlayerGridWorld>
+
+    Now consider the safe sets $phi_1 = { vec(s_1, s_2) | s_1 != 💀}$, $phi_2 = { vec(s_1, s_2) | s_2 != 💀}$, $phi = phi_1 intersection phi_2$ and $psi = phi intersection { vec(s_1, s_2) | s_1 != s_2 }$.
+    Clearly, all sets are feasible as global shields.
+
+    The safe set, $phi$ is not feasible with a local shield, since neither player has the ability to keep the other from entering 💀.
+    But the safe set's components $phi_1$ and $phi_2$ both are feasible with local shields.
+
+    Furthermore, $psi$ is feasible as a local shield $shield_👾$, since player 👾 has enough space around it to avoid 🤖 indefinitely.
+    However, no local shield $shield_🤖$ exists.
+    To see this, note that states 💀 and 🏁 cannot be left once entered, so these should both be avoided. 
+    Thus, the slippery states 11 and 12 must also be avoided as seen in @ex:GridWorld.
+    Therefore, player 🤖 has its initial movement constrained. In the worst case where player 👾 chases the other, there is no safe strategy.
+
+    Even if it is possible to enforce $psi$ through $shield_👾$, the shield has to assume worst-case behaviour from the other player 🤖, which may be overly restrictive.
+]<ex:2PlayerGridWorld>
+
+The problem of which safety properties are feasible, is often central in the field of safe MARL. #citationneeded[]
+
 === Partial Observability
 
 The assumption of full observability is particularly strong in MGs, and may even be computationally infeasible for a large number of players $n$.
@@ -697,28 +762,6 @@ The difference in performance between the optimal memoryless policy and the opti
 While players can directly interact through their choice of actions, additional communication is sometimes assumed.
 For example #citationneeded[] assumes players choose their actions in a specific order, and that each player knows the choices of others if they are lower in the order.
 In a partially observable setting, #citationneeded[] assumes that players are able to share their observations with other players within a certain range.
-
-=== Safety
-
-#definition(name: "Global shield")[
-  For an MG $mg = (S, s_0, N, A, P, R)$ and safe set $phi subset.eq S$, a nondeterministic global policy is a _global shield_ $shield : S → A$ if every trace $xi$ that is an outcome of $shield$ is safe.
-]<def:GlobalShield>
-
-#definition(name: "Local shield")[
-  For an MG $mg$, player $i in N$, and safe set $phi subset.eq S$, a nondeterministic individual policy is a local shield $shield_i : S -> A_i$ if  for any joint policy $pi$, every trace $xi$ that is an outcome of $(shield_i, pi_(-i))$ is safe.
-]<def:LocalShield>
-
-Recall @def:Feasibility on feasibility, and note how many more safe sets are feasible in MGs for global shields, than for local ones.
-
-#example(name: "2-player Grid World")[
-  Recall the Grid World $cal(W)$ from @ex:GridWorld. 
-  Let the two-player version $cal(W)^2 = (S^2, s_0, N, A^2, P^2)$ be...
-  - $S^2 = S times S$
-  - $s_0 = (14, 2)$
-  - $N = { 1, 2 }$
-  - $A^2 = A times A $
-  - $P^2$ is independent movement in the natural way. It is possible in the model for agents to occupy the same space.
-]
 
 == Hybrid MDPs
 ...
