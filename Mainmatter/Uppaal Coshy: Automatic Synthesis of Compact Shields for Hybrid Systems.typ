@@ -8,13 +8,6 @@
   proof, definition, rules: thm-rules
 ) = default-theorems("thm-group", lang: "en", thm-numbering: thm-numbering-linear)
 
-#show ref: it => {
-  if query(it.target).len() == 0 {
-    "[" + str(it.target) + "]"
-  } else {
-    it
-  }
-}
 = #smallcaps[Uppaal Coshy]: Automatic Synthesis of Compact Shields for Hybrid Systems
 
 #grid(columns: (1fr, 1fr), row-gutter: 2em,
