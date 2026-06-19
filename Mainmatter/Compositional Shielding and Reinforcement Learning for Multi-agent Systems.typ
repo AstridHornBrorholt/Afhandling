@@ -470,7 +470,7 @@ ensures that we will stay in that set $phi.alt$, independent of the
 strategy.
 
 #definition()[Assume an LTS $cal(T)$ and a set of
-  states $phi.alt$. We write $cal(T) tack.r.double phi.alt$ if for all
+  states $phi.alt$. We write $cal(T) tack.rr phi.alt$ if for all
   strategies $sigma$, all corresponding outcomes $s_0 a_0 s_1 a_1 dots.h$
   satisfy $s_i in phi.alt$ for all $i gt.eq 0$.
 ]
@@ -494,7 +494,7 @@ The next proposition asserts that a shielded LTS is safe.
 property $phi.alt$, and a corresponding shield $shield lr([phi.alt])$,
 all outcomes of any strategy for $cal(T)_shield$ are safe.]
 
-In other words, $cal(T)_shield tack.r.double phi.alt$. We analogously
+In other words, $cal(T)_shield tack.rr phi.alt$. We analogously
 define shielded MDPs.
 
 #definition(name: "Shielded MDP")[Given an MDP
@@ -665,7 +665,7 @@ operates in the observation space.
   $shield_i colon O_i arrow.r 2^(italic(A c t)_i)$ be a shield
   for $cal(T)^i$ wrt. $overline(italic(p r j))_i lr((phi.alt_i))$, for
   some agent $i in brace.l 1 comma dots.h comma n brace.r$, i.e.,
-  $cal(T)^i tack.r.double_(shield_i) overline(italic(p r j))_i lr((phi.alt_i))$.
+  $cal(T)^i tack.rr_(shield_i) overline(italic(p r j))_i lr((phi.alt_i))$.
   We call $shield_i$ a #emph[local shield] of agent $i$.
 ]
 
@@ -686,8 +686,8 @@ The following definition is just syntactic sugar to ease reading.
 
 #definition()[Assume an LTS $cal(T)$, a set of states
   $phi.alt$, and a shield $shield$ for $phi.alt$. We write
-  $cal(T) tack.r.double_shield phi.alt$ as an alternative to
-  $cal(T)_shield tack.r.double phi.alt$.
+  $cal(T) tack.rr_shield phi.alt$ as an alternative to
+  $cal(T)_shield tack.rr phi.alt$.
 ]<def:models_shield>
 
 The following lemma says that it is sufficient to have a local shield
@@ -698,8 +698,8 @@ shield.
 
 #lemma[Assume an $n$-agent LTS $cal(T)$, a safety
   property $phi.alt_i$, and a local shield $shield_i$ such that
-  $cal(T)^i tack.r.double_(shield_i) overline(italic(p r j))_i lr((phi.alt_i))$.
-  Then $cal(T) tack.r.double_(arrow.t lr((shield_i))) phi.alt_i$.
+  $cal(T)^i tack.rr_(shield_i) overline(italic(p r j))_i lr((phi.alt_i))$.
+  Then $cal(T) tack.rr_(arrow.t lr((shield_i))) phi.alt_i$.
 ]<lem:proj>
 
 #proof[The proof is by contraposition. Assume that there is an
@@ -745,7 +745,7 @@ for the global system.
   $i eq 1 comma dots.h comma n$. If
   $shield eq inter.sq_i thin arrow.t lr((shield_i))$ exists, then $shield$ is
   a shield for $cal(T)$ wrt. $phi.alt$ (i.e.,
-  $cal(T)_shield tack.r.double phi.alt$).
+  $cal(T)_shield tack.rr phi.alt$).
 ]<thm:shield_simple>
 
 #proof[By definition, each local shield $shield_i$ ensures that
@@ -779,7 +779,7 @@ restricted LTSs.
 ]
 
 #lemma[Let $cal(T) prec.eq cal(T) prime$ be two LTSs. Then
-  $cal(T) prime tack.r.double phi.alt arrow.r.double.long cal(T) tack.r.double phi.alt$.
+  $cal(T) prime tack.rr phi.alt arrow.r.double.long cal(T) tack.rr phi.alt$.
 ]<lem:preceq>
 #proof[As $italic(T) prime$ contains all transitions of
   $italic(T)$, it has at least the same outcomes. If no outcome
@@ -806,7 +806,7 @@ The theorem then states that if each agent guarantees its safety
 property $phi.alt_i$, and only relies on guarantees $phi.alt_j$ such
 that $j lt i$. The result is a (safe) distributed shield. The described
 condition is formally expressed as
-$lr((cal(T)_(shield^ast.basic lr([inter.big_(j lt i) phi.alt_j]))))^i tack.r.double_(shield_i) overline(italic(p r j))_i lr((phi.alt_i))$,
+$lr((cal(T)_(shield^ast.basic lr([inter.big_(j lt i) phi.alt_j]))))^i tack.rr_(shield_i) overline(italic(p r j))_i lr((phi.alt_i))$,
 where we use the most permissive shield $shield^ast.basic$ for unicity.
 
 #theorem(name: [Assume-guarantee shield synthesis])[Assume an
@@ -815,10 +815,10 @@ where we use the most permissive shield $shield^ast.basic$ for unicity.
   projections $italic(p r j)_i$ and an $n$-agent safety property
   $phi.alt eq inter.big_i phi.alt_i$. Moreover, assume (local) shields
   $shield_i$ for all $i$ such that
-  $lr((cal(T)_(shield^ast.basic lr([inter.big_(j lt i) phi.alt_j]))))^i tack.r.double_(shield_i) overline(italic(p r j))_i lr((phi.alt_i))$.
+  $lr((cal(T)_(shield^ast.basic lr([inter.big_(j lt i) phi.alt_j]))))^i tack.rr_(shield_i) overline(italic(p r j))_i lr((phi.alt_i))$.
   Then, if $shield eq inter.sq_i thin arrow.t lr((shield_i))$ exists, it is a
   shield for $cal(T)$ wrt. $phi.alt$ (i.e.,
-  $cal(T)_shield tack.r.double phi.alt$).
+  $cal(T)_shield tack.rr phi.alt$).
 ]<thm:shield_agr>
 
 #proof[Assume $cal(T)$, $phi.alt$, and local shields $shield_i$ as
@@ -827,19 +827,19 @@ where we use the most permissive shield $shield^ast.basic$ for unicity.
   $cal(T)_(shield^ast.basic lr([italic(S)])) eq cal(T)$. Then:
   
   $  
-    & and.big_i lr((cal(T)_(shield^* lr([inter.big_(j < i) phi.alt_j]))))^i tack.r.double_(shield_i) overline(italic(p r j))_i lr((phi.alt_i))\
+    & and.big_i lr((cal(T)_(shield^* lr([inter.big_(j < i) phi.alt_j]))))^i tack.rr_(shield_i) overline(italic(p r j))_i lr((phi.alt_i))\
 
     ==>^#ref(<lem:proj>, supplement: [Lem.]) 
-       & and.big_i cal(T)_(shield^* lr([inter.big_(j < i) phi.alt_j])) tack.r.double_(arrow.t lr((shield_i))) phi.alt_i 
+       & and.big_i cal(T)_(shield^* lr([inter.big_(j < i) phi.alt_j])) tack.rr_(arrow.t lr((shield_i))) phi.alt_i 
 
-    ==>^(lr((ast.basic))) and.big_i cal(T)_(inter.sq_(j < i) arrow.t lr((shield_j))) tack.r.double_(arrow.t lr((shield_i))) phi.alt_i\
+    ==>^(lr((ast.basic))) and.big_i cal(T)_(inter.sq_(j < i) arrow.t lr((shield_j))) tack.rr_(arrow.t lr((shield_i))) phi.alt_i\
     
     ==>^#ref(<def:models_shield>, supplement: [Def. ]) 
-      & and.big_i cal(T) tack.r.double_(inter.sq_(j <= i) arrow.t lr((shield_j))) phi.alt_i 
+      & and.big_i cal(T) tack.rr_(inter.sq_(j <= i) arrow.t lr((shield_j))) phi.alt_i 
 
-    ==> cal(T) tack.r.double_(inter.sq_i thin arrow.t lr((shield_i))) phi.alt 
+    ==> cal(T) tack.rr_(inter.sq_i thin arrow.t lr((shield_i))) phi.alt 
     ==>^#ref(<def:models_shield>, supplement: [Def. ]) 
-      cal(T)_shield tack.r.double phi.alt 
+      cal(T)_shield tack.rr phi.alt 
 
   $
 

@@ -449,7 +449,7 @@ initial state density $N$.
   strategy $sigma^ast.basic$ obtained by the RL method implemented in
   #smallcaps[Uppaal Stratego] and the prefix of a random run. The expected
   number of #emph[hit] actions of $sigma^ast.basic$ within 120s is
-  approximately $48$.$lt.tri$
+  approximately $48$.
 ]<ex:hitting>
 
 #subpar.grid(
