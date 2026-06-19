@@ -4,9 +4,6 @@
 #import "@preview/lemmify:0.1.8": *
 #import "@preview/lovelace:0.3.0": *
 
-#import "@preview/alexandria:0.2.2": *
-#show: alexandria(prefix: "I:", read: path => read(path))
-
 #let (
   theorem, lemma, corollary,
   remark, proposition, example,
@@ -21,7 +18,7 @@
 Digital control of physical components enables time-saving automation and efficient use of available resources.
 This can range from a simple if/then switch to a complex neural network managing multiple interconnected processes.
 It is not uncommon for several digital components to be deployed in concert to serve complementary purposes.
-Such cyber-physical systems @I:lee2006cyber @I:lee2008cyber are becoming more ubiquitous and more advanced.
+Such cyber-physical systems @lee2006cyber @lee2008cyber are becoming more ubiquitous and more advanced.
 
 With applications such as autonomous vehicles, water management systems, industrial hydraulics, and power controllers, great care must be taken to ensure the safety of people, equipment, and resources that are directly or indirectly affected by the system.
 
@@ -34,7 +31,7 @@ This performance is achieved by controllers that use a high number of neurons, m
 
 == Reinforcement Learning <sec:rl>
 
-Reinforcement learning  #cl("I:DBLP:books/lib/SuttonB98") @I:kaelbling1996reinforcement @I:arulkumaran2017deep is a major class of machine learning techniques, separate from supervised and unsupervised learning @I:alloghani2020systematic.
+Reinforcement learning  #cl("DBLP:books/lib/SuttonB98") @kaelbling1996reinforcement @arulkumaran2017deep is a major class of machine learning techniques, separate from supervised and unsupervised learning @alloghani2020systematic.
 In supervised learning, models learn from labelled data, to predict the labels of unseen data.
 Unsupervised (or self-supervised) learning similarly trains the model on a set amount of unlabelled data, to discover relevant patterns and approximations.
 In contrast, reinforcement learning _agents_ are actively interacting with a system, directing exploration and receiving observation data and rewards, as the system responds to actions taken by the agent.
@@ -45,7 +42,7 @@ Taking the action yields a reward that the agent can use to update its policy, a
 
 #figure(include("../Graphics/Intro/Unshielded.typ"), caption: [The reinforcement learning loop.] )<fig:RL>
 
-The reinforcement learning problem can be stated in many different ways, depending on the nature of the problem, but is perhaps most commonly defined in terms of a Markov decision process (MDP) #cl("I:DBLP:journals/siamrev/Feinberg96").
+The reinforcement learning problem can be stated in many different ways, depending on the nature of the problem, but is perhaps most commonly defined in terms of a Markov decision process (MDP) #cl("DBLP:journals/siamrev/Feinberg96").
 MDPs describe stochastic systems, where the outcomes of actions only depend on the current (observable) state of the system, and not on which actions or states were seen previously.
 
 #definition(name: "MDP")[
@@ -125,7 +122,7 @@ The discount factor $gamma$ may be interpreted as the probability of the trace c
      & lim_(n -> infinity) sum_(i=0)^n 0.99^i times 100 && = 100/(1-0.99) = 10000 & "" $
 ]<ex:discounted>
 
-In contrast to the reward gained from just one trace, the expected discounted reward #cl("I:DBLP:books/lib/SuttonB98") for a probabilistic policy is defined as:
+In contrast to the reward gained from just one trace, the expected discounted reward #cl("DBLP:books/lib/SuttonB98") for a probabilistic policy is defined as:
 
 #definition(name: "Expected reward")[
   Given an MDP $M = (S, s_0, A, P, R)$, a probabilistic policy $pi : S -> (A -> [0; 1])$ and a discount factor $gamma in [0; 1[$, the expected reward of $pi$ on $mdp$ is the unique fixed point of the following equation
@@ -141,8 +138,8 @@ This is used in the definition of the optimization problem of finding the policy
   $ pi^star = argmax_(pi) EE_pi^mdp (s_0) $
 ]<def:Optimization>
 
-For an MDP, the optimal policy is deterministic #cl("I:DBLP:books/lib/SuttonB98").
-It may be possible to compute $pi^star$ directly, through e.g. direct search, through dynamic- or linear programming, or to accurately approximate them using value iteration #cl("I:DBLP:books/lib/SuttonB98").
+For an MDP, the optimal policy is deterministic #cl("DBLP:books/lib/SuttonB98").
+It may be possible to compute $pi^star$ directly, through e.g. direct search, through dynamic- or linear programming, or to accurately approximate them using value iteration #cl("DBLP:books/lib/SuttonB98").
 These methods require full knowledge of the transition probabilities $P$ and rewards $R$, and have polynomial runtime on the number of states $|S|$ which make them suitable for a wide range of problems, with up to millions of states on modern hardware.
 However, MDPs are often described using several variables or components. Known as the _curse of dimensionality,_ the size of the state-space is exponential in the number of these components or variables.  
 
@@ -153,7 +150,7 @@ In the following, a description of the comparatively simple Q-learning approach 
 
 === Q-learning
 
-Q-learning @I:QLearning @I:Watkins89 #cl("I:DBLP:books/lib/SuttonB98") is a model-free, off-policy, reinforcement learning algorithm for models that have finite state-space.
+Q-learning @QLearning @Watkins89 #cl("DBLP:books/lib/SuttonB98") is a model-free, off-policy, reinforcement learning algorithm for models that have finite state-space.
 The algorithm maintains a "Q-table"  that represents for every pair $(s, a)$ the estimated expected reward for taking action $a$ in state $s$.
 It is the function $Q : S times A -> RR$, which is updated in every step.
 
@@ -207,7 +204,7 @@ The guarantee holds since $epsilon : NN -> ]0;1]$ cannot go to 0.
 #todo[Write that Q-learning is off-policy because the Q-update does not factor in the $epsilon$ probability of taking another action.]
 #todo[Name-drop other exploration policies.]
 
-Q-learning is an early example of an algorithm which was proven @I:QLearning to almost surely converge as the number of episodes $n$ (and episode length $m$) goes to infinity.
+Q-learning is an early example of an algorithm which was proven @QLearning to almost surely converge as the number of episodes $n$ (and episode length $m$) goes to infinity.
 The proof requires that the environment remains static, i.e. $mdp$ does not change during learning.
 It also requires the learning rate to satisfy the assumption, $sum_i^infinity alpha(i) = infinity and sum_i^infinity alpha(i)^2 < infinity$.
 This condition can be stated informally as "$alpha$ decreases towards zero, but not too fast."
@@ -275,7 +272,7 @@ This is ensured by the fact that $s_0$ is visited infinitely often as $n -> infi
     caption: [Q-learning in the grid world.]
   )
 
-    The same MDP can be modelled in the model-checking tool Prism @I:Prism, and the optimal policy can be approximated precisely and quickly by its built-in value iteration method.
+    The same MDP can be modelled in the model-checking tool Prism @Prism, and the optimal policy can be approximated precisely and quickly by its built-in value iteration method.
     #footnote[A discounted reward was simulated using a variable `t` that increments each step, multiplying the reward with `gamma^t`. The query used was `Rmin=?[C<=100]`.]
     The resulting state values are shown in @fig:VTablePrism.
 
@@ -319,10 +316,10 @@ This could be e.g. "the mould is eventually cleaned" or "the state 🏁 is event
 If a time bound is given on the event(s) occurring, the statement becomes a safety property, since any finite sequence of states where the bound is exceeded becomes a witness of its violation.
 
 The focus in this thesis is on safety:
-Consider again an MDP $mdp = (S, s_0, A, P, R)$. Formally, a property is a safety property iff for every trace $xi = s_0 a_0 s_1 a_1 ...$ that violates the property, there exists an $i in NN$ such that the finite sub-trace $xi_0^i = s_0 a_0 ... a_(i-1) s_i$ is enough to show the property is violated #cl("I:DBLP:reference/mc/ClarkeHV18").
+Consider again an MDP $mdp = (S, s_0, A, P, R)$. Formally, a property is a safety property iff for every trace $xi = s_0 a_0 s_1 a_1 ...$ that violates the property, there exists an $i in NN$ such that the finite sub-trace $xi_0^i = s_0 a_0 ... a_(i-1) s_i$ is enough to show the property is violated #cl("DBLP:reference/mc/ClarkeHV18").
 An important fragment of the safety properties are invariants, expressing that some proposition holds in every state.
 The safety property $forall s_i : s_i != 💀$, is an invariant.
-These properties can be given as a set of states, $phi$, or as the LTL #cl("I:DBLP:reference/mc/ClarkeHV18") safety fragment "$#strong("AG") psi$" where $psi$ is a predicate on $S$.
+These properties can be given as a set of states, $phi$, or as the LTL #cl("DBLP:reference/mc/ClarkeHV18") safety fragment "$#strong("AG") psi$" where $psi$ is a predicate on $S$.
 
 A safety property can be re-formulated as an invariant by modifying the MDP, so it includes a "monitor" that will move the model to a specific state if the property is violated. 
 In the following, safety will be discussed in terms of invariants, given as a set of safe states.
@@ -340,7 +337,7 @@ Even then, the convergence guarantee for Q-learning relies on an infinite number
 
 === Safety Through Shielding
 
-Among the many approaches to enforcing safety in reinforcement learning, #citationneeded[Citations from Paper A and Alshiekh18], shielding @I:AlshiekhBEKNT18 @I:BloemKKW15 is a promising technique which restricts the actions available to the agent, in order to ensure safe behaviour.
+Among the many approaches to enforcing safety in reinforcement learning, #citationneeded[Citations from Paper A and Alshiekh18], shielding @AlshiekhBEKNT18 @BloemKKW15 is a promising technique which restricts the actions available to the agent, in order to ensure safe behaviour.
 Since shields work by restricting actions, they can be applied to any existing reinforcement learning method, including deep learning, allowing it to work in concert with state of the art methods to achieve safe and optimized behaviour.
 
 #definition(name: "Shield, maximally permissive shield, shielded policy")[
@@ -354,7 +351,7 @@ Since shields work by restricting actions, they can be applied to any existing r
   The application of a shield in a reinforcement learning setting is discussed in @sec:ApplyingTheShield.
 ]<def:Shielding>
 
-The maximally permissive shield $shield$ for a safe set $phi$ of an MDP $mdp$ is unique @I:BernetJW02 @I:PaperB.
+The maximally permissive shield $shield$ for a safe set $phi$ of an MDP $mdp$ is unique @BernetJW02 @PaperB.
 
 #example(name: "Quality standards for injection moulding")[
   Due to concerns over quality, the contract from @ex:InjectionMoulding is re-negotiated to require that the mould is immediately cleaned whenever it becomes contaminated. 
@@ -394,15 +391,15 @@ However, some policies may be safe with higher probability than others. For a di
 
 === Origin of the Term
 
-In @I:DavidJLLLST14 it was shown how a safety property can be enforced through a maximally permissive, safe, non-deterministic policy.
+In @DavidJLLLST14 it was shown how a safety property can be enforced through a maximally permissive, safe, non-deterministic policy.
 While acting within the constraints of this policy, reinforcement learning was utilized to optimize for a second objective, achieving near-optimal behaviour within the safety constraints.
 
-The term *shield* was coined in @I:BloemKKW15 to describe a component which would work in concert with a (mostly safe) policy, and intervene to prevent unsafe behaviour.
+The term *shield* was coined in @BloemKKW15 to describe a component which would work in concert with a (mostly safe) policy, and intervene to prevent unsafe behaviour.
 Thus, the behaviour of the shield and policy together is verifiably safe, as long as the shield is safe.
 Contrary to runtime monitors #citationneeded[], which enforce a property by retroactively altering or halting a trace, the shield will intervene by altering the actions of the policy.
 The authors proposed guarantees of minimal interference, and of $k$-stabilization, which states that the shield will at most intervene $k$ times before control is handed back to the policy.
 
-This concept was extended to a framework of *shielded reinforcement learning* in @I:AlshiekhBEKNT18.
+This concept was extended to a framework of *shielded reinforcement learning* in @AlshiekhBEKNT18.
 Here, a shield monitors and possibly corrects the actions of a learning agent, which enables safe exploration.
 This enables the safe use of complex learning agents that can achieve cost optimal behaviour.
 Approaches such as deep Q-learning or proximal policy optimization can be safely used in this framework, even though these methods cannot feasibly be verified directly.
@@ -416,8 +413,8 @@ Since this first article covering shielded reinforcement learning in finite MDPs
 Specific implementation details of how a shield is applied to a reinforcement learning agent can vary.
 The terms _pre-shielding_ and _post-shielding_ have been used to describe the relationship between the agent and the shield, but the terms have been used in the literature to describe two distinct concepts:
 
-+ In one part of the literature, pre- and post-shielding refer to *how* the shield ensures only safe actions reach the environment #cl("I:DBLP:journals/corr/abs-1708-08611") #cl("I:DBLP:journals/cacm/KonighoferBJJP25") @I:MedicalShielding #cl("I:DBLP:conf/isola/TapplerPKMBL22") @I:bloem_its_2020.
-+ Alternatively the terms can refer to *when* a shield is applied, i.e. whether the shield is in place during the training- and operation phases (see @sec:TrainingAndOperation) @I:jakobs_thesis @I:PaperA.
++ In one part of the literature, pre- and post-shielding refer to *how* the shield ensures only safe actions reach the environment #cl("DBLP:journals/corr/abs-1708-08611") #cl("DBLP:journals/cacm/KonighoferBJJP25") @MedicalShielding #cl("DBLP:conf/isola/TapplerPKMBL22") @bloem_its_2020.
++ Alternatively the terms can refer to *when* a shield is applied, i.e. whether the shield is in place during the training- and operation phases (see @sec:TrainingAndOperation) @jakobs_thesis @PaperA.
 
 This section will coin an additional set of terms, to disambiguate these meanings.
 The terms pre- and post-shielding will be taken to mean the first and more widely used definition, i.e. *how* the shield is integrated into the reinforcement learning loop.
@@ -478,7 +475,7 @@ For Q-learning, this can be implemented by modifying @alg:QLearning to maximize 
 
 $ Q (s, a) = Q (s, a) + alpha (i) (R(s, a, s') + gamma max_(a' in shield(s')) Q (s', a') - Q (s, a)) $
 
-A similar approach works for gradient methods @I:arulkumaran2017deep #cl("I:DBLP:journals/corr/abs-2006-14171").
+A similar approach works for gradient methods @arulkumaran2017deep #cl("DBLP:journals/corr/abs-2006-14171").
 
 Alternatively, unsafe actions can be excluded from consideration as follows: 
 For some default value $q_0$ and bottom element $-infinity$, the Q-values can be initialized as $Q(s, a) = cases(-infinity " if " a in.not shield(s), q_0)$.
@@ -514,7 +511,7 @@ Otherwise $P'$ will change during training, violating the assumption that $mdp$ 
   It would be unsound to only update $Q(s, a')$, or to use the reward $R(s, a, s')$.
 
   When updated correctly, the model will learn the outcome of picking $a in.not shield(s)$ as $sum_(a') fehu(s)(a') sum_(s') P(s, a')(s')R(s, a', s')$.
-  Other alterations to how value-updates are performed, such as penalising unsafe actions, may reduce the number of times the shield has to intervene #cl("I:DBLP:conf/ijcnn/SeurinPP20").
+  Other alterations to how value-updates are performed, such as penalising unsafe actions, may reduce the number of times the shield has to intervene #cl("DBLP:conf/ijcnn/SeurinPP20").
 ]
 
 Both pre- and post-shielding preserve the assumptions necessary to guarantee convergence of a reinforcement learning algorithm to an optimal policy, but pre-shielding will likely converge faster than post-shielding in general:
@@ -527,10 +524,10 @@ Thus, it will likely gain a more precise estimate of the expected value of $s$ f
 When the shield is in place during _both_ the learning  _and_ operational phases, this is called end-to-end shielding (@fig:PostHoc).
 This is a necessity if the RL agent is interacting with a real-life system where safety violations should also be avoided during training.
 
-Compared to the unshielded counterpart, end-to-end shielding was seen in @I:AlshiekhBEKNT18 to lead to a higher expected reward, when trained on the same number of traces. 
+Compared to the unshielded counterpart, end-to-end shielding was seen in @AlshiekhBEKNT18 to lead to a higher expected reward, when trained on the same number of traces. 
 The authors speculate that the shield acts as a teacher guiding the agent away from undesirable behaviours.
-The same tendency has been observed in other works @I:carr_compositional_2025 #cl("I:DBLP:conf/aaai/Carr0JT23") #cl("I:DBLP:conf/ijcai/YangMRR23") @I:PaperA.
-This is not a general rule, and there are also examples of shielded policies yielding less reward than the unshielded one @I:bloem_its_2020 @I:court_probabilistic_2025. These are cases where the shield prevents the exploitation of risky but more rewarding behaviour.
+The same tendency has been observed in other works @carr_compositional_2025 #cl("DBLP:conf/aaai/Carr0JT23") #cl("DBLP:conf/ijcai/YangMRR23") @PaperA.
+This is not a general rule, and there are also examples of shielded policies yielding less reward than the unshielded one @bloem_its_2020 @court_probabilistic_2025. These are cases where the shield prevents the exploitation of risky but more rewarding behaviour.
 
 When training finishes and the policy is taken into operation, the shield may not need to be explicitly represented (@fig:VarEndToEnd).
 If the state-space $S$ is finite, a deterministic policy can be encoded as a set of state-action pairs $(s, a) in S times A$.
@@ -538,13 +535,13 @@ Shielded policies encoded in this way will have $a in shield(s)$ for all encoded
 Such an encoding can save space on embedded hardware, which might not be able to accommodate an explicit representation of the shield.
 For neural networks working on continuous state-spaces however, this representation is not possible.
 Here, the shielded policy is most naturally represented as the combination of the weights of the neural network, and the full shield.
-However, reductions can be applied to the shield to reduce its memory footprint significantly @I:PaperD.
+However, reductions can be applied to the shield to reduce its memory footprint significantly @PaperD.
 
 ==== Post-hoc Shielding
 Alternatively, the shield can be applied only in the operational phase.  This allows the agent to explore unsafe actions during learning,  and ideally learn to avoid them.
 If the agent does learn to avoid unsafe states perfectly, a maximally permissive shield would not interfere with its operation.
 Otherwise, the shield will disrupt the optimized behaviour which the policy has learned.
-It was found in Paper A @I:PaperA that applying a post-hoc post-shield to a policy can lead to substantial drops in the expected reward.
+It was found in Paper A @PaperA that applying a post-hoc post-shield to a policy can lead to substantial drops in the expected reward.
 Therefore, post-hoc shielding should only be employed when end-to-end shielding is not possible.
 This could happen if a shield was not available while training a policy, and the costs of re-training are prohibitive.
 A shield can then be synthesized at a later time, in order to add formal safety guarantees for the policy.
@@ -586,9 +583,9 @@ A shield can then be synthesized at a later time, in order to add formal safety 
 Note that @def:Shielding requires safety over all infinite traces that are outcomes of the shield.
 This generally requires computing the shield offline, which can be computationally infeasible for some models. 
 Instead, it can make sense to only give guarantees $k$ steps into the future, computed on-line at each step.
-These finite horizon shields are often referred to as _bounded prescience_  shields @I:giacobbe_shielding_2021, or $k$-step lookahead shields @I:xiao_model-based_2023 @I:yang_safe_2023.
+These finite horizon shields are often referred to as _bounded prescience_  shields @giacobbe_shielding_2021, or $k$-step lookahead shields @xiao_model-based_2023 @yang_safe_2023.
 
-One example of such a safety guarantee @I:giacobbe_shielding_2021  was given for a deterministic MDP, but here extended to include probabilistic outcomes: 
+One example of such a safety guarantee @giacobbe_shielding_2021  was given for a deterministic MDP, but here extended to include probabilistic outcomes: 
 For an MDP $mdp$, action $a_0$  is $k$-safe at state $s_0$, if there exists a deterministic policy $pi$ such that for all traces $xi = s_0 a_0 ... s_k...$ with $pi(s_i) = a_i$ for $i > 0$, then $xi_0^k$ is safe.
 This extends to other states $s$ by redefining the starting state of $mdp$ to $s$.
 
@@ -601,7 +598,7 @@ Many environments have multiple agents -- or _players_ -- interacting.
 These multi-agent settings present unique challenges.
 
 #definition(name:[$n$-player Markov Game])[
-  A Markov Game (MG)~@I:zhang2021multi@I:busoniu_multi-agent_2010@I:marl-book with~$n$ players is a tuple $mg = (S, s_0, N, A, P, R)$
+  A Markov Game (MG)~@zhang2021multi@busoniu_multi-agent_2010@marl-book with~$n$ players is a tuple $mg = (S, s_0, N, A, P, R)$
   where
   - $S$ is a finite set of states,
   - $s_0 in S$ is an initial state,
@@ -647,7 +644,7 @@ Players can change their policy to optimize reward based on the current policy o
 This prompts further policy changes in a cycle that may continue _ad infinitum._
 
 It may not even be clear what the joint policy should converge to, depending on how the reward is defined.
-An MG can fall into one of three different categories which describe the reward structure @I:zhang2021multi@I:busoniu_multi-agent_2010@I:marl-book.
+An MG can fall into one of three different categories which describe the reward structure @zhang2021multi@busoniu_multi-agent_2010@marl-book.
  - Cooperative, where reward values are identical for all players: For $1 <= i < j <= n$ then $R_i (s, a) = R_j (s, a)$.
  - Competitive, in which the reward is zero-sum: $sum_(i = 0)^n R_i (s, a) = 0$.
  - Mixed, if the reward $R$ is neither competitive or cooperative. 
@@ -659,7 +656,7 @@ Nash equilibria are concerned with changes to individual policies.
 For a joint policy $pi$ induced by $(pi_1, pi_2, ... pi_n)$ and some individual policy $pi'_i$, let $(pi'_i, pi_(-i))$ be the joint policy induced by $(pi_1, pi_2, ... pi'_i, ... pi_n)$.
 
 #definition(name: [Nash equilibrium])[
-  For an MG $mg$, a joint policy $pi$ is a Nash equilibrium @I:zhang2021multi if no player $i$ can gain  a higher reward by changing its individual policy $pi_i$ to some other $pi'_i$. 
+  For an MG $mg$, a joint policy $pi$ is a Nash equilibrium @zhang2021multi if no player $i$ can gain  a higher reward by changing its individual policy $pi_i$ to some other $pi'_i$. 
   That is to say, $pi$ is a Nash equilibrium if for every player $i$ and every state $s$,
 
   $ EE^(mg, i)_(pi)(s) >= EE^(mg, i)_((pi'_i, pi_(-i)))(s) " for any policy " pi'_i $
@@ -670,7 +667,7 @@ It may be that changing multiple policies can lead to higher reward, but no sing
 Pareto optimality is a related, but stronger concept.
 
 #definition(name: [Pareto optimal])[
-   For an MG $mg = (S, s_0, N, A, P, R)$, the joint policy $pi$ is Pareto optimal~@I:marl-book if there is no other policy where the players' reward is just as high or higher.
+   For an MG $mg = (S, s_0, N, A, P, R)$, the joint policy $pi$ is Pareto optimal~@marl-book if there is no other policy where the players' reward is just as high or higher.
 
    Specifically, a policy $pi'$ is Pareto dominated by $pi$ if 
 
@@ -794,8 +791,7 @@ In a partially observable setting, #citationneeded[] assumes that players are ab
   #set heading(numbering: none) 
   == References
 
-  #bibliographyx("../Bibliography.bib",
-    prefix: "I:",
+  #bibliography("../Bibliography.bib",
     title: none,
   )
 ]

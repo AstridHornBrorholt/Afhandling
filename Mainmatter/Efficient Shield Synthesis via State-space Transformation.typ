@@ -8,8 +8,6 @@
   proof, rules: thm-rules
 ) = default-theorems("thm-group", lang: "en", thm-numbering: thm-numbering-linear)
 
-#import "@preview/alexandria:0.2.2": *
-#show: alexandria(prefix: "B:", read: path => read(path))
 
 = Efficient Shield Synthesis via State-space Transformation
 #grid(columns: (1fr, 1fr), row-gutter: 2em,
@@ -39,10 +37,10 @@ component in these systems is the digital controller. Many of these
 systems are safety critical, which motivates the use of methods for the
 automatic construction of controllers. Unfortunately, this problem is
 intricate for any but the simplest
-systems #cite(label("B:LewisVS12")) #cite(label("B:DoyleFT13")).
+systems #cite(label("LewisVS12")) #cite(label("DoyleFT13")).
 
 Two main methods have emerged. The first method is #emph[reinforcement
-learning] (RL) #cite(label("B:BusoniuBTKP18")), which provides convergence to an
+learning] (RL) #cite(label("BusoniuBTKP18")), which provides convergence to an
 optimal solution. However, the solution lacks formal guarantees about
 safety. The second method is #emph[reactive synthesis], which constructs
 a nondeterministic control strategy that is guaranteed to be safe.
@@ -57,7 +55,7 @@ However, the solution lacks optimality for secondary objectives.
 
 Due to their complementary strengths and drawbacks, these two methods
 have been successfully combined in the framework of
-#emph[shielding] #cite(label("B:DavidJLLLST14")) #cite(label("B:BloemKKW15"))
+#emph[shielding] #cite(label("DavidJLLLST14")) #cite(label("BloemKKW15"))
 (cf. @fig:shielding). Through reactive synthesis, one
 first computes a nondeterministic control strategy called a
 #emph[shield], which is then integrated in the learning process to
@@ -68,7 +66,7 @@ objectives.
 In this work, we focus on the first step: synthesis of a shield. For
 infinite state spaces, we employ an abstraction technique based on
 state-space partitioning, where we consider the common case of a
-#emph[hyperrectangular grid] #cite(label("B:Girard12")) #cite(label("B:Tabuada09")). This grid
+#emph[hyperrectangular grid] #cite(label("Girard12")) #cite(label("Tabuada09")). This grid
 induces a finite-state two-player game, from which we can then construct
 the most permissive shield with standard algorithms. The downside of a
 grid-based approach is that a grid often does not align well with the
@@ -92,7 +90,7 @@ performance of the final controller (in fact, the performance slightly
 increases).
 
 Our implementation is based on our previous work on sampling-based
-shield synthesis #cite(label("B:PaperA")). The present work integrates
+shield synthesis #cite(label("PaperA")). The present work integrates
 nicely with such a sampling-based method, but also generalizes to
 set-based methods.
 
@@ -104,18 +102,18 @@ new heuristic method to synthesize a suitable transformation.
 <related-work>
 Abstraction-based controller synthesis is a popular approach that
 automatically constructs a controller from a system and a
-specification #cite(label("B:Girard12")) #cite(label("B:Tabuada09")). The continuous dynamics
+specification #cite(label("Girard12")) #cite(label("Tabuada09")). The continuous dynamics
 are discretized and abstracted by a symbolic transition system, for
 which then a controller is found. The most common abstraction is a
 regular hyperrectangular (or even hypercubic) grid. The success of this
 approach depends on the choice of the grid cells’ size. If too small,
 the state space becomes intractably large, while if too large, the
 abstraction becomes imprecise and a controller may not be found. While
-the cell size can be optimized #cite(label("B:WeberRR17")), a fixed-sized grid is
+the cell size can be optimized #cite(label("WeberRR17")), a fixed-sized grid is
 often bound to fail. Instead, several works employ multiple layers of
 different-sized grids in the hope that coarser cells can be used most of
 the time but higher precision can still be used when
-necessary #cite(label("B:GirardGM16")) #cite(label("B:HsuMMS18a")). In this paper, we follow an
+necessary #cite(label("GirardGM16")) #cite(label("HsuMMS18a")). In this paper, we follow an
 orthogonal approach. We argue that a hyperrectangular grid is often
 inappropriate to capture the system dynamics and specification.
 Nevertheless, we demonstrate that, often, a (coarse) grid is still
@@ -127,29 +125,29 @@ employ this shield as a guardrail in reinforcement learning
 (cf. @fig:shielding) to limit the choices available to
 the agent so that the specification is guaranteed. This is a known
 concept, which is for instance applied in the tool #smallcaps[Uppaal
-Stratego] #cite(label("B:stratego")) and was popularized by Bloem et
-al. #cite(label("B:BloemKKW15")) #cite(label("B:AlshiekhBEKNT18")) #cite(label("B:JansenKJSB20")). A similar
+Stratego] #cite(label("stratego")) and was popularized by Bloem et
+al. #cite(label("BloemKKW15")) #cite(label("AlshiekhBEKNT18")) #cite(label("JansenKJSB20")). A similar
 concept is safe model predictive
-control #cite(label("B:BastaniL21")) #cite(label("B:WabersichZ21")).
+control #cite(label("BastaniL21")) #cite(label("WabersichZ21")).
 
 Our motivation for applying a state-space transformation is to better
 align with a grid, and ultimately to make the synthesis more scalable.
 In that sense, our work shares the goal with some other influential
 concepts. In abstract interpretation, the transformation is the
 abstraction function and its inverse is the concretization function,
-which together form a Galois connection #cite(label("B:CousotC77")). In our
+which together form a Galois connection #cite(label("CousotC77")). In our
 approach, the grid introduces an abstraction, but our additional
 transformation preserves information unless it is not injective. Another
 related concept is model order reduction, where a system is transformed
 to another system of lower dimensionality to simplify the
-analysis #cite(label("B:SchildersHR08")). This reduction is typically
+analysis #cite(label("SchildersHR08")). This reduction is typically
 approximate, which loses any formal guarantees. However, approaches
-based on (probabilistic) bisimulation #cite(label("B:LarsenS91")) still allow to
+based on (probabilistic) bisimulation #cite(label("LarsenS91")) still allow to
 preserve a subspace and transfer the results to the original system.
 These approaches, also called lumpability, use linear transformations
-and have been successfully applied to Markov chains #cite(label("B:Buchholz94")),
-differential equations #cite(label("B:BacciBLTTV21")), and quantum
-circuits #cite(label("B:JimenezPastorLTT24")). In contrast, while we do not put
+and have been successfully applied to Markov chains #cite(label("Buchholz94")),
+differential equations #cite(label("BacciBLTTV21")), and quantum
+circuits #cite(label("JimenezPastorLTT24")). In contrast, while we do not put
 any restrictions on our transformations, we advocate for injective
 transformations in our context; this is because we also need to compute
 the preimage under the transformation, which otherwise incur additional
@@ -291,7 +289,7 @@ iteration. If $cal(C)_phi$ is nonempty, there exists a safety
 strategy $sigma^(cal(G)) colon cal(G) arrow.r 2^(italic(A c t))$ at the
 level of cells (instead of concrete states) with respect to the
 set $cal(C)_phi$, where the most permissive such
-strategy #cite(label("B:BernetJW02")) is
+strategy #cite(label("BernetJW02")) is
 $ sigma^(cal(G)) lr((C)) eq brace.l a in italic(A c t) divides forall C prime dot.basic med C arrow.r^a C prime arrow.r.double.long C prime in cal(C)_phi brace.r $
 
 A safety strategy $sigma^(cal(G))$ over the grid $cal(G)$ induces the
@@ -593,7 +591,7 @@ as the special case where $f$ is the identity.
 === Shielding and Learning
 <shielding-and-learning>
 We assume the reader is familiar with the principles of reinforcement
-learning. Here we shortly recall from #cite(label("B:PaperA")) how to
+learning. Here we shortly recall from #cite(label("PaperA")) how to
 employ $sigma^(cal(G))$ for safe reinforcement learning. The input is a
 Markov decision process (MDP) and a reward function, and the output is a
 controller maximizing the expected cumulative return. The MDP is a model
@@ -629,7 +627,7 @@ An alternative is to directly learn in $T$. A potential motivation could
 be that learning, in particular agent representation, may also be easier
 in $T$. For instance, the learning method implemented in
 #smallcaps[Uppaal Stratego] represents an agent by axis-aligned
-hyperrectangles #cite(label("B:JaegerJLLST19")). Thus, a grid-friendly
+hyperrectangles #cite(label("JaegerJLLST19")). Thus, a grid-friendly
 transformation may also be beneficial for learning, independent of the
 shield synthesis. We will investigate the effect in our experiments.
 
@@ -642,7 +640,7 @@ available here: \
 For the first two models, we use domain knowledge to select a suitable
 transformation. For the third model, we instead derive a transformation
 experimentally. The implementation builds on our synthesis
-method #cite(label("B:PaperA")).
+method #cite(label("PaperA")).
 
 === Satellite Model
 <satellite-model>
@@ -781,7 +779,7 @@ transformed shield is both easier to compute and more precise.
 )
 
 For the second case study, we consider the model of a bouncing ball
-from #cite(label("B:PaperA")). @fig:bouncing_ball shows
+from #cite(label("PaperA")). @fig:bouncing_ball shows
 an illustration of the system, while @fig:bb_automaton
 shows the hybrid-automaton model. The state space consists of the
 velocity $v$ and the position $p$ of the ball. When the ball hits the
@@ -805,7 +803,7 @@ the total cost.
 Despite its simple nature, this model has quite intricate dynamics,
 including stochastic and hybrid events that require zero-crossing
 detection, which makes determining reachability challenging. It was
-shown in #cite(label("B:PaperA")) that a sampling-based shield synthesis
+shown in #cite(label("PaperA")) that a sampling-based shield synthesis
 is much more scalable than an approach based on guaranteed reachability
 analysis ($19$ minutes compared to $41$ hours). The grid needs to be
 quite fine-grained to obtain a fixpoint where not every cell is marked
@@ -867,7 +865,7 @@ For the third case study, we consider a model of an inverted pendulum
 installed on a cart that can move horizontally. This model is known as
 the cart-pole model. An illustration is shown in
 @fig:cart_pole. The dynamics are given by the following
-differential equations #cite(label("B:Florian05")):
+differential equations #cite(label("Florian05")):
 $ dot(theta) & eq omega & dot(omega) & eq frac(g sin lr((theta)) plus cos lr((theta)) dot.op lr((frac(minus F minus m_p ell omega^2 sin lr((theta)), m_c plus m_p))), ell lr((4 / 3 minus frac(m_p cos^2 lr((theta)), m_c plus m_p))))\
 dot(x) & eq v & dot(v) & eq frac(F plus m_p ell lr((omega^2 sin lr((theta)) minus dot(omega) cos lr((theta)))), m_c plus m_p) $
 
@@ -967,7 +965,7 @@ we fit a polynomial to approximate this shape. In our implementation, we
 used the Julia
 #link("https://github.com/JuliaMath/Polynomials.jl")[`Polynomials`]
 library, which implements a standard linear least squares
-method #cite(label("B:DraperS98")). Here, a third-degree
+method #cite(label("DraperS98")). Here, a third-degree
 polynomial $p lr((theta)) eq minus 141.6953 dot.op theta^3 minus 4.5508 dot.op theta$
 is sufficient.
 
@@ -1021,7 +1019,7 @@ when the shield should be stored on an embedded device. Empirically, a
 decision tree with axis-aligned predicates is a much better
 representation. To demonstrate the further saving potential, we
 converted the shields to decision trees and additionally applied the
-reduction technique from #cite(label("B:HoegPetersenLWJ23")). The last column in
+reduction technique from #cite(label("HoegPetersenLWJ23")). The last column in
 @tab:shield_reduction shows the number of nodes in the
 decision trees. As can be seen, we always achieve another significant
 reduction by one to two orders of magnitude.
@@ -1089,8 +1087,8 @@ principled method and investigate how well it applies in other cases.
 State-space transformations can be integrated with many orthogonal prior
 extensions of grid-based synthesis. One successful extension is, instead
 of precomputing the full labeled transition system, to compute its
-transitions on the fly #cite(label("B:HsuMMS18b")). Another extension is the
-multilayered abstraction #cite(label("B:GirardGM16")) #cite(label("B:HsuMMS18a")). Going one
+transitions on the fly #cite(label("HsuMMS18b")). Another extension is the
+multilayered abstraction #cite(label("GirardGM16")) #cite(label("HsuMMS18a")). Going one
 step further, in cases where a single perfect transformation does not
 exist, we may still be able to find a family of transformations of
 different strengths.
@@ -1103,8 +1101,7 @@ We thank Tom Henzinger for the suggestion to study level sets.
   #set heading(numbering: none) 
   == References
 
-  #bibliographyx("../Bibliography.bib",
-    prefix: "B:",
+  #bibliography("../Bibliography.bib",
     title: none,
   )
 ]
