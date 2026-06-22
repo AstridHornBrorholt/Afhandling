@@ -281,7 +281,6 @@ This is ensured by the fact that $s_0$ is visited infinitely often as $n -> infi
   However it is not straightforward to determine how the reward function should be defined in order to guarantee convergence to a safe policy, or whether this is even possible for a given model.
 ]<ex:GridWorld>
 
-
 === Training and Operation Phases <sec:TrainingAndOperation>
 
 It can sometimes be useful to view machine learning as consisting of two different phases: Initial training, and subsequent operation as part of a real-life system.
@@ -739,7 +738,11 @@ This is shown in @ex:2PlayerGridWorld.
     Even if it is possible to enforce $psi$ through $shield_👾$, the shield has to assume worst-case behaviour from the other player 🤖, which may be overly restrictive.
 ]<ex:2PlayerGridWorld>
 
-The problem of which safety properties are feasible, is often central in the field of safe MARL. #citationneeded[]
+The assumption that all agents can act in concert following some centralized shield is often unrealistic.
+Additionally, the synthesis of  a global shield is often not computationally feasible because of state-space explosion. 
+
+This necessitates the use of local shields, but many important safe sets may not be feasible to enforce in the default setting.
+Even when a safe set can be feasibly enforced locally, even the most permissive shield may be too conservative.
 
 === Partial Observability
 
