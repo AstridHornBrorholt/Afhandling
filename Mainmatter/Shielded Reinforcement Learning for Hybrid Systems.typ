@@ -132,7 +132,7 @@ conditions on the enforcer like #emph[shields with minimal interference]
 and #emph[k-stabilizing shields] and later demonstrated shielding for RL
 agents @AlshiekhBEKNT18, where they correct potentially
 unsafe actions chosen by the RL agent. Jansen et
-al. #cite(label("jansen2020safe")) introduced shielding in the context of RL
+al. #cite(label("DBLP:conf/concur/0001KJSB20")) introduced shielding in the context of RL
 for probabilistic systems. A concept similar to shielding has also been
 proposed for safe model predictive
 control #cite(label("BastaniL21")) #cite(label("WabersichZ21")). Carr et

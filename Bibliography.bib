@@ -1,3 +1,17 @@
+@book{HandbookOfModelChecking,
+  author = {Clarke, Edmund M. and Henzinger, Thomas A. and Veith, Helmut and Bloem, Roderick and Bloem, Roderick and Clarke, Edmund M and Henzinger, Thomas A and Veith, Helmut},
+  address = {Cham},
+  copyright = {Springer International Publishing AG, part of Springer Nature 2018},
+  edition = {1st ed. 2018.},
+  isbn = {3319105752},
+  keywords = {Computer science},
+  language = {eng},
+  publisher = {Springer Nature},
+  title = {Handbook of Model Checking},
+  year = {2018},
+}
+
+
 @inproceedings{DBLP:conf/qest/AshokKLCTW19,
   author    = {Pranav Ashok and
                Jan Kret{\'{\i}}nsk{\'{y}} and
@@ -142,25 +156,6 @@
   year         = {2015},
   url          = {https://dl.acm.org/doi/10.5555/2789272.2886795},
   doi          = {10.5555/2789272.2886795}
-}
-
-@inproceedings{jansen2020safe,
-  author       = {Nils Jansen and
-                  Bettina K{\"{o}}nighofer and
-                  Sebastian Junges and
-                  Alex Serban and
-                  Roderick Bloem},
-  editor       = {Igor Konnov and
-                  Laura Kov{\'{a}}cs},
-  title        = {Safe Reinforcement Learning Using Probabilistic Shields},
-  booktitle    = {{CONCUR}},
-  series       = {LIPIcs},
-  volume       = {171},
-  pages        = {3:1--3:16},
-  publisher    = {Schloss Dagstuhl - Leibniz-Zentrum f{\"{u}}r Informatik},
-  year         = {2020},
-  url          = {https://doi.org/10.4230/LIPIcs.CONCUR.2020.3},
-  doi          = {10.4230/LIPIcs.CONCUR.2020.3}
 }
 
 @inproceedings{10.1007/978-3-030-23703-5_6,
@@ -815,27 +810,6 @@
   timestamp    = {Mon, 13 Aug 2018 16:46:59 +0200},
   biburl       = {https://dblp.org/rec/journals/corr/abs-1708-08611.bib},
   bibsource    = {dblp computer science bibliography, https://dblp.org}
-}
-
-
-
-@inproceedings{JansenKJSB20,
-  author       = {Nils Jansen and
-                  Bettina K{\"{o}}nighofer and
-                  Sebastian Junges and
-                  Alex Serban and
-                  Roderick Bloem},
-  editor       = {Igor Konnov and
-                  Laura Kov{\'{a}}cs},
-  title        = {Safe Reinforcement Learning Using Probabilistic Shields},
-  booktitle    = {{CONCUR}},
-  series       = {LIPIcs},
-  volume       = {171},
-  pages        = {3:1--3:16},
-  publisher    = {Schloss Dagstuhl - Leibniz-Zentrum f{\"{u}}r Informatik},
-  year         = {2020},
-  url          = {https://doi.org/10.4230/LIPIcs.CONCUR.2020.3},
-  doi          = {10.4230/LIPIcs.CONCUR.2020.3}
 }
 
 @techreport{Florian05,
@@ -2542,7 +2516,6 @@
 	isbn = {978-1-4503-8307-3},
 	url = {https://dl.acm.org/doi/10.5555/3463952.3464141},
 	series = {{AAMAS} '21},
-	abstract = {We present the first explicit-state method for analysing and ensuring the safety of {DRL} agents for Atari games. Our method only requires access to the emulator. We give a suite of 42 properties that characterise "safe behaviour" for 31 games. We evaluate the safety of the best available {DRL} agents which, as our experiments show, violate most of our properties. We propose a countermeasure that implements shielding using bounded explicit-state exploration. Our method improved their overall safety, producing the safest {DRL} agents for Atari games currently available.},
 	pages = {1507--1509},
 	booktitle = {Proceedings of the 20th International Conference on Autonomous Agents and {MultiAgent} Systems},
 	publisher = {International Foundation for Autonomous Agents and Multiagent Systems},
@@ -2556,7 +2529,6 @@
 	title = {Model-based Dynamic Shielding for Safe and Efficient Multi-Agent Reinforcement Learning},
 	url = {http://arxiv.org/abs/2304.06281},
 	doi = {10.48550/arXiv.2304.06281},
-	abstract = {Multi-Agent Reinforcement Learning ({MARL}) discovers policies that maximize reward but do not have safety guarantees during the learning and deployment phases. Although shielding with Linear Temporal Logic ({LTL}) is a promising formal method to ensure safety in single-agent Reinforcement Learning ({RL}), it results in conservative behaviors when scaling to multi-agent scenarios. Additionally, it poses computational challenges for synthesizing shields in complex multi-agent environments. This work introduces Model-based Dynamic Shielding ({MBDS}) to support {MARL} algorithm design. Our algorithm synthesizes distributive shields, which are reactive systems running in parallel with each {MARL} agent, to monitor and rectify unsafe behaviors. The shields can dynamically split, merge, and recompute based on agents' states. This design enables efficient synthesis of shields to monitor agents in complex environments without coordination overheads. We also propose an algorithm to synthesize shields without prior knowledge of the dynamics model. The proposed algorithm obtains an approximate world model by interacting with the environment during the early stage of exploration, making our {MBDS} enjoy formal safety guarantees with high probability. We demonstrate in simulations that our framework can surpass existing baselines in terms of safety guarantees and learning performance.},
 	number = {{arXiv}:2304.06281},
 	publisher = {{arXiv}},
 	author = {Xiao, Wenli and Lyu, Yiwei and Dolan, John},
@@ -2654,4 +2626,135 @@
 	langid = {english},
 	keywords = {Markov Decision Process, Multiagent System, Nash Equilibrium, Reinforcement Learning, Reward Function},
 	file = {Full Text PDF:/home/asger/Zotero/storage/PS7UWZVQ/Buşoniu et al. - 2010 - Multi-agent Reinforcement Learning An Overview.pdf:application/pdf},
+}
+@article{DBLP:journals/nature/SchrittwieserAH20,
+  author       = {Julian Schrittwieser and
+                  Ioannis Antonoglou and
+                  Thomas Hubert and
+                  Karen Simonyan and
+                  Laurent Sifre and
+                  Simon Schmitt and
+                  Arthur Guez and
+                  Edward Lockhart and
+                  Demis Hassabis and
+                  Thore Graepel and
+                  Timothy P. Lillicrap and
+                  David Silver},
+  title        = {Mastering Atari, Go, chess and shogi by planning with a learned model},
+  journal      = {Nat.},
+  volume       = {588},
+  number       = {7839},
+  pages        = {604--609},
+  year         = {2020},
+  url          = {https://doi.org/10.1038/s41586-020-03051-4},
+  doi          = {10.1038/S41586-020-03051-4},
+  timestamp    = {Wed, 24 Sep 2025 16:21:16 +0200},
+  biburl       = {https://dblp.org/rec/journals/nature/SchrittwieserAH20.bib},
+  bibsource    = {dblp computer science bibliography, https://dblp.org}
+}
+
+@article{DBLP:journals/ml/Breiman01,
+  author       = {Leo Breiman},
+  title        = {Random Forests},
+  journal      = {Mach. Learn.},
+  volume       = {45},
+  number       = {1},
+  pages        = {5--32},
+  year         = {2001},
+  url          = {https://doi.org/10.1023/A:1010933404324},
+  doi          = {10.1023/A:1010933404324},
+  timestamp    = {Mon, 02 Mar 2020 16:29:57 +0100},
+  biburl       = {https://dblp.org/rec/journals/ml/Breiman01.bib},
+  bibsource    = {dblp computer science bibliography, https://dblp.org}
+}
+
+@inproceedings{DBLP:conf/iros/WenET15,
+  author       = {Min Wen and
+                  R{\"{u}}diger Ehlers and
+                  Ufuk Topcu},
+  title        = {Correct-by-synthesis reinforcement learning with temporal logic constraints},
+  booktitle    = {2015 {IEEE/RSJ} International Conference on Intelligent Robots and
+                  Systems, {IROS} 2015, Hamburg, Germany, September 28 - October 2,
+                  2015},
+  pages        = {4983--4990},
+  publisher    = {{IEEE}},
+  year         = {2015},
+  url          = {https://doi.org/10.1109/IROS.2015.7354078},
+  doi          = {10.1109/IROS.2015.7354078},
+  timestamp    = {Sun, 25 Jul 2021 11:46:00 +0200},
+  biburl       = {https://dblp.org/rec/conf/iros/WenET15.bib},
+  bibsource    = {dblp computer science bibliography, https://dblp.org}
+}
+
+@inproceedings{DBLP:conf/tacas/Junges0DTK16,
+  author       = {Sebastian Junges and
+                  Nils Jansen and
+                  Christian Dehnert and
+                  Ufuk Topcu and
+                  Joost{-}Pieter Katoen},
+  editor       = {Marsha Chechik and
+                  Jean{-}Fran{\c{c}}ois Raskin},
+  title        = {Safety-Constrained Reinforcement Learning for MDPs},
+  booktitle    = {Tools and Algorithms for the Construction and Analysis of Systems
+                  - 22nd International Conference, {TACAS} 2016, Held as Part of the
+                  European Joint Conferences on Theory and Practice of Software, {ETAPS}
+                  2016, Eindhoven, The Netherlands, April 2-8, 2016, Proceedings},
+  series       = {Lecture Notes in Computer Science},
+  volume       = {9636},
+  pages        = {130--146},
+  publisher    = {Springer},
+  year         = {2016},
+  url          = {https://doi.org/10.1007/978-3-662-49674-9\_8},
+  doi          = {10.1007/978-3-662-49674-9\_8},
+  timestamp    = {Tue, 07 May 2024 20:10:36 +0200},
+  biburl       = {https://dblp.org/rec/conf/tacas/Junges0DTK16.bib},
+  bibsource    = {dblp computer science bibliography, https://dblp.org}
+}
+
+@article{DBLP:journals/jmlr/GarciaF15,
+  author       = {Javier Garc{\'{\i}}a and
+                  Fernando Fern{\'{a}}ndez},
+  title        = {A comprehensive survey on safe reinforcement learning},
+  journal      = {J. Mach. Learn. Res.},
+  volume       = {16},
+  pages        = {1437--1480},
+  year         = {2015},
+  url          = {https://dl.acm.org/doi/10.5555/2789272.2886795},
+  doi          = {10.5555/2789272.2886795},
+  timestamp    = {Thu, 02 Jun 2022 13:58:57 +0200},
+  biburl       = {https://dblp.org/rec/journals/jmlr/GarciaF15.bib},
+  bibsource    = {dblp computer science bibliography, https://dblp.org}
+}
+
+@article{DBLP:journals/csr/KhouryT12,
+  author       = {Rapha{\"{e}}l Khoury and
+                  Nadia Tawbi},
+  title        = {Which security policies are enforceable by runtime monitors? {A} survey},
+  journal      = {Comput. Sci. Rev.},
+  volume       = {6},
+  number       = {1},
+  pages        = {27--45},
+  year         = {2012},
+  url          = {https://doi.org/10.1016/j.cosrev.2012.01.001},
+  doi          = {10.1016/J.COSREV.2012.01.001},
+  timestamp    = {Sun, 02 Oct 2022 15:33:09 +0200},
+  biburl       = {https://dblp.org/rec/journals/csr/KhouryT12.bib},
+  bibsource    = {dblp computer science bibliography, https://dblp.org}
+}
+
+@article{DBLP:journals/tse/DelgadoGR04,
+  author       = {Nelly Delgado and
+                  Ann Q. Gates and
+                  Steve Roach},
+  title        = {A Taxonomy and Catalog of Runtime Software-Fault Monitoring Tools},
+  journal      = {{IEEE} Trans. Software Eng.},
+  volume       = {30},
+  number       = {12},
+  pages        = {859--872},
+  year         = {2004},
+  url          = {https://doi.org/10.1109/TSE.2004.91},
+  doi          = {10.1109/TSE.2004.91},
+  timestamp    = {Wed, 17 May 2017 10:56:36 +0200},
+  biburl       = {https://dblp.org/rec/journals/tse/DelgadoGR04.bib},
+  bibsource    = {dblp computer science bibliography, https://dblp.org}
 }

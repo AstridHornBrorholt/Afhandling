@@ -22,10 +22,10 @@ Such cyber-physical systems @lee2006cyber @lee2008cyber are becoming more ubiqui
 
 With applications such as autonomous vehicles, water management systems, industrial hydraulics, and power controllers, great care must be taken to ensure the safety of people, equipment, and resources that are directly or indirectly affected by the system.
 
-This can be achieved through the field of formal methods, which has a wide variety of approaches that can provide proof that a given system restricts itself ot a safe subset of behaviours. #citationneeded[handbook of model checking (?)]
+This can be achieved through the field of formal methods, which has a wide variety of approaches that can provide proof that a given system restricts itself ot a safe subset of behaviours. #cl("HandbookOfModelChecking")
 This presumes an accurate model of the (cyber-physical) system under verification and techniques are most often subject to "state-space explosion," where the complexity of verification is highly sensitive to the size of the model.
 
-Neural networks are notable for having achieved impressive performance in a wide variety of tasks #citationneeded[alphago, atari games, muzero, chatgpt].
+Neural networks are notable for having achieved impressive performance in a wide variety of tasks #cl("DBLP:journals/nature/SchrittwieserAH20").
 This performance is achieved by controllers that use a high number of neurons, making direct formal verification infeasible.
 
 
@@ -145,7 +145,7 @@ However, MDPs are often described using several variables or components. Known a
 
 If the state-space is prohibitively large, or the MDP is not fully known but can be sampled from, the optimal policy may instead be approximated through learning. 
 
-State of the art reinforcement learning techniques learn intricate behaviour through deep neural networks #citationneeded[] such as PPO #citationneeded[], and decision trees #citationneeded[], or a combination of the two like MuZero #citationneeded[].
+State of the art reinforcement learning techniques learn intricate behaviour through deep neural networks such as PPO~#cl("DBLP:journals/corr/SchulmanWDRK17"), and decision trees such as random forests~#cl("DBLP:journals/ml/Breiman01"), or a combination of the two like MuZero~#cl("DBLP:journals/nature/SchrittwieserAH20").
 In the following, a description of the comparatively simple Q-learning approach will be given. The method serves to illustrate the core concepts of reinforcement learning, such as the difference between on-policy and off-policy learning, value estimation, and exploration strategies. 
 
 === Q-learning
@@ -272,9 +272,9 @@ This is ensured by the fact that $s_0$ is visited infinitely often as $n -> infi
     caption: [Q-learning in the grid world.]
   )
 
-    The same MDP can be modelled in the model-checking tool Prism @Prism, and the optimal policy can be approximated precisely and quickly by its built-in value iteration method.
-    #footnote[A discounted reward was simulated using a variable `t` that increments each step, multiplying the reward with `gamma^t`. The query used was `Rmin=?[C<=100]`.]
-    The resulting state values are shown in @fig:VTablePrism.
+  The same MDP can be modelled in the model-checking tool Prism @Prism, and the optimal policy can be approximated precisely and quickly by its built-in value iteration method.
+  #footnote[A discounted reward was simulated using a variable `t` that increments each step, multiplying the reward with `gamma^t`. The query used was `Rmin=?[C<=100]`.]
+  The resulting state values are shown in @fig:VTablePrism.
 
   The final policy is not safe, in the sense that it has a non-zero chance of reaching the state 💀.
   This can be avoided by making changes to the reward function, giving a heavier penalty for reaching this state.
@@ -336,7 +336,7 @@ Even then, the convergence guarantee for Q-learning relies on an infinite number
 
 === Safety Through Shielding
 
-Among the many approaches to enforcing safety in reinforcement learning, #citationneeded[Citations from Paper A and Alshiekh18], shielding @AlshiekhBEKNT18 @BloemKKW15 is a promising technique which restricts the actions available to the agent, in order to ensure safe behaviour.
+Among the many approaches to enforcing safety in reinforcement learning,  #cl("DBLP:conf/iros/WenET15") #cl("DBLP:conf/tacas/Junges0DTK16") #cl("DBLP:journals/jmlr/GarciaF15") #citationneeded[Citations from Paper A and Alshiekh18], shielding @AlshiekhBEKNT18 @BloemKKW15 is a promising technique which restricts the actions available to the agent, in order to ensure safe behaviour.
 Since shields work by restricting actions, they can be applied to any existing reinforcement learning method, including deep learning, allowing it to work in concert with state of the art methods to achieve safe and optimized behaviour.
 
 #definition(name: "Shield, maximally permissive shield, shielded policy")[
@@ -395,7 +395,7 @@ While acting within the constraints of this policy, reinforcement learning was u
 
 The term *shield* was coined in @BloemKKW15 to describe a component which would work in concert with a (mostly safe) policy, and intervene to prevent unsafe behaviour.
 Thus, the behaviour of the shield and policy together is verifiably safe, as long as the shield is safe.
-Contrary to runtime monitors #citationneeded[], which enforce a property by retroactively altering or halting a trace, the shield will intervene by altering the actions of the policy.
+Contrary to runtime monitors #cl("DBLP:journals/csr/KhouryT12")#cl("DBLP:journals/tse/DelgadoGR04"), which enforce a property by retroactively altering or halting a trace, the shield will intervene by altering the actions of the policy.
 The authors proposed guarantees of minimal interference, and of $k$-stabilization, which states that the shield will at most intervene $k$ times before control is handed back to the policy.
 
 This concept was extended to a framework of *shielded reinforcement learning* in @AlshiekhBEKNT18.
@@ -405,7 +405,7 @@ Approaches such as deep Q-learning or proximal policy optimization can be safely
 The paper also points out that a shield can be synthesized from an *abstract model* of the system, one which only models behaviour relevant to the safety property being enforced.
 Such an abstraction could be significantly simpler than the full system, allowing shielded reinforcement learning to scale to systems where other methods for safe and optimal control are infeasible.
 
-Since this first article covering shielded reinforcement learning in finite MDPs, other shielding methods building upon the same framework have been described in the literature #citationneeded[Every shielded RL article I have on hand].
+Since this first article covering shielded reinforcement learning in finite MDPs, other shielding methods building upon the same framework have been described in the literature #cl("DBLP:conf/concur/0001KJSB20")@9196867@BastaniL21@PaperA@PaperC@PaperB#cl("DBLP:journals/corr/ZhangB19")#cl("DBLP:conf/amcc/BharadwajBDKT19")#cl("DBLP:conf/atal/Elsayed-AlyBAET21")#cl("DBLP:conf/atal/XiaoLD23")#cl("DBLP:conf/aaai/Carr0JT23")#cl("DBLP:conf/atva/PrangerKPB21")@PaperD@MedicalShielding#cl("DBLP:conf/isola/TapplerPKMBL22")@giacobbe_shielding_2021@xiao_model-based_2023@yang_safe_2023@bloem_its_2020@carr_compositional_2025.
 
 === Shielding a Policy: Pre- and Post-shielding <sec:ApplyingTheShield>
 
@@ -747,7 +747,7 @@ Even when a safe set can be feasibly enforced locally, even the most permissive 
 === Partial Observability
 
 The assumption of full observability is particularly strong in MGs, and may even be computationally infeasible for a large number of players $n$.
-The size of the state-space increases with the number of agents, which in some parts of the literature can be in the hundreds or low thousands #citationneeded[].
+The size of the state-space increases with the number of agents, which in some parts of the literature can be in the hundreds or low thousands #cl("DBLP:conf/iclr/QinZCCF21")@marl-book.
 A state-space of this size can strain many RL algorithms, and the behaviour and positions of other agents far away, may not have a substantial impact on individual reward.
 
 The limits of on-board sensors makes this omniscience technically impractical as well, and thus it is a common assumption that the game is _partially observable._

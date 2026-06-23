@@ -126,7 +126,7 @@ employ this shield as a guardrail in reinforcement learning
 the agent so that the specification is guaranteed. This is a known
 concept, which is for instance applied in the tool #smallcaps[Uppaal
 Stratego] #cite(label("stratego")) and was popularized by Bloem et
-al. #cite(label("BloemKKW15")) #cite(label("AlshiekhBEKNT18")) #cite(label("JansenKJSB20")). A similar
+al. #cite(label("BloemKKW15")) #cite(label("AlshiekhBEKNT18")) #cite(label("DBLP:conf/concur/0001KJSB20")). A similar
 concept is safe model predictive
 control #cite(label("BastaniL21")) #cite(label("WabersichZ21")).
 
