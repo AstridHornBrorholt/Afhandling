@@ -490,7 +490,9 @@ If the action is safe, the shield passes it on to the environment unaltered.
 Otherwise an alternative, safe, action is chosen.
 
 This is akin to modifying the the MDP $mdp = (S, s_0, A, P, R)$ with a new transition function $P'$.
-In addition to a shield $shield$, post-shielding requires a probabilistic fallback policy $fehu : S → (A → [0; 1])$, with $fehu(s)(a) > 0 <=> a in shield(s)$. The shield $shield$ and fallback policy $fehu$ are used to create a new transition function for a shielded MDP $mdp^shield_fehu = (S, s_0, A, P', R)$ with
+In addition to a shield $shield$, post-shielding requires a probabilistic fallback policy $fehu : S → (A → [0; 1])$,
+#footnote[The symbol $fehu$ is the runic letter _fehu._]
+with $fehu(s)(a) > 0 <=> a in shield(s)$. The shield $shield$ and fallback policy $fehu$ are used to create a new transition function for a shielded MDP $mdp^shield_fehu = (S, s_0, A, P', R)$ with
 
 $ P'(s, a)(s') = cases(
   P(s, a)(s') & " if " a in shield(s), 
@@ -520,10 +522,10 @@ Thus, it will likely gain a more precise estimate of the expected value of $s$ f
 
 
 ==== End-to-end Shielding
-When the shield is in place during _both_ the learning  _and_ operational phases, this is called end-to-end shielding (@fig:PostHoc).
+When the shield is in place during _both_ the learning  _and_ operational phases, this is called end-to-end shielding (@fig:EndToEnd).
 This is a necessity if the RL agent is interacting with a real-life system where safety violations should also be avoided during training.
 
-Compared to the unshielded counterpart, end-to-end shielding was seen in @AlshiekhBEKNT18 to lead to a higher expected reward, when trained on the same number of traces. 
+Compared to the unshielded case, end-to-end shielding was seen in @AlshiekhBEKNT18 to lead to a higher expected reward, when trained on the same number of traces. 
 The authors speculate that the shield acts as a teacher guiding the agent away from undesirable behaviours.
 The same tendency has been observed in other works @carr_compositional_2025 #cl("DBLP:conf/aaai/Carr0JT23") #cl("DBLP:conf/ijcai/YangMRR23") @PaperA.
 This is not a general rule, and there are also examples of shielded policies yielding less reward than the unshielded one @bloem_its_2020 @court_probabilistic_2025. These are cases where the shield prevents the exploitation of risky but more rewarding behaviour.

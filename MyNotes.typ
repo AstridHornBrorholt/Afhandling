@@ -14,37 +14,22 @@ I would do well to define these terms in the text and use them consistently.
 / Trace: Created from a policy and a model. 
 / Real-world outcome: Created from a policy acting upon a system.
 
-==  Multi-agent Shielding
+==  Supervisor meeting
 
-What do I even write about this?
-I can say something about the size of the state-space as more agents are added. This is easy enough.
-But what can I do besides this? 
-There is no standard formalism for multi-agent systems, as far as I can tell, and I shouldn't just be re-capping Paper D.
+I need to present the two sets of terms as two dimensions that can be combined freely.
 
-I can do a literature review like the one I'm working on now of course, but not much besides that.
+I *need* to specify that for end-to-end shielding, it has to be either pre- or post-shielding all the way. Mixing them makes little to no sense.
 
-Oh right and of course there is the local vs global information stuff.
-It's almost always partially observable environments.
+I will change "post-hoc" shielding to "operation only."
 
-Several papers have some concept of a local set of observations and a local set of projections.
-There's some restriction to local safety properties, where not everything is feasible to enforce locally.
+In the post-shielded MDP definition, I fail to update the reward function. Probably needs to make fehu deterministic. 
 
-The papers mostly also discuss technical limitations on communication between agents.
-They limit communication to nearby agents, or to no communication at all.
+Extend to dynamic shielding.
 
-There is some undecidability result relating to decentralized enforcement of a  safety property. From Raju et al 2021,  "Without global information on the state, guaranteeing safety is, in general, undecidable [6]."
-Where [6] is a PhD thesis: S. Shewe " Synthesis of Distributed Systems." Through the concept of of information forks (where agents can't deduce the global state) some undecidability result or other is arrived at.
-The paper focuses instead on "local" safety properties that can be enforced "within a communication group," a term the paper coins.
+Figure 6c is highly confusing. It should not be called end-to-end, but instead Training Only shielding.
 
-Melcer et al. 2022 has a similar concept of local safety, but call the safety property _cartesian._
+Ordering of figure 6 should match text flow.
 
-I should really read up on constrained cost optimization. This stuff looks like what actually works in practice. 
-In Gu et al. 2023, (Safe MARL for multi-agent robot control) they define some nice theoretical guarantees for multi-agent constrained policy optimization.
+#emoji.checkmark I give pronunciation to the fehu character.
 
-Similarly, Qin et al 2021 describe a way to estimate barrier certificates using neural networks, and use it to run a drone swarm of up to 1024 drones at once.
-This is not absolute safety but has safety rates above 95%.
-
-Then lastly there is this ElSayed-Aly et al. 2021 paper which does factored shielding and compares it to centralized shielding.
-It's the one who snapped up the nice title "Safe MARL via shielding."
-The factored shields could do 4 agents, which the centralized shield could not.
-This was all tested on medium-sized grid worlds. Hrm, sounds like they did not have a very big computer.
+#emoji.checkmark I send the Contract-based MA shielding paper
