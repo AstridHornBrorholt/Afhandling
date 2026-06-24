@@ -413,29 +413,32 @@ Specific implementation details of how a shield is applied to a reinforcement le
 The terms _pre-shielding_ and _post-shielding_ have been used to describe the relationship between the agent and the shield, but the terms have been used in the literature to describe two distinct concepts:
 
 + In one part of the literature, pre- and post-shielding refer to *how* the shield ensures only safe actions reach the environment #cl("DBLP:journals/corr/abs-1708-08611") #cl("DBLP:journals/cacm/KonighoferBJJP25") @MedicalShielding #cl("DBLP:conf/isola/TapplerPKMBL22") @bloem_its_2020.
-+ Alternatively the terms can refer to *when* a shield is applied, i.e. whether the shield is in place during the training- and operation phases (see @sec:TrainingAndOperation) @jakobs_thesis @PaperA.
++ Alternatively the terms can refer to *when* a shield is applied, i.e. whether the shield is in place during the training- and/or operation phases (see @sec:TrainingAndOperation) @jakobs_thesis @PaperA.
 
 This section will coin an additional set of terms, to disambiguate these meanings.
 The terms pre- and post-shielding will be taken to mean the first and more widely used definition, i.e. *how* the shield is integrated into the reinforcement learning loop.
-The second set of terms, to describe *when* the shield is in place, will be re-named in this section to _end-to-end shielding_ and _post-hoc shielding._
+The second set of terms, to describe *when* the shield is in place, will be dubbed _training-only, operation-only,_ and  _end-to-end shielding._
+A brief intuition of the terms is given below, with more detailed descriptions in the following sections.
 
 In short, pre-shielding (@fig:PreShielding) provides a set of safe actions to the agent, which it then chooses from.
 With post-shielding,  (@fig:PostShielding) the agent may choose any action, but if the shield deems that action unsafe, it will exchange the unsafe action with a different, safe action.
-For post-hoc shielding, (@fig:PostHoc) a shield is added during operation to a policy that was trained with no shield in place.
-In contrast, end-to-end shielding, (@fig:EndToEnd) has a shield in place during both training and operation. 
-When exporting a policy for operation, it may not be necessary to represent the shield explicitly (@fig:VarEndToEnd).
+
+The aforementioned terms describing *how* the shield is applied, can be combined with any of the terms for *when* it is in place:
+With training-only shielding, the shield is in place during the training phase, and the resulting policy is safe by construction (@fig:TrainingOnly).
+For operation-only shielding, (@fig:OperationOnly) a policy was trained without access to a shield, but one is later constructed while the policy is in operation as an additional safeguard.
+Lastly, end-to-end shielding, (@fig:EndToEnd) has a shield in place during both training and operation. 
 
 #remark[
   The terminology introduced in this section does not align with Paper A.
   This section distinguishes two sets of concepts which are described by the paper as linked, as shown in @tab:NamingDiscrepancy.
-  The paper uses _post-shielding_ to mean post-hoc post-shielding.
+  The paper uses _post-shielding_ to mean operation-only post-shielding.
   Conversely, the paper uses _pre-shielding_ to mean end-to-end pre-shielding.
 
   #figure(table(columns: 2, align: center,
       table.header( [*Term used in Paper A*], [*Corresponding terms in this section*] ),
       [Pre-shielding], [Pre-shielding + end-to-end shielding],
       table.hline(),
-      [Post-shielding], [Post-shielding + post-hoc shielding #h(0.5em)]
+      [Post-shielding], [Post-shielding + operation-only shielding #h(0.5em)]
     ),
     caption: [This section uses different terms compared to Paper A, \ to refer to the same concepts.]
   )<tab:NamingDiscrepancy>
@@ -453,15 +456,15 @@ When exporting a policy for operation, it may not be necessary to represent the 
   label: <fig:PrePostShielding>
 )
 #subpar.grid(columns: 3, align: top,
-  [#figure(include("../Graphics/Intro/Post-hoc Shielding.typ"),
-    caption:[Post-hoc shielding.]
-  )<fig:PostHoc>],
+  [#figure(include("../Graphics/Intro/Operation Only.typ"),
+    caption:[Operation only.]
+  )<fig:OperationOnly>],
   [#figure(include("../Graphics/Intro/End-to-end Shielding.typ"),
   caption: [End-to-end shielding.]
   )<fig:EndToEnd>],
-  [#figure(include("../Graphics/Intro/End-to-end Shielding - Variant.typ"),
-  caption: [End-to-end shielding: Policy used in operation is  safe by design.]
-  )<fig:VarEndToEnd>],
+  [#figure(include("../Graphics/Intro/Training Only.typ"),
+  caption: [Training only.]
+  )<fig:TrainingOnly>],
   caption: [*When* the shied is applied in the process of obtaining a policy.],
   label: <when_shielding>
 )
@@ -490,62 +493,84 @@ If the action is safe, the shield passes it on to the environment unaltered.
 Otherwise an alternative, safe, action is chosen.
 
 This is akin to modifying the the MDP $mdp = (S, s_0, A, P, R)$ with a new transition function $P'$.
-In addition to a shield $shield$, post-shielding requires a probabilistic fallback policy $fehu : S → (A → [0; 1])$,
+In addition to a shield $shield$, post-shielding requires a (deterministic) fallback policy 
 #footnote[The symbol $fehu$ is the runic letter _fehu._]
-with $fehu(s)(a) > 0 <=> a in shield(s)$. The shield $shield$ and fallback policy $fehu$ are used to create a new transition function for a shielded MDP $mdp^shield_fehu = (S, s_0, A, P', R)$ with
+$fehu : S → A$,
+with $fehu(s) = a => a in shield(s)$. The shield $shield$ and fallback policy $fehu$ are used to create a new transition function $P'$ and reward function $R'$ for a shielded MDP $mdp^shield_fehu = (S, s_0, A, P', R')$.
+The transition function will choose the fallback action, if the suggested action is unsafe
 
 $ P'(s, a)(s') = cases(
   P(s, a)(s') & " if " a in shield(s), 
-  product_(a' in A) fehu(s)(a') P(s, a')(s')
-) $
+  P(s, fehu(s))(s') &
+) $<eq:PostShieldedTransitionFunction>
 
-The fallback policy $fehu$ could simply give a uniform distribution over safe actions, pick actions deterministically from an ordering, or choose according to a model-specific heuristic. It could also be obtained using machine learning, as discussed in @post-shielding-optimization of Paper A.
-Note that the fallback policy must be static during the training phase, (when doing end-to-end shielding) in order to preserve convergence guarantees.
+And the reward function is updated to reflect this
+
+$ R'(s, a, s') = cases(
+  R(s, a, s') & " if " a in shield(s),
+  R(s, fehu(s), s')& 
+) $<eq:PostShieldedReward>
+
+The fallback policy $fehu$ could pick actions from an ordering, choose according to a model-specific heuristic, or always select a universally safe action, if one exists.
+By re-defining $fehu$ to be probabilistic, the fallback policy could pick among safe actions according to a uniform distribution.
+It could also be obtained using machine learning, as discussed in @post-shielding-optimization of Paper A.
+
+Note that the fallback policy must be static during the training phase, (when applicable) in order to preserve convergence guarantees.
 Otherwise $P'$ will change during training, violating the assumption that $mdp$ is static.
 
 #remark(name: "Value Updates in Post-shielding")[
   The value updates for post-shielding are performed in the natural way, but subtle mistakes in the implementation can void the convergence guarantees.
-  Consider Q-learning performed on a post-shielded MDP $mdp^shield_fehu = (S, s_0, A, P', R)$.
-  Say that in state $s$,  the shield alters an unsafe action $a in.not shield(s)$ to the safe alternative $a' ~ fehu(s)$, reaching state $s'$.
+  Consider Q-learning performed on a post-shielded MDP $mdp^shield_fehu = (S, s_0, A, P', R')$.
+  Say that in state $s$,  the shield alters an unsafe action $a in.not shield(s)$ to the safe alternative $a' = fehu(s)$, reaching state $s'$.
   Then, the value update should be performed for $a$ and not $a'$.
-  I.e. $Q(s, a)$ is updated with reward $R(s, a', s')$ as in @alg:QLearning, @l:QUpdate.
-  It would be unsound to only update $Q(s, a')$, or to use the reward $R(s, a, s')$.
+  I.e. $Q(s, a)$ is updated with reward $R'(s, a, s')$
+  #footnote[Equivalent to $R'(s, a', s')$ cf. @eq:PostShieldedReward.]
+   as in @alg:QLearning, @l:QUpdate.
+  It would be unsound to only update $Q(s, a')$, or to use the unaltered reward $R(s, a, s')$ from the original MDP.
 
-  When updated correctly, the model will learn the outcome of picking $a in.not shield(s)$ as $sum_(a') fehu(s)(a') sum_(s') P(s, a')(s')R(s, a', s')$.
+  When updated correctly, the model will learn the outcome of picking $a in.not shield(s)$ as $sum_(s') P(s, a')(s')R(s, a', s')$.
   Other alterations to how value-updates are performed, such as penalising unsafe actions, may reduce the number of times the shield has to intervene #cl("DBLP:conf/ijcnn/SeurinPP20").
 ]
 
 Both pre- and post-shielding preserve the assumptions necessary to guarantee convergence of a reinforcement learning algorithm to an optimal policy, but pre-shielding will likely converge faster than post-shielding in general:
-If a model has a state $s$, with one safe action $a_1$ and unsafe actions $a_2$ and $a_3$, a post-shielded agent will have to explore actions $a_1, a_2$ and $a_3$ in order to estimate the expected reward attainable in $s$.
-However, a pre-shielded agent will only have to learn the expected reward of $a_1$, since the other actions are masked.
-Thus, it will likely gain a more precise estimate of the expected value of $s$ from the same amount of visits to the state.
-
+If a model has a state $s$, with one safe action $a_1$ and unsafe actions $a_2$ and $a_3$, a post-shielded agent will have to explore actions $a_1, a_2$ and $a_3$ to estimate the expected reward attainable in $s$.
+However, a pre-shielded agent will only explore $a_1$, since the other actions are masked.
+Thus, it will gain a more precise estimate of the expected value of $s$ from the same amount of visits to the state.
+A post-shielded agent may also choose to visit $s$ more often, if the RL method is configured to encourage exploration.
 
 ==== End-to-end Shielding
 When the shield is in place during _both_ the learning  _and_ operational phases, this is called end-to-end shielding (@fig:EndToEnd).
-This is a necessity if the RL agent is interacting with a real-life system where safety violations should also be avoided during training.
 
 Compared to the unshielded case, end-to-end shielding was seen in @AlshiekhBEKNT18 to lead to a higher expected reward, when trained on the same number of traces. 
 The authors speculate that the shield acts as a teacher guiding the agent away from undesirable behaviours.
 The same tendency has been observed in other works @carr_compositional_2025 #cl("DBLP:conf/aaai/Carr0JT23") #cl("DBLP:conf/ijcai/YangMRR23") @PaperA.
 This is not a general rule, and there are also examples of shielded policies yielding less reward than the unshielded one @bloem_its_2020 @court_probabilistic_2025. These are cases where the shield prevents the exploitation of risky but more rewarding behaviour.
 
-When training finishes and the policy is taken into operation, the shield may not need to be explicitly represented (@fig:VarEndToEnd).
+==== Training-only shielding
+
+With the help of a shield, the RL agent can avoid safety violations during training.
+This is a necessity if the RL agent is interacting with a real-life system where safety violations pose a danger to people or equipment.
+
+When training finishes and the policy is taken into operation, the shield may not need to be explicitly represented (@fig:TrainingOnly).
 If the state-space $S$ is finite, a deterministic policy can be encoded as a set of state-action pairs $(s, a) in S times A$.
-Shielded policies encoded in this way will have $a in shield(s)$ for all encoded pairs $(s, a)$.
+Shielded policies encoded in this way will naturally have $a in shield(s)$ for all encoded pairs $(s, a)$.
 Such an encoding can save space on embedded hardware, which might not be able to accommodate an explicit representation of the shield.
-For neural networks working on continuous state-spaces however, this representation is not possible.
-Here, the shielded policy is most naturally represented as the combination of the weights of the neural network, and the full shield.
+
+Training-only shielding is not always an option. For e.g. neural networks working on continuous state-spaces, this $(s, a)$ representation is not possible.
+Here, the shielded policy can only be represented as the weights of the neurons and an explicit representation of the shield.
 However, reductions can be applied to the shield to reduce its memory footprint significantly @PaperD.
 
-==== Post-hoc Shielding
-Alternatively, the shield can be applied only in the operational phase.  This allows the agent to explore unsafe actions during learning,  and ideally learn to avoid them.
-If the agent does learn to avoid unsafe states perfectly, a maximally permissive shield would not interfere with its operation.
+==== Operation-only Shielding
+
+Shielding is not widely adopted in the industry, and many shield synthesis techniques require a detailed (safety-relevant) model of the system.
+Therefore, policies that are "safe in practice" might be trained, tested and implemented at great expense.
+Some time during operation, a shield may then be developed to provide formal safety guarantees, but it might not be cost effective or necessary to re-train the policy from scratch.
+In these cases, the shield can be applied only in the operational phase.
+If the policy did learn to avoid unsafe states perfectly, a maximally permissive shield would not interfere with its operation.
 Otherwise, the shield will disrupt the optimized behaviour which the policy has learned.
 It was found in Paper A @PaperA that applying a post-hoc post-shield to a policy can lead to substantial drops in the expected reward.
 Therefore, post-hoc shielding should only be employed when end-to-end shielding is not possible.
-This could happen if a shield was not available while training a policy, and the costs of re-training are prohibitive.
-A shield can then be synthesized at a later time, in order to add formal safety guarantees for the policy.
+One way to mitigate this might be fine-tuning the existing policy with the new shield in place.
 
 #example(name: "Staying safe in Grid World")[
   Recall the MDP $cal(W)=(S, s_0, A, P, R)$ from @ex:GridWorld.

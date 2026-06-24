@@ -20,7 +20,7 @@ I need to present the two sets of terms as two dimensions that can be combined f
 
 I *need* to specify that for end-to-end shielding, it has to be either pre- or post-shielding all the way. Mixing them makes little to no sense.
 
-I will change "post-hoc" shielding to "operation only."
+✔️ I will change "post-hoc" shielding to "operation only."
 
 In the post-shielded MDP definition, I fail to update the reward function. Probably needs to make fehu deterministic. 
 
@@ -30,6 +30,6 @@ Figure 6c is highly confusing. It should not be called end-to-end, but instead T
 
 Ordering of figure 6 should match text flow.
 
-#emoji.checkmark I give pronunciation to the fehu character.
+✔️ I give pronunciation to the fehu character.
 
-#emoji.checkmark I send the Contract-based MA shielding paper
+✔️ I send the Contract-based MA shielding paper
