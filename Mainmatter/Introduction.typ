@@ -418,15 +418,18 @@ The terms _pre-shielding_ and _post-shielding_ have been used to describe the re
 This section will coin an additional set of terms, to disambiguate these meanings.
 The terms pre- and post-shielding will be taken to mean the first and more widely used definition, i.e. *how* the shield is integrated into the reinforcement learning loop.
 The second set of terms, to describe *when* the shield is in place, will be dubbed _training-only, operation-only,_ and  _end-to-end shielding._
-A brief intuition of the terms is given below, with more detailed descriptions in the following sections.
+A brief description of the terms is given here, with definitions following in the sections below.
 
 In short, pre-shielding (@fig:PreShielding) provides a set of safe actions to the agent, which it then chooses from.
 With post-shielding,  (@fig:PostShielding) the agent may choose any action, but if the shield deems that action unsafe, it will exchange the unsafe action with a different, safe action.
 
 The aforementioned terms describing *how* the shield is applied, can be combined with any of the terms for *when* it is in place:
+End-to-end shielding, (@fig:EndToEnd) has a shield in place during both training and operation. 
 With training-only shielding, the shield is in place during the training phase, and the resulting policy is safe by construction (@fig:TrainingOnly).
-For operation-only shielding, (@fig:OperationOnly) a policy was trained without access to a shield, but one is later constructed while the policy is in operation as an additional safeguard.
-Lastly, end-to-end shielding, (@fig:EndToEnd) has a shield in place during both training and operation. 
+For operation-only shielding, (@fig:OperationOnly) a policy was trained without access to a shield, but one is later constructed as an additional safeguard while the policy is in operation.
+
+When and how the shield is employed are orthogonal properties, and the terms can be freely combined.
+For example, a training-only shielding setup can use either a pre- or post-shield.
 
 #remark[
   The terminology introduced in this section does not align with Paper A.
@@ -436,14 +439,13 @@ Lastly, end-to-end shielding, (@fig:EndToEnd) has a shield in place during both 
 
   #figure(table(columns: 2, align: center,
       table.header( [*Term used in Paper A*], [*Corresponding terms in this section*] ),
-      [Pre-shielding], [Pre-shielding + end-to-end shielding],
+      [Pre-shielding], [End-to-end Pre-shielding ],
       table.hline(),
-      [Post-shielding], [Post-shielding + operation-only shielding #h(0.5em)]
+      [Post-shielding], [Operation-only Post-shielding]
     ),
-    caption: [This section uses different terms compared to Paper A, \ to refer to the same concepts.]
+    caption: [This section uses different terms compared to Paper A.]
   )<tab:NamingDiscrepancy>
 ]
-
 
 #subpar.grid(columns: 2,
   [#figure(include("../Graphics/Intro/Pre-shielding.typ"),
@@ -456,15 +458,15 @@ Lastly, end-to-end shielding, (@fig:EndToEnd) has a shield in place during both 
   label: <fig:PrePostShielding>
 )
 #subpar.grid(columns: 3, align: top,
-  [#figure(include("../Graphics/Intro/Operation Only.typ"),
-    caption:[Operation only.]
-  )<fig:OperationOnly>],
   [#figure(include("../Graphics/Intro/End-to-end Shielding.typ"),
   caption: [End-to-end shielding.]
   )<fig:EndToEnd>],
   [#figure(include("../Graphics/Intro/Training Only.typ"),
   caption: [Training only.]
   )<fig:TrainingOnly>],
+  [#figure(include("../Graphics/Intro/Operation Only.typ"),
+    caption:[Operation only.]
+  )<fig:OperationOnly>],
   caption: [*When* the shied is applied in the process of obtaining a policy.],
   label: <when_shielding>
 )
@@ -539,21 +541,27 @@ Thus, it will gain a more precise estimate of the expected value of $s$ from the
 A post-shielded agent may also choose to visit $s$ more often, if the RL method is configured to encourage exploration.
 
 ==== End-to-end Shielding
-When the shield is in place during _both_ the learning  _and_ operational phases, this is called end-to-end shielding (@fig:EndToEnd).
+When the shield is in place and explicitly represented during _both_ the learning  _and_ operational phases, this is called end-to-end shielding (@fig:EndToEnd).
 
-Compared to the unshielded case, end-to-end shielding was seen in @AlshiekhBEKNT18 to lead to a higher expected reward, when trained on the same number of traces. 
+With a shield in place during training, the RL agent can avoid safety violations in all steps of the process.
+This is a necessity if the RL agent is interacting with a real-life system where safety violations pose a danger to people or equipment.
+
+As stated earlier, an end-to-end setup can make use of either a pre- or post-shield.
+However, alternating between the two with e.g. pre-shielded training and a post-shielded operation is not sound.
+The trained policy depends on how the shield is applied, and a change to the shield would disrupt it.
+
+Compared to the unshielded case, end-to-end shielding was seen in @AlshiekhBEKNT18 to lead to a higher expected reward when trained on the same number of traces. 
 The authors speculate that the shield acts as a teacher guiding the agent away from undesirable behaviours.
 The same tendency has been observed in other works @carr_compositional_2025 #cl("DBLP:conf/aaai/Carr0JT23") #cl("DBLP:conf/ijcai/YangMRR23") @PaperA.
 This is not a general rule, and there are also examples of shielded policies yielding less reward than the unshielded one @bloem_its_2020 @court_probabilistic_2025. These are cases where the shield prevents the exploitation of risky but more rewarding behaviour.
 
-==== Training-only shielding
-
-With the help of a shield, the RL agent can avoid safety violations during training.
-This is a necessity if the RL agent is interacting with a real-life system where safety violations pose a danger to people or equipment.
-
+==== Training-only Shielding
 When training finishes and the policy is taken into operation, the shield may not need to be explicitly represented (@fig:TrainingOnly).
-If the state-space $S$ is finite, a deterministic policy can be encoded as a set of state-action pairs $(s, a) in S times A$.
+This special case is called training-only shielding, and has the same benefits as end-to-end shielding. 
+
+For example if the state-space $S$ is finite, a deterministic policy can be encoded as a set of state-action pairs $(s, a) in S times A$.
 Shielded policies encoded in this way will naturally have $a in shield(s)$ for all encoded pairs $(s, a)$.
+#footnote[The encoded policy is still shielded according to @def:Shielding, but the full shield is not kept.]
 Such an encoding can save space on embedded hardware, which might not be able to accommodate an explicit representation of the shield.
 
 Training-only shielding is not always an option. For e.g. neural networks working on continuous state-spaces, this $(s, a)$ representation is not possible.
