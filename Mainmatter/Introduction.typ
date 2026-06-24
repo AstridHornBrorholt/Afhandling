@@ -492,21 +492,21 @@ As shown in @fig:PostShielding, the algorithm can choose any action $a in A$, wh
 If the action is safe, the shield passes it on to the environment unaltered.
 Otherwise an alternative, safe, action is chosen.
 
-This is akin to modifying the the MDP $mdp = (S, s_0, A, P, R)$ with a new transition function $P'$.
+This is akin to modifying the the MDP $mdp = (S, s_0, A, P, R)$ with a new transition function $P^shield_(#h(1.5pt) fehu)$ and reward function $R^shield_fehu$.
 In addition to a shield $shield$, post-shielding requires a (deterministic) fallback policy 
 #footnote[The symbol $fehu$ is the runic letter _fehu._]
 $fehu : S → A$,
-with $fehu(s) = a => a in shield(s)$. The shield $shield$ and fallback policy $fehu$ are used to create a new transition function $P'$ and reward function $R'$ for a shielded MDP $mdp^shield_fehu = (S, s_0, A, P', R')$.
+with $fehu(s) = a => a in shield(s)$. The shield $shield$ and fallback policy $fehu$ induce functions $P^shield_(#h(1.5pt) fehu)$ and $R^shield_fehu$ for a post-shielded MDP $mdp^shield_fehu = (S, s_0, A, P^shield_(#h(1.5pt) fehu), R^shield_fehu)$.
 The transition function will choose the fallback action, if the suggested action is unsafe
 
-$ P'(s, a)(s') = cases(
+$ P^shield_(#h(1.5pt) fehu)(s, a)(s') = cases(
   P(s, a)(s') & " if " a in shield(s), 
   P(s, fehu(s))(s') &
 ) $<eq:PostShieldedTransitionFunction>
 
 And the reward function is updated to reflect this
 
-$ R'(s, a, s') = cases(
+$ R^shield_fehu (s, a, s') = cases(
   R(s, a, s') & " if " a in shield(s),
   R(s, fehu(s), s')& 
 ) $<eq:PostShieldedReward>
@@ -516,15 +516,15 @@ By re-defining $fehu$ to be probabilistic, the fallback policy could pick among 
 It could also be obtained using machine learning, as discussed in @post-shielding-optimization of Paper A.
 
 Note that the fallback policy must be static during the training phase, (when applicable) in order to preserve convergence guarantees.
-Otherwise $P'$ will change during training, violating the assumption that $mdp$ is static.
+Otherwise $P^shield_(#h(1.5pt) fehu)$ will change during training, violating the assumption that $mdp$ is static.
 
 #remark(name: "Value Updates in Post-shielding")[
   The value updates for post-shielding are performed in the natural way, but subtle mistakes in the implementation can void the convergence guarantees.
-  Consider Q-learning performed on a post-shielded MDP $mdp^shield_fehu = (S, s_0, A, P', R')$.
+  Consider Q-learning performed on a post-shielded MDP $mdp^shield_fehu = (S, s_0, A, P', R^shield_fehu)$.
   Say that in state $s$,  the shield alters an unsafe action $a in.not shield(s)$ to the safe alternative $a' = fehu(s)$, reaching state $s'$.
   Then, the value update should be performed for $a$ and not $a'$.
-  I.e. $Q(s, a)$ is updated with reward $R'(s, a, s')$
-  #footnote[Equivalent to $R'(s, a', s')$ cf. @eq:PostShieldedReward.]
+  I.e. $Q(s, a)$ is updated with reward $R^shield_fehu (s, a, s')$
+  #footnote[Equivalent to $R (s, a', s')$ cf. @eq:PostShieldedReward.]
    as in @alg:QLearning, @l:QUpdate.
   It would be unsound to only update $Q(s, a')$, or to use the unaltered reward $R(s, a, s')$ from the original MDP.
 
