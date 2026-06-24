@@ -287,11 +287,12 @@ It can sometimes be useful to view machine learning as consisting of two differe
 The *training phase* is defined as the period where the agent changes its policy to gradually improve expected reward, possibly in a controlled environment. 
 This is in contrast to the *operation phase* where the policy is no longer mutable, always taking the best action according to the policy at the time when training ended.
 
-In the common view of reinforcement learning, the agent is continually exploring, learning, and improving, even when in operation.
-However, this is not always the case in practice.
+In the common view of reinforcement learning, the agent is continually exploring, learning, and improving, even when in operation #cl("DBLP:books/lib/SuttonB98")@kaelbling1996reinforcement.
+Importantly, this lets the policy respond to changes in the environment (which are not uncommon despite the theoretical assumption that the system is static).
+However, continually training the agent is not always possible in practice.
 Legal requirements may warrant a costly re-certification every time changes are made to a policy, prohibiting the agent from adapting its behaviour during operation.
 Technical limitations during operations may also preclude learning, such as in embedded platforms. Reductions may have even been applied to the model, in order to stay within memory limits.
-Such a reduction could be the transformation from a Q-table to a list of state-action pairs, discarding the exact Q-values and keeping only the optimal action for each state
+Such a reduction could be the transformation from a Q-table to a list of state-action pairs, discarding the exact Q-values and keeping only the optimal action for each state.
 
 #todo[Q-learning advanced example: Bouncing Ball.]
 
@@ -410,7 +411,7 @@ Since this first article covering shielded reinforcement learning in finite MDPs
 === Shielding a Policy: Pre- and Post-shielding <sec:ApplyingTheShield>
 
 Specific implementation details of how a shield is applied to a reinforcement learning agent can vary.
-The terms _pre-shielding_ and _post-shielding_ have been used to describe the relationship between the agent and the shield, but the terms have been used in the literature to describe two distinct concepts:
+The terms _pre-shielding_ and _post-shielding_ (sometimes referred to as _post-posed shielding_) have been used to describe the relationship between the agent and the shield, but the terms have been used in the literature to describe two distinct concepts:
 
 + In one part of the literature, pre- and post-shielding refer to *how* the shield ensures only safe actions reach the environment #cl("DBLP:journals/corr/abs-1708-08611") #cl("DBLP:journals/cacm/KonighoferBJJP25") @MedicalShielding #cl("DBLP:conf/isola/TapplerPKMBL22") @bloem_its_2020.
 + Alternatively the terms can refer to *when* a shield is applied, i.e. whether the shield is in place during the training- and/or operation phases (see @sec:TrainingAndOperation) @jakobs_thesis @PaperA.
@@ -626,7 +627,22 @@ This extends to other states $s$ by redefining the starting state of $mdp$ to $s
 == Probabilistic Shielding <sec:ProbabilisticShielding>
 ...
 
-== Multi-agent Shielding <sec:marl>
+== Adaptive Shielding <sec:AdaptiveShielding>
+...
+
+(pre- or post-)
+
+=== Training and Operation <sec:AdaptiveTrainingAndOperation>
+
+The training and operation phases described in @sec:TrainingAndOperation apply to an adaptive shield in the same way.
+When the shield and policy are put into operation, they both become static.
+In this way, adaptive shielding can be either end-to-end or training-only, depending on whether the final shield is explicitly represented during operation.
+
+However,  an operation-only adaptive shield is a contradiction, since both shield and policy are static during operation.
+With an alternative definition of the operation phase that allows an adaptive shield (while keeping the policy static) the data acquired might make the adaptive shield more permissive over time.
+This appears to be an open research question, but it is difficult to imagine a case where the technical and legal limitations outlined in @sec:TrainingAndOperation require a fixed policy but not a fixed shield.
+
+== Multi-agent Shielding <sec:MultiAgentShielding>
 
 Many environments have multiple agents -- or _players_ -- interacting.
 These multi-agent settings present unique challenges.

@@ -16,19 +16,19 @@ I would do well to define these terms in the text and use them consistently.
 
 ==  Supervisor meeting
 
-I need to present the two sets of terms as two dimensions that can be combined freely.
+✔️ I need to present the two sets of terms as two dimensions that can be combined freely.
 
-I *need* to specify that for end-to-end shielding, it has to be either pre- or post-shielding all the way. Mixing them makes little to no sense.
+✔️ I *need* to specify that for end-to-end shielding, it has to be either pre- or post-shielding all the way. Mixing them makes little to no sense.
 
 ✔️ I will change "post-hoc" shielding to "operation only."
 
-In the post-shielded MDP definition, I fail to update the reward function. Probably needs to make fehu deterministic. 
+✔️ In the post-shielded MDP definition, I fail to update the reward function. Probably needs to make fehu deterministic. 
 
-Extend to dynamic shielding.
+✔️ Extend to dynamic shielding.
 
-Figure 6c is highly confusing. It should not be called end-to-end, but instead Training Only shielding.
+✔️ Figure 6c is highly confusing. It should not be called end-to-end, but instead Training Only shielding.
 
-Ordering of figure 6 should match text flow.
+✔️ Ordering of figure 6 should match text flow.
 
 ✔️ I give pronunciation to the fehu character.
 
