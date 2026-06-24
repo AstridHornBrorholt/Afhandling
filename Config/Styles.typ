@@ -40,6 +40,7 @@
     text(size: 0.8em, fill: peterriver)[#it]
   }
 
+  set footnote(numbering: "1")
 
   set par(leading: 0.54em, justify: true)  // Fiddled with it till it matched the other pdf.
 

@@ -154,7 +154,9 @@ Q-learning @QLearning @Watkins89 #cl("DBLP:books/lib/SuttonB98") is a model-free
 The algorithm maintains a "Q-table"  that represents for every pair $(s, a)$ the estimated expected reward for taking action $a$ in state $s$.
 It is the function $Q : S times A -> RR$, which is updated in every step.
 
-The table can be initialized arbitrarily,.#footnote[However if the model has terminal states $T subset S$, then $Q$ must be initialized such that $forall t in T, a in A : Q (t, a) = 0$.] e.g. $Q (s, a) = 0.1$ for all $s in S, a in A$.
+The table can be initialized arbitrarily,
+#footnote[However if the model has terminal states $T subset S$, then $Q$ must be initialized such that $forall t in T, a in A : Q (t, a) = 0$.]
+e.g. $Q (s, a) = 0.1$ for all $s in S, a in A$.
 Although there is no theoretical requirement on the initialization of $Q$ it may be natural to use a random values, to use 0, or a small positive number.
 If the initial value is greater in each state than the expected rewards, this will induce a breadth-first search as the Q-learning agent seeks out unexplored states, that appear to have higher rewards compared to known states.
 
@@ -551,7 +553,7 @@ As stated earlier, an end-to-end setup can make use of either a pre- or post-shi
 However, alternating between the two with e.g. pre-shielded training and a post-shielded operation is not sound.
 The trained policy depends on how the shield is applied, and a change to the shield would disrupt it.
 
-Compared to the unshielded case, end-to-end shielding was seen in @AlshiekhBEKNT18 to lead to a higher expected reward when trained on the same number of traces. 
+Compared to the completely unshielded case, end-to-end shielding was seen in @AlshiekhBEKNT18 to lead to a higher expected reward when trained on the same number of traces. 
 The authors speculate that the shield acts as a teacher guiding the agent away from undesirable behaviours.
 The same tendency has been observed in other works @carr_compositional_2025 #cl("DBLP:conf/aaai/Carr0JT23") #cl("DBLP:conf/ijcai/YangMRR23") @PaperA.
 This is not a general rule, and there are also examples of shielded policies yielding less reward than the unshielded one @bloem_its_2020 @court_probabilistic_2025. These are cases where the shield prevents the exploitation of risky but more rewarding behaviour.
