@@ -675,6 +675,7 @@ However,  an operation-only adaptive shield is a contradiction, since both shiel
 With an alternative definition of the operation phase that allows an adaptive shield (while keeping the policy static) the data acquired might make the adaptive shield more permissive over time.
 This appears to be an open research question, but it is difficult to imagine a case where the technical and legal limitations outlined in @sec:TrainingAndOperation require a fixed policy but not a fixed shield.
 
+#new[
 == Multi-agent Shielding <sec:MultiAgentShielding>
 
 Many environments have multiple agents -- or _players_ -- interacting.
@@ -846,6 +847,7 @@ The difference in performance between the optimal memoryless policy and the opti
 While players can directly interact through their choice of actions, additional communication is sometimes assumed.
 For example #citationneeded[] assumes players choose their actions in a specific order, and that each player knows the choices of others if they are lower in the order.
 In a partially observable setting, #citationneeded[] assumes that players are able to share their observations with other players within a certain range.
+]
 
 == Hybrid MDPs
 ...
