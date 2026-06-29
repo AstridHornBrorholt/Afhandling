@@ -424,7 +424,7 @@ However, some policies may be safe with higher probability than others. For a di
 
 === Origin of the Term
 
-In @DavidJLLLST14 it was shown how a safety property can be enforced through a maximally permissive, safe, non-deterministic policy.
+In works such as @DavidJLLLST14 it was shown how a safety property can be enforced through a maximally permissive, safe, non-deterministic policy.
 While acting within the constraints of this policy, reinforcement learning was utilized to optimize for a second objective, achieving near-optimal behaviour within the safety constraints.
 
 The term *shield* was coined in @BloemKKW15 to describe a component which would work in concert with a (mostly safe) policy, and intervene to prevent unsafe behaviour.
@@ -436,10 +436,36 @@ This concept was extended to a framework of *shielded reinforcement learning* in
 Here, a shield monitors and possibly corrects the actions of a learning agent, which enables safe exploration.
 This enables the safe use of complex learning agents that can achieve cost optimal behaviour.
 Approaches such as deep Q-learning or proximal policy optimization can be safely used in this framework, even though these methods cannot feasibly be verified directly.
-The paper also points out that a shield can be synthesized from an *abstract model* of the system, one which only models behaviour relevant to the safety property being enforced.
+
+The paper describes how a "shield" can be synthesized from an *abstract model* of the system, one which only models behaviour relevant to the safety property being enforced.
 Such an abstraction could be significantly simpler than the full system, allowing shielded reinforcement learning to scale to systems where other methods for safe and optimal control are infeasible.
+This is illustrated in @ex:SafetyRelevantAbstraction.
 
 Since this first article covering shielded reinforcement learning in finite MDPs, other shielding methods building upon the same framework have been described in the literature #cl("DBLP:conf/concur/0001KJSB20")@9196867@BastaniL21@PaperA@PaperC@PaperB#cl("DBLP:journals/corr/ZhangB19")#cl("DBLP:conf/amcc/BharadwajBDKT19")#cl("DBLP:conf/atal/Elsayed-AlyBAET21")#cl("DBLP:conf/atal/XiaoLD23")#cl("DBLP:conf/aaai/Carr0JT23")#cl("DBLP:conf/atva/PrangerKPB21")@PaperD@MedicalShielding#cl("DBLP:conf/isola/TapplerPKMBL22")@giacobbe_shielding_2021@xiao_model-based_2023@yang_safe_2023@bloem_its_2020@carr_compositional_2025.
+
+#new[
+#example(name: "Safety-relevant Abstraction")[
+  The contract from @ex:QualityInjectionMoulding is once again re-negotiated, this time to replace a fixed price of batches with variable pricing scheme depending on market forces.
+  (The safety requirement to avoid state $●$ is kept.)
+  Rather than a fixed reward of 100 for producing a full batch, the reward now varies and can at times be negative to reflect the sale price going below the cost to produce a batch.
+  The option to wait $w$ is therefore added to the action space $A = {p, c, w}$. This action always has reward zero.
+
+  The sale price is not known in advance, but can be predicted based on (say)
+  - the number of times the action $p$ was taken in the last 100 steps,
+  - the week of the year,
+  - whether the MSCI World stock market index is trending _up_ or _down,_ and 
+  - the quality of the material used for casting, on a 10-step scale.
+
+  These market factors all become part of the state-space, which grows in size from $|{○, ◍, ●}| = 3$ to size $3 times 100 times 52 times 2 times 10 = 312#h(1pt)000$.
+
+  The updated reward function $R$ and transition function $P$ will not be given here.
+  Instead, it is sufficient to note that the state-space has become significantly larger, but not in a way that affects the safety property.
+  To stay within the safe set, it is still sufficient to always clean $c$ the mould whenever a state with $◍$ is entered, regardless of the other values in that state.
+
+  Thus, the model described in @ex:QualityInjectionMoulding is a _safety-relevant abstraction_ of the more complex model given in this example.
+  The state-space of this abstraction is significantly smaller, and for some models, such reductions can make shield synthesis computationally feasible where it was not otherwise.
+]<ex:SafetyRelevantAbstraction>
+]
 
 === Shielding a Policy: Pre- and Post-shielding <sec:ApplyingTheShield>
 
