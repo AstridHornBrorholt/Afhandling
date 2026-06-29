@@ -175,7 +175,7 @@ It is the function $Q : S times A -> RR$, which is updated in every step.
 The table can be initialized arbitrarily,
 #footnote[However if the model has terminal states $T subset S$, then $Q$ must be initialized such that $forall t in T, a in A : Q (t, a) = 0$.]
 e.g. $Q (s, a) = 0.1$ for all $s in S, a in A$.
-Although there is no theoretical requirement on the initialization of $Q$ it may be natural to use a random values, to use 0, a heuristic, or a small positive number.
+Although there is no theoretical requirement on the initialization of $Q$ it may be natural to use random values, zeroes, a heuristic, or a relatively high ("optimistic") value to encourage exploration.
 If the initial value is greater in each state than the expected rewards, this will induce a breadth-first search as the Q-learning agent seeks out unexplored states, that appear to have higher rewards compared to known states.
 
 The notational shorthand $Q [(s, a) mapsto x]$ is used to describe updates to the function where its value is changed to $x$ for $Q(s, a)$, while remaining unaltered for all other values in its domain. I.e. $Q [(s, a) mapsto x](s', a') = cases(x " if " (s', a') = (s, a), Q(s', a'))$.
@@ -219,10 +219,15 @@ Updates are performed according to a learning rate $alpha: NN -> [0; 1[$, a func
 This represents how much the new experience should influence the estimation of $Q(s,a)$.
 As the number of episodes increases, so does the number of times $Q(s,a)$ is updated, and a decreasing learning rate reflects growing confidence in the estimate.
 
-@alg:QLearning uses an $epsilon$-greedy exploration policy, to guarantee that every transition triple $(s, a, s')$  with $P(s, a)(s') > 0)$  is seen infinitely often in an infinite number of episodes.
+@alg:QLearning uses an $epsilon$-greedy exploration strategy, to guarantee that every transition triple $(s, a, s')$  with $P(s, a)(s') > 0)$  is seen infinitely often in an infinite number of episodes.
 The guarantee holds since $epsilon : NN -> ]0;1]$ cannot go to 0. 
 
-#todo[Name-drop other exploration policies.]
+#new[
+The $epsilon$-greedy exploration strategy is conceptually simple, and therefore used in many textbooks and standard implementations.
+Other exploration strategies exist that makes better use of existing knowledge to find out which actions are worth exploring.
+These include upper confidence bound #cl("DBLP:books/lib/SuttonB98"), Boltzmann exploration @kaelbling1996reinforcement,  Thompson sampling @thompson1933likelihood@daniel2018tutorial or by adding a noise term to the loss function of deep learning RL @williams1991function@foster_entropy.
+The use of Q-values that are relatively high compared to the actual expected reward is another way to encourage exploration  #cl("DBLP:books/lib/SuttonB98").
+]
 
 #new[
 Notice how the Q-update in @l:QUpdate uses the current reward, and the Q-value of the best action in the next state.
@@ -632,7 +637,7 @@ One way to mitigate this might be fine-tuning the existing policy with the new s
 
   This can be applied as a pre-shield by 
   1. Initializing the Q-values as $Q(s, a) = cases(-infinity " if " a in.not shield(s), 0  )$.
-  2. Modifying the $epsilon$-greedy exploration policy (@l:Explore in @alg:QLearning) to explore only safe actions $shield(s)$, instead of the full action space $A$.
+  2. Modifying the $epsilon$-greedy exploration strategy (@l:Explore in @alg:QLearning) to explore only safe actions $shield(s)$, instead of the full action space $A$.
 
   The result of end-to-end pre-shielding of the Grid World example is shown in @fig:GridWorldShieldedTraining.
   Compared to @fig:QGraph, this shielded learning graph has no sudden drops in episode rewards.
