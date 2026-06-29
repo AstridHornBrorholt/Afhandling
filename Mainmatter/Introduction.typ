@@ -175,7 +175,7 @@ It is the function $Q : S times A -> RR$, which is updated in every step.
 The table can be initialized arbitrarily,
 #footnote[However if the model has terminal states $T subset S$, then $Q$ must be initialized such that $forall t in T, a in A : Q (t, a) = 0$.]
 e.g. $Q (s, a) = 0.1$ for all $s in S, a in A$.
-Although there is no theoretical requirement on the initialization of $Q$ it may be natural to use a random values, to use 0, or a small positive number.
+Although there is no theoretical requirement on the initialization of $Q$ it may be natural to use a random values, to use 0, a heuristic, or a small positive number.
 If the initial value is greater in each state than the expected rewards, this will induce a breadth-first search as the Q-learning agent seeks out unexplored states, that appear to have higher rewards compared to known states.
 
 The notational shorthand $Q [(s, a) mapsto x]$ is used to describe updates to the function where its value is changed to $x$ for $Q(s, a)$, while remaining unaltered for all other values in its domain. I.e. $Q [(s, a) mapsto x](s', a') = cases(x " if " (s', a') = (s, a), Q(s', a'))$.
@@ -206,7 +206,7 @@ The algorithm has additional input parameters, which will be described in the fo
         + $s' ~ P(s, a)$ #comment[Take action $a$ in state $s$, call the next state $s'$.]
         + #line-label(<l:QUpdate>) 
           $Q[(s, a) mapsto Q (s, a) + alpha (i) (R(s, a, s') + gamma max_(a' in A) Q (s', a') - Q (s, a)) ]$
-    + *Return* $hat(pi) (s) = argmax_(a in A) Q (s, a)$
+    + *Return* $hat(pi) (s) = argmax_(a in A) Q (s, a)$ #line-label(<l:Return>)
   ],
 )<alg:QLearning>
 
@@ -221,8 +221,16 @@ As the number of episodes increases, so does the number of times $Q(s,a)$ is upd
 
 @alg:QLearning uses an $epsilon$-greedy exploration policy, to guarantee that every transition triple $(s, a, s')$  with $P(s, a)(s') > 0)$  is seen infinitely often in an infinite number of episodes.
 The guarantee holds since $epsilon : NN -> ]0;1]$ cannot go to 0. 
-#todo[Write that Q-learning is off-policy because the Q-update does not factor in the $epsilon$ probability of taking another action.]
+
 #todo[Name-drop other exploration policies.]
+
+#new[
+Notice how the Q-update in @l:QUpdate uses the current reward, and the Q-value of the best action in the next state.
+As such, it estimates the expected reward obtained by greedily selecting the most rewarding action each step, as is the case for the policy~$hat(pi)$ returned in @l:Return.
+It does _not_ take into account the chance  $epsilon(i)$ of picking a random action during learning.
+This makes Q-learning an _off-policy_ algorithm, since it explores the environment with one policy ($epsilon$-greedy) but estimates the expected return of a different policy (entirely greedy).
+The similar reinforcement learning method _SARSA_  @rummery1994line#cl("DBLP:books/lib/SuttonB98") is _on-policy_ because it uses Q-values of actions actually taken, rather than the ones estimated to be most rewarding.
+]
 
 Q-learning is an early example of an algorithm which was proven @QLearning to almost surely converge as the number of episodes $n$ (and episode length $m$) goes to infinity.
 The proof requires that the environment remains static, i.e. $mdp$ does not change during learning.
