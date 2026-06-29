@@ -30,6 +30,8 @@ When the state-space reaches a size that is prohibitive for these methods, _rein
 Neural networks #cl("DBLP:journals/nature/LeCunBH15") are especially notable for having achieved impressive performance in a wide variety of tasks #cl("DBLP:journals/nature/SchrittwieserAH20").
 This performance is achieved by controllers that use a high number of neurons, making direct formal verification infeasible.
 
+#new[
+
 *Shielding* @AlshiekhBEKNT18 @BloemKKW15 is a promising technique that restricts the behaviour of an RL policy in a way that formally guarantees a safety specification.
 A _shield,_ tasked with enforcing this safety specification, acts as a guardrail to keep the RL policy within safe bounds.
 Often, obtaining a shield which is safe by construction can be feasible, even when directly obtaining a policy that is both safe and (near-) optimal is not.
@@ -43,6 +45,7 @@ This thesis addresses shielding  hybrid systems, multi-agent settings and unknow
 
 The remainder of this introduction will describe the basics of first RL, then the basics of shielding.
 Beyond the fundamental definitions, alternative systems and shielding approaches are described, followed by a summary of each paper that make up the remainder of this thesis.
+]
 
 == Reinforcement Learning <sec:rl>
 
