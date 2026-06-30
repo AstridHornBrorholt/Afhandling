@@ -467,6 +467,7 @@ Since this first article covering shielded reinforcement learning in finite MDPs
 ]<ex:SafetyRelevantAbstraction>
 ]
 
+#updated[
 === Shielding a Policy: Pre- and Post-shielding <sec:ApplyingTheShield>
 
 Specific implementation details of how a shield is applied to a reinforcement learning agent can vary.
@@ -639,6 +640,7 @@ Otherwise, the shield will disrupt the optimized behaviour which the policy has 
 It was found in Paper A @PaperA that applying a post-hoc post-shield to a policy can lead to substantial drops in the expected reward.
 Therefore, post-hoc shielding should only be employed when end-to-end shielding is not possible.
 One way to mitigate this might be fine-tuning the existing policy with the new shield in place.
+]
 
 #example(name: "Staying safe in Grid World")[
   Recall the MDP $cal(W)=(S, s_0, A, P, R)$ from @ex:GridWorld.

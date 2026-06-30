@@ -74,10 +74,20 @@
 
 #let new(content) = {
 
-  move(rotate(text(fill: nephritis, weight: "bold")[New], -90deg, origin: left), dx: -10pt, dy: 17pt)
+  move(rotate(text(fill: nephritis, weight: "bold")[New], -90deg, origin: left), dx: -12pt, dy: 17pt)
   v(-1.8em)
   block(content, 
     stroke: (left: (thickness: 2pt, paint: nephritis)),
+    outset: (left: 4pt),
+    )
+}
+
+#let updated(content) = {
+
+  move(rotate(text(fill: carrot, weight: "bold")[updated], -90deg, origin: left), dx: -12pt, dy: 35pt)
+  v(-1.8em)
+  block(content, 
+    stroke: (left: (thickness: 2pt, paint: carrot)),
     outset: (left: 4pt),
     )
 }
