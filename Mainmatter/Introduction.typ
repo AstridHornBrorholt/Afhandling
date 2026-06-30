@@ -24,7 +24,8 @@ With applications such as autonomous vehicles, water management systems, industr
 Under these safety constraints, the systems must also behave in a way that achieves their objectives efficiently.
 
 This can be achieved through the field of formal methods, which has a wide variety of approaches that can provide proof that a given system restricts itself ot a safe subset of behaviours #cl("HandbookOfModelChecking")@lewis2012optimal@doyle2013feedback.
-This presumes an accurate model of the (cyber-physical) system under verification and techniques are most often subject to "state-space explosion," where the complexity of verification is highly sensitive to the size of the model.
+This presumes an accurate model of the (cyber-physical) system under verification, which can be subject to _state-space explosion_ in which the number of states grows exponentially in the number of variables used to represent it.
+As the complexity of the model increases, correct-by-construction methods of policy synthesis become computationally infeasible.
 
 When the state-space reaches a size that is prohibitive for these methods, _reinforcement learning_ (RL) #cl("DBLP:books/lib/SuttonB98") @kaelbling1996reinforcement @arulkumaran2017deep has proven useful at approximating the optimal policy through exploration even in complex systems.
 Neural networks #cl("DBLP:journals/nature/LeCunBH15") are especially notable for having achieved impressive performance in a wide variety of tasks #cl("DBLP:journals/nature/SchrittwieserAH20").
@@ -76,6 +77,11 @@ In this definition, the state-space is assumed to be finite, though it would be 
 If $S$ were instead to be uncountably infinite, the transition function $P$ should be modified to give a density function over a set of states, rather than giving probabilities for specific states. 
 I.e. 
 $P : S times A -> (S -> RR_(>=0))$ such that $integral_(s' in S) P(s, a)(s') d s' = 1$.
+
+#new[
+The state-space $S$ is often represented as a finite set of vectors $subset ZZ^n$ where each element of a state-vector represents the value of a variable in the model (with a lower and upper bound).
+The number of states $|S|$ grows exponentially with the number of variables $n$, an this growth is known as _state-space explosion._
+]
 
 The definition also requires every action $a in A$ to be defined for every state in $S$. 
 This assumption is made w.l.o.g. to simplify notation.
@@ -465,10 +471,11 @@ Since this first article covering shielded reinforcement learning in finite MDPs
   - the quality of the material used for casting, on a 10-step scale.
 
   These market factors all become part of the state-space, which grows in size from $|{○, ◍, ●}| = 3$ to size $3 times 100 times 52 times 2 times 10 = 312#h(1pt)000$.
+  This growth in the state-space from adding just four variables is an example of state-space explosion.
 
   The updated reward function $R$ and transition function $P$ will not be given here.
   Instead, it is sufficient to note that the state-space has become significantly larger, but not in a way that affects the safety property.
-  To stay within the safe set, it is still sufficient to always clean $c$ the mould whenever a state with $◍$ is entered, regardless of the other values in that state.
+  To stay within the safe set, it is still sufficient to always clean $c$ the mould whenever a state with $◍$ is entered, regardless of the other values in a state.
 
   Thus, the model described in @ex:QualityInjectionMoulding is a _safety-relevant abstraction_ of the more complex model given in this example.
   The state-space of this abstraction is significantly smaller, and for some models, such reductions can make shield synthesis computationally feasible where it was not otherwise.
