@@ -869,27 +869,40 @@ This is shown in @ex:2PlayerGridWorld.
 The assumption that all agents can act in concert following some centralized shield is often unrealistic.
 Additionally, the synthesis of  a global shield is often not computationally feasible because of state-space explosion. 
 
-This necessitates the use of local shields, but many important safe sets may not be feasible to enforce in the default setting.
-Even when a safe set can be feasibly enforced locally, even the most permissive shield may be too conservative.
-
-=== Partial Observability
-
-The assumption of full observability is particularly strong in MGs, and may even be computationally infeasible for a large number of players $n$.
+This necessitates the use of local shields, but many important safe sets may not be feasible to enforce with purely local shields.
+However, global shields may also be infeasible due to state-space explosion, which is a particular problem in multi-agent settings.
 The size of the state-space increases with the number of agents, which in some parts of the literature can be in the hundreds or low thousands #cl("DBLP:conf/iclr/QinZCCF21")@marl-book.
 A state-space of this size can strain many RL algorithms, and the behaviour and positions of other agents far away, may not have a substantial impact on individual reward.
 
-The limits of on-board sensors makes this omniscience technically impractical as well, and thus it is a common assumption that the game is _partially observable._
-Agents may only be able to perceive the state of the game locally, or based on line of sight. 
+=== Variations on Markov Games
+It is common in multi-agent shielding to make additional assumptions about the model, to make multi-agent shielding feasible and sufficiently permissive.
+Rather than observing the full state of the  system, it is more realistic to assume the MG is partially observable, which also reduces the size of the state-space (observation space).
+Orthogonally, assuming that agents are able to communicate amongst themselves can make shields more permissive by reducing uncertainty. 
+Besides explicit communication, agents may co-ordinate actions ahead of time, providing guarantees which can be relied on at runtime.
+
+==== Partial Observability
+
+The assumption of full observability is particularly strong in MGs, and may even be computationally infeasible for a large number of players $n$.
+The limits of on-board sensors makes this omniscience technically impractical as well, and thus it is a common #cl("DBLP:conf/iclr/QinZCCF21")#cl("DBLP:conf/atal/MelcerAT24")#cl("carr_compositional_2025") assumption that the game is _partially observable._
 
 In general, the optimal policy for a partially observable game requires memory of all previous observations.
 If the trace $zeta_1^n = o_1 a_1 o_2 a_2, ... o_n$ is an alternating sequence of observations and actions, a policy with memory would choose the next action as $pi(zeta_1^n) = a_n$, while a memoryless policy would as only rely on the last observation $pi(o_n) = a_n$.
 The difference in performance between the optimal memoryless policy and the optimal policy with memory depends on the game $mg$.
 
-=== Communication
+Similarly, a shield in a partially observable system can use memory to maintain a "belief set" of states that are possible given current and previous observations #cl("DBLP:conf/aaai/Carr0JT23").
+A memoryless shield is instead limited to allowing only actions that are safe for any state that can yield the current observation.
 
-While players can directly interact through their choice of actions, additional communication is sometimes assumed.
-For example #citationneeded[] assumes players choose their actions in a specific order, and that each player knows the choices of others if they are lower in the order.
-In a partially observable setting, #citationneeded[] assumes that players are able to share their observations with other players within a certain range.
+
+==== Communication
+
+Any global shield or joint policy assumes agents are able to communicate and agree on joint actions. 
+Actions can also be broadcast when they are chosen @RajuBDT21 @busoniu_multi-agent_2010, i.e. players choose their actions in a specific order, and each player knows the choices of others if they are lower in the ordering.
+
+Instead of assuming agents can communicate their intended actions during run-time, some methods use _off-line co-ordination_ #cl("DBLP:conf/atal/MelcerAT24")#cl("DBLP:conf/nips/MelcerAT22").
+By relying on guarantees that are established during shield synthesis, some shields may allow additional actions while ensuring the joint action is safe.
+
+In a partially observable setting, sharing observations may also allow agents to achieve a more precise estimate of the underlying model state @10129007.
+
 ]
 
 == Hybrid MDPs
