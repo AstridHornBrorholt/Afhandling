@@ -805,7 +805,7 @@ Pareto optimality is a related, but stronger concept.
 
 ]
 
-=== Safety
+=== Safety and Shielding
 
 Safety as given in @def:Safety, described by safe sets $phi subset.eq S$, can be extended directly to MGs for states, traces and joint policies.
 An individual policy is safe if it ensures the entire MG stays within the safe set, regardless of the behaviour of other agents. 
@@ -851,7 +851,7 @@ This is shown in @ex:2PlayerGridWorld.
       caption: [Initial state of 2-player Grid World with slippery tiles 🧊, an untimely end 💀, a goal state 🏁, and initial positions of players 🤖 and 👾.]
     )<fig:2PlayerGridWorld>
 
-    Now consider the safe sets $phi_1 = { vec(s_1, s_2) | s_1 != 💀}$, $phi_2 = { vec(s_1, s_2) | s_2 != 💀}$, $phi = phi_1 intersection phi_2$ and $psi = phi intersection { vec(s_1, s_2) | s_1 != s_2 }$.
+    Now consider the safe sets $phi_1 = { vec(s_1, s_2) | s_1 != 💀}$, $phi_2 = { vec(s_1, s_2) | s_2 != 💀}$, $phi = phi_1 intersection phi_2$ and $psi = { vec(s_1, s_2) | s_1 != s_2 }$.
     Clearly, all sets are feasible as global shields.
 
     The safe set, $phi$ is not feasible with a local shield, since neither player has the ability to keep the other from entering 💀.
