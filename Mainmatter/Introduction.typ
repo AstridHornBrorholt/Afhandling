@@ -370,7 +370,7 @@ Even then, the convergence guarantee for Q-learning relies on an infinite number
 
 === Safety Through Shielding
 
-Among the many approaches to enforcing safety in reinforcement learning,  #cl("DBLP:conf/iros/WenET15") #cl("DBLP:conf/tacas/Junges0DTK16") #cl("DBLP:journals/jmlr/GarciaF15") #citationneeded[Citations from Paper A and Alshiekh18], shielding @AlshiekhBEKNT18 @BloemKKW15 is a promising technique which restricts the actions available to the agent, in order to ensure safe behaviour.
+Among the many approaches to enforcing safety in reinforcement learning  #cl("DBLP:conf/iros/WenET15")#cl("DBLP:conf/tacas/Junges0DTK16")#cl("DBLP:journals/jmlr/GarciaF15")@MaderbacherSBBNK23@ChengOMB19@LuoM21@BloemKKW15#cl("DBLP:conf/isola/Jaeger0BLJ20")@BerkenkampTS017#cl("DBLP:journals/jmlr/GarciaF15"), shielding @AlshiekhBEKNT18@BloemKKW15@ChowNDG18#cl("DBLP:journals/cacm/KonighoferBJJP25") is a promising technique which restricts the actions available to the agent, in order to ensure safe behaviour.
 Since shields work by restricting actions, they can be applied to any existing reinforcement learning method, including deep learning, allowing it to work in concert with state of the art methods to achieve safe and optimized behaviour.
 
 #definition(name: "Shield, maximally permissive shield, shielded policy")[
