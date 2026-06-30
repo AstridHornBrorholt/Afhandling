@@ -385,6 +385,8 @@ Since shields work by restricting actions, they can be applied to any existing r
 ]<def:Shielding>
 
 The maximally permissive shield $shield$ for a safe set $phi$ of an MDP $mdp$ is unique @BernetJW02 @PaperB.
+Many shield synthesis methods guarantee the resulting shield will be maximally permissive for the given (abstract) model, such as @AlshiekhBEKNT18@DavidJLLLST14@PaperA#cl("DBLP:journals/cacm/KonighoferBJJP25").
+The permissiveness of the shield is an important property, since an overly restrictive shield can severely harm the performance of the resulting policy.
 
 #example(name: "Quality standards for injection moulding")[
   Due to concerns over quality, the contract from @ex:InjectionMoulding is re-negotiated to require that the mould is immediately cleaned whenever it becomes contaminated. 
@@ -400,15 +402,21 @@ The maximally permissive shield $shield$ for a safe set $phi$ of an MDP $mdp$ is
 
   The maximally permissive shield which enforces the invariant $phi$ is  respectively $shield(○) = {p, c}$, $shield(◍) = {c}$ and $shield(●) = emptyset$.
   The optimal policy under this shield is $pi(○) = p, pi(◍) = c$.
-  Let $gamma = 0.9$. The expected reward for this policy as given by @def:expected-reward is:
+  Let $gamma = 0.99$. The expected reward for this policy as given by @def:expected-reward is:
 
   #let expectation = $EE^cal(I)_pi$
   $ expectation(○) = &P(○, p)(○)(R(○, p, ○) + gamma expectation(○)) \
     + &P(○, p)(◍)(R(○, p, ◍) + gamma expectation(◍)) \
-    = &0.95(100 + 0.9 expectation(○)) + 0.05(100 + 0.9 expectation(◍)) \
+    = &0.95(100 + 0.99 expectation(○)) + 0.05(100 + 0.99 expectation(◍)) \
   $
-  Since $expectation(◍) = 1 + 0.9 expectation(○)$, the equation reduces to  \
-  $expectation(○) = (100 + 0.05 times 0.9)/(1 - 0.95 times 0.9 - 0.05 times 0.9^2) approx 957.368$.
+  Since $expectation(◍) = 1 + 0.99 expectation(○)$, the equation reduces to  \
+  $expectation(○) = 
+  (100 + 0.05 times 0.99)/(1 - 0.95 times 0.99 - 0.05 times 0.99^2) approx 9533.06$.
+
+  #new[
+  A less permissive shield with $shield^-(○) = {c}$, $shield^-(◍) = {c}$ and $shield^-(●) = emptyset$.
+  Is still safe, but disallows the optimal policy. The only policy allowed by $shield^-$ is the one which collects an expected discounted reward of 100 (cf. @ex:discounted).
+  ]
 ] <ex:QualityInjectionMoulding>
 
 Some safe sets are not possible to enforce. For example, consider a Grid World $cal(W)' = (S, s_0, A, P, R)$ as described in @ex:GridWorld, except with $s_0 = 10$.
