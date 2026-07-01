@@ -11,3 +11,11 @@ jobs:
         uses: lvignoli/typst-action@main
         with:
           source_file: Master.typ
+      - name: Publish latest PDF
+        uses: ncipollo/release-action@v1
+        with:
+          tag: latest
+          name: Latest
+          allowUpdates: true
+          replacesArtifacts: true
+          artifacts: Master.pdf
