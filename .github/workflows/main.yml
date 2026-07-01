@@ -1,6 +1,9 @@
 name: Build Typst document
 on: push
 
+permissions:
+  contents: write
+  
 jobs:
   build_typst_documents:
     runs-on: ubuntu-latest
