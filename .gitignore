@@ -1,4 +1,4 @@
-*.pdf
 .vscode/*
-!Figures/*.pdf
-!Feedback/*.pdf
+Master.pdf
+Scratchpad.pdf
+Config/Macros.pdf
