@@ -701,7 +701,25 @@ For an MDP $mdp$, action $a_0$  is $k$-safe at state $s_0$, if there exists a de
 This extends to other states $s$ by redefining the starting state of $mdp$ to $s$.
 
 == Probabilistic Shielding <sec:ProbabilisticShielding>
-...
+
+
+#example(name: "Double or Nothing")[
+  #show regex("☺|☹") : it => {
+    text(size: 0.8em)[#it]
+  }
+
+  A six-pack of colas is staked on a wager: A coin is flipped either one or two times, with the second flip being double or nothing.
+
+  #figure(image("../Graphics/Intro/DoubleOrNothing.drawio.pdf"),
+  caption:[
+    Double or nothing. The initial state is $⦾$.
+  ])<fig:DoubleOrNothing>
+
+  This wager is represented as an MDP in @fig:DoubleOrNothing. With $S = {⭗, ⭘, ☺, ☹}$, let the safe set $phi = S \\ ☹$. 
+  Clearly, there is no way to stay within the safe set with probability $1.0$.
+
+  However the strategy $pi(s) = "flip"$ clearly has a higher risk of leaving the safe set~$phi$ than  $pi'(s) = cases("flip if" s = ⭗, "stop")$.
+]
 
 == Adaptive Shielding <sec:AdaptiveShielding>
 ...
