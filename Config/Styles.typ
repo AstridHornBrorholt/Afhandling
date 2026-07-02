@@ -37,7 +37,11 @@
 
   // Re-size emoji because at their default height they bump up the line-height wherever they appear.
   show regex("\p{Emoji_Presentation}") : it => {
-    text(size: 0.8em, fill: peterriver)[#it]
+    text(size: 0.8em)[#it]
+  }
+
+  show regex("☺|☹") : it => {
+    text(it, size: 0.8em)
   }
 
   set footnote(numbering: "1")

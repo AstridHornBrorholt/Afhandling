@@ -349,7 +349,7 @@ The focus in this thesis is on safety:
 Consider again an MDP $mdp = (S, s_0, A, P, R)$. Formally, a property is a safety property iff for every trace $xi = s_0 a_0 s_1 a_1 ...$ that violates the property, there exists an $i in NN$ such that the finite sub-trace $xi_0^i = s_0 a_0 ... a_(i-1) s_i$ is enough to show the property is violated #cl("DBLP:reference/mc/ClarkeHV18").
 An important fragment of the safety properties are invariants, expressing that some proposition holds in every state.
 The safety property $forall s_i : s_i != 💀$, is an invariant.
-These properties can be given as a set of states, $phi$, or as the LTL #cl("DBLP:reference/mc/ClarkeHV18") safety fragment "$#strong("AG") psi$" where $psi$ is a predicate on $S$.
+These properties can be given as a set of states, $phi$, or as the _linear temporal logic_ (LTL) #cl("DBLP:reference/mc/ClarkeHV18")#cl("DBLP:reference/mc/PitermanP18") safety fragment "$#strong("AG") psi$" where $psi$ is a predicate on $S$.
 
 A safety property can be re-formulated as an invariant by modifying the MDP, so it includes a "monitor" that will move the model to a specific state if the property is violated. 
 In the following, safety will be discussed in terms of invariants, given as a set of safe states.
@@ -674,12 +674,15 @@ One way to mitigate this might be fine-tuning the existing policy with the new s
 
 ]<ex:GridWorldSafety>
 
-=== Finite- and Infinite-horizon Shielding
+=== Finite- and Infinite-horizon Shielding <sec:ShieldingHorizon>
 
 Note that @def:Shielding requires safety over all infinite traces that are outcomes of the shield.
 This generally requires computing the shield offline, which can be computationally infeasible for some models. 
 Instead, it can make sense to only give guarantees $k$ steps into the future, computed on-line at each step.
-These finite horizon shields have been referred to as _bounded prescience_  shields @giacobbe_shielding_2021, or _$k$-step lookahead_ shields @xiao_model-based_2023 #cl("DBLP:conf/ijcai/YangMRR23").
+This avoids the initial (intractable) cost of computing the shield, instead incurring a smaller computational cost at each step. 
+When steps happen at a fixed frequency or has a maximum waiting period, it is important that the on-line computation of safe actions does not exceed these deadlines.
+
+This outlook is sometimes called _receding horizon_ because the lookahead is always $k$ steps ahead from the current state. It has also been referred to as a _bounded prescience_  shield @giacobbe_shielding_2021, or _$k$-step lookahead_ shield @xiao_model-based_2023 #cl("DBLP:conf/ijcai/YangMRR23").
 
 One example of such a safety guarantee @giacobbe_shielding_2021  was given for a deterministic MDP, but here extended to include probabilistic outcomes: 
 For an MDP $mdp$, action $a_0$  is $k$-safe at state $s_0$, if there exists a deterministic policy $pi$ such that for all traces $xi = s_0 a_0 ... s_k...$ with $pi(s_i) = a_i$ for $i > 0$, then $xi_0^k$ is safe.
@@ -691,25 +694,23 @@ Finite-horizon shielding is also the standard formulation of probabilistic shiel
 == Probabilistic Shielding <sec:ProbabilisticShielding>
 
 Guaranteeing safety with 100% certainty is not always possible.
-The model may be structured in such a way, that there is always a non-zero chance of exiting the safe set.
-This can be due to uncertainty about the underlying system, which gets modelled as probabilistic behaviour, or it can be a genuine reflection of a system where failure is always a possibility.
+The model may be structured in such a way, that the chance of leaving the safe set is always non-zero.
+This can be due to uncertainty about behaviour of the underlying system -- which gets modelled as probabilistic behaviour -- or it can be a genuine reflection of a system where failure is always a possibility.
 In such cases, methods like @AlshiekhBEKNT18@bloem_its_2020, that always assume the worst-case outcome of any action, will fail.
-But when inherent uncertainty precludes methods that give absolute guarantees, there still exist methods to improve the chances of staying safe. Such a case is shown in @ex:DoubleOrNothing.
+But when inherent uncertainty precludes methods that give absolute guarantees, there are still ways of improving the chances of staying safe.
+@ex:DoubleOrNothing is a case where there is no strategy that will always avoid failure, but the risk depends on the strategy.
 
 #example(name: "Double or Nothing")[
-  #show regex("☺|☹") : it => {
-    text(it, size: 0.8em)
-  }
 
-  A six-pack of colas is staked on a wager: A coin is flipped either one or two times, with the second flip being double or nothing.
-  There is no way to guarantee the safety property "the wager is not lost."
+  A six-pack of cola is staked on a wager: A coin is flipped either one or two times, with the second flip being double or nothing.
+  There is no way to guarantee the safety property "wager is not lost."
 
   #figure(image("../Graphics/Intro/DoubleOrNothing.drawio.pdf"),
   caption:[
     Double or nothing. The initial state is $⦾$.
   ])<fig:DoubleOrNothing>
 
-  This wager is represented as an MDP in @fig:DoubleOrNothing. With $S = {⦾, ○, ☺, ☹}$, let the safe set $phi = S \\ ☹$. 
+  This wager is represented as an MDP shown in @fig:DoubleOrNothing. Let the safe set $phi = {⦾, ○, ☺}$. 
   Clearly, there is no way to stay within the safe set with probability $1.0$.
 
   However the strategy $pi(s) = flip$ has risk $0.75$ of leaving the safe set~$phi$, while  $pi'(s) = cases(flip "if" s = ⭗, stop)$ only has a risk of $0.5$.
@@ -718,31 +719,32 @@ But when inherent uncertainty precludes methods that give absolute guarantees, t
 
 Probabilistic shielding
 #cl("DBLP:journals/cacm/KonighoferBJJP25")#cl("DBLP:conf/concur/0001KJSB20")#cl("DBLP:conf/ijcai/YangMRR23")#cl("DBLP:conf/atva/PrangerKPB21")
-has been shown to produce safer strategies, with fewer safety violations during training, by enforcing a probabilistic invariant.
-The probabilistic guarantees are usually given over a finite horizon ($k$-step lookahead) since the risk will trend towards $1.0$ as the length of an episode increases.
-Alternatively, the safety property can be formulated as _reach-avoid_ where a goal-state has to be reached while avoiding the unsafe states.
+has been shown to produce safer strategies -- with fewer safety violations during training -- by enforcing a probabilistic invariant.
+The probabilistic guarantees are usually given over a finite horizon (Cf.~@sec:ShieldingHorizon) since the risk will trend towards $1.0$ as the length of an episode increases.
+Alternatively, the safety property can be formulated as _reach-avoid,_ stating that a goal-state has to be reached while avoiding a set of unsafe states.
+Such bounded specifications are safety properties of a type other than invariants and can be specified using LTL #cl("DBLP:reference/mc/PitermanP18")#cl("DBLP:reference/mc/ClarkeHV18").
 
 Given these invariants, the probabilistic guarantees given by such shields vary by implementation.
 The two main options #cl("DBLP:journals/cacm/KonighoferBJJP25") will be outlined here:
- / Option A: For some safety threshold $theta$, the strategy being shielded will fail with probability at most $theta$.
- / Option B: Every action allowed by the shield can form part of a strategy, that will fail with probability at most $theta$.
+ / Option A: For some safety threshold $theta$, the policy being shielded will violate the specification with probability at most $theta$.
+ / Option B: Every action allowed by the shield can form part of a strategy, that will violate the specification with probability at most $theta$.
+  I.e. the shield allows action $a$ in state $s$ if there exists a policy $pi$ with $pi(s) = a$ such that $pi$ will satisfy the specification with probability $1 - theta$.
 
 The main distinction of Option B is that it does not require the safest strategy to be followed. 
 It only requires that a safe strategy exists, starting with the current action.
-Consequently, it does not consider past risk when evaluating future actions.
+Consequently, it does not consider past risk when evaluating actions.
 
-Consider @ex:DoubleOrNothing and the safety property "not ☹," with $theta=0.5$.
+Consider @ex:DoubleOrNothing and the safety property "not $☹$," with $theta=0.5$.
 A shield based on Option A would permit $flip$ in the starting state, but not in the next state.
 Meanwhile, Option B would permit $flip$ in both states.
-To see this, note that state $⦾$ has probability $0.5$ of reaching $○$, and from there it can reach $☺$ with probability $1.0$.
+To see this, note that $flip$ in state $⦾$ has probability $0.5$ of reaching $○$, and from there it can reach $☺$ with probability $1.0$.
 Therefore, $flip$ is permitted in $⦾$.
-Next both, ${stop, flip}$ are permitted in $○$, since $flip$ has probability of reaching $☺$.
+Both actions ${stop, flip}$ are permitted in $○$, since $flip$ has probability $0.5$ of reaching $☺$.
 
 While Option A may be more theoretically justified, ignoring cumulative risk has the benefit of making every action dependent only on the current state.
 That is, Option B creates shields that are memoryless nondeterministic strategies, while Option A requires strategies with memory.
 
-Synthesis methods for Option A #cl("DBLP:conf/tacas/Junges0DTK16")#cl("DBLP:journals/corr/DragerFK0U15") can be computationally expensive to obtain, and will be more conservative than those for Option B #cl("DBLP:conf/concur/0001KJSB20")#cl("DBLP:journals/corr/abs-2605-10293")#cl("DBLP:conf/atva/PrangerKPB21").
-In either case, the non-zero risk of failure will naturally include a risk of reaching states where the probabilistic guarantee cannot be realized.
+Synthesis methods for Option A #cl("DBLP:conf/tacas/Junges0DTK16")#cl("DBLP:journals/corr/DragerFK0U15") can also be computationally expensive to obtain, and will be more conservative than those for Option B #cl("DBLP:conf/concur/0001KJSB20")#cl("DBLP:journals/corr/abs-2605-10293")#cl("DBLP:conf/atva/PrangerKPB21").
 
 === Fallback Actions
 

@@ -143,5 +143,5 @@
 #let othala = "ᛟ"
 
 // "Double or Nothing" example
-#let flip = "flip"
-#let stop = "stop"
+#let flip = smallcaps(text("flip", font: "Gentium Book Plus"))
+#let stop = smallcaps(text("stop", font: "Gentium Book Plus"))
