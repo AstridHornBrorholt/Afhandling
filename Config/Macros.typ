@@ -141,3 +141,7 @@
 #let ingwaz = "ᛜ"
 #let dagaz = "ᛞ"
 #let othala = "ᛟ"
+
+// "Double or Nothing" example
+#let flip = "flip"
+#let stop = "stop"

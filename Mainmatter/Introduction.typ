@@ -36,7 +36,7 @@ A _shield,_ tasked with enforcing this safety specification, acts as a guardrail
 Often, obtaining a shield which is safe by construction can be feasible, even when directly obtaining a policy that is both safe and (near-) optimal is not.
 This shield can then be combined with an efficient policy, such as one obtained by RL, to achieve both safety and efficiency.
 Therefore, shielding has been widely studied in the literature 
-#cl("DBLP:conf/concur/0001KJSB20")@9196867@BastaniL21@PaperA@PaperC@PaperB#cl("DBLP:journals/corr/ZhangB19")#cl("DBLP:conf/amcc/BharadwajBDKT19")#cl("DBLP:conf/atal/Elsayed-AlyBAET21")#cl("DBLP:conf/atal/XiaoLD23")#cl("DBLP:conf/aaai/Carr0JT23")#cl("DBLP:conf/atva/PrangerKPB21")@PaperD@MedicalShielding#cl("DBLP:conf/isola/TapplerPKMBL22")@giacobbe_shielding_2021@xiao_model-based_2023@yang_safe_2023@bloem_its_2020@carr_compositional_2025 
+#cl("DBLP:conf/concur/0001KJSB20")@9196867@BastaniL21@PaperA@PaperC@PaperB#cl("DBLP:journals/corr/ZhangB19")#cl("DBLP:conf/amcc/BharadwajBDKT19")#cl("DBLP:conf/atal/Elsayed-AlyBAET21")#cl("DBLP:conf/atal/XiaoLD23")#cl("DBLP:conf/aaai/Carr0JT23")#cl("DBLP:conf/atva/PrangerKPB21")@PaperD@MedicalShielding#cl("DBLP:conf/isola/TapplerPKMBL22")@giacobbe_shielding_2021@xiao_model-based_2023#cl("DBLP:conf/ijcai/YangMRR23")@bloem_its_2020@carr_compositional_2025 
 but the ability of a shield to enforce safety depends on which assumptions can be made about the system, and there is no truly scalable "silver bullet" to ensure safety in all cases.
 
 Therefore, this thesis will continue the work of developing scalable shielding methods that enforce safety under systems and assumptions that are realistic for real-world cyber-physical systems.
@@ -444,7 +444,7 @@ The paper describes how a "shield" can be synthesized from an *abstract model* o
 Such an abstraction could be significantly simpler than the full system, allowing shielded reinforcement learning to scale to systems where other methods for safe and optimal control are infeasible.
 This is illustrated in @ex:SafetyRelevantAbstraction.
 
-Since this first article covering shielded reinforcement learning in finite MDPs, other shielding methods building upon the same framework have been described in the literature #cl("DBLP:conf/concur/0001KJSB20")@9196867@BastaniL21@PaperA@PaperC@PaperB#cl("DBLP:journals/corr/ZhangB19")#cl("DBLP:conf/amcc/BharadwajBDKT19")#cl("DBLP:conf/atal/Elsayed-AlyBAET21")#cl("DBLP:conf/atal/XiaoLD23")#cl("DBLP:conf/aaai/Carr0JT23")#cl("DBLP:conf/atva/PrangerKPB21")@PaperD@MedicalShielding#cl("DBLP:conf/isola/TapplerPKMBL22")@giacobbe_shielding_2021@xiao_model-based_2023@yang_safe_2023@bloem_its_2020@carr_compositional_2025.
+Since this first article covering shielded reinforcement learning in finite MDPs, other shielding methods building upon the same framework have been described in the literature #cl("DBLP:conf/concur/0001KJSB20")@9196867@BastaniL21@PaperA@PaperC@PaperB#cl("DBLP:journals/corr/ZhangB19")#cl("DBLP:conf/amcc/BharadwajBDKT19")#cl("DBLP:conf/atal/Elsayed-AlyBAET21")#cl("DBLP:conf/atal/XiaoLD23")#cl("DBLP:conf/aaai/Carr0JT23")#cl("DBLP:conf/atva/PrangerKPB21")@PaperD@MedicalShielding#cl("DBLP:conf/isola/TapplerPKMBL22")#cl("DBLP:conf/ijcai/YangMRR23")@giacobbe_shielding_2021@xiao_model-based_2023@bloem_its_2020@carr_compositional_2025.
 
 #example(name: "Safety-relevant Abstraction")[
   The contract from @ex:QualityInjectionMoulding is once again re-negotiated, this time to replace a fixed price of batches with variable pricing scheme depending on market forces.
@@ -679,32 +679,85 @@ One way to mitigate this might be fine-tuning the existing policy with the new s
 Note that @def:Shielding requires safety over all infinite traces that are outcomes of the shield.
 This generally requires computing the shield offline, which can be computationally infeasible for some models. 
 Instead, it can make sense to only give guarantees $k$ steps into the future, computed on-line at each step.
-These finite horizon shields are often referred to as _bounded prescience_  shields @giacobbe_shielding_2021, or $k$-step lookahead shields @xiao_model-based_2023 @yang_safe_2023.
+These finite horizon shields have been referred to as _bounded prescience_  shields @giacobbe_shielding_2021, or _$k$-step lookahead_ shields @xiao_model-based_2023 #cl("DBLP:conf/ijcai/YangMRR23").
 
 One example of such a safety guarantee @giacobbe_shielding_2021  was given for a deterministic MDP, but here extended to include probabilistic outcomes: 
 For an MDP $mdp$, action $a_0$  is $k$-safe at state $s_0$, if there exists a deterministic policy $pi$ such that for all traces $xi = s_0 a_0 ... s_k...$ with $pi(s_i) = a_i$ for $i > 0$, then $xi_0^k$ is safe.
 This extends to other states $s$ by redefining the starting state of $mdp$ to $s$.
 
+#new[
+Finite-horizon shielding is also the standard formulation of probabilistic shielding, which will be introduced in the following section.
+
 == Probabilistic Shielding <sec:ProbabilisticShielding>
 
+Guaranteeing safety with 100% certainty is not always possible.
+The model may be structured in such a way, that there is always a non-zero chance of exiting the safe set.
+This can be due to uncertainty about the underlying system, which gets modelled as probabilistic behaviour, or it can be a genuine reflection of a system where failure is always a possibility.
+In such cases, methods like @AlshiekhBEKNT18@bloem_its_2020, that always assume the worst-case outcome of any action, will fail.
+But when inherent uncertainty precludes methods that give absolute guarantees, there still exist methods to improve the chances of staying safe. Such a case is shown in @ex:DoubleOrNothing.
 
 #example(name: "Double or Nothing")[
   #show regex("☺|☹") : it => {
-    text(size: 0.8em)[#it]
+    text(it, size: 0.8em)
   }
 
   A six-pack of colas is staked on a wager: A coin is flipped either one or two times, with the second flip being double or nothing.
+  There is no way to guarantee the safety property "the wager is not lost."
 
   #figure(image("../Graphics/Intro/DoubleOrNothing.drawio.pdf"),
   caption:[
     Double or nothing. The initial state is $⦾$.
   ])<fig:DoubleOrNothing>
 
-  This wager is represented as an MDP in @fig:DoubleOrNothing. With $S = {⭗, ⭘, ☺, ☹}$, let the safe set $phi = S \\ ☹$. 
+  This wager is represented as an MDP in @fig:DoubleOrNothing. With $S = {⦾, ○, ☺, ☹}$, let the safe set $phi = S \\ ☹$. 
   Clearly, there is no way to stay within the safe set with probability $1.0$.
 
-  However the strategy $pi(s) = "flip"$ clearly has a higher risk of leaving the safe set~$phi$ than  $pi'(s) = cases("flip if" s = ⭗, "stop")$.
-]
+  However the strategy $pi(s) = flip$ has risk $0.75$ of leaving the safe set~$phi$, while  $pi'(s) = cases(flip "if" s = ⭗, stop)$ only has a risk of $0.5$.
+]<ex:DoubleOrNothing>
+
+
+Probabilistic shielding
+#cl("DBLP:journals/cacm/KonighoferBJJP25")#cl("DBLP:conf/concur/0001KJSB20")#cl("DBLP:conf/ijcai/YangMRR23")#cl("DBLP:conf/atva/PrangerKPB21")
+has been shown to produce safer strategies, with fewer safety violations during training, by enforcing a probabilistic invariant.
+The probabilistic guarantees are usually given over a finite horizon ($k$-step lookahead) since the risk will trend towards $1.0$ as the length of an episode increases.
+Alternatively, the safety property can be formulated as _reach-avoid_ where a goal-state has to be reached while avoiding the unsafe states.
+
+Given these invariants, the probabilistic guarantees given by such shields vary by implementation.
+The two main options #cl("DBLP:journals/cacm/KonighoferBJJP25") will be outlined here:
+ / Option A: For some safety threshold $theta$, the strategy being shielded will fail with probability at most $theta$.
+ / Option B: Every action allowed by the shield can form part of a strategy, that will fail with probability at most $theta$.
+
+The main distinction of Option B is that it does not require the safest strategy to be followed. 
+It only requires that a safe strategy exists, starting with the current action.
+Consequently, it does not consider past risk when evaluating future actions.
+
+Consider @ex:DoubleOrNothing and the safety property "not ☹," with $theta=0.5$.
+A shield based on Option A would permit $flip$ in the starting state, but not in the next state.
+Meanwhile, Option B would permit $flip$ in both states.
+To see this, note that state $⦾$ has probability $0.5$ of reaching $○$, and from there it can reach $☺$ with probability $1.0$.
+Therefore, $flip$ is permitted in $⦾$.
+Next both, ${stop, flip}$ are permitted in $○$, since $flip$ has probability of reaching $☺$.
+
+While Option A may be more theoretically justified, ignoring cumulative risk has the benefit of making every action dependent only on the current state.
+That is, Option B creates shields that are memoryless nondeterministic strategies, while Option A requires strategies with memory.
+
+Synthesis methods for Option A #cl("DBLP:conf/tacas/Junges0DTK16")#cl("DBLP:journals/corr/DragerFK0U15") can be computationally expensive to obtain, and will be more conservative than those for Option B #cl("DBLP:conf/concur/0001KJSB20")#cl("DBLP:journals/corr/abs-2605-10293")#cl("DBLP:conf/atva/PrangerKPB21").
+In either case, the non-zero risk of failure will naturally include a risk of reaching states where the probabilistic guarantee cannot be realized.
+
+=== Fallback Actions
+
+For some states in a model, shields that give absolute guarantees may not permit _any_ actions since they may all lead to failure.
+The shield is simply constructed so that it avoids these states.
+However, probabilistic shields will include an inherent risk of reaching undesirable states, including ones where no actions are sufficiently safe to satisfy the safety threshold $theta$.
+
+Most systems cannot simply be halted when such an eventually occurs.
+Instead the shield should make a best effort of steering the agent out of danger, regardless of the odds.
+This can be as simple as only allowing the action with the highest probability of success, but can also include similarly safe actions.
+The probabilistic shield in #cl("DBLP:conf/concur/0001KJSB20") always allows the safest actions, and other actions within some relative threshold.
+Alternatively, #cl("DBLP:journals/corr/abs-2605-10293") only allows actions that satisfy a constant threshold.
+However, if no such action exists, it allows the safest action and all actions within a fixed range of that action.
+
+] // end #new
 
 == Adaptive Shielding <sec:AdaptiveShielding>
 ...
