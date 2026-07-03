@@ -410,8 +410,8 @@ The permissiveness of the shield is an important property, since an overly restr
   $expectation(○) = 
   (100 + 0.05 times 0.99)/(1 - 0.95 times 0.99 - 0.05 times 0.99^2) approx 9533.06$.
 
-  A less permissive shield with $shield^-(○) = {c}$, $shield^-(◍) = {c}$ and $shield^-(●) = emptyset$.
-  Is still safe, but disallows the optimal policy. The only policy allowed by $shield^-$ is the one which collects an expected discounted reward of 100 (cf. @ex:discounted).
+  A less permissive shield with $shield^-(○) = {c}$, $shield^-(◍) = {c}$ and $shield^-(●) = emptyset$
+  is still safe, but disallows the optimal policy. The only policy allowed by $shield^-$ is the one which collects an expected discounted reward of 100 (cf. @ex:discounted).
 ] <ex:QualityInjectionMoulding>
 
 Some safe sets are not possible to enforce. For example, consider a Grid World $cal(W)' = (S, s_0, A, P, R)$ as described in @ex:GridWorld, except with $s_0 = 10$.
@@ -593,7 +593,7 @@ Otherwise $P^shield_(#h(1.5pt) fehu)$ will change during training, violating the
   It would be unsound to only update $Q(s, a')$, or to use the unaltered reward $R(s, a, s')$ from the original MDP.
 
   When updated correctly, the model will learn the outcome of picking $a in.not shield(s)$ as $sum_(s') P(s, a')(s')R(s, a', s')$.
-  Other alterations to how value-updates are performed, such as penalising unsafe actions, may reduce the number of times the shield has to intervene #cl("DBLP:conf/ijcnn/SeurinPP20").
+  Other alterations to how value-updates are performed -- such as penalising unsafe actions -- can reduce the number of times the shield has to intervene #cl("DBLP:conf/ijcnn/SeurinPP20").
 ]
 
 Both pre- and post-shielding preserve the assumptions necessary to guarantee convergence of a reinforcement learning algorithm to an optimal policy, but pre-shielding will likely converge faster than post-shielding in general:
