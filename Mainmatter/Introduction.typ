@@ -801,10 +801,15 @@ However, if no such action exists, it allows the safest action and all actions w
 
 ] // end #new
 
-== Adaptive Shielding <sec:AdaptiveShielding>
-...
 
-(pre- or post-)
+#new[
+== Adaptive Shielding <sec:AdaptiveShielding>
+
+Safety guarantees in shielding are contingent on the model used (MDP or MG) being accurate to the true underlying system.
+Say the MDP $mdp^*$ accurately reflects the underlying system, but this model is not known.
+Uncertainty about the true behaviour of $mdp^*$ can be modelled as stochastic behaviour, creating an MDP $hat(mdp)$.
+This $hat(mdp)$ should ideally be a conservative estimate, such that the shield for $hat(mdp)$ becomes more cautious than it needs to be, in order to remain safe within $mdp^*$.
+
 
 === Training and Operation <sec:AdaptiveTrainingAndOperation>
 
@@ -815,6 +820,7 @@ In this way, adaptive shielding can be either end-to-end or training-only, depen
 However,  an operation-only adaptive shield is a contradiction, since both shield and policy are static during operation.
 With an alternative definition of the operation phase that allows an adaptive shield (while keeping the policy static) the data acquired might make the adaptive shield more permissive over time.
 This appears to be an open research question, but it is difficult to imagine a case where the technical and legal limitations outlined in @sec:TrainingAndOperation require a fixed policy but not a fixed shield.
+] // end #new
 
 == Multi-agent Shielding <sec:MultiAgentShielding>
 
