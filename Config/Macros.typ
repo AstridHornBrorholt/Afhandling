@@ -12,7 +12,11 @@
 #let fallback = {set text(fill: rgb(0, 0, 0, 0)); $nabla$}
 #let shield = $fallback #h(-0.65em) #image("../Graphics/Shield.svg", height: 0.6em)$
 
+
+#let hatshield = $fallback #h(-0.65em)  hat(#image("../Graphics/Shield.svg", height: 0.6em))$
+
 #shield
+#hatshield
 
 // https://forum.typst.app/t/how-can-i-label-the-columns-and-rows-of-a-matrix/2220/3
 #let labelmat(
@@ -115,6 +119,9 @@
 #let intersection = $inter$
 #let intersect = $intersection$
 
+#let models = $scripts(models)$
+#let modelsnot = $cancel(models, length: #90%)$
+#let widehat(body) = text(font: "Latin Modern Math", $hat(body)$)
 
 // The Elder Futhark
 #let fehu = "ᚠ"

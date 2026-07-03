@@ -682,7 +682,16 @@ Instead, it can make sense to only give guarantees $k$ steps into the future, co
 This avoids the initial (intractable) cost of computing the shield, instead incurring a smaller computational cost at each step. 
 When steps happen at a fixed frequency or has a maximum waiting period, it is important that the on-line computation of safe actions does not exceed these deadlines.
 
+#new[
 This outlook is sometimes called _receding horizon_ because the lookahead is always $k$ steps ahead from the current state. It has also been referred to as a _bounded prescience_  shield @giacobbe_shielding_2021, or _$k$-step lookahead_ shield @xiao_model-based_2023 #cl("DBLP:conf/ijcai/YangMRR23").
+
+#definition(name: "Bounded Safety, bounded shielding")[
+  Given a safe set $phi$ on an MDP $mdp$, a trace is said to be _safe for $k$ steps,_ written $xi models^k phi$ if $xi_1^k models phi$.
+  A policy $pi$ is safe for $k$ steps if any trace $xi$ that is an outcome of $pi$ is safe for $k$ steps.
+
+  A nondeterministic policy is a _$k$-step lookahead shield_ $shield^k$ if every outcome of this policy is safe for $k$ steps.
+]
+] // end #new
 
 One example of such a safety guarantee @giacobbe_shielding_2021  was given for a deterministic MDP, but here extended to include probabilistic outcomes: 
 For an MDP $mdp$, action $a_0$  is $k$-safe at state $s_0$, if there exists a deterministic policy $pi$ such that for all traces $xi = s_0 a_0 ... s_k...$ with $pi(s_i) = a_i$ for $i > 0$, then $xi_0^k$ is safe.
@@ -710,7 +719,7 @@ But when inherent uncertainty precludes methods that give absolute guarantees, t
     Double or nothing. The initial state is $⦾$.
   ])<fig:DoubleOrNothing>
 
-  This wager is represented as an MDP shown in @fig:DoubleOrNothing. Let the safe set $phi = {⦾, ○, ☺}$. 
+  This wager is represented as an MDP $cal(D)$ shown in @fig:DoubleOrNothing. Let the safe set $phi = {⦾, ○, ☺}$. 
   Clearly, there is no way to stay within the safe set with probability $1.0$.
 
   However the strategy $pi(s) = flip$ has risk $0.75$ of leaving the safe set~$phi$, while  $pi'(s) = cases(flip "if" s = ⭗, stop)$ only has a risk of $0.5$.
@@ -723,41 +732,72 @@ has been shown to produce safer strategies -- with fewer safety violations durin
 The probabilistic guarantees are usually given over a finite horizon (Cf.~@sec:ShieldingHorizon) since the risk will trend towards $1.0$ as the length of an episode increases.
 Alternatively, the safety property can be formulated as _reach-avoid,_ stating that a goal-state has to be reached while avoiding a set of unsafe states.
 Such bounded specifications are safety properties of a type other than invariants and can be specified using LTL #cl("DBLP:reference/mc/PitermanP18")#cl("DBLP:reference/mc/ClarkeHV18").
+The following definition describes the probability of maintaining a set within a finite horizon.
 
-Given these invariants, the probabilistic guarantees given by such shields vary by implementation.
-The two main options #cl("DBLP:journals/cacm/KonighoferBJJP25") will be outlined here:
- / Option A: For some safety threshold $theta$, the policy being shielded will violate the specification with probability at most $theta$.
- / Option B: Every action allowed by the shield can form part of a strategy, that will violate the specification with probability at most $theta$.
-  I.e. the shield allows action $a$ in state $s$ if there exists a policy $pi$ with $pi(s) = a$ such that $pi$ will satisfy the specification with probability $1 - theta$.
+#definition(name: "Bounded Probabilistic Safety")[
+  Given a policy $pi$, an MDP $mdp = (S, s_0, A, P, R)$ and safe set $phi$, the probability of leaving $phi$ in the next $k$ steps, starting from $s in S$ is 
 
-The main distinction of Option B is that it does not require the safest strategy to be followed. 
-It only requires that a safe strategy exists, starting with the current action.
+  $ PP_mdp^k (pi, phi, s) = cases(
+      1 "if" s modelsnot phi, 
+      0 "if" k <= 0,
+      sum_(a in A) pi(s, a) sum_(s' in S) P(s, a)(s') PP_mdp^(k-1)(pi, phi, s) 
+    )
+  $
+
+  If a policy is unsafe with probability at most $theta$, i.e. $PP(pi, phi, s_0) <= theta$, this is written as  $pi models^k_(<= theta) phi$.
+
+  For some state $s$, action $a$ and subsequent policy $pi$, the probability of leaving~$phi$ after taking action $a$ is $PP_mdp^k (pi, phi, s, a) =  sum_(s' in S) P(s, a)(s') times PP_mdp^(k-1)(pi, phi, s)$.
+]<def:BoundedProbabilisticSafety>
+
+For a safe set $phi$, the probabilistic guarantees given by  $k$-step  shields $shield$ vary by implementation.
+The two main options #cl("DBLP:journals/cacm/KonighoferBJJP25") will be called _strong_ and _weak_ probabilistic shielding in this thesis.
+ 
+#definition(name: [Strongly $theta$-safe $k$-step shield])[
+  For some safety threshold $theta$, the policy being shielded will leave $phi$ with probability at most $theta$ in the next $k$ steps. 
+
+  A nondeterministic policy is a strongly $theta$-safe $k$-step lookahead shield $shield_theta^k$   if for any policy~$pi$ that is shielded by $shield_theta^k$, it holds that $pi models_(<= theta)^k phi$.
+]<def:StrongThetaSafe>
+ 
+#definition(name: [Weakly $theta$-safe $k$-step shield])[
+  The shield allows actions for which it is possible to stay within the safe set $phi$ with probability $1 - theta$ for the next $k$ steps.
+
+ A nondeterministic strategy is a weakly $theta$-safe  $k$-step lookahead shield $hatshield_theta^k$ if whenever $a in hatshield_theta^k$ then there exists a policy $pi$ such that $PP_mdp^k (pi, phi, s, a) <= theta$.
+]
+
+The main distinction of weak safety is that it does not require the safest policy to be followed. 
+It only requires that a safe policy exists, starting with the current action.
 Consequently, it does not consider past risk when evaluating actions.
 
-Consider @ex:DoubleOrNothing and the safety property "not $☹$," with $theta=0.5$.
-A shield based on Option A would permit $flip$ in the starting state, but not in the next state.
-Meanwhile, Option B would permit $flip$ in both states.
-To see this, note that $flip$ in state $⦾$ has probability $0.5$ of reaching $○$, and from there it can reach $☺$ with probability $1.0$.
-Therefore, $flip$ is permitted in $⦾$.
-Both actions ${stop, flip}$ are permitted in $○$, since $flip$ has probability $0.5$ of reaching $☺$.
+#example(name: [Shielding "Double or Nothing"])[
+  Consider the MDP $cal(D)$ from @ex:DoubleOrNothing.
+  Choose lookahead $k=3$, a safe set $phi = {⦾, ○, ☺}$ and $theta=0.5$.
 
-While Option A may be more theoretically justified, ignoring cumulative risk has the benefit of making every action dependent only on the current state.
-That is, Option B creates shields that are memoryless nondeterministic strategies, while Option A requires strategies with memory.
+  A strongly $theta$-safe shield $shield_0.5^3$ would permit $flip$ in the starting state, but not in the next state: $shield_0.5^3 (⦾) = {flip}, shield_0.5^3( ○) = {stop}$.
 
-Synthesis methods for Option A #cl("DBLP:conf/tacas/Junges0DTK16")#cl("DBLP:journals/corr/DragerFK0U15") can also be computationally expensive to obtain, and will be more conservative than those for Option B #cl("DBLP:conf/concur/0001KJSB20")#cl("DBLP:journals/corr/abs-2605-10293")#cl("DBLP:conf/atva/PrangerKPB21").
+  Meanwhile, a weak shield $hatshield_0.5^3$ would permit $flip$ in both states:\ 
+  $hatshield_0.5^3 (⦾) = {flip}, hatshield_0.5^3( ○) = {flip, stop}$.
 
-=== Fallback Actions
+  This is because $flip$ in state $⦾$ has probability $0.5$ of reaching $○$, and from there $stop$ can reach $☺$ with probability~$1.0$.
+  Therefore $PP_cal(D)^3 (pi', phi, ⦾, flip) = 0.5$ for $pi'(s) = cases(flip "if" s = ⦾, stop)$. 
+]
 
-For some states in a model, shields that give absolute guarantees may not permit _any_ actions since they may all lead to failure.
+While strong safety may be more theoretically justified, ignoring cumulative risk has the benefit of making every action dependent only on the current state.
+That is, weak shields are memoryless nondeterministic policies, while strong shields require memory.
+
+Synthesis methods for strong shields #cl("DBLP:conf/tacas/Junges0DTK16")#cl("DBLP:journals/corr/DragerFK0U15") can also be computationally expensive to obtain, and will be more conservative than those for weak shields #cl("DBLP:conf/concur/0001KJSB20")#cl("DBLP:journals/corr/abs-2605-10293")#cl("DBLP:conf/atva/PrangerKPB21").
+
+=== Contingency Actions
+
+For some states in a model, non-probabilistic shields do not permit _any_ actions since they may all lead to failure.
 The shield is simply constructed so that it avoids these states.
-However, probabilistic shields will include an inherent risk of reaching undesirable states, including ones where no actions are sufficiently safe to satisfy the safety threshold $theta$.
+However, probabilistic shields have an inherent risk of reaching undesirable states, including ones where no actions are sufficiently safe to satisfy the safety threshold $theta$.
 
 Most systems cannot simply be halted when such an eventually occurs.
 Instead the shield should make a best effort of steering the agent out of danger, regardless of the odds.
 This can be as simple as only allowing the action with the highest probability of success, but can also include similarly safe actions.
-The probabilistic shield in #cl("DBLP:conf/concur/0001KJSB20") always allows the safest actions, and other actions within some relative threshold.
+The probabilistic shield in #cl("DBLP:conf/concur/0001KJSB20") always allows the safest action, and other actions within some relative threshold.
 Alternatively, #cl("DBLP:journals/corr/abs-2605-10293") only allows actions that satisfy a constant threshold.
-However, if no such action exists, it allows the safest action and all actions within a fixed range of that action.
+However, if no such action exists, it allows the safest action and all actions within a range of that action.
 
 ] // end #new
 
