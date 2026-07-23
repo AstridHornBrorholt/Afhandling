@@ -584,7 +584,7 @@ Otherwise $P^shield_(#h(1.5pt) fehu)$ will change during training, violating the
 
 #remark(name: "Value Updates in Post-shielding")[
   The value updates for post-shielding are performed in the natural way, but subtle mistakes in the implementation can void the convergence guarantees.
-  Consider Q-learning performed on a post-shielded MDP $mdp^shield_fehu = (S, s_0, A, P', R^shield_fehu)$.
+  Consider Q-learning performed on a post-shielded MDP $mdp^shield_fehu = (S, s_0, A, P^shield_fehu, R^shield_fehu)$.
   Say that in state $s$,  the shield alters an unsafe action $a in.not shield(s)$ to the safe alternative $a' = fehu(s)$, reaching state $s'$.
   Then, the value update should be performed for $a$ and not $a'$.
   I.e. $Q(s, a)$ is updated with reward $R^shield_fehu (s, a, s')$
@@ -593,7 +593,8 @@ Otherwise $P^shield_(#h(1.5pt) fehu)$ will change during training, violating the
   It would be unsound to only update $Q(s, a')$, or to use the unaltered reward $R(s, a, s')$ from the original MDP.
 
   When updated correctly, the model will learn the outcome of picking $a in.not shield(s)$ as $sum_(s') P(s, a')(s')R(s, a', s')$.
-  Other alterations to how value-updates are performed -- such as penalising unsafe actions -- can reduce the number of times the shield has to intervene #cl("DBLP:conf/ijcnn/SeurinPP20").
+  Other alterations to how value-updates are performed may be sound.
+  For example, penalising unsafe actions can reduce the number of times the shield has to intervene #cl("DBLP:conf/ijcnn/SeurinPP20").
 ]
 
 Both pre- and post-shielding preserve the assumptions necessary to guarantee convergence of a reinforcement learning algorithm to an optimal policy, but pre-shielding will likely converge faster than post-shielding in general:
@@ -690,7 +691,7 @@ This outlook is sometimes called _receding horizon_ because the lookahead is alw
   A policy $pi$ is safe for $k$ steps if any trace $xi$ that is an outcome of $pi$ is safe for $k$ steps.
 
   A nondeterministic policy is a _$k$-step lookahead shield_ $shield^k$ if every outcome of this policy is safe for $k$ steps.
-]
+]<def:FiniteHorizon>
 ] // end #new
 
 One example of such a safety guarantee @giacobbe_shielding_2021  was given for a deterministic MDP, but here extended to include probabilistic outcomes: 
@@ -703,15 +704,16 @@ Finite-horizon shielding is also the standard formulation of probabilistic shiel
 == Probabilistic Shielding <sec:ProbabilisticShielding>
 
 Guaranteeing safety with 100% certainty is not always possible.
-The model may be structured in such a way, that the chance of leaving the safe set is always non-zero.
+In some models, the chance of leaving the safe set (from the initial state) is always non-zero.
 This can be due to uncertainty about behaviour of the underlying system -- which gets modelled as probabilistic behaviour -- or it can be a genuine reflection of a system where failure is always a possibility.
-In such cases, methods like @AlshiekhBEKNT18@bloem_its_2020, that always assume the worst-case outcome of any action, will fail.
-But when inherent uncertainty precludes methods that give absolute guarantees, there are still ways of improving the chances of staying safe.
-@ex:DoubleOrNothing is a case where there is no strategy that will always avoid failure, but the risk depends on the strategy.
+In such cases, methods like @AlshiekhBEKNT18@bloem_its_2020, that assume the worst-case outcome of any action, will fail.
+
+When inherent uncertainty precludes methods that give absolute guarantees, there are still ways of improving the chances of staying safe.
+@ex:DoubleOrNothing is a case where there is no strategy that will always avoid failure, but the risk varies depending on the choice of actions.
 
 #example(name: "Double or Nothing")[
 
-  A six-pack of cola is staked on a wager: A coin is flipped either one or two times, with the second flip being double or nothing.
+  A six-pack of cola is staked on a wager: A coin is flipped either one or two times, where the second flip is for double or nothing.
   There is no way to guarantee the safety property "wager is not lost."
 
   #figure(image("../Graphics/Intro/DoubleOrNothing.drawio.pdf"),
@@ -719,20 +721,22 @@ But when inherent uncertainty precludes methods that give absolute guarantees, t
     Double or nothing. The initial state is $⦾$.
   ])<fig:DoubleOrNothing>
 
-  This wager is represented as an MDP $cal(D)$ shown in @fig:DoubleOrNothing. Let the safe set $phi = {⦾, ○, ☺}$. 
-  Clearly, there is no way to stay within the safe set with probability $1.0$.
+  This wager is represented as an MDP $cal(D)$ shown in @fig:DoubleOrNothing. Let the safe set $phi = {⦾, ○, ☺}$.
+  The outgoing arrows are omitted for $☺$ and $☹$, which are terminal states where all actions lead back to themselves at zero reward. 
 
-  However the strategy $pi(s) = flip$ has risk $0.75$ of leaving the safe set~$phi$, while  $pi'(s) = cases(flip "if" s = ⭗, stop)$ only has a risk of $0.5$.
+  Clearly, there is no way to stay within the safe set with probability $1.0$.
+  However the strategy $pi(s) = flip$ risks leaving the safe set~$phi$ with probability  $0.75$, while  $pi'(s) = cases(flip "if" s = ⭗, stop) #v(2.2em)$ only has a risk of $0.5$.
 ]<ex:DoubleOrNothing>
 
 
 Probabilistic shielding
 #cl("DBLP:journals/cacm/KonighoferBJJP25")#cl("DBLP:conf/concur/0001KJSB20")#cl("DBLP:conf/ijcai/YangMRR23")#cl("DBLP:conf/atva/PrangerKPB21")
-has been shown to produce safer strategies -- with fewer safety violations during training -- by enforcing a probabilistic invariant.
-The probabilistic guarantees are usually given over a finite horizon (Cf.~@sec:ShieldingHorizon) since the risk will trend towards $1.0$ as the length of an episode increases.
+enforces a probabilistic invariant.
+It has been shown to produce safer strategies with fewer safety violations during training.
+The probabilistic guarantees are usually given over a finite horizon (Cf.~@sec:ShieldingHorizon) since the riskof failure over an infinite horizon often compounds to $1.0$.
 Alternatively, the safety property can be formulated as _reach-avoid,_ stating that a goal-state has to be reached while avoiding a set of unsafe states.
-Such bounded specifications are safety properties of a type other than invariants and can be specified using LTL #cl("DBLP:reference/mc/PitermanP18")#cl("DBLP:reference/mc/ClarkeHV18").
-The following definition describes the probability of maintaining a set within a finite horizon.
+Finite-horizon and reach-avoid specifications are types of safety properties -- but they are not invariants -- and can be specified using LTL #cl("DBLP:reference/mc/PitermanP18")#cl("DBLP:reference/mc/ClarkeHV18").
+The following extends @def:FiniteHorizon to describe the probability of staying in a safe set for a finite horizon.
 
 #definition(name: "Bounded Probabilistic Safety")[
   Given a policy $pi$, an MDP $mdp = (S, s_0, A, P, R)$ and safe set $phi$, the probability of leaving $phi$ in the next $k$ steps, starting from $s in S$ is 
@@ -744,12 +748,12 @@ The following definition describes the probability of maintaining a set within a
     )
   $
 
-  If a policy is unsafe with probability at most $theta$, i.e. $PP(pi, phi, s_0) <= theta$, this is written as  $pi models^k_(<= theta) phi$.
+  If a policy is unsafe with probability at most $theta$, i.e. $PP_mdp^k (pi, phi, s_0) <= theta$, this is written as  $pi models^k_(<= theta) phi$.
 
-  For some state $s$, action $a$ and subsequent policy $pi$, the probability of leaving~$phi$ after taking action $a$ is $PP_mdp^k (pi, phi, s, a) =  sum_(s' in S) P(s, a)(s') times PP_mdp^(k-1)(pi, phi, s)$.
+  For a state $s$, action $a$, and subsequent policy $pi$, the probability of leaving~$phi$ after taking action $a$ is $PP_mdp^k (pi, phi, s, a) =  sum_(s' in S) P(s, a)(s') times PP_mdp^(k-1)(pi, phi, s)$.
 ]<def:BoundedProbabilisticSafety>
 
-For a safe set $phi$, the probabilistic guarantees given by  $k$-step  shields $shield$ vary by implementation.
+For a safe set $phi$, the probabilistic guarantees given by  $k$-step  shields $shield^k$ vary by implementation.
 The two main options #cl("DBLP:journals/cacm/KonighoferBJJP25") will be called _strong_ and _weak_ probabilistic shielding in this thesis.
  
 #definition(name: [Strongly $theta$-safe $k$-step shield])[
@@ -761,24 +765,28 @@ The two main options #cl("DBLP:journals/cacm/KonighoferBJJP25") will be called _
 #definition(name: [Weakly $theta$-safe $k$-step shield])[
   The shield allows actions for which it is possible to stay within the safe set $phi$ with probability $1 - theta$ for the next $k$ steps.
 
- A nondeterministic strategy is a weakly $theta$-safe  $k$-step lookahead shield $hatshield_theta^k$ if whenever $a in hatshield_theta^k$ then there exists a policy $pi$ such that $PP_mdp^k (pi, phi, s, a) <= theta$.
+ A nondeterministic strategy is a weakly $theta$-safe  $k$-step lookahead shield $hatshield_theta^k$ if whenever $a in hatshield_theta^k  (s)$, there exists a policy $pi$ such that $PP_mdp^k (pi, phi, s, a) <= theta$.
 ]
 
 The main distinction of weak safety is that it does not require the safest policy to be followed. 
 It only requires that a safe policy exists, starting with the current action.
 Consequently, it does not consider past risk when evaluating actions.
 
+#todo[Seems like strong safety → weak safety. That would be a nice property.]
+
 #example(name: [Shielding "Double or Nothing"])[
   Consider the MDP $cal(D)$ from @ex:DoubleOrNothing.
   Choose lookahead $k=3$, a safe set $phi = {⦾, ○, ☺}$ and $theta=0.5$.
 
   A strongly $theta$-safe shield $shield_0.5^3$ would permit $flip$ in the starting state, but not in the next state: $shield_0.5^3 (⦾) = {flip}, shield_0.5^3( ○) = {stop}$.
+  Notice there exists only one policy $pi(s) = cases(flip "if" s = ⦾, stop) #v(2.2em)$ such that $pi models shield_0.5^3$ and that $pi models_0.5^3 phi$.
 
-  Meanwhile, a weak shield $hatshield_0.5^3$ would permit $flip$ in both states:\ 
+  Meanwhile, a weak shield $hatshield_0.5^3$ would permit $flip$ in both non-terminal states:\ 
   $hatshield_0.5^3 (⦾) = {flip}, hatshield_0.5^3( ○) = {flip, stop}$.
 
   This is because $flip$ in state $⦾$ has probability $0.5$ of reaching $○$, and from there $stop$ can reach $☺$ with probability~$1.0$.
-  Therefore $PP_cal(D)^3 (pi', phi, ⦾, flip) = 0.5$ for $pi'(s) = cases(flip "if" s = ⦾, stop)$. 
+  The weak shield includes an additional policy:
+  Besides $pi models hatshield_0.5^3$ as above, the shield also permits $pi'(s) = flip$ which has probability $0.75$ of losing the bet.
 ]
 
 While strong safety may be more theoretically justified, ignoring cumulative risk has the benefit of making every action dependent only on the current state.
@@ -795,9 +803,9 @@ However, probabilistic shields have an inherent risk of reaching undesirable sta
 Most systems cannot simply be halted when such an eventually occurs.
 Instead the shield should make a best effort of steering the agent out of danger, regardless of the odds.
 This can be as simple as only allowing the action with the highest probability of success, but can also include similarly safe actions.
-The probabilistic shield in #cl("DBLP:conf/concur/0001KJSB20") always allows the safest action, and other actions within some relative threshold.
-Alternatively, #cl("DBLP:journals/corr/abs-2605-10293") only allows actions that satisfy a constant threshold.
-However, if no such action exists, it allows the safest action and all actions within a range of that action.
+A weakly safe shield is used in #cl("DBLP:journals/corr/abs-2605-10293"), i.e. it only allows actions that satisfy a constant threshold.
+However, if no such action exists, the shield allows the safest action and all actions within a constant range of that action.
+Alternatively, the probabilistic shield in #cl("DBLP:conf/concur/0001KJSB20") always allows the safest action, and other actions within some relative range.
 
 ] // end #new
 
@@ -805,21 +813,25 @@ However, if no such action exists, it allows the safest action and all actions w
 #new[
 == Adaptive Shielding <sec:AdaptiveShielding>
 
-Safety guarantees in shielding are contingent on the model used (MDP or MG) being accurate to the true underlying system.
+Safety guarantees in shielding are contingent on the model used (MDP or MG) being accurate to the true system.
 Say the MDP $mdp^*$ accurately reflects the underlying system, but this model is not known.
 Uncertainty about the true behaviour of $mdp^*$ can be modelled as stochastic behaviour, creating an MDP $hat(mdp)$.
-This $hat(mdp)$ should ideally be a conservative estimate, such that the shield for $hat(mdp)$ becomes more cautious than it needs to be, in order to remain safe within $mdp^*$.
+The approximation $hat(mdp)$ should ideally be a conservative estimate, such that any shield for $hat(mdp)$ is also a (conservative) shield for $mdp^*$.
 
+Several methods #citationneeded[Which?] exist for creating an estimate $hat(mdp)$ from traces (historical data) produced by $mdp^*$.
+It is then possible to synthesize a shield.
+However, if the shield is used during training on $mdp^*$, additional traces are generated which can be used to improve $hat(mdp)$ and conversely improve the shield.
+Such improvements to the shield estimate during training is called _adaptive shielding._
 
 === Training and Operation <sec:AdaptiveTrainingAndOperation>
 
-The training and operation phases described in @sec:TrainingAndOperation apply to an adaptive shield in the same way.
+The training and operation phases described in @sec:TrainingAndOperation extends naturally to include adaptive shielding:
 When the shield and policy are put into operation, they both become static.
-In this way, adaptive shielding can be either end-to-end or training-only, depending on whether the final shield is explicitly represented during operation.
+In this way, adaptive shielding can be end-to-end or training-only, depending on whether the final shield is explicitly represented during operation.
 
-However,  an operation-only adaptive shield is a contradiction, since both shield and policy are static during operation.
-With an alternative definition of the operation phase that allows an adaptive shield (while keeping the policy static) the data acquired might make the adaptive shield more permissive over time.
-This appears to be an open research question, but it is difficult to imagine a case where the technical and legal limitations outlined in @sec:TrainingAndOperation require a fixed policy but not a fixed shield.
+If the shield must be static during operation, then the term operation-only adaptive shielding is an oxymoron.
+With an alternative definition of the operation phase that allows an adaptive shield, (while keeping the policy static) the data acquired might improve the adaptive shield over time.
+This is an open research question, but it is difficult to imagine a case where the technical and legal limitations outlined in @sec:TrainingAndOperation require a fixed policy while not also requiring a fixed shield.
 ] // end #new
 
 == Multi-agent Shielding <sec:MultiAgentShielding>
@@ -840,12 +852,12 @@ These multi-agent settings present unique challenges.
   $R$ induces individual reward functions $R_1, R_2, ...R_n$ where each $R_i$ gives the $i^"th"$ value of the vector: If $R(s, a, s) = r$ then $R_i (s, a, s) = r_i$.
 ]<def:mg>
 
-Note that $S$, $s_0$ and $P$ are as in @def:mdp while the action space $A$ and reward function $R$ is changed to accommodate multiple players.
+Note that $S$, $s_0$ and $P$ match those in @def:mdp, while the action space $A$ and reward function $R$ is changed to accommodate multiple players.
 The joint action $a$ is the combination of players' individual choices $a = (a_1, a_2, ...a_n)^top$.
 When $a$ is taken in state $s$, the player $i$ receives reward $R_i (s, a, s) = (R(s, a, s))_i$.
 
 For an MG, there is one policy for each of the $n$ players, $(pi_1, pi_2, ...pi_n)$.
-These are as in @def:policy, except that each policy $pi_i$ is over the player's own action space $A_i$.
+These are as in @def:policy, except that each policy $pi_i$ is over the player's own action space $A_i$:
 
 #definition(name:[Individual and joint policies])[
   In an MG $mg$, individual policies $pi_i$ represent one player $i$ choosing from its own action space $A_i$.
@@ -859,37 +871,40 @@ These are as in @def:policy, except that each policy $pi_i$ is over the player's
 ]<def:joint-policy>
 
 Traces are defined from joint policies in the same manner as @def:trace.
-Likewise, the definition of a joint policy can be used to describe the expected reward of a player:
+The expected reward of an individual player can be described similarly  to @def:expected-reward:
 
 #definition(name: [Expected individual reward])[
-  Given an MG $mg$, a joint probabilistic policy $pi : S -> (A -> [0; 1])$ and a discount factor $gamma in [0; 1[$, the expected reward of player $i in N$ from $mg$, is the unique fixed point of the following equation
+  Given an MG $mg$, a joint probabilistic policy $pi : S -> (A -> [0; 1])$ and a discount factor $gamma in [0; 1[$, the expected reward of player $i in N$ starting in $s$ is the unique fixed point of the following equation
 
   $ EE_pi^(mg, i) (s) = sum_(a in A) pi(s)(a) sum_(s' in S) P(s, a)(s') (R_i (s, a, s') + gamma  EE_pi^(mg, i) (s')) $ 
 ]<def:individual-reward>
 
 
 Recall that Q-learning assumes a static environment in order to prove convergence.
-This assumption fails if multiple policies are acting upon the same environment while being continually updated.
-Players can change their policy to optimize reward based on the current policy of all others, only for other players to update their policies in turn.
+This assumption fails if multiple policies are being trained and interacting in the same environment.
+Players may change their policy to optimize reward given on the current policy of all others, only for other players to update their policies in turn.
 This prompts further policy changes in a cycle that may continue _ad infinitum._
 
+=== Reward Structure and Optimization Objectives
+
 It may not even be clear what the joint policy should converge to, depending on how the reward is defined.
-An MG can fall into one of three different categories which describe the reward structure @zhang2021multi@busoniu_multi-agent_2010@marl-book.
- - Cooperative, where reward values are identical for all players: For $1 <= i < j <= n$ then $R_i (s, a) = R_j (s, a)$.
- - Competitive, in which the reward is zero-sum: $sum_(i = 0)^n R_i (s, a) = 0$.
- - Mixed, if the reward $R$ is neither competitive or cooperative. 
+An MG $mg$ can fall into one of three different categories which describe the reward structure @zhang2021multi@busoniu_multi-agent_2010@marl-book.
+ - Cooperative, where the reward $R$ received by all players is the same: $forall i, j in N : R_i (s, a) = R_j (s, a)$.
+ - Competitive, in which the reward $R$ is zero-sum: $sum_(i = 0)^n R_i (s, a) = 0$.
+ - Mixed, if the reward is neither competitive or cooperative. 
  
 For mixed reward structures, the set of policies which give the highest possible reward to player $i$, is usually not the same as the set of policies that give the highest mean reward among all players.
-Optimization objectives are often formulated instead a _Nash equilibrium_ or a _Pareto optimum._
+Similarly for competitive games, the joint policy which gives the highest reward for player $i$ is disadvantageous for other players.
+Rather than favouring a specific player, optimization objectives are commonly formulated as a _Nash equilibrium_ or a _Pareto optimum._
 
 Nash equilibria are concerned with changes to individual policies.
-For a joint policy $pi$ induced by $(pi_1, pi_2, ... pi_n)$ and some individual policy $pi'_i$, let $(pi'_i, pi_(-i))$ be the joint policy induced by $(pi_1, pi_2, ... pi'_i, ... pi_n)$.
+For a joint policy $pi$ induced by $(pi_1, pi_2, ... pi_n)$ and some individual policy $pi'_i$, let $(pi'_i, pi_(\-i))$ be the joint policy induced by $(pi_1, pi_2, ... pi_(i-1), pi'_i, pi_(i+1), ... pi_n)$.
 
 #definition(name: [Nash equilibrium])[
-  For an MG $mg$, a joint policy $pi$ is a Nash equilibrium @zhang2021multi if no player $i$ can gain  a higher reward by changing its individual policy $pi_i$ to some other $pi'_i$. 
+  For an MG $mg$, a joint policy $pi$ is a Nash equilibrium @zhang2021multi if no player $i$ can gain  a higher expected individual reward by changing its individual policy $pi_i$ to some other $pi'_i$. 
   That is to say, $pi$ is a Nash equilibrium if for every player $i$ and every state $s$,
 
-  $ EE^(mg, i)_(pi)(s) >= EE^(mg, i)_((pi'_i, pi_(-i)))(s) " for any policy " pi'_i $
+  $ EE^(mg, i)_(pi)(s) >= EE^(mg, i)_((pi'_i, pi_(\-i)))(s) " for any policy " pi'_i $
 ]
 #question[ Should this ↑ just be from the initial state? I.e. $EE^(G, i)_pi (s_0)$ ? ]
 
@@ -897,9 +912,9 @@ It may be that changing multiple policies can lead to higher reward, but no sing
 Pareto optimality is a related, but stronger concept.
 
 #definition(name: [Pareto optimal])[
-   For an MG $mg = (S, s_0, N, A, P, R)$, the joint policy $pi$ is Pareto optimal~@marl-book if there is no other policy where the players' reward is just as high or higher.
+   For an MG $mg = (S, s_0, N, A, P, R)$, the joint policy $pi$ is Pareto optimal~@marl-book if there is no other policy where every player's reward is just as high or higher.
 
-   Specifically, a policy $pi'$ is Pareto dominated by $pi$ if 
+   Specifically, the policy $pi$ Pareto dominates $pi'$ if
 
    $ forall i in N, s in S : EE^(G, i)_pi (s) &>= EE^(G, i)_pi' (s) " and " \
    exists i in N, s in S : EE^(G, i)_pi (s) &> EE^(G, i)_pi' (s) $
@@ -908,32 +923,34 @@ Pareto optimality is a related, but stronger concept.
 
 ]
 
-=== Safety and Shielding
+=== Multi-agent Safety and Shielding
 
-Safety as given in @def:Safety, described by safe sets $phi subset.eq S$, can be extended directly to MGs for states, traces and joint policies.
-An individual policy is safe if it ensures the entire MG stays within the safe set, regardless of the behaviour of other agents. 
-Formally, an individual policy $pi_i$ is safe if -- for any joint policy $pi$ -- every trace $xi$ that is an outcome of $(shield_i, pi_(-i))$ is safe.
+Safety as given in @def:Safety (described by safe sets $phi subset.eq S$) can be extended directly to MGs for states, traces and joint policies.
+An individual policy is safe if it ensures the entire MG stays within the safe set, regardless of other agents' behaviour. 
+Formally, an individual policy $pi_i$ is safe if -- for any non-deterministic joint policy $pi$ -- every trace $xi$ that is an outcome of $(shield_i, pi_(\-i))$ is safe.
 
 Analogously to joint and individual policies, a shield is called either _global_ or _local._
 
 #definition(name: "Global and local shields")[
-  For an MG $mg = (S, s_0, N, A, P, R)$ and a safe set $phi subset.eq S$, a nondeterministic global policy is a global shield $shield : S → A$ if it is safe.
+  For an MG $mg = (S, s_0, N, A, P, R)$ and a safe set $phi subset.eq S$, a nondeterministic global policy is a global shield $shield : S → A$, if it is safe.
 
   A safe nondeterministic individual policy is called a local shield $shield_i : S -> A_i$.
 ]<def:GlobalAndLocalShields>
 
 The concepts of maximally permissive shields and shielded global/local policies extend naturally from @def:Shielding.
 
-A safe set may be feasible (@def:Feasibility) with a global shield, but not feasible for any of the players as a local shield.
+A safe set may be feasible (cf. @def:Feasibility) with a global shield, but not feasible for any of the players as a local shield.
 This is shown in @ex:2PlayerGridWorld.
-
 
 #example(name: "2-player Grid World")[
   Recall the Grid World $cal(W) = (S, s_0, A, P, R)$ from @ex:GridWorld. 
   Let the two-player version be $cal(W)^2 = (S^2, s'_0, N, A^2, P^2, R^2)$ with agents $N = { 🤖, 👾 }$.
   Here, the state space $S^2$ is $S times S$, the initial state $s_0 = (14, 2)$ and the action space $A^2 = A times A $.
   The transition probability function $P^2 : S^2 times A^2 → (S^2 → [0, 1])$ extends movement to two players in the natural way, while allowing both players to occupy the same space.
-  A mixed reward structure is given by the function $R^2$ where $R_🤖(vec(s_1, s_2), a, vec(s'_1, s'_2)) = R(s_1, a_1, s'_1)$ and $R_👾(vec(s_1, s_2), a, vec(s'_1, s'_2)) = R(s_2, a_2, s'_2)$.
+  Similarly $R^2$ is defined by applying $R$ to the individual action and states of each player (yielding a mixed reward structure).
+
+  Notice how the state-space grows exponentially in the number of players: From $|S| = 16$ to $|S^2| = 16 times 16 = 256$.
+
 
 
     #figure(
@@ -954,11 +971,11 @@ This is shown in @ex:2PlayerGridWorld.
       caption: [Initial state of 2-player Grid World with slippery tiles 🧊, an untimely end 💀, a goal state 🏁, and initial positions of players 🤖 and 👾.]
     )<fig:2PlayerGridWorld>
 
-    Now consider the safe sets $phi_1 = { vec(s_1, s_2) | s_1 != 💀}$, $phi_2 = { vec(s_1, s_2) | s_2 != 💀}$, $phi = phi_1 intersection phi_2$ and $psi = { vec(s_1, s_2) | s_1 != s_2 }$.
+    Now consider the safe sets $#v(2.2em) phi_1 = { vec(s_1, s_2) | s_1 != 💀}$, $phi_2 = { vec(s_1, s_2) | s_2 != 💀}$, $phi = phi_1 intersection phi_2$ and $psi = { vec(s_1, s_2) | s_1 != s_2 }$.
     Clearly, all sets are feasible as global shields.
 
-    The safe set, $phi$ is not feasible with a local shield, since neither player has the ability to keep the other from entering 💀.
-    But the safe set's components $phi_1$ and $phi_2$ both are feasible with local shields.
+    The safe sets $phi_1$ and $phi_2$ are both feasible with local shields for the corresponding player.
+    But $phi$ is _not_ feasible with a local shield since neither player has the ability to keep the other from entering 💀.
 
     Furthermore, $psi$ is feasible as a local shield $shield_👾$, since player 👾 has enough space around it to avoid 🤖 indefinitely.
     However, no local shield $shield_🤖$ exists.
@@ -970,18 +987,20 @@ This is shown in @ex:2PlayerGridWorld.
 ]<ex:2PlayerGridWorld>
 
 The assumption that all agents can act in concert following some centralized shield is often unrealistic.
-Additionally, the synthesis of  a global shield is often not computationally feasible because of state-space explosion. 
-
-This necessitates the use of local shields, but many important safe sets may not be feasible to enforce with purely local shields.
-However, global shields may also be infeasible due to state-space explosion, which is a particular problem in multi-agent settings.
+Additionally, the synthesis of  a global shield is often not computationally feasible because of state-space explosion:
 The size of the state-space increases with the number of agents, which in some parts of the literature can be in the hundreds or low thousands #cl("DBLP:conf/iclr/QinZCCF21")@marl-book.
 A state-space of this size can strain many RL algorithms, and the behaviour and positions of other agents far away, may not have a substantial impact on individual reward.
+
+This necessitates the use of local shields, but many important safe sets may not be feasible to enforce with purely local shields.
+However, global shields may also be infeasible as previously noted.
+Thus, the current literature on multi-agent shielding relies on additional assumptions, or variations on the MG.
+
 
 === Variations on Markov Games
 It is common in multi-agent shielding to make additional assumptions about the model, to make multi-agent shielding feasible and sufficiently permissive.
 Rather than observing the full state of the  system, it is more realistic to assume the MG is partially observable, which also reduces the size of the state-space (observation space).
 Orthogonally, assuming that agents are able to communicate amongst themselves can make shields more permissive by reducing uncertainty. 
-Besides explicit communication, agents may co-ordinate actions ahead of time, providing guarantees which can be relied on at runtime.
+Besides explicit communication, agents may co-ordinate responsibilities before training starts, providing guarantees which can be relied on at runtime.
 
 ==== Partial Observability
 
