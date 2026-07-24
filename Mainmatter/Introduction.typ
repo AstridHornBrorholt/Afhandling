@@ -303,8 +303,11 @@ This is ensured by the fact that $s_0$ is visited infinitely often as $n -> infi
     caption: [Q-learning in the grid world.]
   )
 
-  The same MDP can be modelled in the model-checking tool Prism @Prism, and the optimal policy can be approximated precisely and quickly by its built-in value iteration method.
-  #footnote[A discounted reward was simulated using a variable `t` that increments each step, multiplying the reward with `gamma^t`. The query used was `Rmin=?[C<=100]`.]
+  After training, the behaviour of the policy during operation (cf. @sec:TrainingAndOperation) was simulated by generating 1000 traces of length 100, using the resulting greedy policy (returned in @l:Return of @alg:QLearning).
+  The mean undiscounted reward was found to be -7.624.
+
+  The same MDP can be modelled in the model-checking tool *Prism* @Prism, and the optimal policy can be approximated precisely and quickly by its built-in value iteration method.
+  #footnote[A discounted reward was simulated using a variable `t` that increments each step, multiplying the reward with `gamma^t`. The query used was `Rmin=?[C<=100]` to compute cost. Cost was then converted to reward by flipping the sign.]
   The resulting state values are shown in @fig:VTablePrism.
 
   The final policy is not safe, in the sense that it has a non-zero chance of reaching the state 💀.
@@ -676,6 +679,12 @@ One way to mitigate this might be fine-tuning the existing policy with the new s
   Such drops in @fig:QGraph indicate episodes where the agent is penalised for reaching state 15 💀.
   With the shield acting as a teacher, a reliable policy is quickly found, and no safety violations were encountered during training.
 
+  An operation phase was simulated in the same manner as described in @ex:GridWorld: By generating 1000 traces each of length 100.
+  As expected, the policy trained under a pre-shield was safe during operation, even without explicitly shielding the actions.
+  This policy was found to yield a mean reward of exactly $-8$, the shortest amount of steps needed to circumnavigate the ice.
+
+  Adding a shield to the policy from @ex:GridWorld  (operation-only shielding) also produced a safe strategy with a mean reward of $-8$, since the policy had also learned the correct route without crossing 🧊️.
+  With repeated training, the operation-only shielded policy was always safe, but would sometimes not lead to 🏁️.
 ]<ex:GridWorldSafety>
 
 === Finite- and Infinite-horizon Shielding <sec:ShieldingHorizon>

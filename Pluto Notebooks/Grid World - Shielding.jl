@@ -175,35 +175,19 @@ function r(s)
 	end
 end
 
+# ╔═╡ 6e627214-d8fc-4782-a97c-a3f7b83c16a0
+md"""
+### Try it out! Use the inputs below to test the function.
+"""
+
 # ╔═╡ a4fc59ad-af31-4644-b716-868ac21b996a
 @bind a Select(A)
 
 # ╔═╡ 54fbe43e-eb61-4630-82e7-9c4c0c5c8b86
-@bind s Select([S...], default=4) # Needs a list not a matrix
+@bind s Select([S...], default=10)
 
 # ╔═╡ 39872b3f-ffe0-4bce-9686-e4bd142da607
 f(s, a)
-
-# ╔═╡ 3115ec67-977f-495a-a55c-9be13129dbfd
-[f(10, :→) for _ in 1:20]
-
-# ╔═╡ 73030552-c725-4829-9583-23a89b592a9a
-@test f(1, :→) == 2
-
-# ╔═╡ 2342191b-1d65-4f3c-b118-e38085fbcab7
-@test f(2, :↓) == 6
-
-# ╔═╡ c93b9adf-b4df-4755-94c6-4eade5c75b2e
-@test f(5, :←) == 5
-
-# ╔═╡ 1799ddea-cf99-4736-9008-80fe4b621145
-@test f(9, :→) == 10
-
-# ╔═╡ 95c8ce15-7a1e-4060-a418-0ece089e66aa
-@test f(12, :↓) == 🏁
-
-# ╔═╡ 713e8cdb-1d9f-4e8e-8b05-71d14c047f73
-@test f(1, :↑) == 1
 
 # ╔═╡ 2a754cfb-a824-4fbb-999b-27e2b1439e1f
 md"""
@@ -252,13 +236,22 @@ samples_per_axis = [1]
 samples_per_axis_random = [2, 4]
 
 # ╔═╡ d37c80b0-0cef-42aa-a878-ade06954f442
+# Two random values between 0 and 1 (Nearly: eps() is the floating-point number closest to zero.)
 randomness_space = Bounds([eps(), eps()], [1., 1.])
 
 # ╔═╡ 060c4170-aba1-4b1b-9710-86beb904a602
 simulation_function(s, a, r) = f(s[1], enum_to_action[a], r)
 
+# ╔═╡ d403fe76-6608-4914-87f4-2db3e7354b20
+md"""
+Remember the `s` and `a` inputs from above?
+"""
+
+# ╔═╡ 1194e983-d039-4f85-a681-62f8870291f8
+(s, a)
+
 # ╔═╡ 0af99598-9e2a-494e-b2e9-0d3911670900
-simulation_function(10, up, [0.1, 0.8])
+simulation_function(s, action_to_enum[a], [rand(Float64), rand(Float64)])
 
 # ╔═╡ d48f7d1c-3aee-4f96-92cd-34925bd8abf8
 model = SimulationModel(simulation_function, randomness_space, samples_per_axis, samples_per_axis_random)
@@ -370,141 +363,12 @@ end
 # ╔═╡ ea419be2-1b1e-40f2-b823-673a4c38f543
 allows(shield, 14, :↑)
 
-# ╔═╡ 8a78e939-8005-4eb1-b072-5d4c427cbc3a
-md"""
-## Try it out! 🎈 Test the shield
-Using the power of Pluto Notebooks reactivity, you can play the Grid World example yourself.
-
-Optionally (checkbox below) you can explore the grid-world safely by having the shield override unsafe actions.
-"""
-
-# ╔═╡ ba1aad2e-2928-483d-a3cd-4c2da6aa8d94
-md"""
-**Enable Shield**
-$(@bind enable_shield CheckBox(default=false))
-"""
-
-# ╔═╡ c5e1c1bc-f127-42a7-bb63-ca6c83d126c3
-@bind reset_button CounterButton("Reset")
-
-# ╔═╡ ac78e8c6-202a-42e9-88c7-aa4a3bacbb4b
-begin
-	enable_shield, reset_button
-	md"""
-	Controls:
-	
-	               $(@bind up_button CounterButton("⬆️"))
-	
-	  
-	$(@bind left_button CounterButton("⬅️"))
-	              
-	$(@bind right_button CounterButton("➡️"))
-	
-	               $(@bind down_button CounterButton("⬇️"))
-	"""
-end
-
-# ╔═╡ bfbb7e69-96aa-4c45-8401-61e9e3044d86
-begin
-	reset_button # This cell is run every time the reset_button is pressed.
-	
-	# Reactive variable! Values in this array change as the notebook is updated.
-	state = Ref(🤖)
-end;
-
-# ╔═╡ 92fc6513-fc95-4d12-97d9-9d85849d9efb
-@bind state🎈 Select([S...], default = state[])
-
-# ╔═╡ b984a1f7-309f-47d2-b45d-43e32793419c
-reset_button; message = Ref("Use the arrow buttons to move");
-
-# ╔═╡ e34dd05b-6335-400a-98d5-a5ec53ff6fef
-function step(a)
-	if enable_shield && !allows(shield, state[], a)
-		message[] = "🛡️ Not allowed! 🛡️"
-		return
-	end
-	new_state = f(state[], a)
-	old_state = state[]
-	state[] = new_state
-	message[] = "Taking a step... ($old_state, $a, $new_state)"
-	nothing
-end;
-
-# ╔═╡ 227044c6-7688-4286-ab29-5a78b1f1ad9e
-if up_button > 0
-	step(:↑)
-end; 🎈1 = "🎈";
-
-# ╔═╡ fa319c0e-7730-445c-8cdb-7df500a41a48
-if down_button > 0
-	step(:↓)
-end; 🎈2 = "🎈";
-
-# ╔═╡ 123b7ba1-38af-4915-b1b7-4c91a8136b61
-if left_button > 0
-	step(:←)
-end; 🎈3 = "🎈";
-
-# ╔═╡ 4c9bce7f-a55d-4315-b128-aef21acf15bc
-if right_button > 0
-	step(:→)
-end; 🎈4 = "🎈";
-
-# ╔═╡ 13770f69-5f0c-4655-b639-e563c4274294
-🎈1, 🎈2, 🎈3, 🎈4; md"Current state: **$(state[])**"
-
-# ╔═╡ b6c02da8-4147-4600-8683-422b114d7ebb
-let
-	🎈1, 🎈2, 🎈3, 🎈4
-	
-	plot(title=message[],
-		 titlefont="Helvetica",
-		 xticks=nothing,
-		 yticks=nothing,
-		 xlim=(0, 4),
-		 ylim=(0, 4),
-		 yflip=true,
-		 aspectratio=:equal,
-		 axis=([], false))
-
-	hline!(0:4, width=1, color=:gray, label=nothing)
-	vline!(0:4, width=1, color=:gray, label=nothing)
-	
-	for x in 1:4, y in 1:4
-		annotate!(y - 0.80, x - 0.90, text("$(S[x, y])", 10))
-	end
-
-	for 🧊′ in 🧊
-		x, y = xy(🧊′)
-		annotate!(y - 0.50, x - 0.50, text("⁣🧊", 30, "Helvetica"))
-	end
-
-	x, y = xy(💀)
-	if state[] == 💀
-		annotate!(y - 0.75, x - 0.70, text("⁣💀", 20, "Helvetica"))
-	else
-		annotate!(y - 0.50, x - 0.50, text("⁣💀", 30, "Helvetica"))
-	end
-
-	x, y = xy(🏁)
-	if state[] == 🏁
-		annotate!(y - 0.70, x - 0.70, text("⁣🏁", 20, "Helvetica"))
-	else
-		annotate!(y - 0.50, x - 0.50, text("⁣🏁", 30, "Helvetica"))
-	end
-
-	x, y = xy(state[])
-	annotate!(y - 0.50, x - 0.50, text("⁣🤖", 30, "Helvetica"))
-
-	plot!()
-end
-
 # ╔═╡ 66dd9d38-7ef7-4b4c-805b-d26f21f2859f
 md"""
-## Shielded Q-learning
+## Training (Q-learning)
 Re-visiting the Q-learning code from our other notebook.
 
+This notebook uses a **pre-shield:**
 Instead of considering the full action space, we only choose from allowed actions `🛡️(s)`.
 
 This is achieved by two modifications to the algorithm.
@@ -519,22 +383,37 @@ $Q(s, a) = \begin{cases}
 
 # ╔═╡ 36a8f83d-20fd-450d-bbae-aae7fc909580
 md"""
-**Shielded Learning** $(@bind shielded_learning CheckBox(default = true))
+**👇 Enable Shield During Training**
 """
 
+# ╔═╡ 8e93a106-ea67-4253-abbd-9daa180f113c
+@bind shielded_learning CheckBox(default = true)
+
 # ╔═╡ f7e8d34a-a02b-4f91-9b1e-8785ecb52768
-if shielded_learning
-	🛡️(s) = allowed(shield, s) # Shielded actions
-else
-	🛡️(s) = A
+function 🛡️(s)
+	allowed(shield, s) # Shielded actions
 end
+
+# ╔═╡ 8a9b6383-84e0-4bbb-ad70-6f634d614950
+🛡️(9)
+
+# ╔═╡ 9be52908-01b2-4853-a7f8-7b31ee46593d
+🛡️(13)
+
+# ╔═╡ 6270c560-dd09-4441-ace5-bb38d67d5812
+🛡️(14)
 
 # ╔═╡ 7fa924a2-e89b-488c-8f46-c6067eede854
 # ϵ-greedy choice from Q.
 function ϵ_greedy(ϵ::Number, Q, s)
 	if rand(Uniform(0, 1)) < ϵ
-		return rand(🛡️(s))
+		if shielded_learning
+			return rand(🛡️(s))
+		else
+			return rand(A)
+		end
 	else
+		# Argmax over all actions A is sound here, because unsafe actions are initialized as having a Q-value of -∞ when shield is enabled.
 		return argmax((a) -> Q[s, a], A)
 	end
 end
@@ -546,10 +425,20 @@ end
 # Initializing Q-values using the shield. 
 # Unsafe actions have an expected reward of -∞.
 # Note also that it's important for the Q-updates that the terminal states are zero
-Q_init = Dict{Tuple{Int64, Symbol}, Float64}(
-	(s, a) => a ∈ 🛡️(s) ? 0.0 : -∞
+begin
+	Q_init = Dict{Tuple{Int64, Symbol}, Float64}()
+
+	
 	for s in S, a in A
-)
+		if shielded_learning && !is_terminal(s) && a ∉ 🛡️(s) 
+			Q_init[s, a] = -∞
+		else
+			Q_init[s, a] = 0.0
+		end
+	end
+	
+	Q_init
+end
 
 # ╔═╡ fbce7689-eb9d-4120-8d3d-6a01e66cb4fe
 @bind ϵ_base NumberField(0.0001:0.0001:1, default=0.1)
@@ -559,7 +448,7 @@ Q_init = Dict{Tuple{Int64, Symbol}, Float64}(
 
 # ╔═╡ 4883874d-c0e8-4984-be4d-a4c082367f74
 # Episode max length
-@bind T NumberField(1:typemax(Int64), default=1000)
+@bind T Select([5, 10, 100, 1000, 10000], default=100)
 
 # ╔═╡ 5eda40c9-f10c-4a12-a458-e76d844e7419
 @bind γ NumberField(0.0001:0.0001:1, default=0.99)
@@ -567,27 +456,13 @@ Q_init = Dict{Tuple{Int64, Symbol}, Float64}(
 # ╔═╡ 135a5791-f61d-48a9-9e31-fabfb72c0e69
 [ϵ_greedy(0.2, Q_init, 1) for _ in 1:10]
 
-# ╔═╡ c6c020d2-3f0e-4764-9d86-d6d8a202113a
-function Q_learn!(Q)
-	rewards = []
-	traces = []
-	
-	@progress for i ∈ 1:episodes
-		R, ξ = Q_episode!(Q, i)
-		push!(rewards, R)
-		push!(traces, ξ)
-	end
-
-	return rewards, traces
-end
-
 # ╔═╡ 466621e0-9448-46d6-bff5-de76ff0e25e5
 md"""
 ### This is Where Training Happens
 """
 
 # ╔═╡ d2f6ea71-2b10-4816-bade-d66565cdd73a
-@bind episodes NumberField(0:typemax(Int64), default=5)
+@bind episodes Select([50, 100, 500, 1000, 5000, 10000, 50000], default=100)
 
 # ╔═╡ f6345e37-c257-491c-9a35-820c62a18c86
 function ϵ(t; episodes=episodes)
@@ -635,19 +510,36 @@ function Q_episode!(Q, i)
 			Q[Sₜ, Aₜ] + 
 			α(i)*(rₜ₊₁ + γ*max([Q[Sₜ₊₁, a′] for a′ in A]...) -  Q[Sₜ, Aₜ])
 		
+		# Max over all actions A is sound ↑ here, because unsafe actions are initialized as having a Q-value of -∞ when shield is enabled.
+		
 		Aₜ₊₁ = ϵ_greedy(ϵ(i), Q, Sₜ₊₁)
 		
 		# @info "" Sₜ Aₜ Sₜ₊₁ r(Sₜ₊₁) Q[Sₜ, Aₜ]
 		push!(ξ, (Sₜ, Aₜ, rₜ₊₁))
 
 		if is_terminal(Sₜ₊₁)
-			push!(ξ, (Sₜ₊₁, A[1], 0))
+			# Include terminal state in trace (arbitrary action, no reward.)
+			push!(ξ, (Sₜ₊₁, A[1], 0.0)) 
 			return Σr, ξ
 		end
 		
 		Sₜ, Aₜ = Sₜ₊₁, Aₜ₊₁
 	end
 	return Σr, ξ
+end
+
+# ╔═╡ c6c020d2-3f0e-4764-9d86-d6d8a202113a
+function Q_learn!(Q)
+	rewards = []
+	traces = []
+	
+	@progress for i ∈ 1:episodes
+		R, ξ = Q_episode!(Q, i)
+		push!(rewards, R)
+		push!(traces, ξ)
+	end
+
+	return rewards, traces
 end
 
 # ╔═╡ b430b41a-23e4-4bc1-afd9-5fe08f8bd52b
@@ -666,7 +558,7 @@ if episodes < 100000
 		 label=nothing, 
 		 xlabel="Episode",
 		 ylabel="Reward",
-		 ylim=(-70, 1), 
+		 ylim=(-100, 1), 
 		 #yticks=[-150, -100, -50, 0, 10],
 		 size=(400, 400))
 else
@@ -675,22 +567,24 @@ end
 
 # ╔═╡ 58e6adbf-e43b-4352-b3f6-3128bf89c573
 md"""
-### Evaluating safety
-The following loop checks every training episodes, to see if state 15 💀 is entered. (This will be the last state in the trace but all states are checked for good measure.)
+### Safety During Training
+The following loop checks every training episode, to see if state 15 💀 is entered. (This will be the last state in the trace but all states are checked for good measure.)
 
 It prints out erros when an unsafe episode was produced during training, and outputs "👍" otherwise. Try un-checking the [Shielded Learning](#Shielded-Q-learning) option to see some unsafe episodes.
 """
 
 # ╔═╡ 76249b97-8022-482a-be78-930b9fc22aa0
-let
+function check_safety(traces)
 	any_unsafe = false
 	for ξ in traces
 		for (S, a, S′) in ξ
 			if !is_safe(S)
-				@error "Unsafe state reached!" S ξ
+				@error "Unsafe state was reached!" state=S trace=ξ
 				any_unsafe = true
+				break
 			end
 		end
+		if any_unsafe break end
 	end
 	if !any_unsafe
 		md"""
@@ -700,6 +594,9 @@ let
 		"""
 	end
 end
+
+# ╔═╡ 0f12dc6d-f393-4b1a-94b1-fa68d8f23bec
+check_safety(traces)
 
 # ╔═╡ e8c15e5a-1282-4f6a-927f-fd00e19e200d
 md"""
@@ -753,6 +650,128 @@ let
 	end
 	plot!()
 end
+
+# ╔═╡ 5b2a7ebd-8dc0-42f7-b7b0-441092bd14c3
+md"""
+## Operation
+
+We simulate our policy being put into operation by producing 1000 traces while keeping the policy static and setting $\epsilon=0$.
+"""
+
+# ╔═╡ 428a7486-e5e8-4a63-9f4a-f7d58bd9d511
+operation_episodes = 1000
+
+# ╔═╡ cf3c3947-71d1-442c-8ffd-75b1acb1cc1c
+md"""
+**👇 Enable Shield During Operation**
+"""
+
+# ╔═╡ e36f0fbd-807b-4531-abff-36851bf96ff6
+@bind shielded_operation CheckBox(default=true)
+
+# ╔═╡ 03f5d81c-e4d6-4ce5-b8a6-45185cfcbac9
+if shielded_learning && shielded_operation
+	md"""
+	!!! info "End-to-end pre-shielding"
+		The shield is in place during both training and operation.
+	"""
+elseif shielded_learning && !shielded_operation
+	md"""
+	!!! info "Training-only pre-shielding"
+		Since unsafe actions that the shield forbids are encoded in the Q-table as $-\infty$, the shield does not actually need to be included explicitly.
+	"""
+elseif !shielded_learning && shielded_operation
+	md"""
+	!!! info "Operation-only pre-shielding"
+		The shield is only in place during operation, and the policy was trained without knowledge of the shield.
+
+		The agent will still be safe during operation, but the policy may be disrupted. This depends on what the agent learned during training.
+	"""
+elseif !shielded_learning && !shielded_operation
+	md"""
+	!!! info "Unshielded"
+		Default Q-learning with no shield in place. Safety violations have occured during training. The final policy may be safe, but this is not a guarantee.
+	"""
+end
+
+# ╔═╡ 13a65e27-f740-4c89-8374-f85365250aa3
+# Simulate an episode with ϵ=0, an optional shield, and no updates to the Q-table.
+function episode(Q)
+	ϵ = 0.0
+	Σr =  0
+	Sₜ = 🤖
+	if shielded_operation
+		Aₜ = argmax((a) -> Q[Sₜ, a], 🛡️(Sₜ))
+	else
+		Aₜ = argmax((a) -> Q[Sₜ, a], A)
+	end
+	ξ = []
+	for t ∈ 1:T
+		Sₜ₊₁ = f(Sₜ, Aₜ)
+		rₜ₊₁ = r(Sₜ₊₁)
+		Σr += rₜ₊₁
+
+		if shielded_operation
+			Aₜ₊₁ = argmax((a) -> Q[Sₜ₊₁, a], 🛡️(Sₜ₊₁))
+		else
+			Aₜ₊₁ = argmax((a) -> Q[Sₜ₊₁, a], A)
+		end
+		
+		# @info "" Sₜ Aₜ Sₜ₊₁ r(Sₜ₊₁) Q[Sₜ, Aₜ]
+		push!(ξ, (Sₜ, Aₜ, rₜ₊₁))
+
+		if is_terminal(Sₜ₊₁)
+			push!(ξ, (Sₜ₊₁, A[1], 0))
+			return Σr, ξ
+		end
+		
+		Sₜ, Aₜ = Sₜ₊₁, Aₜ₊₁
+	end
+	return Σr, ξ
+end
+
+# ╔═╡ 060b5725-40b9-4575-b41b-c68cb1c75ebe
+function operation(Q, episodes)
+	rewards = []
+	traces = []
+	
+	@progress for i ∈ 1:episodes
+		R, ξ = episode(Q)
+		push!(rewards, R)
+		push!(traces, ξ)
+	end
+	
+	rewards, traces
+end
+
+# ╔═╡ deb9fe30-06b4-4497-b28a-6d943db8df6a
+operation_rewards, operation_traces = operation(Q, operation_episodes)
+
+# ╔═╡ 7b090d43-824c-4fb1-8e62-cc05660915ca
+md"""
+### Safety During Operation
+
+The same function as used previously checks the safety traces produced during operation:
+"""
+
+# ╔═╡ 283f3099-1adf-4d60-9051-e60d6f01cab2
+check_safety(operation_traces)
+
+# ╔═╡ 1a080bbd-e311-495f-9b77-324a96021e3c
+md"""
+### Reward during operation
+We compute the mean undiscounted reward obtained during operation.
+
+When analyzing the rewards, recall that the policy is set to always pick the best action (greedy action selection with $\epsilon=0$). Thus, unfinished policies are likely to become stuck repeating the same sub-optimal action.
+
+Also recall the max episode length `T = ` $T. An agent that gets tuck will collect a **reward of $(-T).**
+"""
+
+# ╔═╡ 815481ac-221b-4167-912f-1f2b4441fc25
+operation_rewards
+
+# ╔═╡ 7de24775-9639-4484-bdda-d6674fb16cb7
+sum(operation_rewards)/operation_episodes
 
 # ╔═╡ 00000000-0000-0000-0000-000000000001
 PLUTO_PROJECT_TOML_CONTENTS = """
@@ -2198,16 +2217,10 @@ version = "1.13.0+0"
 # ╠═aa81e27a-b248-45bb-ab1c-9c6e3ac1aa24
 # ╠═a832de86-2f9f-43b8-b379-f17a6109b50b
 # ╠═5468e72e-bf32-4ca8-a9b7-579aaef265e0
+# ╟─6e627214-d8fc-4782-a97c-a3f7b83c16a0
 # ╠═a4fc59ad-af31-4644-b716-868ac21b996a
 # ╠═54fbe43e-eb61-4630-82e7-9c4c0c5c8b86
 # ╠═39872b3f-ffe0-4bce-9686-e4bd142da607
-# ╠═3115ec67-977f-495a-a55c-9be13129dbfd
-# ╠═73030552-c725-4829-9583-23a89b592a9a
-# ╠═2342191b-1d65-4f3c-b118-e38085fbcab7
-# ╠═c93b9adf-b4df-4755-94c6-4eade5c75b2e
-# ╠═1799ddea-cf99-4736-9008-80fe4b621145
-# ╠═95c8ce15-7a1e-4060-a418-0ece089e66aa
-# ╠═713e8cdb-1d9f-4e8e-8b05-71d14c047f73
 # ╟─2a754cfb-a824-4fbb-999b-27e2b1439e1f
 # ╠═6455a04a-3729-44cd-a9c9-2109706f794a
 # ╠═d5eedc70-c808-474d-b8e2-98f87bb21d7f
@@ -2220,6 +2233,8 @@ version = "1.13.0+0"
 # ╠═9c61cada-df4a-49d0-93d4-45d3a7bae866
 # ╠═d37c80b0-0cef-42aa-a878-ade06954f442
 # ╠═060c4170-aba1-4b1b-9710-86beb904a602
+# ╟─d403fe76-6608-4914-87f4-2db3e7354b20
+# ╠═1194e983-d039-4f85-a681-62f8870291f8
 # ╠═0af99598-9e2a-494e-b2e9-0d3911670900
 # ╠═d48f7d1c-3aee-4f96-92cd-34925bd8abf8
 # ╠═0ae4c6af-cfa1-4a4e-abb7-7e7db97698a5
@@ -2233,23 +2248,13 @@ version = "1.13.0+0"
 # ╠═20328a59-110e-4cd9-a02e-f5eb197d5ae7
 # ╠═3ac3936c-c011-42f2-a8d3-f2b590b60a82
 # ╠═ea419be2-1b1e-40f2-b823-673a4c38f543
-# ╟─8a78e939-8005-4eb1-b072-5d4c427cbc3a
-# ╠═ba1aad2e-2928-483d-a3cd-4c2da6aa8d94
-# ╠═c5e1c1bc-f127-42a7-bb63-ca6c83d126c3
-# ╠═13770f69-5f0c-4655-b639-e563c4274294
-# ╠═ac78e8c6-202a-42e9-88c7-aa4a3bacbb4b
-# ╠═92fc6513-fc95-4d12-97d9-9d85849d9efb
-# ╠═b6c02da8-4147-4600-8683-422b114d7ebb
-# ╠═e34dd05b-6335-400a-98d5-a5ec53ff6fef
-# ╠═bfbb7e69-96aa-4c45-8401-61e9e3044d86
-# ╠═227044c6-7688-4286-ab29-5a78b1f1ad9e
-# ╠═fa319c0e-7730-445c-8cdb-7df500a41a48
-# ╠═123b7ba1-38af-4915-b1b7-4c91a8136b61
-# ╠═4c9bce7f-a55d-4315-b128-aef21acf15bc
-# ╠═b984a1f7-309f-47d2-b45d-43e32793419c
 # ╟─66dd9d38-7ef7-4b4c-805b-d26f21f2859f
 # ╟─36a8f83d-20fd-450d-bbae-aae7fc909580
+# ╠═8e93a106-ea67-4253-abbd-9daa180f113c
 # ╠═f7e8d34a-a02b-4f91-9b1e-8785ecb52768
+# ╠═8a9b6383-84e0-4bbb-ad70-6f634d614950
+# ╠═9be52908-01b2-4853-a7f8-7b31ee46593d
+# ╠═6270c560-dd09-4441-ace5-bb38d67d5812
 # ╠═7fa924a2-e89b-488c-8f46-c6067eede854
 # ╠═99f0398d-2e8f-4835-be1d-b0f4bbd7ebdf
 # ╠═218cbaf2-175e-477e-815e-706d95cbfec2
@@ -2270,9 +2275,23 @@ version = "1.13.0+0"
 # ╟─c53ca4b4-4d7d-4ee2-b86b-fbd696f98547
 # ╟─58e6adbf-e43b-4352-b3f6-3128bf89c573
 # ╠═76249b97-8022-482a-be78-930b9fc22aa0
+# ╠═0f12dc6d-f393-4b1a-94b1-fa68d8f23bec
 # ╟─e8c15e5a-1282-4f6a-927f-fd00e19e200d
 # ╠═9cde860e-9aa8-4a9f-90d1-5932928878ea
 # ╠═8eb6eca4-2ae5-41ae-9796-09dc7c25a8be
 # ╟─3e17f889-ffc5-4fd1-8853-940a3dd64d86
+# ╟─5b2a7ebd-8dc0-42f7-b7b0-441092bd14c3
+# ╠═428a7486-e5e8-4a63-9f4a-f7d58bd9d511
+# ╟─cf3c3947-71d1-442c-8ffd-75b1acb1cc1c
+# ╠═e36f0fbd-807b-4531-abff-36851bf96ff6
+# ╟─03f5d81c-e4d6-4ce5-b8a6-45185cfcbac9
+# ╠═13a65e27-f740-4c89-8374-f85365250aa3
+# ╠═060b5725-40b9-4575-b41b-c68cb1c75ebe
+# ╠═deb9fe30-06b4-4497-b28a-6d943db8df6a
+# ╟─7b090d43-824c-4fb1-8e62-cc05660915ca
+# ╠═283f3099-1adf-4d60-9051-e60d6f01cab2
+# ╟─1a080bbd-e311-495f-9b77-324a96021e3c
+# ╠═815481ac-221b-4167-912f-1f2b4441fc25
+# ╠═7de24775-9639-4484-bdda-d6674fb16cb7
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002
