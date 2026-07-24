@@ -275,13 +275,14 @@ This is ensured by the fact that $s_0$ is visited infinitely often as $n -> infi
       caption: [A map showing the initial state of Grid World with slippery tiles 🧊, an untimely end 💀, a goal state 🏁, and  initial agent position 🤖.]
     )<fig:GridWorld>
   
-  Consider a discount factor of  $gamma = 0.9$, episode length $m=100$, initial $Q(s) = 0$ for all $s in S$, and learning rate $alpha$ and exploration factor $epsilon$:
+  Q-learning is performed with a discount factor of  $gamma = 0.9$, episode length $m=100$, initial $Q(s) = 0$ for all $s in S$, and learning rate $alpha$ and exploration factor $epsilon$:
 
   $ alpha(i) = epsilon(i) = cases(0.1 "if" i < n/2, 0.1/(1 + 0.01*(t - i/2))) $
 
-  Outcomes of Q-learning in Grid World $cal(W)$ with these parameters are shown in @fig:gridQ. The graph in @fig:QGraph shows the sum of rewards collected in each episode, up to $n=500$.
+  Outcomes of Q-learning in Grid World $cal(W)$ with these parameters are shown in @fig:QGraph and @fig:VTable.
+  The graph in @fig:QGraph shows the sum of rewards collected in each episode, up to $n=500$.
   The resulting policy is visualized in @fig:VTable, which shows for every state $s$, the policy's action $a = argmax_a' Q(s, a')$, and the value $Q(s, a)$.
-  Since the learning process is stochastic, the resulting policy will vary. 
+  Since the learning process is stochastic, it may return a different policy each time.
   In this case, the policy visits state 10 but not 11, taking a fast but somewhat risky route to the 🏁 goal. 
 
   Notice how the values have still not converged, and that the estimates are least accurate for the states furthest from the policy's route. 
@@ -659,7 +660,7 @@ One way to mitigate this might be fine-tuning the existing policy with the new s
     caption: [A shield icon 🛡️ indicates the action is not permitted.]
   )<fig:GridWorldShield>],
   [#figure(image("../Graphics/Intro/Shielded Q-learning 500.png", width: 66.666%),
-    caption: [A shield icon 🛡️ indicates the action is not permitted.]
+    caption: [Cumulative reward for a shielded Q-learning agent.]
   )<fig:GridWorldShieldedTraining>],
   caption: [Most permissive shield for Grid World.]
 )
@@ -668,9 +669,11 @@ One way to mitigate this might be fine-tuning the existing policy with the new s
   1. Initializing the Q-values as $Q(s, a) = cases(-infinity " if " a in.not shield(s), 0  )$.
   2. Modifying the $epsilon$-greedy exploration strategy (@l:Explore in @alg:QLearning) to explore only safe actions $shield(s)$, instead of the full action space $A$.
 
-  The result of end-to-end pre-shielding of the Grid World example is shown in @fig:GridWorldShieldedTraining.
+  With this approach, the shield can be training-only since the greedy policy will be safe by construction. 
+
+  The result of training-only pre-shielding of the Grid World example is shown in @fig:GridWorldShieldedTraining.
   Compared to @fig:QGraph, this shielded learning graph has no sudden drops in episode rewards.
-  Such drops in @fig:QGraph are present and indicate episodes where the agent is penalised for reaching state 15 💀.
+  Such drops in @fig:QGraph indicate episodes where the agent is penalised for reaching state 15 💀.
   With the shield acting as a teacher, a reliable policy is quickly found, and no safety violations were encountered during training.
 
 ]<ex:GridWorldSafety>
