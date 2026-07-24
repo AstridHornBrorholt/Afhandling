@@ -830,10 +830,15 @@ Say the MDP $mdp^*$ accurately reflects the underlying system, but this model is
 Uncertainty about the true behaviour of $mdp^*$ can be modelled as stochastic behaviour, creating an MDP $hat(mdp)$.
 The approximation $hat(mdp)$ should ideally be a conservative estimate, such that any shield for $hat(mdp)$ is also a (conservative) shield for $mdp^*$.
 
-Several methods #citationneeded[Which?] exist for creating an estimate $hat(mdp)$ from traces (historical data) produced by $mdp^*$.
-It is then possible to synthesize a shield.
-However, if the shield is used during training on $mdp^*$, additional traces are generated which can be used to improve $hat(mdp)$ and conversely improve the shield.
-Such improvements to the shield estimate during training is called _adaptive shielding._
+By collecting real-world data from the underlying system, traces from $mdp^*$ can be obtained.
+Several automated methods #citationneeded[Which?] can be used to obtain estimates $hat(mdp)$ based on this data.
+It is then possible to synthesize a shield for $hat(mdp)$ and use it to make the system safe.
+
+While the shield is in use, more traces are generated, and it is natural to use this additional experience to make $hat(mdp)$ -- and by extension the shield -- more precise.
+Periodically updating the shield in this way can make a conservative estimate gradually more permissive, while still ensuring that exploration is done safely.
+This has been done successfully in #citationneeded[].
+
+#todo[I suppose I need detailed discussions of current literature so that I can explain how our paper is different. ]
 
 === Training and Operation <sec:AdaptiveTrainingAndOperation>
 
