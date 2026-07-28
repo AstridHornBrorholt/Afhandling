@@ -33,6 +33,7 @@ This performance is achieved by controllers that use a high number of neurons, m
 
 *Shielding* @AlshiekhBEKNT18 @BloemKKW15 is a promising technique that restricts the behaviour of an RL policy in a way that formally guarantees a safety specification.
 A _shield,_ tasked with enforcing this safety specification, acts as a guardrail to keep the RL policy within safe bounds.
+To do so, the shield must avoid any states where leaving the bounds cannot be prevented.
 Often, obtaining a shield which is safe by construction can be feasible, even when directly obtaining a policy that is both safe and (near-) optimal is not.
 This shield can then be combined with an efficient policy, such as one obtained by RL, to achieve both safety and efficiency.
 Therefore, shielding has been widely studied in the literature 
@@ -330,12 +331,12 @@ Such a reduction could be the transformation from a Q-table to a list of state-a
 
 #todo[Q-learning advanced example: Bouncing Ball.]
 
-== Shielding <sec:Shielding>
+== Safety through Shielding <sec:Shielding>
 
 Complex physical systems may have multiple requirements placed upon them, which cannot always be combined into a single reward signal.
 These requirements may be in tension with each other, and it could be that some concerns should always come first, such as the safety of people or equipment. 
 
-=== Safety
+=== Safety <sec:Safety>
 
 Safety properties are a subset of properties on a system, which describe a state, or finite sequence of states, that should never occur.
 In @ex:InjectionMoulding, the safety property could be "the mould is cleaned as soon as it becomes contaminated." 
@@ -366,10 +367,21 @@ In the following, safety will be discussed in terms of invariants, given as a se
  Safety according to $phi$ is indicated with $models$, as respectively $s models phi$, $xi models phi$ and $pi models phi$.
 ]<def:Safety>
 
+A safe set $phi$ does not necessarily have a safe policy $pi models phi$. For example, consider a Grid World $cal(W)' = (S, s_0, A, P, R)$ as described in @ex:GridWorld, except with $s_0 = 10$.
+From this initial state, there is a nonzero probability of reaching 💀 regardless of which actions are taken.
+The safe set $S \\ {💀}$ is said to be infeasible for $cal(W)'$.
+
+
+#definition(name: "Feasibility")[
+  A safe set $phi$ is said to be feasible for an MDP $mdp$ if there exists at least one shield $shield$ for $phi$ and $mdp$.
+]<def:Feasibility>
+
+However, some policies may be safe with higher probability than others. For a discussion of probabilistic safety and shielding, see @sec:ProbabilisticShielding.
+
 The optimization problem stated in @def:Optimization does not include a notion of safety, and as noted in @ex:GridWorld, a policy might not converge to safe behaviour.
 Even then, the convergence guarantee for Q-learning relies on an infinite number of traces, meaning that models trained in practice may not have learned fully safe behaviour even if the reward function is correctly designed to encourage it.
 
-=== Safety Through Shielding
+=== Shielding
 
 Among the many approaches to enforcing safety in reinforcement learning  #cl("DBLP:conf/iros/WenET15")#cl("DBLP:conf/tacas/Junges0DTK16")#cl("DBLP:journals/jmlr/GarciaF15")@MaderbacherSBBNK23@ChengOMB19@LuoM21@BloemKKW15#cl("DBLP:conf/isola/Jaeger0BLJ20")@BerkenkampTS017#cl("DBLP:journals/jmlr/GarciaF15"), shielding @AlshiekhBEKNT18@BloemKKW15@ChowNDG18#cl("DBLP:journals/cacm/KonighoferBJJP25") is a promising technique which restricts the actions available to the agent, in order to ensure safe behaviour.
 Since shields work by restricting actions, they can be applied to any existing reinforcement learning method, including deep learning, allowing it to work in concert with state of the art methods to achieve safe and optimized behaviour.
@@ -385,8 +397,8 @@ Since shields work by restricting actions, they can be applied to any existing r
   The application of a shield in a reinforcement learning setting is discussed in @sec:ApplyingTheShield.
 ]<def:Shielding>
 
-The maximally permissive shield $shield$ for a safe set $phi$ of an MDP $mdp$ is unique @BernetJW02 @PaperB.
-Many shield synthesis methods guarantee the resulting shield will be maximally permissive for the given (abstract) model, such as @AlshiekhBEKNT18@DavidJLLLST14@PaperA#cl("DBLP:journals/cacm/KonighoferBJJP25").
+For any MDP $mdp$ and feasible safe set $phi$, a unique maximally permissive shield exists @BernetJW02 @PaperB.
+Many shield synthesis methods guarantee the resulting shield will be maximally permissive for the given model, such as @AlshiekhBEKNT18@DavidJLLLST14@PaperA#cl("DBLP:journals/cacm/KonighoferBJJP25").
 The permissiveness of the shield is an important property, since an overly restrictive shield can severely harm the performance of the resulting policy.
 
 #example(name: "Quality standards for injection moulding")[
@@ -417,17 +429,6 @@ The permissiveness of the shield is an important property, since an overly restr
   A less permissive shield with $shield^-(○) = {c}$, $shield^-(◍) = {c}$ and $shield^-(●) = emptyset$
   is still safe, but disallows the optimal policy. The only policy allowed by $shield^-$ is the one which collects an expected discounted reward of 100 (cf. @ex:discounted).
 ] <ex:QualityInjectionMoulding>
-
-Some safe sets are not possible to enforce. For example, consider a Grid World $cal(W)' = (S, s_0, A, P, R)$ as described in @ex:GridWorld, except with $s_0 = 10$.
-From this initial state, there is a nonzero probability of reaching 💀 regardless of which actions are taken.
-The safe set $S \\ {💀}$ is said to be infeasible for $cal(W)'$.
-
-
-#definition(name: "Feasibility")[
-  A safe set $phi$ is said to be feasible for an MDP $mdp$ if there exists at least one shield $shield$ for $phi$ and $mdp$.
-]<def:Feasibility>
-
-However, some policies may be safe with higher probability than others. For a discussion of probabilistic safety and shielding, see @sec:ProbabilisticShielding.
 
 === Origin of the Term
 
@@ -838,15 +839,15 @@ Alternatively, the probabilistic shield in #cl("DBLP:conf/concur/0001KJSB20") al
 == Adaptive Shielding <sec:AdaptiveShielding>
 
 Safety guarantees in shielding are contingent on the model used (MDP or MG) being accurate to the true system.
-Say the MDP $mdp^*$ accurately reflects the underlying system, but this model is not known.
-Uncertainty about the true behaviour of $mdp^*$ can be modelled as stochastic behaviour, creating an MDP $hat(mdp)$.
+Let the MDP $mdp^*$ be the most accurate possible (but in unknown) safety-relevant abstraction of the underlying system.
+Uncertainty about the exact behaviour of the system can be modelled stochastically, creating an MDP $hat(mdp)$.
 The approximation $hat(mdp)$ should ideally be a conservative estimate, such that any shield for $hat(mdp)$ is also a (conservative) shield for $mdp^*$.
 
-By collecting real-world data from the underlying system, traces from $mdp^*$ can be obtained.
+By collecting and suitably transforming real-world data from the underlying system, traces from $mdp^*$ can be obtained.
 Several automated methods #citationneeded[Which?] can be used to obtain estimates $hat(mdp)$ based on this data.
 It is then possible to synthesize a shield for $hat(mdp)$ and use it to make the system safe.
 
-While the shield is in use, more traces are generated, and it is natural to use this additional experience to make $hat(mdp)$ -- and by extension the shield -- more precise.
+While the shield is in use, more traces are generated, and it is natural to use this additional experience to make $hat(mdp)$, and by extension the shield,  more precise.
 Periodically updating the shield in this way can make a conservative estimate gradually more permissive, while still ensuring that exploration is done safely.
 This has been done successfully in #citationneeded[].
 

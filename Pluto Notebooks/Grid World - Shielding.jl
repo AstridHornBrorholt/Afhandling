@@ -764,11 +764,16 @@ We compute the mean undiscounted reward obtained during operation.
 
 When analyzing the rewards, recall that the policy is set to always pick the best action (greedy action selection with $\epsilon=0$). Thus, unfinished policies are likely to become stuck repeating the same sub-optimal action.
 
-Also recall the max episode length `T = ` $T. An agent that gets tuck will collect a **reward of $(-T).**
+Also recall the max episode length `T = ` $T. An agent that gets stuck will collect a **reward of $(-T).**
 """
 
 # ╔═╡ 815481ac-221b-4167-912f-1f2b4441fc25
 operation_rewards
+
+# ╔═╡ b6760fd5-f8a6-40a0-a60d-1b7b83169452
+md"""
+**Mean reward:**
+"""
 
 # ╔═╡ 7de24775-9639-4484-bdda-d6674fb16cb7
 sum(operation_rewards)/operation_episodes
@@ -2292,6 +2297,7 @@ version = "1.13.0+0"
 # ╠═283f3099-1adf-4d60-9051-e60d6f01cab2
 # ╟─1a080bbd-e311-495f-9b77-324a96021e3c
 # ╠═815481ac-221b-4167-912f-1f2b4441fc25
+# ╟─b6760fd5-f8a6-40a0-a60d-1b7b83169452
 # ╠═7de24775-9639-4484-bdda-d6674fb16cb7
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002
