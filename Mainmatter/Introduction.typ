@@ -71,34 +71,35 @@ An MDP can be described by a tuple $(S, s_0, A, P, R)$ where
   - and $R : S times A times S -> RR$ gives the reward $R(s, a, s')$ for reaching $s'$ by taking $a$ in $s$.
 ]<def:mdp>
 
-In this definition, the state-space is assumed to be finite, though it would be straightforward to generalize to a countably infinite state-space. 
-If $S$ were instead to be uncountably infinite, the transition function $P$ should be modified to give a density function over a set of states, rather than giving probabilities for specific states. 
+In this definition, the state-space is assumed to be finite, though in most cases the definition is used, it is straightforward to generalize to a countably infinite state-space. 
+If $S$ were instead uncountably infinite, the transition function $P$ should be modified to give a density function over a set of states, rather than giving probabilities for specific states. 
 I.e. 
 $P : S times A -> (S -> RR_(>=0))$ such that $integral_(s' in S) P(s, a)(s') d s' = 1$.
 
-The state-space $S$ is often represented as a finite set of vectors $subset ZZ^n$ where each element of a state-vector represents the value of a variable in the model (with a lower and upper bound).
+The state-space $S$ is often represented as a finite set of vectors $subset ZZ^n$ where each element of a state-vector represents the value of a variable in the model (usually defined within a bounded interval).
 The number of states $|S|$ grows exponentially with the number of variables $n$, an this growth is known as _state-space explosion._
 
 The definition also requires every action $a in A$ to be defined for every state in $S$. 
 This assumption is made w.l.o.g. to simplify notation.
 
 Sometimes models are defined as having a cost $C$ to be minimized, rather than reward $R$ to be maximised. These definitions are effectively interchangeable, as any cost can be re-defined as reward by flipping its sign: $R(s, a, s') = -C(s, a, s')$.
+To maximise the reward yielded by $R$, a policy $pi$ acts upon the model $mdp$.
 
 #definition(name: "Policy")[
   A policy  is a function that chooses the next action from a given state. 
   There are three different kinds of policy:
     - _deterministic_ $S -> A$, uniquely selecting one specific action for each state, 
-    - _probabilistic_ $S -> (A -> [0; 1])$, giving a probability distribution over actions, 
-    - or _nondeterministic_ $S -> powerset(A)$, giving a subset $A' subset.eq A$ of possible actions. 
+    - _probabilistic_ $S -> (A -> [0; 1])$, giving a probability distribution ($forall s in S : sum_(a in A) pi(s)(a) = 1$) over actions, 
+    - or _nondeterministic_ $S -> powerset(A) \\ emptyset $, giving a set $A' subset.eq A$ of possible actions. 
 
 ]<def:policy>
 
 #definition(name: "Traces, trace segments")[
-  Given an e.g. nondeterministic policy $pi : S -> powerset(A)$, a trace $xi$ is an outcome of an MDP $mdp$ and policy $pi$.
-  It is an interleaved series of states and actions $xi = s_0 a_0 s_1 a_1 s_2 a_2 ...$ such that $a_i in pi(s_i)$ and $P(s_i, a_i)(s_(i+1)) > 0$.
-  Traces are defined similarly for deterministic and probabilistic functions.
+  Given an e.g. probabilistic policy $pi : S -> (A -> [0; 1])$, a trace $xi$ is an outcome of an MDP $mdp$ and policy $pi$.
+  It is an interleaved series of states and actions $xi = s_0 a_0 s_1 a_1 s_2 a_2 ...$ such that $pi(s_i)(a_i) > 0$ and $P(s_i, a_i)(s_(i+1)) > 0$.
+  Traces are defined similarly for deterministic and nondeterministic policies.
   Since @def:mdp does not include a stopping condition, traces will be infinite.
-  A finite section of a trace $xi_m^n = s_m a_m s_(m + 1) a_(m + 1) ... a_(n-1) s_n$ contain the steps from state and action pairs from $s_m$ up to $s_n$.
+  A finite section of a trace $xi_m^n = s_m a_m s_(m + 1) a_(m + 1) ... a_(n-1) s_n$ contain the interleaved states and actions from $s_m$ up to $s_n$.
   Other types of model may produce finite traces, if they have a stopping criterion, e.g. a set of terminal states $T$, or a probability $1 - gamma$ that the system abruptly halts. 
 ]<def:trace>
 
@@ -145,7 +146,12 @@ The discount factor $gamma$ may be interpreted as the probability of the trace c
 In contrast to the reward gained from just one trace, the expected discounted reward #cl("DBLP:books/lib/SuttonB98") for a probabilistic policy is defined as:
 
 #definition(name: "Expected reward")[
-  Given an MDP $M = (S, s_0, A, P, R)$, a probabilistic policy $pi : S -> (A -> [0; 1])$ and a discount factor $gamma in [0; 1[$, the expected reward of $pi$ on $mdp$ is the unique fixed point of the following equation
+  Given an MDP $M = (S, s_0, A, P, R)$, a deterministic policy $pi : S -> A$ and a discount factor $gamma in [0; 1[$, the expected reward of $pi$ on $mdp$ is the unique fixed point of the following equation
+
+  $ EE_pi^mdp (s) = sum_(s' in S) P(s, pi(s))(s') (R(s, pi(s), s') + gamma  EE_pi^mdp (s')) $ 
+
+  A similar definition of expected reward can be given for probabilistic policies $pi : S → (A → [0;1])$.
+  It is undefined for nondeterministic policies.
 
   $ EE_pi^mdp (s) = sum_(a in A) pi(s)(a) sum_(s' in S) P(s, a)(s') (R(s, a, s') + gamma  EE_pi^mdp (s')) $ 
 ]<def:expected-reward>
