@@ -12,8 +12,8 @@
 #let fallback = {set text(fill: rgb(0, 0, 0, 0)); $nabla$}
 #let shield = $fallback #h(-0.65em) #image("../Graphics/Shield.svg", height: 0.6em)$
 
-
 #let hatshield = $fallback #h(-0.65em)  hat(#image("../Graphics/Shield.svg", height: 0.6em))$
+#let tildeshield = $fallback #h(-0.65em)  tilde(#image("../Graphics/Shield.svg", height: 0.6em))$
 
 #shield
 #hatshield

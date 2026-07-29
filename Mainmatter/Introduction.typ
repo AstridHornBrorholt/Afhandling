@@ -168,7 +168,7 @@ If the state-space is prohibitively large, or the MDP is not fully known but can
 State of the art reinforcement learning techniques learn intricate behaviour through deep neural networks such as PPO~#cl("DBLP:journals/corr/SchulmanWDRK17"), and decision trees such as random forests~#cl("DBLP:journals/ml/Breiman01"), or a combination of the two like MuZero~#cl("DBLP:journals/nature/SchrittwieserAH20").
 In the following, a description of the comparatively simple Q-learning approach will be given. The method serves to illustrate the core concepts of reinforcement learning, such as the difference between on-policy and off-policy learning, value estimation, and exploration strategies. 
 
-=== Q-learning
+=== Q-learning <sec:QLearning>
 
 Q-learning @QLearning @Watkins89 #cl("DBLP:books/lib/SuttonB98") is a model-free, off-policy, reinforcement learning algorithm for models that have finite state-space.
 The algorithm maintains a "Q-table"  that represents for every pair $(s, a)$ the estimated expected reward for taking action $a$ in state $s$.
@@ -778,7 +778,7 @@ Two such guarantees will be given here, dubbed respectively _safe_ and _recovera
 #definition(name: [$theta$-recoverable $k$-step shield])[
   Intuitively, the shield allows an action $a$ if it is possible to take $a$ while remaining within the safe set $phi$ with probability $1 - theta$ for the next $k$ steps.
 
- For an MDP $mdp$ and safe set $phi$, a nondeterministic strategy is a _$theta$-recoverable  $k$-step lookahead shield_ $hatshield_theta^k$ if whenever $a in hatshield_theta^k  (s)$, there exists a policy $pi'$ such that $PP_mdp^k (pi', phi, s, a) <= theta$.
+ For an MDP $mdp$ and safe set $phi$, a nondeterministic strategy is a _$theta$-recoverable  $k$-step lookahead shield_ $tildeshield_theta^k$ if whenever $a in tildeshield_theta^k  (s)$, there exists a policy $pi'$ such that $PP_mdp^k (pi', phi, s, a) <= theta$.
 ]<def:ThetaRecoverable>
 
 The main distinction of recoverability is that it does not require the safest policy to be followed. 
@@ -795,12 +795,12 @@ However, this is not true for any $s in S$, since a $θ$-safe shield may allow i
   A $theta$-safe shield $shield_0.5^3$ would permit $flip$ in the starting state, but not in the next state: $shield_0.5^3 (⦾) = {flip}, shield_0.5^3( ○) = {stop}$.
   Notice there exists only one policy $pi(s) = cases(flip "if" s = ⦾, stop) #v(2.2em)$ such that $pi models shield_0.5^3$ and that $pi models_0.5^3 phi$.
 
-  Meanwhile, a $theta$-recoverable shield $hatshield_0.5^3$ would permit $flip$ in both non-terminal states: 
-  $hatshield_0.5^3 (⦾) = {flip}, hatshield_0.5^3( ○) = {flip, stop}$.
+  Meanwhile, a $theta$-recoverable shield $tildeshield_0.5^3$ would permit $flip$ in both non-terminal states: 
+  $tildeshield_0.5^3 (⦾) = {flip}, tildeshield_0.5^3( ○) = {flip, stop}$.
 
   This is because $flip$ in state $⦾$ has probability $0.5$ of reaching $○$, and from there $stop$ can reach $☺$ with probability~$1.0$.
   The weak shield includes an additional policy:
-  Besides $pi models hatshield_0.5^3$ as above, the shield also permits $pi'(s) = flip$ which has probability $0.75$ of losing the bet.
+  Besides $pi models tildeshield_0.5^3$ as above, the shield also permits $pi'(s) = flip$ which has probability $0.75$ of losing the bet.
 ]
 
 While $theta$-safety may be more theoretically justified, ignoring cumulative risk has the benefit of making every action dependent only on the current state.
@@ -838,26 +838,79 @@ Alternatively, the probabilistic shield in #cl("DBLP:conf/concur/0001KJSB20") al
 #new[
 == Adaptive Shielding <sec:AdaptiveShielding>
 
-Safety guarantees in shielding are contingent on the model used (MDP or MG) being accurate to the true system.
-Let the MDP $mdp^*$ be the most accurate possible (but in unknown) safety-relevant abstraction of the underlying system.
-Uncertainty about the exact behaviour of the system can be modelled stochastically, creating an MDP $hat(mdp)$.
-The approximation $hat(mdp)$ should ideally be a conservative estimate, such that any shield for $hat(mdp)$ is also a (conservative) shield for $mdp^*$.
+Safety guarantees in shielding are contingent on the model used (MDP or MG) being accurate to the true system, but accurate models are not always easy to obtain.
+Let the MDP $mdp^star$ be the most accurate possible (safety-relevant) model of the underlying system.
+When constructing a model of the system, uncertainty about the behaviour of $mdp^star$ can be modelled stochastically, creating an MDP $hat(mdp)$.
+This approximation $hat(mdp)$ should ideally be a _conservative_ estimate, such that any shield for $hat(mdp)$ is also a (conservative) shield for $mdp^star$.
 
-By collecting and suitably transforming real-world data from the underlying system, traces from $mdp^*$ can be obtained.
-Several automated methods #citationneeded[Which?] can be used to obtain estimates $hat(mdp)$ based on this data.
-It is then possible to synthesize a shield for $hat(mdp)$ and use it to make the system safe.
+=== Initial Knowledge
 
+The construction of $hat(mdp)$ can be done by domain experts, informed by prior experience and historical data collected from the system.
+From logs of the system's behaviour, trace segments $xi_0^a$ from $mdp^star$ can be obtained.
+A set of such observed traces is called a history $H = {xi_0^a, zeta_0^b, ... }$. 
+
+Automated methods can be used to obtain a model estimate from a history $H$, such as neural networks #cl("DBLP:conf/ecai/GoodallB23")#cl("DBLP:conf/ecai/BethellGCI25"), automata learning #cl("DBLP:conf/isola/TapplerPKMBL22"), interval MDPs #cl("DBLP:journals/corr/abs-2605-10293"), or model parameter estimation @senthilvelan_similarity-based_2023#cl("DBLP:journals/pacmpl/FengZPL25"). 
+
+These automated methods presume some degree of prior knowledge about $mdp^star$, such as the action space, initial state, state space or information about the structure of the transition function.
+For example, model parameter estimation requires a _parameterized_ MDP, $hat(mdp)_p$ whose transition function depends on $x$ parameters given as the vector $p in RR^x$ such that $hat(mdp)_p^star = mdp^star$ for some $p^star in RR^x$.
+
+For some estimation method $E$, initial knowledge $hat(mdp)$ and history $H$, let $E(hat(mdp), H) = hat(mdp)'$ be the resulting model estimate.
+A shield $shield$ can be synthesized from $hat(mdp)$ and a safe set $phi$, using any absolute, $k$-step or probabilistic method.
+Whether $shield$ is also a shield for $mdp^star$ depends on the guarantees provided by the estimator $E$.
+
+=== Updating the Estimate
+
+Shield $shield$ can then be applied (through any manner described in @sec:ApplyingTheShield) to an RL agent interacting with $mdp^star$. 
 While the shield is in use, more traces are generated, and it is natural to use this additional experience to make $hat(mdp)$, and by extension the shield,  more precise.
-Periodically updating the shield in this way can make a conservative estimate gradually more permissive, while still ensuring that exploration is done safely.
-This has been done successfully in #citationneeded[].
+Periodically updating the shield in this way can e.g. make a conservative estimate more permissive, while still ensuring that exploration is done safely.
 
-#todo[I suppose I need detailed discussions of current literature so that I can explain how our paper is different. ]
+Model estimation and shield synthesis is often computationally expensive.
+Therefore, it is common to update the shield every $u$ episodes of RL.
+In keeping with the manner of @sec:QLearning, Q-learning is used here as an instructive example of RL.
+It is extended in @alg:AdaptiveShielding to define an adaptive shielding RL loop.
+
+#figure(kind: "algorithm", supplement: "Algorithm", 
+  pseudocode-list(numbered-title: [Adaptive Shielding])[
+
+    - *Input:* 
+      Estimator $E$, 
+      initial knowledge $hat(mdp)$,
+      initial history $H$,
+      shield update interval $u$,
+      initial $Q : S times A -> RR$,
+      number of episodes $n$,
+      and
+      remaining parameters required by @alg:QLearning.
+      
+    - *Output:* Approximations of shield $hatshield$ and of optimal policy $hat(pi) : S -> A$.
+    + *Loop*  $i ← 0$ *up to* $n$
+      + *If* $n mod u = 0$
+        + $hat(mdp) ← E(hat(mdp), H)$
+        + $hatshield$ ← shield synthesized from $hat(mdp)$
+        + *Apply* $hatshield$ to the system
+      + *Execute* #ref(<l:EpisodeLoop>, supplement: "lines") to #ref(<l:QUpdate>, supplement: "to") of @alg:QLearning and collect trace segment $xi_0^m$.
+      + $H ← H union {xi_0^m}$
+    + *Return* $hat(pi)(s) = argmax_(a in A) Q(s, a), hatshield$
+  ]
+)<alg:AdaptiveShielding>
+
+By observing past traces, one may learn of new possible transitions, but never entirely eliminate the possibility that a transition $P(s, a)(s') > 0$ can occur.
+The probability can become lower if it is never observed in data, but never reach zero. 
+That makes absolute guarantees difficult to give for adaptive shields: If $hat(mdp)$ is conservative initially, then $hatshield$ for this estimate is a conservative shield which will not become more permissive as more data is collected.
+If on the other hand $hat(mdp)$ is not conservative, then the absolute guarantees no longer apply.
+#footnote[Though it might be that the shield will converge to absolute guarantees as $n → infinity$. An open problem, as far as I am aware.] 
+The same applies to absolute guarantees of $k$-step shields.
+
+As such, probabilistic shielding is the natural choice in the adaptive setting.
+Even so, the guarantees given by the adaptive probabilistic shield are contingent on and usually augmented by the guarantees afforded by the estimator $E$.
 
 === Training and Operation <sec:AdaptiveTrainingAndOperation>
 
 The training and operation phases described in @sec:TrainingAndOperation extends naturally to include adaptive shielding:
 When the shield and policy are put into operation, they both become static.
 In this way, adaptive shielding can be end-to-end or training-only, depending on whether the final shield is explicitly represented during operation.
+
+#todo[Just to give a meaningful definition of operation-only adaptive shielding, one might say that data gathered during training is subsequently used to construct a shield. That's not really _adaptive_ so much as just _estimated_ operation-only shielding, but maybe it can still be a good name for it.]
 
 If the shield must be static during operation, then the term operation-only adaptive shielding is an oxymoron.
 With an alternative definition of the operation phase that allows an adaptive shield, (while keeping the policy static) the data acquired might improve the adaptive shield over time.
