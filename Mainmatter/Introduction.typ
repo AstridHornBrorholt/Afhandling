@@ -131,7 +131,7 @@ This definition is less useful for infinite traces, as we will see in the follow
    lim_(n -> infinity) sum_(i=0)^n 100 $
 ]<ex:InjectionMoulding>
 
-To measure the relative usefulness of strategies over an infinite horizon, a  discount factor $gamma in ]0; 1]$ is applied to the reward, giving preference to more immediate gains.
+To measure the relative usefulness of strategies over an infinite horizon, a  discount factor $gamma in #h(2pt) ]0; 1]$ is applied to the reward, giving preference to more immediate gains.
 This _discounted_ reward is defined as $R_gamma (xi) = sum_(i=0)^infinity gamma^i R(s_i)$. 
 Note that in the special case where $gamma = 1$, $R_1$ is the same as the undiscounted reward $R$.
 The discount factor $gamma$ may be interpreted as the probability of the trace continuing, while with probability $1 - gamma$ the trace may end in the next step, losing access to future rewards.
@@ -480,7 +480,7 @@ Since this first article covering shielded reinforcement learning in finite MDPs
   The state-space of this abstraction is significantly smaller, and for some models, such reductions can make shield synthesis computationally feasible where it was not otherwise.
 ]<ex:SafetyRelevantAbstraction>
 
-=== Shielding a Policy: Pre- and Post-shielding <sec:ApplyingTheShield>
+=== Shielding a Policy: Pre- and Post-shielding During Training and Operation <sec:ApplyingTheShield>
 
 Specific implementation details of how a shield is applied to a reinforcement learning agent can vary.
 The terms _pre-shielding_ and _post-shielding_ (sometimes referred to as _post-posed shielding_) have been used to describe the relationship between the agent and the shield, but the terms have been used in the literature to describe two distinct concepts:
