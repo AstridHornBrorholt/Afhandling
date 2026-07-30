@@ -128,15 +128,17 @@ md"""
 # ╔═╡ eac046eb-392d-4a84-bc6a-837480a76765
 begin
 	any_action, no_action = actions_to_int(instances(Action)), actions_to_int([])
-	grid = Grid([0.5, 0.5], [-15.0, 0.0], [15.0, 10.0])
+	granularity = [0.02, 0.02]
+	
+	grid = Grid(granularity, [-15.0, 0.0], [15.0, 10.0])
 	initialize!(grid, state -> is_safe(state) ? any_action : no_action)
 end
 
 # ╔═╡ fa05187e-3f6a-437a-853d-93b29c352782
-samples_per_axis = [2, 2]
+samples_per_axis = [3, 3]
 
 # ╔═╡ 9c61cada-df4a-49d0-93d4-45d3a7bae866
-samples_per_axis_random = [2]
+samples_per_axis_random = [3]
 
 # ╔═╡ d37c80b0-0cef-42aa-a878-ade06954f442
 # A single random value in [-1, 1], as consumed by simulate_point
@@ -162,8 +164,32 @@ md"""
 ### Synthesis
 """
 
+# ╔═╡ 8b81a590-2dcb-4ecf-9aa8-70edcdf6c56d
+@bind recompute_shield_button CounterButton("Recompute Shield")
+
+# ╔═╡ 89b9e551-cc21-47c2-9432-0029245b3e54
+shield_cache_file = "Cache/BB Shield.grid"
+
+# ╔═╡ 1e619b36-1caa-4139-ad81-9231ab039ce6
+if recompute_shield_button > 0
+	rm(shield_cache_file)
+end
+
 # ╔═╡ 57cd2a0d-3462-4924-8198-af907c763074
-shield, max_steps_reached = make_shield(reachability_function, Action, grid)
+shield, max_steps_reached = let
+	if isfile(shield_cache_file)
+		shield = robust_grid_deserialization(shield_cache_file)
+		max_steps_reached = false
+	else
+		# 🛡️ Actual synthesis 
+		shield, max_steps_reached = make_shield(reachability_function, Action, grid)
+		robust_grid_serialization(shield_cache_file, shield)
+	end
+	shield, max_steps_reached
+end
+
+# ╔═╡ af27ca7b-2bcc-4f38-a4c3-5d2f0f933ccd
+
 
 # ╔═╡ ec0c414f-1c6a-4a2d-99cf-468fa617f36b
 shield.array
@@ -293,7 +319,7 @@ begin
 		elseif a == nohit
 			0.0
 		else
-			-1.0
+			-0.1
 		end
 	end
 
