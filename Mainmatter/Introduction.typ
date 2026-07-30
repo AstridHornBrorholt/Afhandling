@@ -31,6 +31,8 @@ When the state-space reaches a size that is prohibitive for these methods, _rein
 Neural networks #cl("DBLP:journals/nature/LeCunBH15") are especially notable for having achieved impressive performance in a wide variety of tasks #cl("DBLP:journals/nature/SchrittwieserAH20").
 This performance is achieved by controllers that use a high number of neurons, making direct formal verification infeasible.
 
+#new[
+
 *Shielding* @AlshiekhBEKNT18 @BloemKKW15 is a promising technique that restricts the behaviour of an RL policy in a way that formally guarantees a safety specification.
 A _shield,_ tasked with enforcing this safety specification, acts as a guardrail to keep the RL policy within safe bounds.
 To do so, the shield must avoid any states where leaving the bounds cannot be prevented.
@@ -45,6 +47,7 @@ This thesis addresses shielding  hybrid systems, multi-agent settings and unknow
 
 The remainder of this introduction will describe the basics of first RL, then the basics of shielding.
 Beyond the fundamental definitions, alternative systems and shielding approaches are described, followed by a summary of each paper that make up the remainder of this thesis.
+]
 
 == Reinforcement Learning <sec:rl>
 
@@ -76,8 +79,10 @@ If $S$ were instead uncountably infinite, the transition function $P$ should be 
 I.e. 
 $P : S times A -> (S -> RR_(>=0))$ such that $integral_(s' in S) P(s, a)(s') d s' = 1$.
 
+#new[
 The state-space $S$ is often represented as a finite set of vectors $subset ZZ^n$ where each element of a state-vector represents the value of a variable in the model (usually defined within a bounded interval).
 The number of states $|S|$ grows exponentially with the number of variables $n$, an this growth is known as _state-space explosion._
+]
 
 The definition also requires every action $a in A$ to be defined for every state in $S$. 
 This assumption is made w.l.o.g. to simplify notation.
@@ -230,16 +235,20 @@ As the number of episodes increases, so does the number of times $Q(s,a)$ is upd
 @alg:QLearning uses an $epsilon$-greedy exploration strategy, to guarantee that every transition triple $(s, a, s')$  with $P(s, a)(s') > 0)$  is seen infinitely often in an infinite number of episodes.
 The guarantee holds since $epsilon : NN -> ]0;1]$ cannot go to 0. 
 
+#new[
 The $epsilon$-greedy exploration strategy is conceptually simple, and therefore used in many textbooks and standard implementations.
 Other exploration strategies exist that makes better use of existing knowledge to find out which actions are worth exploring.
 These include upper confidence bound #cl("DBLP:books/lib/SuttonB98"), Boltzmann exploration @kaelbling1996reinforcement,  Thompson sampling @thompson1933likelihood@daniel2018tutorial or by adding a noise term to the loss function of deep learning RL @williams1991function@foster_entropy.
 The use of Q-values that are relatively high compared to the actual expected reward is another way to encourage exploration  #cl("DBLP:books/lib/SuttonB98").
+]
 
+#new[
 Notice how the Q-update in @l:QUpdate uses the current reward, and the Q-value of the best action in the next state.
 As such, it estimates the expected reward obtained by greedily selecting the most rewarding action each step, as is the case for the policy~$hat(pi)$ returned in @l:Return.
 It does _not_ take into account the chance  $epsilon(i)$ of picking a random action during learning.
 This makes Q-learning an _off-policy_ algorithm, since it explores the environment with one policy ($epsilon$-greedy) but estimates the expected return of a different policy (entirely greedy).
 The similar reinforcement learning method _SARSA_  @rummery1994line#cl("DBLP:books/lib/SuttonB98") is _on-policy_ because it uses Q-values of actions actually taken, rather than the ones estimated to be most rewarding.
+]
 
 Q-learning is an early example of an algorithm which was proven @QLearning to almost surely converge as the number of episodes $n$ (and episode length $m$) goes to infinity.
 The proof requires that the environment remains static, i.e. $mdp$ does not change during learning.
@@ -457,6 +466,7 @@ This is illustrated in @ex:SafetyRelevantAbstraction.
 
 Since this first article covering shielded reinforcement learning in finite MDPs, other shielding methods building upon the same framework have been described in the literature #cl("DBLP:conf/concur/0001KJSB20")@9196867@BastaniL21@PaperA@PaperC@PaperB#cl("DBLP:journals/corr/ZhangB19")#cl("DBLP:conf/amcc/BharadwajBDKT19")#cl("DBLP:conf/atal/Elsayed-AlyBAET21")#cl("DBLP:conf/atal/XiaoLD23")#cl("DBLP:conf/aaai/Carr0JT23")#cl("DBLP:conf/atva/PrangerKPB21")@PaperD@MedicalShielding#cl("DBLP:conf/isola/TapplerPKMBL22")#cl("DBLP:conf/ijcai/YangMRR23")@giacobbe_shielding_2021@xiao_model-based_2023@bloem_its_2020@carr_compositional_2025.
 
+#new[
 #example(name: "Safety-relevant Abstraction")[
   The contract from @ex:QualityInjectionMoulding is once again re-negotiated, this time to replace a fixed price of batches with variable pricing scheme depending on market forces.
   (The safety requirement to avoid state $●$ is kept.)
@@ -479,7 +489,9 @@ Since this first article covering shielded reinforcement learning in finite MDPs
   Thus, the model described in @ex:QualityInjectionMoulding is a _safety-relevant abstraction_ of the more complex model given in this example.
   The state-space of this abstraction is significantly smaller, and for some models, such reductions can make shield synthesis computationally feasible where it was not otherwise.
 ]<ex:SafetyRelevantAbstraction>
+]
 
+#updated[
 === Shielding a Policy: Pre- and Post-shielding During Training and Operation <sec:ApplyingTheShield>
 
 Specific implementation details of how a shield is applied to a reinforcement learning agent can vary.
@@ -653,6 +665,7 @@ Otherwise, the shield will disrupt the optimized behaviour which the policy has 
 It was found in Paper A @PaperA that applying a post-hoc post-shield to a policy can lead to substantial drops in the expected reward.
 Therefore, post-hoc shielding should only be employed when end-to-end shielding is not possible.
 One way to mitigate this might be fine-tuning the existing policy with the new shield in place.
+]
 
 #example(name: "Staying safe in Grid World")[
   Recall the MDP $cal(W)=(S, s_0, A, P, R)$ from @ex:GridWorld.
@@ -922,6 +935,7 @@ In this way, adaptive shielding can be end-to-end or training-only, depending on
 If the shield must be static during operation, then the term operation-only adaptive shielding is an oxymoron.
 ] // end #new
 
+#new[
 == Multi-agent Shielding <sec:MultiAgentShielding>
 
 Many environments have multiple agents -- or _players_ -- interacting.
@@ -1113,6 +1127,7 @@ By relying on guarantees that are established during shield synthesis, some shie
 
 In a partially observable setting, sharing observations may also allow agents to achieve a more precise estimate of the underlying model state @10129007.
 
+]
 
 == Hybrid MDPs
 ...
