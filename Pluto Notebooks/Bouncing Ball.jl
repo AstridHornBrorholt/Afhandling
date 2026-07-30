@@ -53,9 +53,13 @@ Physics (`bbmechanics`) and the simulation step (`simulate_point`) come from the
 Action
 
 # ╔═╡ 7c634330-d307-4f32-9649-a79c849c12af
-function is_terminal(s)
-	v, p = s
-	abs(v) < 1 && p == 0
+begin
+	function is_terminal(s)
+		v, p = s
+		abs(v) < 1 && p == 0
+	end
+
+	is_terminal(bounds::Bounds) = is_terminal(bounds.lower)
 end
 
 # ╔═╡ a832de86-2f9f-43b8-b379-f17a6109b50b
@@ -80,11 +84,20 @@ md"""
 ### Try it out! Use the inputs below to test the function.
 """
 
+# ╔═╡ b6e0dc22-9c30-4a1a-8f42-df7c99bf0efc
+@bind p_test NumberField(0.0:0.1:10.0, default=8.0)
+
 # ╔═╡ 54fbe43e-eb61-4630-82e7-9c4c0c5c8b86
 @bind v_test NumberField(-15.0:0.1:15.0, default=0.0)
 
 # ╔═╡ c8f051d4-577b-4ff3-8d76-ea30e7061218
 @bind a Select(Action |> instances |> collect)
+
+# ╔═╡ 39872b3f-ffe0-4bce-9686-e4bd142da607
+begin
+	s = (v_test, p_test)
+	f(s, a)
+end
 
 # ╔═╡ 2a754cfb-a824-4fbb-999b-27e2b1439e1f
 md"""
@@ -99,7 +112,11 @@ begin
 
 	is_safe(s) = !is_terminal(s)
 
-	is_safe(bounds::Bounds) = is_safe(bounds.lower)
+	is_safe(bounds::Bounds) = let
+		vl, pl = bounds.lower
+		vu, pu = bounds.upper
+		is_safe((vl, pl)) && is_safe((vu, pl))
+	end
 end
 
 # ╔═╡ 952a7f42-364a-460f-bbde-c13239d55459
@@ -127,6 +144,12 @@ randomness_space = Bounds([-1.0], [1.0])
 
 # ╔═╡ 060c4170-aba1-4b1b-9710-86beb904a602
 simulation_function(s, a, r) = f(s, a, r[1])
+
+# ╔═╡ 1194e983-d039-4f85-a681-62f8870291f8
+(s, a)
+
+# ╔═╡ 0af99598-9e2a-494e-b2e9-0d3911670900
+simulation_function(s, a, [rand(Float64)])
 
 # ╔═╡ d48f7d1c-3aee-4f96-92cd-34925bd8abf8
 model = SimulationModel(simulation_function, randomness_space, samples_per_axis, samples_per_axis_random)
@@ -227,35 +250,58 @@ end
 # ╔═╡ 6270c560-dd09-4441-ace5-bb38d67d5812
 🛡️((0.0, 0.0))
 
-# ╔═╡ 7fa924a2-e89b-488c-8f46-c6067eede854
-# ϵ-greedy choice from Q.
-function ϵ_greedy(ϵ::Number, Q, s)
-	if rand(Uniform(0, 1)) < ϵ
-		if shielded_learning
-			return rand(🛡️(s))
-		else
-			return rand(A)
-		end
-	else
-		# Argmax over all actions A is sound here, because unsafe actions are initialized as having a Q-value of -∞ when shield is enabled.
-		return argmax((a) -> get_value(box(Q[a], s)), A)
-	end
-end
-
 # ╔═╡ 99f0398d-2e8f-4835-be1d-b0f4bbd7ebdf
 ∞ = Inf
+
+# ╔═╡ 7fa924a2-e89b-488c-8f46-c6067eede854
+begin
+	# The shield's grid doesn't cover every state simulate_point can reach
+	# (e.g. after an unlucky hit sends the ball far outside p_hit's range).
+	# Default to nohit for any state outside the grid instead of erroring.
+	function Q_value(Q, s, a)
+		s ∈ grid || return a == nohit ? 0.0 : -∞
+		get_value(box(Q[a], s))
+	end
+
+	# ϵ-greedy choice from Q.
+	function ϵ_greedy(ϵ::Number, Q, s)
+		s ∈ grid || return nohit
+		if rand(Uniform(0, 1)) < ϵ
+			if shielded_learning
+				return rand(🛡️(s))
+			else
+				return rand(A)
+			end
+		else
+			# Argmax over all actions A is sound here, because unsafe actions are initialized as having a Q-value of -∞ when shield is enabled.
+			return argmax((a) -> Q_value(Q, s, a), A)
+		end
+	end
+end
 
 # ╔═╡ 218cbaf2-175e-477e-815e-706d95cbfec2
 # Q is one Grid{Float64} per action, mirroring the shield's grid.
 # Unsafe actions have an expected reward of -∞.
 # Note also that it's important for the Q-updates that the terminal states are zero
 begin
+	# Bias the initial Q-values towards nohit: it starts out looking
+	# strictly better than hit, so the agent only learns to hit once it's
+	# actually seen to pay off.
+	function init_value(a, bounds)
+		if shielded_learning && !is_terminal(bounds) && a ∉ 🛡️(bounds.lower)
+			-∞
+		elseif a == nohit
+			0.0
+		else
+			-1.0
+		end
+	end
+
 	Q_init = Dict(a => Grid(grid.granularity, grid.bounds.lower, grid.bounds.upper; data_type=Float64)
 				  for a in instances(Action))
 
 	for a in instances(Action)
-		initialize!(Q_init[a], state ->
-			(shielded_learning && !is_terminal(state) && a ∉ 🛡️(state)) ? -∞ : 0.0)
+		initialize!(Q_init[a], bounds -> init_value(a, bounds))
 	end
 
 	Q_init
@@ -268,8 +314,8 @@ end
 @bind α_base NumberField(0.0001:0.0001:1, default=0.1)
 
 # ╔═╡ 4883874d-c0e8-4984-be4d-a4c082367f74
-# Episode max length
-@bind T Select([5, 10, 100, 1000, 10000], default=100)
+# Episode max length. 1 second is 10 time-steps.
+@bind T Select([100, 1000, 10000], default=1000)
 
 # ╔═╡ 5eda40c9-f10c-4a12-a458-e76d844e7419
 @bind γ NumberField(0.0001:0.0001:1, default=0.99)
@@ -277,13 +323,17 @@ end
 # ╔═╡ 135a5791-f61d-48a9-9e31-fabfb72c0e69
 [ϵ_greedy(0.2, Q_init, (0.0, 8.0)) for _ in 1:10]
 
+# ╔═╡ 4e6a2f0c-4d2e-4a4b-9c3e-5c6b2c4a1f9d
+# Starting velocity 0, position sampled as in evaluate/evaluate_safety
+initial_state() = (0.0, Float64(rand(7:10)))
+
 # ╔═╡ 466621e0-9448-46d6-bff5-de76ff0e25e5
 md"""
 ### This is Where Training Happens
 """
 
 # ╔═╡ d2f6ea71-2b10-4816-bade-d66565cdd73a
-@bind episodes Select([50, 100, 500, 1000, 5000, 10000, 50000], default=100)
+@bind episodes Select([1, 50, 100, 500, 1000, 5000, 10000, 50000], default=100)
 
 # ╔═╡ f6345e37-c257-491c-9a35-820c62a18c86
 function ϵ(t; episodes=episodes)
@@ -316,8 +366,89 @@ let
 	plot(p1, p2, size=(600, 300))
 end
 
+# ╔═╡ 167769f4-024b-44ce-b3bf-a94b3d2a5006
+function Q_episode!(Q, i)
+	Σr =  0
+	Sₜ = initial_state()
+	Aₜ = ϵ_greedy(ϵ(i), Q, Sₜ)
+	ξ = []
+	for t ∈ 1:T
+		Sₜ₊₁ = f(Sₜ, Aₜ)
+		rₜ₊₁ = r(Sₜ₊₁, Aₜ)
+		Σr += rₜ₊₁
+
+		# Only update Q for states actually on the grid — Sₜ can be out of
+		# bounds if the previous step landed outside it (Aₜ then forced nohit).
+		if Sₜ ∈ grid
+			partition = box(Q[Aₜ], Sₜ)
+			set_value!(partition,
+				get_value(partition) +
+				α(i)*(rₜ₊₁ + γ*max([Q_value(Q, Sₜ₊₁, a′) for a′ in A]...) - get_value(partition)))
+		end
+
+		# Max over all actions A is sound ↑ here, because unsafe actions are initialized as having a Q-value of -∞ when shield is enabled.
+
+		Aₜ₊₁ = ϵ_greedy(ϵ(i), Q, Sₜ₊₁)
+
+		push!(ξ, (Sₜ, Aₜ, rₜ₊₁))
+
+		if is_terminal(Sₜ₊₁)
+			# Include terminal state in trace (arbitrary action, no reward.)
+			push!(ξ, (Sₜ₊₁, A[1], 0.0))
+			return Σr, ξ
+		end
+
+		Sₜ, Aₜ = Sₜ₊₁, Aₜ₊₁
+	end
+	return Σr, ξ
+end
+
+# ╔═╡ c6c020d2-3f0e-4764-9d86-d6d8a202113a
+function Q_learn!(Q)
+	rewards = []
+	traces = []
+	
+	@progress for i ∈ 1:episodes
+		R, ξ = Q_episode!(Q, i)
+		push!(rewards, R)
+		push!(traces, ξ)
+	end
+
+	return rewards, traces
+end
+
 # ╔═╡ b430b41a-23e4-4bc1-afd9-5fe08f8bd52b
 ϵ(episodes)
+
+# ╔═╡ 1c5e53bc-5675-48d3-a071-df0e42f7ec78
+# Base.deepcopy(::Grid) rebuilds via Grid(granularity, lower, upper) with no
+# data_type, defaulting to Int8 — that would truncate our Float64 Q-values
+# (and can't represent -Inf at all). Copy element type explicitly instead.
+function copy_grid(g::Grid{T}) where T
+	g2 = Grid(g.granularity, g.bounds.lower, g.bounds.upper; data_type=T)
+	g2.array .= g.array
+	g2
+end
+
+# ╔═╡ 525f5979-c0e4-46ef-aa35-1232d1d2c17b
+begin
+	Q = Dict(a => copy_grid(g) for (a, g) in Q_init)
+	rewards, traces = Q_learn!(Q)
+end
+
+# ╔═╡ c53ca4b4-4d7d-4ee2-b86b-fbd696f98547
+if episodes < 100000
+	plot(rewards, 
+		 fontfamily="times",
+		 label=nothing, 
+		 xlabel="Episode",
+		 ylabel="Reward",
+		 ylim=(-100, 1), 
+		 #yticks=[-150, -100, -50, 0, 10],
+		 size=(400, 400))
+else
+	"too much to plot"
+end
 
 # ╔═╡ 58e6adbf-e43b-4352-b3f6-3128bf89c573
 md"""
@@ -349,6 +480,9 @@ function check_safety(traces)
 	end
 end
 
+# ╔═╡ 0f12dc6d-f393-4b1a-94b1-fa68d8f23bec
+check_safety(traces)
+
 # ╔═╡ e8c15e5a-1282-4f6a-927f-fd00e19e200d
 md"""
 ### V-table
@@ -357,6 +491,40 @@ Visualization showing the best value V for every state, and the corresponding ac
 
 # ╔═╡ 9cde860e-9aa8-4a9f-90d1-5932928878ea
 best_a(Q, s) = argmax(a -> get_value(box(Q[a], s)), A)
+
+# ╔═╡ 8eb6eca4-2ae5-41ae-9796-09dc7c25a8be
+begin
+	V = Grid(grid.granularity, grid.bounds.lower, grid.bounds.upper; data_type=Float64)
+	initialize!(V, bounds -> max((get_value(box(Q[a], bounds.lower)) for a in A)...))
+end
+
+# ╔═╡ 3e17f889-ffc5-4fd1-8853-940a3dd64d86
+let
+	xs = grid.bounds.lower[1]:grid.granularity[1]:grid.bounds.upper[1]
+	ys = grid.bounds.lower[2]:grid.granularity[2]:grid.bounds.upper[2]
+	heatmap(xs, ys, permutedims(V.array),
+		fontfamily="times",
+		title="V-table",
+		xlabel="v",
+		ylabel="p",
+		size=(500, 400))
+end
+
+# ╔═╡ b6d3f7a1-2e4c-4b8d-9a1e-7c5f6a8e2d10
+md"""
+## Visualizing a Training Trace
+"""
+
+# ╔═╡ c1a4e5b2-3f6d-4c9e-8b2a-1d5e7f9a0c34
+@bind trace_n NumberField(1:length(traces), default=1)
+
+# ╔═╡ d2b5f6c3-4a7e-4d0f-9c3b-2e6f8a1b0d45
+let
+	ξ = traces[trace_n]
+	states = [s for (s, a, _) in ξ]
+	times = collect(0:length(states)-1) .* bbmechanics.t_hit
+	animate_trace(states, times)
+end
 
 # ╔═╡ 5b2a7ebd-8dc0-42f7-b7b0-441092bd14c3
 md"""
@@ -401,146 +569,18 @@ elseif !shielded_learning && !shielded_operation
 	"""
 end
 
-# ╔═╡ 7b090d43-824c-4fb1-8e62-cc05660915ca
-md"""
-### Safety During Operation
-
-The same function as used previously checks the safety traces produced during operation:
-"""
-
-# ╔═╡ 1a080bbd-e311-495f-9b77-324a96021e3c
-md"""
-### Reward during operation
-We compute the mean undiscounted reward obtained during operation.
-
-When analyzing the rewards, recall that the policy is set to always pick the best action (greedy action selection with $\epsilon=0$). Thus, unfinished policies are likely to become stuck repeating the same sub-optimal action.
-
-Also recall the max episode length `T = ` $T. An agent that gets stuck will collect a **reward of $(-T).**
-"""
-
-# ╔═╡ b6760fd5-f8a6-40a0-a60d-1b7b83169452
-md"""
-**Mean reward:**
-"""
-
-# ╔═╡ b6e0dc22-9c30-4a1a-8f42-df7c99bf0efc
-@bind p_test NumberField(0.0:0.1:10.0, default=8.0)
-
-# ╔═╡ 39872b3f-ffe0-4bce-9686-e4bd142da607
-begin
-	s = (v_test, p_test)
-	f(s, a)
-end
-
-# ╔═╡ 1194e983-d039-4f85-a681-62f8870291f8
-(s, a)
-
-# ╔═╡ 0af99598-9e2a-494e-b2e9-0d3911670900
-simulation_function(s, a, [rand(Float64)])
-
-# ╔═╡ 4e6a2f0c-4d2e-4a4b-9c3e-5c6b2c4a1f9d
-# Starting velocity 0, position sampled as in evaluate/evaluate_safety
-initial_state() = (0.0, Float64(rand(7:10)))
-
-# ╔═╡ 167769f4-024b-44ce-b3bf-a94b3d2a5006
-function Q_episode!(Q, i)
-	Σr =  0
-	Sₜ = initial_state()
-	Aₜ = ϵ_greedy(ϵ(i), Q, Sₜ)
-	ξ = []
-	for t ∈ 1:T
-		Sₜ₊₁ = f(Sₜ, Aₜ)
-		rₜ₊₁ = r(Sₜ₊₁, Aₜ)
-		Σr += rₜ₊₁
-
-		partition = box(Q[Aₜ], Sₜ)
-		set_value!(partition,
-			get_value(partition) +
-			α(i)*(rₜ₊₁ + γ*max([get_value(box(Q[a′], Sₜ₊₁)) for a′ in A]...) - get_value(partition)))
-
-		# Max over all actions A is sound ↑ here, because unsafe actions are initialized as having a Q-value of -∞ when shield is enabled.
-
-		Aₜ₊₁ = ϵ_greedy(ϵ(i), Q, Sₜ₊₁)
-
-		push!(ξ, (Sₜ, Aₜ, rₜ₊₁))
-
-		if is_terminal(Sₜ₊₁)
-			# Include terminal state in trace (arbitrary action, no reward.)
-			push!(ξ, (Sₜ₊₁, A[1], 0.0))
-			return Σr, ξ
-		end
-
-		Sₜ, Aₜ = Sₜ₊₁, Aₜ₊₁
-	end
-	return Σr, ξ
-end
-
-# ╔═╡ c6c020d2-3f0e-4764-9d86-d6d8a202113a
-function Q_learn!(Q)
-	rewards = []
-	traces = []
-	
-	@progress for i ∈ 1:episodes
-		R, ξ = Q_episode!(Q, i)
-		push!(rewards, R)
-		push!(traces, ξ)
-	end
-
-	return rewards, traces
-end
-
-# ╔═╡ 525f5979-c0e4-46ef-aa35-1232d1d2c17b
-begin
-	Q = Dict(a => deepcopy(g) for (a, g) in Q_init)
-	rewards, traces = Q_learn!(Q)
-end
-
-# ╔═╡ c53ca4b4-4d7d-4ee2-b86b-fbd696f98547
-if episodes < 100000
-	plot(rewards, 
-		 fontfamily="times",
-		 label=nothing, 
-		 xlabel="Episode",
-		 ylabel="Reward",
-		 ylim=(-100, 1), 
-		 #yticks=[-150, -100, -50, 0, 10],
-		 size=(400, 400))
-else
-	"too much to plot"
-end
-
-# ╔═╡ 0f12dc6d-f393-4b1a-94b1-fa68d8f23bec
-check_safety(traces)
-
-# ╔═╡ 8eb6eca4-2ae5-41ae-9796-09dc7c25a8be
-begin
-	V = Grid(grid.granularity, grid.bounds.lower, grid.bounds.upper; data_type=Float64)
-	initialize!(V, bounds -> max((get_value(box(Q[a], bounds.lower)) for a in A)...))
-end
-
-# ╔═╡ 3e17f889-ffc5-4fd1-8853-940a3dd64d86
-let
-	xs = grid.bounds.lower[1]:grid.granularity[1]:grid.bounds.upper[1]
-	ys = grid.bounds.lower[2]:grid.granularity[2]:grid.bounds.upper[2]
-	heatmap(xs, ys, permutedims(V.array),
-		fontfamily="times",
-		title="V-table",
-		xlabel="v",
-		ylabel="p",
-		clim=(-10, 1),
-		size=(500, 400))
-end
-
 # ╔═╡ 13a65e27-f740-4c89-8374-f85365250aa3
 # Simulate an episode with ϵ=0, an optional shield, and no updates to the Q-table.
 function episode(Q)
 	ϵ = 0.0
 	Σr =  0
 	Sₜ = initial_state()
-	if shielded_operation
-		Aₜ = argmax((a) -> get_value(box(Q[a], Sₜ)), 🛡️(Sₜ))
+	if !(Sₜ ∈ grid)
+		Aₜ = nohit
+	elseif shielded_operation
+		Aₜ = argmax((a) -> Q_value(Q, Sₜ, a), 🛡️(Sₜ))
 	else
-		Aₜ = argmax((a) -> get_value(box(Q[a], Sₜ)), A)
+		Aₜ = argmax((a) -> Q_value(Q, Sₜ, a), A)
 	end
 	ξ = []
 	for t ∈ 1:T
@@ -548,10 +588,12 @@ function episode(Q)
 		rₜ₊₁ = r(Sₜ₊₁, Aₜ)
 		Σr += rₜ₊₁
 
-		if shielded_operation
-			Aₜ₊₁ = argmax((a) -> get_value(box(Q[a], Sₜ₊₁)), 🛡️(Sₜ₊₁))
+		if !(Sₜ₊₁ ∈ grid)
+			Aₜ₊₁ = nohit
+		elseif shielded_operation
+			Aₜ₊₁ = argmax((a) -> Q_value(Q, Sₜ₊₁, a), 🛡️(Sₜ₊₁))
 		else
-			Aₜ₊₁ = argmax((a) -> get_value(box(Q[a], Sₜ₊₁)), A)
+			Aₜ₊₁ = argmax((a) -> Q_value(Q, Sₜ₊₁, a), A)
 		end
 
 		push!(ξ, (Sₜ, Aₜ, rₜ₊₁))
@@ -583,11 +625,33 @@ end
 # ╔═╡ deb9fe30-06b4-4497-b28a-6d943db8df6a
 operation_rewards, operation_traces = operation(Q, operation_episodes)
 
+# ╔═╡ 7b090d43-824c-4fb1-8e62-cc05660915ca
+md"""
+### Safety During Operation
+
+The same function as used previously checks the safety traces produced during operation:
+"""
+
 # ╔═╡ 283f3099-1adf-4d60-9051-e60d6f01cab2
 check_safety(operation_traces)
 
+# ╔═╡ 1a080bbd-e311-495f-9b77-324a96021e3c
+md"""
+### Reward during operation
+We compute the mean undiscounted reward obtained during operation.
+
+When analyzing the rewards, recall that the policy is set to always pick the best action (greedy action selection with $\epsilon=0$). Thus, unfinished policies are likely to become stuck repeating the same sub-optimal action.
+
+Also recall the max episode length `T = ` $T. An agent that gets stuck will collect a **reward of $(-T).**
+"""
+
 # ╔═╡ 815481ac-221b-4167-912f-1f2b4441fc25
 operation_rewards
+
+# ╔═╡ b6760fd5-f8a6-40a0-a60d-1b7b83169452
+md"""
+**Mean reward:**
+"""
 
 # ╔═╡ 7de24775-9639-4484-bdda-d6674fb16cb7
 sum(operation_rewards)/operation_episodes
@@ -2032,6 +2096,7 @@ version = "1.13.0+0"
 # ╠═a832de86-2f9f-43b8-b379-f17a6109b50b
 # ╠═5468e72e-bf32-4ca8-a9b7-579aaef265e0
 # ╟─6e627214-d8fc-4782-a97c-a3f7b83c16a0
+# ╠═b6e0dc22-9c30-4a1a-8f42-df7c99bf0efc
 # ╠═54fbe43e-eb61-4630-82e7-9c4c0c5c8b86
 # ╠═c8f051d4-577b-4ff3-8d76-ea30e7061218
 # ╠═39872b3f-ffe0-4bce-9686-e4bd142da607
@@ -2076,10 +2141,12 @@ version = "1.13.0+0"
 # ╠═2641f88e-d3a6-4cc1-b9a9-dd651c850a16
 # ╠═1170955f-c3fe-47fd-8e01-af6bccd7a6a5
 # ╠═c6c020d2-3f0e-4764-9d86-d6d8a202113a
+# ╠═4e6a2f0c-4d2e-4a4b-9c3e-5c6b2c4a1f9d
 # ╠═167769f4-024b-44ce-b3bf-a94b3d2a5006
 # ╟─466621e0-9448-46d6-bff5-de76ff0e25e5
 # ╠═d2f6ea71-2b10-4816-bade-d66565cdd73a
 # ╠═b430b41a-23e4-4bc1-afd9-5fe08f8bd52b
+# ╟─1c5e53bc-5675-48d3-a071-df0e42f7ec78
 # ╠═525f5979-c0e4-46ef-aa35-1232d1d2c17b
 # ╟─c53ca4b4-4d7d-4ee2-b86b-fbd696f98547
 # ╟─58e6adbf-e43b-4352-b3f6-3128bf89c573
@@ -2088,7 +2155,10 @@ version = "1.13.0+0"
 # ╟─e8c15e5a-1282-4f6a-927f-fd00e19e200d
 # ╠═9cde860e-9aa8-4a9f-90d1-5932928878ea
 # ╠═8eb6eca4-2ae5-41ae-9796-09dc7c25a8be
-# ╟─3e17f889-ffc5-4fd1-8853-940a3dd64d86
+# ╠═3e17f889-ffc5-4fd1-8853-940a3dd64d86
+# ╟─b6d3f7a1-2e4c-4b8d-9a1e-7c5f6a8e2d10
+# ╠═c1a4e5b2-3f6d-4c9e-8b2a-1d5e7f9a0c34
+# ╠═d2b5f6c3-4a7e-4d0f-9c3b-2e6f8a1b0d45
 # ╟─5b2a7ebd-8dc0-42f7-b7b0-441092bd14c3
 # ╠═428a7486-e5e8-4a63-9f4a-f7d58bd9d511
 # ╟─cf3c3947-71d1-442c-8ffd-75b1acb1cc1c
@@ -2103,7 +2173,5 @@ version = "1.13.0+0"
 # ╠═815481ac-221b-4167-912f-1f2b4441fc25
 # ╟─b6760fd5-f8a6-40a0-a60d-1b7b83169452
 # ╠═7de24775-9639-4484-bdda-d6674fb16cb7
-# ╠═b6e0dc22-9c30-4a1a-8f42-df7c99bf0efc
-# ╠═4e6a2f0c-4d2e-4a4b-9c3e-5c6b2c4a1f9d
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002
