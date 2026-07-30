@@ -321,7 +321,11 @@ begin
 		a == nohit ? 0.0 : -0.1
 	end
 
-	Q_init = Dict(a => Grid(grid.granularity, grid.bounds.lower, grid.bounds.upper; data_type=Float64)
+	bounds_lower = grid.bounds.lower
+	bounds_upper = grid.bounds.upper
+	q_granularity = [0.1, 0.1]
+
+	Q_init = Dict(a => Grid(q_granularity, bounds_lower, bounds_upper; data_type=Float64)
 				  for a in instances(Action))
 
 	for a in instances(Action)
