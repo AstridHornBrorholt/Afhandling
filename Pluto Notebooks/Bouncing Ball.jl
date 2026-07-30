@@ -589,8 +589,10 @@ if shielded_learning && shielded_operation
 	"""
 elseif shielded_learning && !shielded_operation
 	md"""
-	!!! info "Training-only pre-shielding"
-		Since unsafe actions that the shield forbids are encoded in the Q-table as $-\infty$, the shield does not actually need to be included explicitly.
+	!!! danger "Training-only pre-shielding"
+		⚠ Not sound ⚠
+		
+		The shield cannot be explicitly represented in the Q-table, since the granularities do not match. The policy is not safe by construction and relies on the shield to function.
 	"""
 elseif !shielded_learning && shielded_operation
 	md"""
