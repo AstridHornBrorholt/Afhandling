@@ -900,11 +900,15 @@ It is extended in @alg:AdaptiveShielding to define an adaptive shielding RL loop
   ]
 )<alg:AdaptiveShielding>
 
+=== Safety Guarantees of Adaptive Shielding
+
 By observing past traces, one may learn of new possible transitions, but never entirely eliminate the possibility that a transition $P(s, a)(s') > 0$ can occur.
 The probability can become lower if it is never observed in data, but never reach zero. 
-That makes absolute guarantees difficult to give for adaptive shields: If $hat(mdp)$ is conservative initially, then $hatshield$ for this estimate is a conservative shield which will not become more permissive as more data is collected.
-If on the other hand $hat(mdp)$ is not conservative, then the absolute guarantees no longer apply.
-#footnote[Though it might be that the shield will converge to absolute guarantees as $n → infinity$. An open problem, as far as I am aware.] 
+That makes absolute guarantees difficult to give for adaptive shields: 
+If initially $hat(mdp)$ is not conservative, then the absolute guarantees no longer apply.
+#footnote[Though this author speculates that a shield may converge to absolute safety as $n → infinity$ under a suitable exploration scheme. ] 
+If on the other hand $hat(mdp)$ is conservative from the beginning, then $hatshield$ for some $φ$ can give absolute guarantees.
+However, $hatshield$ will not adapt as more data is collected.
 The same applies to absolute guarantees of $k$-step shields.
 
 As such, probabilistic shielding is the natural choice in the adaptive setting.
@@ -915,12 +919,7 @@ Even so, the guarantees given by the adaptive probabilistic shield are contingen
 The training and operation phases described in @sec:TrainingAndOperation extends naturally to include adaptive shielding:
 When the shield and policy are put into operation, they both become static.
 In this way, adaptive shielding can be end-to-end or training-only, depending on whether the final shield is explicitly represented during operation.
-
-#todo[Just to give a meaningful definition of operation-only adaptive shielding, one might say that data gathered during training is subsequently used to construct a shield. That's not really _adaptive_ so much as just _estimated_ operation-only shielding, but maybe it can still be a good name for it.]
-
 If the shield must be static during operation, then the term operation-only adaptive shielding is an oxymoron.
-With an alternative definition of the operation phase that allows an adaptive shield, (while keeping the policy static) the data acquired might improve the adaptive shield over time.
-This is an open research question, but it is difficult to imagine a case where the technical and legal limitations outlined in @sec:TrainingAndOperation require a fixed policy while not also requiring a fixed shield.
 ] // end #new
 
 == Multi-agent Shielding <sec:MultiAgentShielding>
