@@ -201,10 +201,10 @@ shield.array
 
 # ╔═╡ 403a5a86-1fb8-498b-bd83-a418f9165fa3
 let
-	xs = grid.bounds.lower[1]:grid.granularity[1]:grid.bounds.upper[1]
-	ys = grid.bounds.lower[2]:grid.granularity[2]:grid.bounds.upper[2]
-	heatmap(xs, ys, permutedims(shield.array),
-		title="Resulting Shield (bitmask of allowed actions)",
+	# instances(Action) = (hit, nohit), so bit0=hit, bit1=nohit
+	draw(shield, [:, :];
+		colors=["#2c3e50", "#9b59b6", "#f1c40f", :white],
+		color_labels=["none", "hit only", "nohit only", "both"],
 		xlabel="v",
 		ylabel="p",
 		size=(500, 400))
@@ -530,6 +530,7 @@ let
 	ys = grid.bounds.lower[2]:grid.granularity[2]:grid.bounds.upper[2]
 	heatmap(xs, ys, permutedims(V.array),
 		title="V-table",
+		color=cgrad([:white, :wheat]),
 		xlabel="v",
 		ylabel="p",
 		size=(500, 400))
