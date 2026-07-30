@@ -244,14 +244,12 @@ Re-visiting the Q-learning code from our other notebook.
 This notebook uses a **pre-shield:**
 Instead of considering the full action space, we only choose from allowed actions `🛡️(s)`.
 
-This is achieved by two modifications to the algorithm.
-
-1. Modifying the function `ϵ_greedy` to choose only from `🛡️(s)` during exploration.
-2. Modifying the initial $Q(s, a)$ values such that 
-$Q(s, a) = \begin{cases}
-	0.0 ~\text{ if }~ a \in 🛡️(s)\\
-	-\infty
-\end{cases}$
+Rather than encoding this as $-\infty$ initial $Q$-values (fragile: it only
+holds as long as nothing ever updates an unsafe action's Q-value above
+$-\infty$, and it doesn't compose with the nohit-favouring initialization
+below), the action set is filtered explicitly wherever an action is chosen —
+see `actions_at(s, use_shield)`, used by `ϵ_greedy`, the Q-update's
+bootstrap term, and `episode`.
 """
 
 # ╔═╡ 36a8f83d-20fd-450d-bbae-aae7fc909580
@@ -293,45 +291,41 @@ begin
 		get_value(box(Q[a], s))
 	end
 
+	# The action set to choose/argmax over at state s: filtered down to
+	# shielded actions when use_shield is true, explicitly, rather than
+	# relying on -∞ Q-values to rule out unsafe actions.
+	function actions_at(s, use_shield)
+		use_shield ? 🛡️(s) : A
+	end
+
 	# ϵ-greedy choice from Q.
 	function ϵ_greedy(ϵ::Number, Q, s)
 		s ∈ grid || return nohit
 		if rand(Uniform(0, 1)) < ϵ
-			if shielded_learning
-				return rand(🛡️(s))
-			else
-				return rand(A)
-			end
+			return rand(actions_at(s, shielded_learning))
 		else
-			# Argmax over all actions A is sound here, because unsafe actions are initialized as having a Q-value of -∞ when shield is enabled.
-			return argmax((a) -> Q_value(Q, s, a), A)
+			return argmax((a) -> Q_value(Q, s, a), actions_at(s, shielded_learning))
 		end
 	end
 end
 
 # ╔═╡ 218cbaf2-175e-477e-815e-706d95cbfec2
 # Q is one Grid{Float64} per action, mirroring the shield's grid.
-# Unsafe actions have an expected reward of -∞.
 # Note also that it's important for the Q-updates that the terminal states are zero
 begin
 	# Bias the initial Q-values towards nohit: it starts out looking
 	# strictly better than hit, so the agent only learns to hit once it's
-	# actually seen to pay off.
-	function init_value(a, bounds)
-		if shielded_learning && !is_terminal(bounds) && a ∉ 🛡️(bounds.lower)
-			-∞
-		elseif a == nohit
-			0.0
-		else
-			-0.1
-		end
+	# actually seen to pay off. No shield condition here — action safety is
+	# enforced explicitly (via actions_at) wherever actions are selected.
+	function init_value(a)
+		a == nohit ? 0.0 : -0.1
 	end
 
 	Q_init = Dict(a => Grid(grid.granularity, grid.bounds.lower, grid.bounds.upper; data_type=Float64)
 				  for a in instances(Action))
 
 	for a in instances(Action)
-		initialize!(Q_init[a], bounds -> init_value(a, bounds))
+		initialize!(Q_init[a], bounds -> init_value(a))
 	end
 
 	Q_init
@@ -410,13 +404,12 @@ function Q_episode!(Q, i)
 		# Only update Q for states actually on the grid — Sₜ can be out of
 		# bounds if the previous step landed outside it (Aₜ then forced nohit).
 		if Sₜ ∈ grid
+			A′ = Sₜ₊₁ ∈ grid ? actions_at(Sₜ₊₁, shielded_learning) : A
 			partition = box(Q[Aₜ], Sₜ)
 			set_value!(partition,
 				get_value(partition) +
-				α(i)*(rₜ₊₁ + γ*max([Q_value(Q, Sₜ₊₁, a′) for a′ in A]...) - get_value(partition)))
+				α(i)*(rₜ₊₁ + γ*max([Q_value(Q, Sₜ₊₁, a′) for a′ in A′]...) - get_value(partition)))
 		end
-
-		# Max over all actions A is sound ↑ here, because unsafe actions are initialized as having a Q-value of -∞ when shield is enabled.
 
 		Aₜ₊₁ = ϵ_greedy(ϵ(i), Q, Sₜ₊₁)
 
@@ -615,26 +608,14 @@ function episode(Q)
 	ϵ = 0.0
 	Σr =  0
 	Sₜ = initial_state()
-	if !(Sₜ ∈ grid)
-		Aₜ = nohit
-	elseif shielded_operation
-		Aₜ = argmax((a) -> Q_value(Q, Sₜ, a), 🛡️(Sₜ))
-	else
-		Aₜ = argmax((a) -> Q_value(Q, Sₜ, a), A)
-	end
+	Aₜ = Sₜ ∈ grid ? argmax((a) -> Q_value(Q, Sₜ, a), actions_at(Sₜ, shielded_operation)) : nohit
 	ξ = []
 	for t ∈ 1:T
 		Sₜ₊₁ = f(Sₜ, Aₜ)
 		rₜ₊₁ = r(Sₜ₊₁, Aₜ)
 		Σr += rₜ₊₁
 
-		if !(Sₜ₊₁ ∈ grid)
-			Aₜ₊₁ = nohit
-		elseif shielded_operation
-			Aₜ₊₁ = argmax((a) -> Q_value(Q, Sₜ₊₁, a), 🛡️(Sₜ₊₁))
-		else
-			Aₜ₊₁ = argmax((a) -> Q_value(Q, Sₜ₊₁, a), A)
-		end
+		Aₜ₊₁ = Sₜ₊₁ ∈ grid ? argmax((a) -> Q_value(Q, Sₜ₊₁, a), actions_at(Sₜ₊₁, shielded_operation)) : nohit
 
 		push!(ξ, (Sₜ, Aₜ, rₜ₊₁))
 
