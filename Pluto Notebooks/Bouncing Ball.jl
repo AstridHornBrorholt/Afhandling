@@ -31,7 +31,12 @@ begin
 	# Pluto.activate_notebook_environment
 	using GridShielding
 	using GridShielding.BB
+
+	
 end
+
+# ╔═╡ 3771a73b-3547-43b0-97be-9cabce4ee661
+Plots.default(fontfamily="times")
 
 # ╔═╡ c6f38301-5eb7-4e98-bafd-6a0bcd2fb1b6
 md"""
@@ -200,7 +205,6 @@ let
 	ys = grid.bounds.lower[2]:grid.granularity[2]:grid.bounds.upper[2]
 	heatmap(xs, ys, permutedims(shield.array),
 		title="Resulting Shield (bitmask of allowed actions)",
-		fontfamily="times",
 		xlabel="v",
 		ylabel="p",
 		size=(500, 400))
@@ -464,9 +468,8 @@ end
 
 # ╔═╡ c53ca4b4-4d7d-4ee2-b86b-fbd696f98547
 if episodes < 100000
-	plot(rewards, 
-		 fontfamily="times",
-		 label=nothing, 
+	plot(rewards,
+		 label=nothing,
 		 xlabel="Episode",
 		 ylabel="Reward",
 		 ylim=(-100, 1), 
@@ -487,10 +490,10 @@ It prints out erros when an unsafe episode was produced during training, and out
 # ╔═╡ 76249b97-8022-482a-be78-930b9fc22aa0
 function check_safety(traces)
 	any_unsafe = false
-	for ξ in traces
+	for (i, ξ) in enumerate(traces)
 		for (S, a, S′) in ξ
 			if !is_safe(S)
-				@error "Unsafe state was reached!" state=S trace=ξ
+				@error "Unsafe state was reached!" state=S trace=ξ trace_number=i
 				any_unsafe = true
 				break
 			end
@@ -529,7 +532,6 @@ let
 	xs = grid.bounds.lower[1]:grid.granularity[1]:grid.bounds.upper[1]
 	ys = grid.bounds.lower[2]:grid.granularity[2]:grid.bounds.upper[2]
 	heatmap(xs, ys, permutedims(V.array),
-		fontfamily="times",
 		title="V-table",
 		xlabel="v",
 		ylabel="p",
@@ -542,14 +544,26 @@ md"""
 """
 
 # ╔═╡ c1a4e5b2-3f6d-4c9e-8b2a-1d5e7f9a0c34
-@bind trace_n NumberField(1:length(traces), default=1)
+@bind trace_to_visualize NumberField(1:length(traces), default=1)
 
 # ╔═╡ d2b5f6c3-4a7e-4d0f-9c3b-2e6f8a1b0d45
 let
-	ξ = traces[trace_n]
+	ξ = traces[trace_to_visualize]
 	states = [s for (s, a, _) in ξ]
+	actions = [a for (s, a, _) in ξ]
 	times = collect(0:length(states)-1) .* bbmechanics.t_hit
-	animate_trace(states, times)
+	positions = [s[2] for s in states]
+	hits = [ (t, p) for (p, a, t) in zip(positions, actions, times) if a == hit]
+	plot(times, positions,
+		 label="Ball",
+		 color=:black,
+		 marker=:circle,
+		 markersize=2,
+		 xlabel="Time",
+		 ylabel="Position")
+
+	scatter!(hits, markersize=3, markercolor=:white)
+	hline!([4], label=nothing, color=:gray)
 end
 
 # ╔═╡ 5b2a7ebd-8dc0-42f7-b7b0-441092bd14c3
@@ -2114,6 +2128,7 @@ version = "1.13.0+0"
 
 # ╔═╡ Cell order:
 # ╠═42548379-376c-45fc-b2e2-fd3b4fc51872
+# ╠═3771a73b-3547-43b0-97be-9cabce4ee661
 # ╟─c6f38301-5eb7-4e98-bafd-6a0bcd2fb1b6
 # ╠═0f6f658f-56a3-4de3-b1ef-0c3de76a2d37
 # ╟─8ab142ac-2bb9-42fd-bb52-781a3bdee3f9
@@ -2139,7 +2154,11 @@ version = "1.13.0+0"
 # ╠═d48f7d1c-3aee-4f96-92cd-34925bd8abf8
 # ╠═0ae4c6af-cfa1-4a4e-abb7-7e7db97698a5
 # ╟─fc61b87d-9097-44cb-ab8b-8d3b3db98a43
+# ╠═8b81a590-2dcb-4ecf-9aa8-70edcdf6c56d
+# ╠═89b9e551-cc21-47c2-9432-0029245b3e54
+# ╠═1e619b36-1caa-4139-ad81-9231ab039ce6
 # ╠═57cd2a0d-3462-4924-8198-af907c763074
+# ╠═af27ca7b-2bcc-4f38-a4c3-5d2f0f933ccd
 # ╠═ec0c414f-1c6a-4a2d-99cf-468fa617f36b
 # ╠═403a5a86-1fb8-498b-bd83-a418f9165fa3
 # ╟─b7c00112-ebe4-454e-a35a-7ba4e19ba9ea
