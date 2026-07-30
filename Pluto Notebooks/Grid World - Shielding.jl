@@ -43,7 +43,7 @@ TableOfContents()
 # ╔═╡ 8ab142ac-2bb9-42fd-bb52-781a3bdee3f9
 md"""
 ## Model
-A robot 🤖 can move around along the cardinal directions on a $4 times 4$ grid, and must find an efficient path towards a goal 🏁 while avoiding a harmful tile 💀.  Movement is deterministic except for the ice tiles 🧊 where there is a chance of slipping in a different random direction. 
+A robot 🤖 can move around along the cardinal directions on a $4 \times 4$ grid, and must find an efficient path towards a goal 🏁 while avoiding a harmful tile 💀.  Movement is deterministic except for the ice tiles 🧊 where there is a chance of slipping in a different random direction. 
   The system is defined by the MDP ${\cal G} = ({1, 2, ... 16}, 14, {←, ↑, →, ↓}, P, R)$. 
   The state-space is laid out in a $4 \times 4$ grid as illustrated in the plot below, with $s_0$ marked by 🤖.
   With the exception of states 10, 11, (🧊) 15 (💀) and 16(🏁), transitions deterministically follow the cardinal direction indicated by the action. If the action would cause the agent to leave the grid, it stays in the same state.
