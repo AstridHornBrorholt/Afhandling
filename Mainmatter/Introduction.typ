@@ -23,12 +23,13 @@ Such cyber-physical systems @lee2006cyber @lee2008cyber are becoming more ubiqui
 With applications such as autonomous vehicles, water management systems, industrial hydraulics, and power controllers, great care must be taken to ensure the safety of people, equipment, and resources that are directly or indirectly affected by the system.
 Under these safety constraints, the systems must also behave in a way that achieves their objectives efficiently.
 
-This can be achieved through the field of formal methods, which has a wide variety of approaches that can provide proof that a given system restricts itself ot a safe subset of behaviours #cl("HandbookOfModelChecking")@lewis2012optimal@doyle2013feedback.
-This presumes an accurate model of the (cyber-physical) system under verification, which can be subject to _state-space explosion_ in which the number of states grows exponentially in the number of variables used to represent it.
+This can be achieved through the field of formal methods, which has a wide variety of approaches that can provide proof that a given system restricts itself to a safe subset of behaviours #cl("HandbookOfModelChecking")@lewis2012optimal@doyle2013feedback.
+This presumes an accurate model of the (cyber-physical) system under verification.
+Such a model can be subject to _state-space explosion_ in which the number of states grows exponentially in the number of variables used to represent it.
 As the complexity of the model increases, correct-by-construction methods of policy synthesis become computationally infeasible.
 
 When the state-space reaches a size that is prohibitive for these methods, _reinforcement learning_ (RL) #cl("DBLP:books/lib/SuttonB98") @kaelbling1996reinforcement @arulkumaran2017deep has proven useful at approximating the optimal policy through exploration even in complex systems.
-Neural networks #cl("DBLP:journals/nature/LeCunBH15") are especially notable for having achieved impressive performance in a wide variety of tasks #cl("DBLP:journals/nature/SchrittwieserAH20").
+RL methods based on neural networks #cl("DBLP:journals/nature/LeCunBH15") are especially notable for having achieved impressive performance in a wide variety of tasks #cl("DBLP:journals/nature/SchrittwieserAH20").
 This performance is achieved by controllers that use a high number of neurons, making direct formal verification infeasible.
 
 #new[
@@ -36,17 +37,20 @@ This performance is achieved by controllers that use a high number of neurons, m
 *Shielding* @AlshiekhBEKNT18 @BloemKKW15 is a promising technique that restricts the behaviour of an RL policy in a way that formally guarantees a safety specification.
 A _shield,_ tasked with enforcing this safety specification, acts as a guardrail to keep the RL policy within safe bounds.
 To do so, the shield must avoid any states where leaving the bounds cannot be prevented.
-Often, obtaining a shield which is safe by construction can be feasible, even when directly obtaining a policy that is both safe and (near-) optimal is not.
+Synthesizing such a shield is subject to state-space explosion as described above.
+However, the size of the state-space can often be brought down significantly by creating a safety-relevant abstraction.
+This abstraction omits aspects of the system that are only relevant for keeping track of the reward.
 This shield can then be combined with an efficient policy, such as one obtained by RL, to achieve both safety and efficiency.
 Therefore, shielding has been widely studied in the literature 
-#cl("DBLP:conf/concur/0001KJSB20")@9196867@BastaniL21@PaperA@PaperC@PaperB#cl("DBLP:journals/corr/ZhangB19")#cl("DBLP:conf/amcc/BharadwajBDKT19")#cl("DBLP:conf/atal/Elsayed-AlyBAET21")#cl("DBLP:conf/atal/XiaoLD23")#cl("DBLP:conf/aaai/Carr0JT23")#cl("DBLP:conf/atva/PrangerKPB21")@PaperD@MedicalShielding#cl("DBLP:conf/isola/TapplerPKMBL22")@giacobbe_shielding_2021@xiao_model-based_2023#cl("DBLP:conf/ijcai/YangMRR23")@bloem_its_2020@carr_compositional_2025 
+#cl("DBLP:conf/concur/0001KJSB20")#cl("DBLP:conf/aaai/Carr0JT23")#cl("DBLP:conf/nips/MelcerAT22")
 but the ability of a shield to enforce safety depends on which assumptions can be made about the system, and there is no truly scalable "silver bullet" to ensure safety in all cases.
 
-Therefore, this thesis will continue the work of developing scalable shielding methods that enforce safety under systems and assumptions that are realistic for real-world cyber-physical systems.
+This thesis continues the work of developing novel shielding methods -- with a focus on scalability -- that enforce safety under systems and assumptions that are realistic for real-world cyber-physical systems.
 This thesis addresses shielding  hybrid systems, multi-agent settings and unknown environments, and describes efforts to enhance scalability, and accessibility through the development of user-friendly tools.
 
-The remainder of this introduction will describe the basics of first RL, then the basics of shielding.
-Beyond the fundamental definitions, alternative systems and shielding approaches are described, followed by a summary of each paper that make up the remainder of this thesis.
+The remainder of this introduction will describe the basics first of RL, then of shielding.
+Beyond the fundamental definitions, alternative systems and shielding approaches are described. 
+The last part of the introduction summarises the papers which make up the remainder of this thesis.
 ]
 
 == Reinforcement Learning <sec:rl>
@@ -74,14 +78,14 @@ An MDP can be described by a tuple $(S, s_0, A, P, R)$ where
   - and $R : S times A times S -> RR$ gives the reward $R(s, a, s')$ for reaching $s'$ by taking $a$ in $s$.
 ]<def:mdp>
 
-In this definition, the state-space is assumed to be finite, though in most cases the definition is used, it is straightforward to generalize to a countably infinite state-space. 
+In this definition, the state-space is assumed to be finite, though in most cases where the definition is used, it is possible to generalize to a countably infinite state-space. 
 If $S$ were instead uncountably infinite, the transition function $P$ should be modified to give a density function over a set of states, rather than giving probabilities for specific states. 
 I.e. 
 $P : S times A -> (S -> RR_(>=0))$ such that $integral_(s' in S) P(s, a)(s') d s' = 1$.
 
 #new[
 The state-space $S$ is often represented as a finite set of vectors $subset ZZ^n$ where each element of a state-vector represents the value of a variable in the model (usually defined within a bounded interval).
-The number of states $|S|$ grows exponentially with the number of variables $n$, an this growth is known as _state-space explosion._
+The number of states $|S|$ grows exponentially with the number of variables $n$. This growth is known as _state-space explosion._
 ]
 
 The definition also requires every action $a in A$ to be defined for every state in $S$. 
