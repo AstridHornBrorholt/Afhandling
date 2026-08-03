@@ -207,7 +207,7 @@ let
 		color_labels=["none", "hit only", "nohit only", "both"],
 		xlabel="v",
 		ylabel="p",
-		size=(500, 400))
+		size=(400, 400))
 end
 
 # ╔═╡ b7c00112-ebe4-454e-a35a-7ba4e19ba9ea
@@ -257,17 +257,13 @@ md"""
 **👇 Enable Shield During Training**
 """
 
+# ╔═╡ f7e8d34a-a02b-4f91-9b1e-8785ecb52768
+function 🛡️(s)
+	allowed(shield, s) # Shielded actions
+end
+
 # ╔═╡ 8e93a106-ea67-4253-abbd-9daa180f113c
 @bind shielded_learning CheckBox(default = true)
-
-# ╔═╡ f7e8d34a-a02b-4f91-9b1e-8785ecb52768
-begin
-	A = collect(instances(Action))
-
-	function 🛡️(s)
-		allowed(shield, s) # Shielded actions
-	end
-end
 
 # ╔═╡ 8a9b6383-84e0-4bbb-ad70-6f634d614950
 🛡️((0.0, 8.0))
@@ -275,15 +271,17 @@ end
 # ╔═╡ 9be52908-01b2-4853-a7f8-7b31ee46593d
 🛡️((-4.0, 4.0))
 
+# ╔═╡ fa3c2622-d455-4ada-a2ca-d30ef4980f9f
+A = [nohit, hit]
+
 # ╔═╡ 6270c560-dd09-4441-ace5-bb38d67d5812
 🛡️((0.0, 0.0))
 
 # ╔═╡ 99f0398d-2e8f-4835-be1d-b0f4bbd7ebdf
 ∞ = Inf
 
-# ╔═╡ 7fa924a2-e89b-488c-8f46-c6067eede854
-begin
-	# The shield's grid doesn't cover every state simulate_point can reach
+# ╔═╡ 2fb06675-6283-49db-aaaa-df14b5315e14
+# The shield's grid doesn't cover every state simulate_point can reach
 	# (e.g. after an unlucky hit sends the ball far outside p_hit's range).
 	# Default to nohit for any state outside the grid instead of erroring.
 	function Q_value(Q, s, a)
@@ -294,12 +292,15 @@ begin
 	# The action set to choose/argmax over at state s: filtered down to
 	# shielded actions when use_shield is true, explicitly, rather than
 	# relying on -∞ Q-values to rule out unsafe actions.
-	function actions_at(s, use_shield)
-		use_shield ? 🛡️(s) : A
-	end
 
-	# ϵ-greedy choice from Q.
-	function ϵ_greedy(ϵ::Number, Q, s)
+# ╔═╡ 371467e8-4fe1-448d-927a-987a94965896
+function actions_at(s, use_shield)
+		use_shield ? 🛡️(s) : A
+end
+
+# ╔═╡ 2117a08d-06a0-4828-bd72-be8987224a30
+# ϵ-greedy choice from Q.
+function ϵ_greedy(ϵ::Number, Q, s)
 		s ∈ grid || return nohit
 		if rand(Uniform(0, 1)) < ϵ
 			return rand(actions_at(s, shielded_learning))
@@ -307,25 +308,37 @@ begin
 			return argmax((a) -> Q_value(Q, s, a), actions_at(s, shielded_learning))
 		end
 	end
-end
+
+# ╔═╡ 15ab274d-c648-48cb-a79b-408326f8aae3
+md"""
+Since the state-space is continuous, we discretize Q-values.
+
+The size of this discretization affects learning. Higher resolution may yield a better policy but takes longer to train.
+"""
+
+# ╔═╡ 241c61b9-0b28-4653-b36c-ac9c2e6fcb9c
+@bind granularity_of_Q_table Select([0.02, 0.05, 0.1, 0.2, 0.5, 1, 2], default=1)
 
 # ╔═╡ 218cbaf2-175e-477e-815e-706d95cbfec2
-# Q is one Grid{Float64} per action, mirroring the shield's grid.
+# Q is one Grid{Float64} per action
 # Note also that it's important for the Q-updates that the terminal states are zero
 begin
-	# Bias the initial Q-values towards nohit: it starts out looking
-	# strictly better than hit, so the agent only learns to hit once it's
-	# actually seen to pay off. No shield condition here — action safety is
-	# enforced explicitly (via actions_at) wherever actions are selected.
 	function init_value(a)
-		a == nohit ? 0.0 : -0.1
+		# Bias the initial Q-values towards nohit
+		# a == nohit ? 0.0 : -0.1
+		
+		# Just zero everywhere
+		0
+
+		# Slightly random
+		# rand(Uniform(-0.1, 0.1))
 	end
 
 	bounds_lower = grid.bounds.lower
 	bounds_upper = grid.bounds.upper
-	q_granularity = [0.1, 0.1]
 
-	Q_init = Dict(a => Grid(q_granularity, bounds_lower, bounds_upper; data_type=Float64)
+	Q_init = Dict(a => 
+		Grid(granularity_of_Q_table, bounds_lower, bounds_upper; data_type=Float64)
 				  for a in instances(Action))
 
 	for a in instances(Action)
@@ -520,21 +533,81 @@ best_a(Q, s) = argmax(a -> get_value(box(Q[a], s)), A)
 
 # ╔═╡ 8eb6eca4-2ae5-41ae-9796-09dc7c25a8be
 begin
-	V = Grid(grid.granularity, grid.bounds.lower, grid.bounds.upper; data_type=Float64)
+	V = Grid(Q[hit].granularity, Q[hit].bounds.lower, Q[hit].bounds.upper; data_type=Float64)
 	initialize!(V, bounds -> max((get_value(box(Q[a], bounds.lower)) for a in A)...))
 end
 
-# ╔═╡ 3e17f889-ffc5-4fd1-8853-940a3dd64d86
+# ╔═╡ 6c677434-f778-404b-9905-904ef65b2818
+@bind color_gradient Select([:acton, :bam, :bamO, :bamako, :berlin, :bilbao, :broc, :brocO, :buda, :bukavu, :corkO, :devon, :grayC, :hawaii, :imola, :lajolla, :lapaz, :lipari, :lisbon, :managua, :navia, :oleron, :oslo, :roma, :romaO, :tofino, :tokyo, :turku, :vanimo, :vikO, :vikO50], default=:lajolla)
+
+# ╔═╡ 45c14213-49a0-467d-beb0-9a6c53623696
 let
+	xs = Q[hit].bounds.lower[1]:Q[hit].granularity[1]:Q[hit].bounds.upper[1]
+	ys = Q[hit].bounds.lower[2]:Q[hit].granularity[2]:Q[hit].bounds.upper[2]
+	heatmap(xs, ys, permutedims(V.array),
+		color=color_gradient,
+		xlabel="v",
+		xlim=(-15, 15),
+		ylim=(0,10),
+		ylabel="p",
+		clim=(-50, 0),
+		size=(400, 400))
+end
+
+# ╔═╡ cc0c3c54-8dd1-45ff-b957-bbe7ebc9c7ea
+md"""
+### Policy Visualization
+"""
+
+# ╔═╡ 3e17f889-ffc5-4fd1-8853-940a3dd64d86
+hit_map = let
+	hit_map = Grid(grid.granularity, grid.bounds.lower, grid.bounds.upper; data_type=Bool)
+	
+	actions(s) = shielded_learning ? 🛡️(s) : A
+
+	get_action(Q, s) = argmax((a) -> Q_value(Q, s, a), actions(s))
+	
+	initialize!(hit_map, bounds -> begin
+				s = bounds.lower + grid.granularity/2
+				get_action(Q, s) == hit
+		end)
+	
+	hit_map
+end
+
+# ╔═╡ 212ec502-b224-4ae6-9097-99c539e1c69b
+let
+	blue = "#3498db"
 	xs = grid.bounds.lower[1]:grid.granularity[1]:grid.bounds.upper[1]
 	ys = grid.bounds.lower[2]:grid.granularity[2]:grid.bounds.upper[2]
-	heatmap(xs, ys, permutedims(V.array),
-		title="V-table",
-		color=cgrad([:white, :wheat]),
+	heatmap(xs, ys, permutedims(hit_map.array),
+		color=cgrad([:white, blue]),
+		cbar=nothing,
 		xlabel="v",
 		ylabel="p",
-		size=(500, 400))
+		legend=:top,
+		xlim=(-15, 15),
+		ylim=(0,10),
+		size=(400, 400))
+
+	plot!([], seriestype=:shape, color=blue, label="Hit")
+	plot!([], seriestype=:shape, color=:white, label="No hit")
 end
+
+# ╔═╡ 603d034d-e5ef-4866-b265-b3dfd1c543d9
+@bind pp NumberField(0:0.01:10)
+
+# ╔═╡ 02fda2b7-f6df-4c49-868f-9f8c40d31472
+get_value(box(shield, [0, pp]))
+
+# ╔═╡ 1c605b6a-7b8b-4e16-8c83-bfd15cc05e3f
+🛡️([0, pp])
+
+# ╔═╡ f51deb21-8f51-41af-a4a8-108bd502f726
+Q_value(Q, [0, pp], hit), Q_value(Q, [0, pp], nohit)
+
+# ╔═╡ a4fa295b-73f9-43e0-8caa-717176b528d5
+argmax((a) -> Q_value(Q, [0, pp], a), 🛡️([0, pp]))
 
 # ╔═╡ b6d3f7a1-2e4c-4b8d-9a1e-7c5f6a8e2d10
 md"""
@@ -542,7 +615,7 @@ md"""
 """
 
 # ╔═╡ c1a4e5b2-3f6d-4c9e-8b2a-1d5e7f9a0c34
-@bind trace_to_visualize NumberField(1:length(traces), default=1)
+@bind trace_to_visualize NumberField(1:length(traces), default=episodes)
 
 # ╔═╡ d2b5f6c3-4a7e-4d0f-9c3b-2e6f8a1b0d45
 let
@@ -558,9 +631,10 @@ let
 		 marker=:circle,
 		 markersize=2,
 		 xlabel="Time",
-		 ylabel="Position")
+		 ylabel="Position",
+		 size=(400, 400))
 
-	scatter!(hits, markersize=3, markercolor=:white)
+	scatter!(hits, markersize=3, markercolor=:white, label="Hit attempt")
 	hline!([4], label=nothing, color=:gray)
 end
 
@@ -2157,13 +2231,18 @@ version = "1.13.0+0"
 # ╠═ea419be2-1b1e-40f2-b823-673a4c38f543
 # ╟─66dd9d38-7ef7-4b4c-805b-d26f21f2859f
 # ╟─36a8f83d-20fd-450d-bbae-aae7fc909580
-# ╠═8e93a106-ea67-4253-abbd-9daa180f113c
 # ╠═f7e8d34a-a02b-4f91-9b1e-8785ecb52768
+# ╠═8e93a106-ea67-4253-abbd-9daa180f113c
 # ╠═8a9b6383-84e0-4bbb-ad70-6f634d614950
 # ╠═9be52908-01b2-4853-a7f8-7b31ee46593d
+# ╠═fa3c2622-d455-4ada-a2ca-d30ef4980f9f
 # ╠═6270c560-dd09-4441-ace5-bb38d67d5812
-# ╠═7fa924a2-e89b-488c-8f46-c6067eede854
 # ╠═99f0398d-2e8f-4835-be1d-b0f4bbd7ebdf
+# ╠═2fb06675-6283-49db-aaaa-df14b5315e14
+# ╠═371467e8-4fe1-448d-927a-987a94965896
+# ╠═2117a08d-06a0-4828-bd72-be8987224a30
+# ╟─15ab274d-c648-48cb-a79b-408326f8aae3
+# ╠═241c61b9-0b28-4653-b36c-ac9c2e6fcb9c
 # ╠═218cbaf2-175e-477e-815e-706d95cbfec2
 # ╠═fbce7689-eb9d-4120-8d3d-6a01e66cb4fe
 # ╠═073098a8-0ee4-4817-ae8b-0a6a8ba3804f
@@ -2188,10 +2267,19 @@ version = "1.13.0+0"
 # ╟─e8c15e5a-1282-4f6a-927f-fd00e19e200d
 # ╠═9cde860e-9aa8-4a9f-90d1-5932928878ea
 # ╠═8eb6eca4-2ae5-41ae-9796-09dc7c25a8be
+# ╠═6c677434-f778-404b-9905-904ef65b2818
+# ╠═45c14213-49a0-467d-beb0-9a6c53623696
+# ╟─cc0c3c54-8dd1-45ff-b957-bbe7ebc9c7ea
 # ╠═3e17f889-ffc5-4fd1-8853-940a3dd64d86
+# ╠═212ec502-b224-4ae6-9097-99c539e1c69b
+# ╠═603d034d-e5ef-4866-b265-b3dfd1c543d9
+# ╠═02fda2b7-f6df-4c49-868f-9f8c40d31472
+# ╠═1c605b6a-7b8b-4e16-8c83-bfd15cc05e3f
+# ╠═f51deb21-8f51-41af-a4a8-108bd502f726
+# ╠═a4fa295b-73f9-43e0-8caa-717176b528d5
 # ╟─b6d3f7a1-2e4c-4b8d-9a1e-7c5f6a8e2d10
 # ╠═c1a4e5b2-3f6d-4c9e-8b2a-1d5e7f9a0c34
-# ╠═d2b5f6c3-4a7e-4d0f-9c3b-2e6f8a1b0d45
+# ╟─d2b5f6c3-4a7e-4d0f-9c3b-2e6f8a1b0d45
 # ╟─5b2a7ebd-8dc0-42f7-b7b0-441092bd14c3
 # ╠═428a7486-e5e8-4a63-9f4a-f7d58bd9d511
 # ╟─cf3c3947-71d1-442c-8ffd-75b1acb1cc1c
