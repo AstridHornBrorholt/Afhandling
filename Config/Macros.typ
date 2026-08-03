@@ -112,6 +112,7 @@
 #let Act = $A c t$
 #let mdp = $cal(M)$
 #let mg = $cal(G)$
+#let ls = $cal(L)$
 #let powerset(x) = $scr(P)(#x)$
 #let argmax = $op("arg max", limits: #true)$
 #let argmin = $op("arg min", limits: #true)$
@@ -122,6 +123,10 @@
 #let models = $scripts(models)$
 #let modelsnot = $cancel(models, length: #90%)$
 #let widehat(body) = text(font: "Latin Modern Math", $hat(body)$)
+
+Numerals
+#let th = "th"
+#let nd = "nd"
 
 // The Elder Futhark
 #let fehu = "ᚠ"

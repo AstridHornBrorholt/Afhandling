@@ -1,6 +1,7 @@
 #import "@preview/subpar:0.2.2"
 #import "@preview/lemmify:0.1.8": *
-#import "@preview/lovelace:0.3.0": *
+
+#import "@preview/lovelace:0.3.1": *
 #import "../Config/Macros.typ" : *
 #let (
   theorem, lemma, corollary,

@@ -2,7 +2,7 @@
 #import "@preview/cetz:0.4.2"
 #import "@preview/subpar:0.2.2"
 #import "@preview/lemmify:0.1.8": *
-#import "@preview/lovelace:0.3.0": *
+#import "@preview/lovelace:0.3.1": *
 
 #let (
   theorem, lemma, corollary,
@@ -1129,8 +1129,134 @@ In a partially observable setting, sharing observations may also allow agents to
 
 ]
 
+#new[
+
 == Hybrid MDPs
-...
+
+So far, finite systems have been considered, building upon the finite MDP formalism given in @def:mdp. 
+This discrete view fits well with the logic of electronic systems, being suited both for modelling their behaviour and for being simulated by them. 
+However, the physical world is continuous, and can often be modelled accurately by differential equations.
+To simulate cyber-physical systems, one needs to capture both the discrete states of the electronic components and the continuous behaviour of real-world objects.
+
+Such hybrid systems contain both continuous dynamics, and discrete states that switch based on thresholds set for the continuous values.
+There are also purely physical phenomena that hybrid systems are suitable for modelling.
+A ball bouncing on the ground is one such example.
+
+#example(name: "Bouncing Ball")[
+  The ball it bounce.
+
+  $ 
+  dot(v) = -g
+  #h(2em) 
+  dot(p) = v
+  $
+
+  I feel like we are missing the time $t$ here...
+  Is it $v_t$ etc.? I think so.
+]
+
+It is not possible to apply Q-learning as described in @alg:QLearning directly.
+It is not practical to represent a Q-table over uncountably infinite states, and most states will almost-surely never be visited twice.
+So recording for a single state doesn't make much sense. 
+However, you can discretize the Q-table #citationneeded[].
+
+#example(name: "Q-learning on BB")[
+  The Q-table was discretized with a bucket size of $0.2$ for $vec(v, p) in [-15; 15[ #h(2pt) times [0; 10[$.
+  That's $(15 - (-15))/0.2 times 10/0.2 = #{(15 - (-15))/0.2 * 10/0.2}$ cells.
+  Each cell is likewise lower-inclusive so the state so e.g. state $vec(-4, 1)$ is contained in the cell $ [-4; -3.8[ times [1; 1.2[$.
+
+  In remaining states, $vec(v', p') in.not  [-15; 15[ #h(2pt) times [0; 10[$ the Q-values were set to not hit the ball: $Q(vec(v', p'), "nohit") = 0$ and $Q(vec(v', p'), "hit") = -infinity$.
+
+  It trained for $50000$ episodes of max-length $1000$ ($100$ seconds).
+
+  #subpar.grid(columns: 3, align: top,
+    // figure(image("../Graphics/Intro/BB Shield.svg"),
+    //   caption: "Shield"
+    // ),
+    figure(image("../Graphics/Intro/BB Unshielded Training.png"),
+      caption: [Training graph]
+    ),
+    // figure(image("../Graphics/Intro/BB V-table.svg"),
+    //   caption: [V-table]
+    // ),
+    figure(image("../Graphics/Intro/BB Unshielded Policy.svg"),
+      caption: [Visualization of the policy]
+    ),
+    figure(image("../Graphics/Intro/BB Unshielded Trace.svg"),
+      caption: [Safety violation appearing in the $49755^th$ trace.]
+    ),
+    caption: [weh]
+  )
+
+  Unsafe traces were encountered during simulated operation. The average reward during simulated operation was $-30.8$.
+]
+
+Linear differential equations govern the position of bouncing ball while it's in the air.
+
+#definition(name: "Linear System")[
+  A linear system (LS) is a tuple $ls = (S, s_0, A, f, tau, R)$ where
+  - $S subset.eq RR^n$ is the convex $n$-dimensional state-space
+  - $s_0 in S$
+  - $A$ is the finite set of actions (really should be the continuous control variable)
+  - $f : S times A times RR -> RR^m$ gives the slope or something
+  - $tau in RR$ is the time step
+  - $R : S times A times S -> RR$ is the reward function
+
+  The system transitions is governed by the set of differential equations along the lines of 
+
+  $ (d s) / (d t) = f(s, a, t) $ <eq:derivative> // I don't think this is the derivative
+
+  For a policy it's defined like, you know, pretty much the same $pi : S -> A$ etc. a trace $xi = s_0 a_0 s_1 a_1 ...$ is an outcome of $ls$ and $pi$ if for $i in NN$ if $s = s_i$ at $t=0$ then $s_(i+1)$ is the solution to @eq:derivative for $t=tau$.
+
+  Trace segments and expected $gamma$-discounted reward can be extended directly.
+  ]
+
+This can express the dynamics of a bouncing ball falling in the air
+
+#example(name: [A linear system $cal(B)$ for BB])[
+  This might be excessive... And doesn't really amount to anything other than repeating what's in Paper A.
+]
+
+Anyway. A hybrid system
+
+#definition(name: "Hybrid System")[
+  A hybrid system $cal(H) = (ls, tau, G, J)$ is erm...
+  With $ls = (S, s_0, A, f, tau, R)$...
+  - $G : S -> {top, bot}$ is some sort of guard
+  - $J : S -> S$ is the jump function
+
+  A trace is like a linear system except if at some point $G(s_t) = top$ we do $s'_t = J(s_t)$ and continue the diff eq with $s'_t$.
+]
+
+How to shield something like that is intricately hard. See @fig:BBReachability
+
+#figure(
+  image("../Graphics/Intro/BB Reachability.png", width: 33%),
+  caption: [BB Reachability]
+)<fig:BBReachability>
+
+But with this contribution of mine it is possible
+
+#example(name: [Shielding the Bouncing Ball])[
+  #subpar.grid(columns: 3,
+    figure(image("../Graphics/Intro/BB Shield.svg"),
+      caption: [Visualization of the shield with cell size 0.02]
+    ),
+    figure(image("../Graphics/Intro/BB Shielded Training.png"),
+      caption: [Training graph when shield is applied.]
+    ),
+    figure(image("../Graphics/Intro/BB Shielded Policy.svg"),
+      caption: [End-to-end shielded policy.]
+    ),
+    caption: [Shielding the Bouncing Ball],
+  )<fig:ShieldingBB>
+
+  End-to-end pre-shielding achieved a mean reward of $31.04$.
+
+  Post-shielding 30.9 ??
+]
+
+] // end #new
 
 === Shielding of Hybrid Systems
 ...
