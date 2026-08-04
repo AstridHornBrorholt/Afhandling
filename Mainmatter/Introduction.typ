@@ -180,6 +180,8 @@ However, MDPs are often described using several variables or components. Known a
 
 If the state-space is prohibitively large, or the MDP is not fully known but can be sampled from, the optimal policy may instead be approximated through learning. 
 
+#todo[The following section conflates representations, implementations, and learning algorithms. Re-write.]
+
 State of the art reinforcement learning techniques learn intricate behaviour through deep neural networks such as PPO~#cl("DBLP:journals/corr/SchulmanWDRK17"), and decision trees such as random forest~#cl("DBLP:journals/ml/Breiman01"), or a combination of the two like MuZero~#cl("DBLP:journals/nature/SchrittwieserAH20").
 In the following, a description of the comparatively simple Q-learning approach will be given. The method serves to illustrate the core concepts of reinforcement learning, such as the difference between on-policy and off-policy learning, value estimation, and exploration strategies. 
 
@@ -358,7 +360,6 @@ Legal requirements may warrant a costly re-certification every time changes are 
 Technical limitations during operations may also preclude learning, such as in embedded platforms. Reductions may have even been applied to the policy representation, in order to stay within memory limits.
 Such a reduction could be the transformation from a Q-table to a list of state-action pairs, discarding the exact Q-values and keeping only the optimal action for each state.
 
-#todo[Q-learning advanced example: Bouncing Ball.]
 
 == Safety through Shielding <sec:Shielding>
 
