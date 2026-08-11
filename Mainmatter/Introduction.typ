@@ -33,7 +33,7 @@ RL methods based on neural networks #cl("DBLP:journals/nature/LeCunBH15") are es
 This performance is achieved by controllers that use a high number of neurons, making direct formal verification infeasible.
 
 
-*Shielding* @AlshiekhBEKNT18 @BloemKKW15 is a promising technique that restricts the behaviour of an RL policy in a way that formally guarantees a safety specification.
+*Shielding* @AlshiekhBEKNT18 @BloemKKW15@DavidJLLLST14 is a promising technique that restricts the behaviour of an RL policy in a way that formally guarantees a safety specification.
 A _shield,_ tasked with enforcing this safety specification, acts as a guardrail to keep the RL policy within safe bounds.
 To do so, the shield must avoid any states where leaving the bounds cannot be prevented.
 Synthesizing such a shield is subject to state-space explosion as described above.
@@ -220,7 +220,7 @@ The algorithm has additional input parameters, which will be described in the fo
         + $s' ~ P(s, a)$ #comment[Take action $a$ in state $s$, call the next state $s'$.]
         + #line-label(<l:QUpdate>) 
           $Q ← Q[&(s, a) mapsto \ 
-            Q &(s, a) + alpha (i) (R(s, a, s') + gamma max_(a' in A) Q (s', a') - Q (s, a)) ]$
+            &(1-alpha(i))Q (s, a) + alpha (i) (R(s, a, s') + gamma max_(a' in A) Q (s', a')) ]$
     + *Return* $hat(pi) (s) = argmax_(a in A) Q (s, a)$ #line-label(<l:Return>)
   ],
 )<alg:QLearning>
@@ -405,7 +405,7 @@ Even then, the convergence guarantee for Q-learning relies on an infinite number
 
 === Shielding
 
-Among the many approaches to enforcing safety in reinforcement learning  #cl("DBLP:conf/iros/WenET15")#cl("DBLP:conf/tacas/Junges0DTK16")#cl("DBLP:journals/jmlr/GarciaF15")@MaderbacherSBBNK23@ChengOMB19@LuoM21@BloemKKW15#cl("DBLP:conf/isola/Jaeger0BLJ20")@BerkenkampTS017#cl("DBLP:journals/jmlr/GarciaF15"), shielding @AlshiekhBEKNT18@BloemKKW15@ChowNDG18#cl("DBLP:journals/cacm/KonighoferBJJP25") is a promising technique which restricts the actions available to the agent, in order to ensure safe behaviour.
+Among the many approaches to enforcing safety in reinforcement learning  #cl("DBLP:conf/iros/WenET15")#cl("DBLP:conf/tacas/Junges0DTK16")#cl("DBLP:journals/jmlr/GarciaF15")@MaderbacherSBBNK23@ChengOMB19@LuoM21@BloemKKW15#cl("DBLP:conf/isola/Jaeger0BLJ20")@BerkenkampTS017#cl("DBLP:journals/jmlr/GarciaF15"), shielding @DavidJLLLST14@AlshiekhBEKNT18@BloemKKW15@ChowNDG18#cl("DBLP:journals/cacm/KonighoferBJJP25") is a promising technique which restricts the actions available to the agent, in order to ensure safe behaviour.
 Since shields work by restricting actions, they can be applied to any existing reinforcement learning method, including deep learning, allowing it to work in concert with state of the art methods to achieve safe and optimized behaviour.
 
 #definition(name: "Shield, maximally permissive shield, shielded policy")[
@@ -454,7 +454,7 @@ The permissiveness of the shield is an important property, since an overly restr
 
 === Origin of the Term
 
-In works such as @DavidJLLLST14 it was shown how a safety property can be enforced through a maximally permissive, safe, non-deterministic policy.
+In the 2014 paper by David et al. @DavidJLLLST14, it was shown how a safety property can be enforced through a maximally permissive, safe, non-deterministic policy.
 While acting within the constraints of this policy, reinforcement learning was utilized to optimize for a second objective, achieving near-optimal behaviour within the safety constraints.
 
 The term *shield* was coined in @BloemKKW15 to describe a component which would work in concert with a (mostly safe) policy, and intervene to prevent unsafe behaviour.
@@ -499,43 +499,22 @@ Since this first article covering shielded reinforcement learning in finite MDPs
 
 === Shielding a Policy: Pre- and Post-shielding During Training and Operation <sec:ApplyingTheShield>
 
-Specific implementation details of how a shield is applied to a reinforcement learning agent can vary.
-The terms _pre-shielding_ and _post-shielding_ (sometimes referred to as _post-posed shielding_) have been used to describe the relationship between the agent and the shield, but the terms have been used in the literature to describe two distinct concepts:
+There are multiple options for how and when a shield is applied.
+The terms _pre-_ and _post-shielding_ #cl("DBLP:journals/corr/abs-1708-08611") #cl("DBLP:journals/cacm/KonighoferBJJP25") commonly refer to how the shield is applied.
+Additionally, this section introduces terms to describe when the shield is in use.
+A brief overview of the terms is given below, followed by detailed descriptions of each.
 
-+ In one part of the literature, pre- and post-shielding refer to *how* the shield ensures only safe actions reach the environment #cl("DBLP:journals/corr/abs-1708-08611") #cl("DBLP:journals/cacm/KonighoferBJJP25") @MedicalShielding #cl("DBLP:conf/isola/TapplerPKMBL22") @bloem_its_2020.
-+ Alternatively the terms can refer to *when* a shield is applied, i.e. whether the shield is in place during the training- and/or operation phases (see @sec:TrainingAndOperation) @jakobs_thesis @PaperA.
-
-This section will coin an additional set of terms, to disambiguate these meanings.
-The terms pre- and post-shielding will be taken to mean the first and more widely used definition, i.e. *how* the shield is integrated into the reinforcement learning loop.
-The second set of terms, to describe *when* the shield is in place, will be dubbed _training-only, operation-only,_ and  _end-to-end shielding._
-A brief description of the terms is given here, with definitions following in the sections below.
-
-In short, pre-shielding (@fig:PreShielding) provides a set of safe actions to the agent, which it then chooses from.
-With post-shielding,  (@fig:PostShielding) the agent may choose any action, but if the shield deems that action unsafe, it will exchange the unsafe action with a different, safe action.
-
-The aforementioned terms describing *how* the shield is applied, can be combined with any of the terms for *when* it is in place:
-End-to-end shielding, (@fig:EndToEnd) has a shield in place during both training and operation. 
-With training-only shielding, the shield is in place during the training phase, and the resulting policy is safe by construction (@fig:TrainingOnly).
-For operation-only shielding, (@fig:OperationOnly) a policy was trained without access to a shield, but one is later constructed as an additional safeguard while the policy is in operation.
+/ How: the shield ensures only safe actions reach the environment:
+  / Pre-shielding: gives a set of safe actions that the shielded agent or policy must choose from.(@fig:PreShielding)
+  / Post-shielding: changes unsafe actions to alternative, safe actions. Safe actions remain unchanged. (@fig:PostShielding)
+/ When: the shield is an active component:
+  / Training-only: uses the shield in the training phase, and produces a trained policy that is safe by construction. (@fig:TrainingOnly)
+  / End-to-end: has a shield in place during both training an operation.  Used for policy representations that are not safe by construction. (@fig:EndToEnd)
+  / Operation-only: adds a shield during operation to a -- potentially unsafe -- policy that was trained without access to a shield. (@fig:OperationOnly)
 
 When and how the shield is employed are orthogonal properties, and the terms can be freely combined.
 For example, a training-only shielding setup can use either a pre- or post-shield.
 
-#remark[
-  The terminology introduced in this section does not align with Paper A.
-  This section distinguishes two sets of concepts which are described by the paper as linked, as shown in @tab:NamingDiscrepancy.
-  The paper uses _post-shielding_ to mean operation-only post-shielding.
-  Conversely, the paper uses _pre-shielding_ to mean end-to-end pre-shielding.
-
-  #figure(table(columns: 2, align: center,
-      table.header( [*Term used in Paper A*], [*Corresponding terms in this section*] ),
-      [Pre-shielding], [End-to-end Pre-shielding ],
-      table.hline(),
-      [Post-shielding], [Operation-only Post-shielding]
-    ),
-    caption: [This section uses different terms compared to Paper A.]
-  )<tab:NamingDiscrepancy>
-]
 
 #subpar.grid(columns: 2,
   [#figure(include("../Graphics/Intro/Pre-shielding.typ"),
@@ -548,12 +527,12 @@ For example, a training-only shielding setup can use either a pre- or post-shiel
   label: <fig:PrePostShielding>
 )
 #subpar.grid(columns: 3, align: top,
-  [#figure(include("../Graphics/Intro/End-to-end Shielding.typ"),
-  caption: [End-to-end shielding.]
-  )<fig:EndToEnd>],
   [#figure(include("../Graphics/Intro/Training Only.typ"),
   caption: [Training only.]
   )<fig:TrainingOnly>],
+  [#figure(include("../Graphics/Intro/End-to-end Shielding.typ"),
+  caption: [End-to-end shielding.]
+  )<fig:EndToEnd>],
   [#figure(include("../Graphics/Intro/Operation Only.typ"),
     caption:[Operation only.]
   )<fig:OperationOnly>],
@@ -561,19 +540,28 @@ For example, a training-only shielding setup can use either a pre- or post-shiel
   label: <when_shielding>
 )
 
+#remark[
+  The terminology introduced in this section does not align with Paper A.
+  This section distinguishes two sets of concepts which are described by the paper as linked, as shown in @tab:NamingDiscrepancy.
+  The paper uses _post-shielding_ to mean operation-only post-shielding.
+  Conversely, the paper uses _pre-shielding_ to mean end-to-end pre-shielding.
+
+  #figure(table(columns: (2), align: center,
+      table.header( [*Term used in Paper A* #h(.5em)], [*Corresponding terms in this section*] ),
+      [Pre-shielding], [End-to-end Pre-shielding ],
+      table.hline(),
+      [Post-shielding], [Operation-only Post-shielding]
+    ),
+    caption: [This section uses different terms compared to Paper A.]
+  )<tab:NamingDiscrepancy>
+]
 ==== Pre-shielding
 Illustrated in @fig:PreShielding, this term refers to the shield $shield$ restricting the behaviour of the the policy by providing a set of actions $shield(s) subset.eq A$, that are permitted for the given state $s$.
 The learning must be set up in such a way as to only pick an action $a$ if it is included in the set $shield(s)$.
 
-For Q-learning, this can be implemented by modifying @alg:QLearning to maximize only over safe actions $max_(a in shield(s))$, rather than all of $A$.  For example, in @l:QUpdate:
-
-$ Q (s, a) = Q (s, a) + alpha (i) (R(s, a, s') + gamma max_(a' in shield(s')) Q (s', a') - Q (s, a)) $
-
-A similar approach works for gradient methods @arulkumaran2017deep #cl("DBLP:journals/corr/abs-2006-14171").
-
-Alternatively, unsafe actions can be excluded from consideration as follows: 
+For Q-learning, unsafe actions can be excluded from consideration as follows: 
 For some default value $q_0$ and bottom element $-infinity$, the Q-values can be initialized as $Q(s, a) = cases(-infinity &" if " a in.not shield(s), q_0 &"otherwise")$.
-If $epsilon$-greedy exploration is used, the exploratory actions should picked from just $shield(s)$ and not the full action space $A$.
+If $epsilon$-greedy exploration (@l:Explore in @alg:QLearning) is used, the exploratory actions should picked from just $shield(s)$ and not the full action space $A$.
 
 Directly applying the shield to the Q-table is possible because the learning method works on a finite number of states.
 A similar approach is not possible for e.g. decision trees, or continuous methods such as Deep Q-learning, PPO, etc. where states in the system are not explicitly represented. 
@@ -588,15 +576,15 @@ This is akin to modifying the the MDP $mdp = (S, s_0, A, P, R)$ with a new trans
 In addition to a shield $shield$, post-shielding requires a (deterministic) fallback policy 
 #footnote[The symbol $fehu$ is the runic letter _fehu._]
 $fehu : S → A$,
-with $fehu(s) = a => a in shield(s)$. The shield $shield$ and fallback policy $fehu$ induce functions $P^shield_(#h(1.5pt) fehu)$ and $R^shield_fehu$ for a post-shielded MDP $mdp^shield_fehu = (S, s_0, A, P^shield_(#h(1.5pt) fehu), R^shield_fehu)$.
-The transition function will choose the fallback action, if the suggested action is unsafe
+with $fehu(s) = a => a in shield(s)$. The shield $shield$ and fallback policy $fehu$ induce a post-shielded MDP $mdp^shield_fehu = (S, s_0, A, P^shield_(#h(1.5pt) fehu), R^shield_fehu)$.
+The transition function will choose the fallback action, if the suggested action is unsafe:
 
 $ P^shield_(#h(1.5pt) fehu)(s, a)(s') = cases(
   P(s, a)(s') &"if" a in shield(s), 
   P(s, fehu(s))(s') &"otherwise"
 ) $<eq:PostShieldedTransitionFunction>
 
-And the reward function is updated to reflect this
+And the reward function is updated to reflect this:
 
 $ R^shield_fehu (s, a, s') = cases(
   R(s, a, s') & "if" a in shield(s),
@@ -608,7 +596,7 @@ By re-defining $fehu$ to be probabilistic, the fallback policy could pick among 
 It could also be obtained using machine learning, as discussed in @post-shielding-optimization of Paper A.
 
 Note that the fallback policy must be static during the training phase, (when applicable) in order to preserve convergence guarantees.
-Otherwise $P^shield_(#h(1.5pt) fehu)$ will change during training, violating the assumption that $mdp$ is static.
+Otherwise, $P^shield_(#h(1.5pt) fehu)$ will change during training, violating the assumption that the environment is static.
 
 #remark(name: "Value Updates in Post-shielding")[
   The value updates for post-shielding are performed in the natural way, but subtle mistakes in the implementation can void the convergence guarantees.
@@ -631,45 +619,48 @@ However, a pre-shielded agent will only explore $a_1$, since the other actions a
 Thus, it will gain a more precise estimate of the expected value of $s$ from the same amount of visits to the state.
 A post-shielded agent may also choose to visit $s$ more often, if the RL method is configured to encourage exploration.
 
-==== End-to-end Shielding
-When the shield is in place and explicitly represented during _both_ the learning  _and_ operational phases, this is called end-to-end shielding (@fig:EndToEnd).
+==== Training-only Shielding
+When a shield is applied during the training phase, the resulting policy is often safe by construction. 
+Thus, it is only necessary to represent the shield explicitly during training (@fig:TrainingOnly).
 
 With a shield in place during training, the RL agent can avoid safety violations in all steps of the process.
 This is a necessity if the RL agent is interacting with a real-life system where safety violations pose a danger to people or equipment.
-
-As stated earlier, an end-to-end setup can make use of either a pre- or post-shield.
-However, alternating between the two with e.g. pre-shielded training and a post-shielded operation is not sound.
-The trained policy depends on how the shield is applied, and a change to the shield would disrupt it.
-
-Compared to the completely unshielded case, end-to-end shielding was seen in @AlshiekhBEKNT18 to lead to a higher expected reward when trained on the same number of traces. 
-The authors speculate that the shield acts as a teacher guiding the agent away from undesirable behaviours.
-The same tendency has been observed in other works @carr_compositional_2025 #cl("DBLP:conf/aaai/Carr0JT23") #cl("DBLP:conf/ijcai/YangMRR23") @PaperA.
-This is not a general rule, and there are also examples of shielded policies yielding less reward than the unshielded one @bloem_its_2020 @court_probabilistic_2025. These are cases where the shield prevents the exploitation of risky but more rewarding behaviour.
-
-==== Training-only Shielding
-When training finishes and the policy is taken into operation, the shield may not need to be explicitly represented (@fig:TrainingOnly).
-This special case is called training-only shielding, and has the same benefits as end-to-end shielding. 
 
 For example if the state-space $S$ is finite, a deterministic policy can be encoded as a set of state-action pairs $(s, a) in S times A$.
 Shielded policies encoded in this way will naturally have $a in shield(s)$ for all encoded pairs $(s, a)$.
 #footnote[The encoded policy is still shielded according to @def:Shielding, but the full shield is not kept.]
 Such an encoding can save space on embedded hardware, which might not be able to accommodate an explicit representation of the shield.
 
+Compared to the completely unshielded case, shielded training was seen in @AlshiekhBEKNT18 to lead to a higher expected reward when given the same number of episodes.
+The authors speculate that the shield acts as a teacher guiding the agent away from undesirable behaviours.
+The same tendency has been observed in other works @carr_compositional_2025 #cl("DBLP:conf/aaai/Carr0JT23") #cl("DBLP:conf/ijcai/YangMRR23") @PaperA.
+This is not a general rule however, and there are also examples of shielded policies yielding less reward than the unshielded one @bloem_its_2020 @court_probabilistic_2025. These are cases where the shield prevents the exploitation of risky but more rewarding behaviour.
+
 Training-only shielding is not always an option. For e.g. neural networks working on continuous state-spaces, this $(s, a)$ representation is not possible.
-Here, the shielded policy can only be represented as the weights of the neurons and an explicit representation of the shield.
-However, reductions can be applied to the shield to reduce its memory footprint significantly @PaperD.
+Here, the shield needs to be kept during operation, as described in the next section.
+Reductions can be applied to the shield before operation, to reduce its memory footprint significantly @PaperB@PaperD.
+
+
+==== End-to-end Shielding
+When the shield is in place and explicitly represented during _both_ the learning  _and_ operational phases, this is called end-to-end shielding (@fig:EndToEnd).
+This is a necessity for continuous state-spaces that cannot be represented as a state-action lookup table.
+Instead, the shield must be kept along with the policy representation when put into operation, to preserve the safe behaviour.
+
+As stated earlier, an end-to-end setup can make use of either a pre- or post-shield.
+However, alternating between the two with e.g. pre-shielded training and a post-shielded operation may negatively impact the expected reward.
+The trained policy depends on how the shield is applied, and a change to the shield would disrupt it.
 
 ==== Operation-only Shielding
 
 Shielding is not widely adopted in the industry, and many shield synthesis techniques require a detailed (safety-relevant) model of the system.
 Therefore, policies that are "safe in practice" might be trained, tested and implemented at great expense.
 Some time during operation, a shield may then be developed to provide formal safety guarantees, but it might not be cost effective or necessary to re-train the policy from scratch.
+
 In these cases, the shield can be applied only in the operational phase.
 If the policy did learn to avoid unsafe states perfectly, a maximally permissive shield would not interfere with its operation.
 Otherwise, the shield will disrupt the optimized behaviour which the policy has learned.
-It was found in Paper A @PaperA that applying a post-hoc post-shield to a policy can lead to substantial drops in the expected reward.
-Therefore, post-hoc shielding should only be employed when end-to-end shielding is not possible.
-One way to mitigate this might be fine-tuning the existing policy with the new shield in place.
+It was found in Paper A @PaperA that applying an operation-only post-shield to a policy can lead to substantial drops in the expected reward.
+Therefore, operation-only shielding should only be employed when re-training or (fine-tuning) the existing policy is not possible.
 
 #example(name: "Staying safe in Grid World")[
   Recall the MDP $cal(W)=(S, s_0, A, P, R)$ from @ex:GridWorld.
@@ -707,30 +698,35 @@ One way to mitigate this might be fine-tuning the existing policy with the new s
   As expected, the policy trained under a pre-shield was safe during operation, even without explicitly shielding the actions.
   This policy was found to yield a mean reward of exactly $-8$, the shortest amount of steps needed to circumnavigate the ice.
 
-  Adding a shield to the policy from @ex:GridWorld  (operation-only shielding) also produced a safe strategy with a mean reward of $-8$, since the policy had also learned the correct route without crossing 🧊️.
-  With repeated training, the operation-only shielded policy was always safe, but would sometimes not lead to 🏁️.
+  Adding a shield to the policy from @ex:GridWorld  (operation-only shielding) also produced a safe strategy with a mean reward of $-8$.
+  This is because the policy had learned the correct route without crossing 🧊️.
+  Re-running the example with different random seeds, the operation-only shielded policy was always safe, but would sometimes not lead to 🏁️.
 ]<ex:GridWorldSafety>
 
-=== Finite- and Infinite-horizon Shielding <sec:ShieldingHorizon>
+== Finite- and Infinite-horizon Shielding <sec:ShieldingHorizon>
 
 Note that @def:Shielding requires safety over all infinite traces that are outcomes of the shield.
-This generally requires computing the shield offline, which can be computationally infeasible for some models. 
-Instead, it can make sense to only give guarantees $k$ steps into the future, computed on-line at each step.
-This avoids the initial (intractable) cost of computing the shield, instead incurring a smaller computational cost at each step. 
+This will require computing the shield offline, which can be computationally infeasible for some models or safety-relevant abstractions. 
+Instead, a shield may only give guarantees $k$ steps into the future, computed on-line at each step.
+(E.g. by searching for a policy safe for $k$ steps, starting at the current state.)
+
+This avoids the initial (intractable) cost of computing the shield, instead incurring a smaller computational cost at each step.
 When steps happen at a fixed frequency or has a maximum waiting period, it is important that the on-line computation of safe actions does not exceed these deadlines.
 
 This outlook is sometimes called _receding horizon_ because the lookahead is always $k$ steps ahead from the current state. It has also been referred to as a _bounded prescience_  shield @giacobbe_shielding_2021, or _$k$-step lookahead_ shield @xiao_model-based_2023 #cl("DBLP:conf/ijcai/YangMRR23").
 
 #definition(name: "Bounded Safety, bounded shielding")[
-  Given a safe set $phi$ on an MDP $mdp$, a trace is said to be _safe for $k$ steps,_ written $xi models^k phi$ if $xi_0^k models phi$.
-  A policy $pi$ is safe for $k$ steps if any trace $xi$ that is an outcome of $pi$ is safe for $k$ steps.
+  Let $phi$ be a safe set for the MDP $mdp$.
+  A trace $xi = s_0 a_0 s_1 a_1 ...$ from $mdp$ is _safe in state $s in S$  for $k$ steps_ if for every $s_i = s$, the trace segment $xi_i^(k+i)$ is safe, i.e. $xi_i^(k+i) models phi$.
 
-  A nondeterministic policy is a _$k$-step lookahead shield_ $shield^k$ if every outcome of this policy is safe for $k$ steps.
+  A policy  $pi$ is safe in state $s in S$ for $k$ steps if every outcome $xi$ of $pi$ is safe in $s$ for $k$ steps.
+
+  A state $s$ is safe for $k$ steps if there exists a policy $pi$ safe for $k$ steps in $s$.
+
+  A nondeterministic policy is a _$k$-step lookahead shield_ $shield^k$ if  for every $s in S$ that is safe for $k$ steps, $shield^k$ is safe in $s$ for $k$ steps.
 ]<def:FiniteHorizon>
 
-One example of such a safety guarantee @giacobbe_shielding_2021  was given for a deterministic MDP, but here extended to include probabilistic outcomes: 
-For an MDP $mdp$, action $a_0$  is $k$-safe at state $s_0$, if there exists a deterministic policy $pi$ such that for all traces $xi = s_0 a_0 ... s_k...$ with $pi(s_i) = a_i$ for $i > 0$, then $xi_0^k$ is safe.
-This extends to other states $s$ by redefining the starting state of $mdp$ to $s$.
+
 
 Finite-horizon shielding is also the standard formulation of probabilistic shielding, which will be introduced in the following section.
 
@@ -766,7 +762,7 @@ _Probabilistic shielding_
 #cl("DBLP:journals/cacm/KonighoferBJJP25")#cl("DBLP:conf/concur/0001KJSB20")#cl("DBLP:conf/ijcai/YangMRR23")#cl("DBLP:conf/atva/PrangerKPB21")
 enforces a probabilistic invariant.
 It has been shown to produce safer strategies with fewer safety violations during training.
-The probabilistic guarantees are usually given over a finite horizon (Cf.~@sec:ShieldingHorizon) since the riskof failure over an infinite horizon often compounds to $1.0$.
+The probabilistic guarantees are usually given over a finite horizon (Cf.~@sec:ShieldingHorizon) since the risk of failure over an infinite horizon often compounds to $1.0$.
 Alternatively, the safety property can be formulated as _reach-avoid,_ stating that a goal-state has to be reached while avoiding a set of unsafe states.
 Finite-horizon and reach-avoid specifications are types of safety properties -- but they are not invariants -- and can be specified using LTL #cl("DBLP:reference/mc/PitermanP18")#cl("DBLP:reference/mc/ClarkeHV18").
 The following extends @def:FiniteHorizon to describe the probability of staying in a safe set for a finite horizon.
@@ -792,7 +788,7 @@ Two such guarantees will be given here, dubbed respectively _safe_ and _recovera
 #definition(name: [$theta$-safe $k$-step shield])[
   Intuitively, for some safety threshold $theta$, the policy being shielded will leave $phi$ with probability at most $theta$ in the next $k$ steps. 
 
-  For an MDP $mdp$ and safe set $phi$, a nondeterministic policy is a _strongly $theta$-safe $k$-step lookahead shield_ $shield_theta^k$   if for any policy~$pi$ that is shielded by $shield_theta^k$, it holds that $pi models_(<= theta)^k phi$.
+  For an MDP $mdp$ and safe set $phi$, a nondeterministic policy is a _$theta$-safe $k$-step lookahead shield_ $shield_theta^k$   if for any policy~$pi$ that is shielded by $shield_theta^k$, it holds that $pi models_(<= theta)^k phi$.
 ]<def:ThetaSafe>
  
 #definition(name: [$theta$-recoverable $k$-step shield])[
