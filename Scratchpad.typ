@@ -14,6 +14,7 @@ Typst version: *#sys.version*
 #include "MyNotes.typ"
 #pagebreak()
 
+#counter(heading).update(1)
 #counter(page).update(1)
 #set page(numbering: "1")
 
