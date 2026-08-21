@@ -100,9 +100,10 @@ To maximise the reward yielded by $R$, a policy $pi$ acts upon the model $mdp$.
 ]<def:policy>
 
 #definition(name: "Traces, trace segments")[
-  Given an e.g. probabilistic policy $pi : S -> (A -> [0; 1])$, a trace $xi$ is an outcome of an MDP $mdp$ and policy $pi$.
-  It is an interleaved series of states and actions $xi = s_0 a_0 s_1 a_1 s_2 a_2 ...$ such that $pi(s_i)(a_i) > 0$ and $P(s_i, a_i)(s_(i+1)) > 0$.
-  Traces are defined similarly for deterministic and nondeterministic policies.
+  For an MDP $mdp$, a _trace_ $xi$ is an interleaved series of states and actions $xi = s_0 a_0 s_1 a_1 s_2 a_2 ...$ starting in the initial state~$s_0$. 
+  A trace $xi$ is an _outcome_ of a probabilistic policy $pi : S -> (A -> [0; 1])$ if for every $i >= 0$ it holds $pi(s_i)(a_i) > 0$ and $P(s_i, a_i)(s_(i+1)) > 0$.
+  Outcomes are defined similarly for deterministic and nondeterministic policies.
+
   Since @def:mdp does not include a stopping condition, traces will be infinite.
   A finite section of a trace $xi_m^n = s_m a_m s_(m + 1) a_(m + 1) ... a_(n-1) s_n$ are the interleaved states and actions from $s_m$ up to $s_n$.
   Other types of models may produce finite traces, if they have a stopping criterion, e.g. a set of terminal states, or a probability that the system abruptly halts. 
@@ -218,9 +219,10 @@ The algorithm has additional input parameters, which will be described in the fo
         + *If* heads *then*  select $a$ according to a uniform distribution over $A$ #line-label(<l:Explore>) 
         + *Else* $a  ← argmax_(a' in A) Q (s, a') $   #line-label(<l:Exploit>) 
         + $s' ~ P(s, a)$ #comment[Take action $a$ in state $s$, call the next state $s'$.]
-        + #line-label(<l:QUpdate>) 
-          $Q ← Q[&(s, a) mapsto \ 
-            &(1-alpha(i))Q (s, a) + alpha (i) (R(s, a, s') + gamma max_(a' in A) Q (s', a')) ]$
+        + #line-label(<l:QUpdate>) #v(.8em)
+          $Q ← Q[(s, a) &mapsto \
+            &(1-alpha(i))Q (s, a) + alpha (i) (R(s, a, s') + gamma max_(a' in A) Q (s', a')) ]$ 
+        + $s ← s'$
     + *Return* $hat(pi) (s) = argmax_(a in A) Q (s, a)$ #line-label(<l:Return>)
   ],
 )<alg:QLearning>
@@ -395,7 +397,7 @@ The safe set $S \\ {💀}$ is said to be infeasible for $cal(W)'$.
 
 
 #definition(name: "Feasibility")[
-  A safe set $phi$ is said to be feasible for an MDP $mdp$ if there exists at least one shield $shield$ for $phi$ and $mdp$.
+  A safe set $phi$ is said to be feasible for an MDP $mdp$ if there exists at least one safe policy $pi models phi$ for $mdp$.
 ]<def:Feasibility>
 
 However, some policies may be safe with higher probability than others. For a discussion of probabilistic safety and shielding, see @sec:ProbabilisticShielding.
@@ -405,13 +407,13 @@ Even then, the convergence guarantee for Q-learning relies on an infinite number
 
 === Shielding
 
-Among the many approaches to enforcing safety in reinforcement learning  #cl("DBLP:conf/iros/WenET15")#cl("DBLP:conf/tacas/Junges0DTK16")#cl("DBLP:journals/jmlr/GarciaF15")@MaderbacherSBBNK23@ChengOMB19@LuoM21@BloemKKW15#cl("DBLP:conf/isola/Jaeger0BLJ20")@BerkenkampTS017#cl("DBLP:journals/jmlr/GarciaF15"), shielding @DavidJLLLST14@AlshiekhBEKNT18@BloemKKW15@ChowNDG18#cl("DBLP:journals/cacm/KonighoferBJJP25") is a promising technique which restricts the actions available to the agent, in order to ensure safe behaviour.
+Among the many approaches to enforcing safety in reinforcement learning  #cl("DBLP:conf/iros/WenET15")#cl("DBLP:conf/tacas/Junges0DTK16")#cl("DBLP:journals/jmlr/GarciaF15")@MaderbacherSBBNK23@ChengOMB19@LuoM21@BloemKKW15#cl("DBLP:conf/isola/Jaeger0BLJ20")@BerkenkampTS017, shielding @DavidJLLLST14@AlshiekhBEKNT18@BloemKKW15@ChowNDG18#cl("DBLP:journals/cacm/KonighoferBJJP25") is a promising technique which restricts the actions available to the agent, in order to ensure safe behaviour.
 Since shields work by restricting actions, they can be applied to any existing reinforcement learning method, including deep learning, allowing it to work in concert with state of the art methods to achieve safe and optimized behaviour.
 
 #definition(name: "Shield, maximally permissive shield, shielded policy")[
   For an MDP $mdp$ and safe set $phi$, a _shield_ is a safe nondeterministic policy $shield : S -> powerset(A)$.
   
-  A shield $shield$ for a safe set $phi$, is maximally permissive if for all states $s in S$, there is no other shield $shield'$ for $phi$ such that $shield(s) subset shield'(s)$.
+  A shield $shield$ for a safe set $phi$ and MDP $mdp$ is _maximally permissive_ if for all shields $shield'$ for $φ$ and $mdp$, and for all states $s in S$,  it holds that $shield'(s) subset.eq shield(s)$
 
   A deterministic policy $pi$ is shielded by $shield$ if $forall s in S : pi(s) in shield(s)$.
   Similarly for a nondeterministic policy $pi$ if $forall s in S : pi(s) subset.eq shield(s)$.
@@ -509,7 +511,7 @@ A brief overview of the terms is given below, followed by detailed descriptions 
   / Post-shielding: changes unsafe actions to alternative, safe actions. Safe actions remain unchanged. (@fig:PostShielding)
 / When: the shield is an active component:
   / Training-only: uses the shield in the training phase, and produces a trained policy that is safe by construction. (@fig:TrainingOnly)
-  / End-to-end: has a shield in place during both training an operation.  Used for policy representations that are not safe by construction. (@fig:EndToEnd)
+  / End-to-end: has a shield in place during both training an operation.  Necessary when a policy representation is not safe by construction. (@fig:EndToEnd)
   / Operation-only: adds a shield during operation to a -- potentially unsafe -- policy that was trained without access to a shield. (@fig:OperationOnly)
 
 When and how the shield is employed are orthogonal properties, and the terms can be freely combined.
@@ -563,17 +565,17 @@ For Q-learning, unsafe actions can be excluded from consideration as follows:
 For some default value $q_0$ and bottom element $-infinity$, the Q-values can be initialized as $Q(s, a) = cases(-infinity &" if " a in.not shield(s), q_0 &"otherwise")$.
 If $epsilon$-greedy exploration (@l:Explore in @alg:QLearning) is used, the exploratory actions should picked from just $shield(s)$ and not the full action space $A$.
 
-Directly applying the shield to the Q-table is possible because the learning method works on a finite number of states.
-A similar approach is not possible for e.g. decision trees, or continuous methods such as Deep Q-learning, PPO, etc. where states in the system are not explicitly represented. 
+Directly applying the shield to the Q-table is possible because the learning method is able to assign values to every state in the finite state-space.
+A similar approach is not possible for e.g. decision trees, neural networks, etc. where states in the system are not explicitly represented. 
 
 ==== Post-shielding
-Contrary to pre-shielding, this configuration is transparent to the reinforcement learning algorithm.
-As shown in @fig:PostShielding, the algorithm can choose any action $a in A$, which would normally be enacted upon the environment, but is instead intercepted by the shield.
+Rather than provide a set of safe actions to choose from, post-shielding overrides the RL algorithm whenever it takes an unsafe action.
+The RL algorithm can choose any action $a in A$, which, as shown in @fig:PostShielding, is intercepted by the shield.
 If the action is safe, the shield passes it on to the environment unaltered.
-Otherwise an alternative, safe, action is chosen.
+Otherwise an alternative, safe, action is chosen according to a fallback policy.
 
-This is akin to modifying the the MDP $mdp = (S, s_0, A, P, R)$ with a new transition function $P^shield_(#h(1.5pt) fehu)$ and reward function $R^shield_fehu$.
-In addition to a shield $shield$, post-shielding requires a (deterministic) fallback policy 
+This is akin to modifying the the MDP $mdp = (S, s_0, A, P, R)$ with a new transition-  and reward function.
+In addition to a shield $shield$, post-shielding requires a deterministic fallback policy 
 #footnote[The symbol $fehu$ is the runic letter _fehu._]
 $fehu : S → A$,
 with $fehu(s) = a => a in shield(s)$. The shield $shield$ and fallback policy $fehu$ induce a post-shielded MDP $mdp^shield_fehu = (S, s_0, A, P^shield_(#h(1.5pt) fehu), R^shield_fehu)$.
@@ -592,7 +594,7 @@ $ R^shield_fehu (s, a, s') = cases(
 ) $<eq:PostShieldedReward>
 
 The fallback policy $fehu$ could pick actions from an ordering, choose according to a model-specific heuristic, or always select a universally safe action, if one exists.
-By re-defining $fehu$ to be probabilistic, the fallback policy could pick among safe actions according to a uniform distribution.
+A probabilistic fallback function may pick among safe actions according to a uniform distribution.
 It could also be obtained using machine learning, as discussed in @post-shielding-optimization of Paper A.
 
 Note that the fallback policy must be static during the training phase, (when applicable) in order to preserve convergence guarantees.
@@ -608,7 +610,7 @@ Otherwise, $P^shield_(#h(1.5pt) fehu)$ will change during training, violating th
    as in @alg:QLearning, @l:QUpdate.
   It would be unsound to only update $Q(s, a')$, or to use the unaltered reward $R(s, a, s')$ from the original MDP.
 
-  When updated correctly, the model will learn the outcome of picking $a in.not shield(s)$ as $sum_(s') P(s, a')(s')R(s, a', s')$.
+  When updated correctly, the model will learn the outcome of picking $a in.not shield(s)$ as $sum_(s' in S) P(s, a')(s')R(s, a', s')$.
   Other alterations to how value-updates are performed may be sound.
   For example, penalising unsafe actions can reduce the number of times the shield has to intervene #cl("DBLP:conf/ijcnn/SeurinPP20").
 ]
@@ -626,28 +628,30 @@ Thus, it is only necessary to represent the shield explicitly during training (@
 With a shield in place during training, the RL agent can avoid safety violations in all steps of the process.
 This is a necessity if the RL agent is interacting with a real-life system where safety violations pose a danger to people or equipment.
 
-For example if the state-space $S$ is finite, a deterministic policy can be encoded as a set of state-action pairs $(s, a) in S times A$.
+Compared to the completely unshielded case, shielded training was seen in @AlshiekhBEKNT18 to lead to a higher expected reward when given the same number of episodes.
+The authors speculate that the shield acts as a teacher guiding the agent away from undesirable behaviours.
+The same tendency has been observed in other works @carr_compositional_2025 #cl("DBLP:conf/aaai/Carr0JT23") #cl("DBLP:conf/ijcai/YangMRR23") @PaperA.
+This is not a general rule however, and there are also examples of shielded policies yielding less reward than the unshielded one @bloem_its_2020 @court_probabilistic_2025. These are cases where the shield prevents exploitation of risky but more rewarding behaviour.
+
+Care must be taken when putting the trained policy into operation, in order to preserve safety guarantees.
+Since the state-space $S$ is finite, a deterministic policy can be encoded as a set of state-action pairs $(s, a) in S times A$.
 Shielded policies encoded in this way will naturally have $a in shield(s)$ for all encoded pairs $(s, a)$.
 #footnote[The encoded policy is still shielded according to @def:Shielding, but the full shield is not kept.]
 Such an encoding can save space on embedded hardware, which might not be able to accommodate an explicit representation of the shield.
 
-Compared to the completely unshielded case, shielded training was seen in @AlshiekhBEKNT18 to lead to a higher expected reward when given the same number of episodes.
-The authors speculate that the shield acts as a teacher guiding the agent away from undesirable behaviours.
-The same tendency has been observed in other works @carr_compositional_2025 #cl("DBLP:conf/aaai/Carr0JT23") #cl("DBLP:conf/ijcai/YangMRR23") @PaperA.
-This is not a general rule however, and there are also examples of shielded policies yielding less reward than the unshielded one @bloem_its_2020 @court_probabilistic_2025. These are cases where the shield prevents the exploitation of risky but more rewarding behaviour.
-
 Training-only shielding is not always an option. For e.g. neural networks working on continuous state-spaces, this $(s, a)$ representation is not possible.
 Here, the shield needs to be kept during operation, as described in the next section.
-Reductions can be applied to the shield before operation, to reduce its memory footprint significantly @PaperB@PaperD.
+
 
 
 ==== End-to-end Shielding
 When the shield is in place and explicitly represented during _both_ the learning  _and_ operational phases, this is called end-to-end shielding (@fig:EndToEnd).
 This is a necessity for continuous state-spaces that cannot be represented as a state-action lookup table.
-Instead, the shield must be kept along with the policy representation when put into operation, to preserve the safe behaviour.
+Instead, the shield must be kept along with the policy representation when put into operation, so it can preserve the safe behaviour.
+Reductions can be applied to the shield before operation, to reduce its memory footprint significantly @PaperB@PaperD.
 
 As stated earlier, an end-to-end setup can make use of either a pre- or post-shield.
-However, alternating between the two with e.g. pre-shielded training and a post-shielded operation may negatively impact the expected reward.
+However, alternating between the two with e.g. pre-shielded training and a post-shielded operation will negatively impact the expected reward.
 The trained policy depends on how the shield is applied, and a change to the shield would disrupt it.
 
 ==== Operation-only Shielding
@@ -687,7 +691,7 @@ Therefore, operation-only shielding should only be employed when re-training or 
   1. Initializing the Q-values as $Q(s, a) = cases(-infinity &"if" a in.not shield(s), 0  &"otherwise")$.
   2. Modifying the $epsilon$-greedy exploration strategy (@l:Explore in @alg:QLearning) to explore only safe actions $shield(s)$, instead of the full action space $A$.
 
-  With this approach, the shield can be training-only since the greedy policy will be safe by construction. 
+  With this approach, the shield can be training-only since the greedy policy (Returned in @l:Return of @alg:QLearning) will be safe by construction. 
 
   The result of training-only pre-shielding of the Grid World example is shown in @fig:GridWorldShieldedTraining.
   Compared to @fig:QGraph, this shielded learning graph has no sudden drops in episode rewards.
@@ -700,7 +704,7 @@ Therefore, operation-only shielding should only be employed when re-training or 
 
   Adding a shield to the policy from @ex:GridWorld  (operation-only shielding) also produced a safe strategy with a mean reward of $-8$.
   This is because the policy had learned the correct route without crossing 🧊️.
-  Re-running the example with different random seeds, the operation-only shielded policy was always safe, but would sometimes not lead to 🏁️.
+  Re-running the example with different random seeds, the operation-only shielded policy was always safe, but would sometimes not reach 🏁️.
 ]<ex:GridWorldSafety>
 
 == Finite- and Infinite-horizon Shielding <sec:ShieldingHorizon>
@@ -717,11 +721,11 @@ This outlook is sometimes called _receding horizon_ because the lookahead is alw
 
 #definition(name: "Bounded Safety, bounded shielding")[
   Let $phi$ be a safe set for the MDP $mdp$.
-  A trace $xi = s_0 a_0 s_1 a_1 ...$ from $mdp$ is _safe in state $s in S$  for $k$ steps_ if for every $s_i = s$, the trace segment $xi_i^(k+i)$ is safe, i.e. $xi_i^(k+i) models phi$.
+  A trace $xi = s_0 a_0 s_1 a_1 ...$ is _safe in state $s in S$  for $k in NN$ steps_ if, for every $s_i = s$, the trace segment $xi_i^(k+i)$ is safe. I.e. $forall i in NN, s_i = s : xi_i^(k+i) models phi$.
 
   A policy  $pi$ is safe in state $s in S$ for $k$ steps if every outcome $xi$ of $pi$ is safe in $s$ for $k$ steps.
 
-  A state $s$ is safe for $k$ steps if there exists a policy $pi$ safe for $k$ steps in $s$.
+  A single state $s$ is safe for $k$ steps if there exists a policy $pi$ safe for $k$ steps in $s$.
 
   A nondeterministic policy is a _$k$-step lookahead shield_ $shield^k$ if  for every $s in S$ that is safe for $k$ steps, $shield^k$ is safe in $s$ for $k$ steps.
 ]<def:FiniteHorizon>
@@ -732,7 +736,9 @@ Finite-horizon shielding is also the standard formulation of probabilistic shiel
 
 == Probabilistic Shielding <sec:ProbabilisticShielding>
 
-As noted in @sec:Safety, not every safe set is feasible, i.e. it is not always possible to ensure that a strategy is safe 100% of the time.
+#todo[Give infinite-horizon definitions instead.]
+
+Not every safe set is feasible (cf. @def:Feasibility), i.e. it is not always possible to ensure that a strategy is safe 100% of the time from the initial state.
 This can be due to uncertainty about behaviour of the underlying system -- which gets modelled as probabilistic behaviour -- or it can be a genuine reflection of a system where failure is always a possibility.
 In such cases, methods like @AlshiekhBEKNT18@bloem_its_2020, that assume the worst-case outcome of any action, will fail.
 
@@ -758,14 +764,14 @@ This section is concerned with staying safe with high probability, rather than t
 ]<ex:DoubleOrNothing>
 
 
-_Probabilistic shielding_
+_Probabilistic shielding_ definitions
 #cl("DBLP:journals/cacm/KonighoferBJJP25")#cl("DBLP:conf/concur/0001KJSB20")#cl("DBLP:conf/ijcai/YangMRR23")#cl("DBLP:conf/atva/PrangerKPB21")
-enforces a probabilistic invariant.
-It has been shown to produce safer strategies with fewer safety violations during training.
+vary greatly by the types of guarantee they give.
 The probabilistic guarantees are usually given over a finite horizon (Cf.~@sec:ShieldingHorizon) since the risk of failure over an infinite horizon often compounds to $1.0$.
 Alternatively, the safety property can be formulated as _reach-avoid,_ stating that a goal-state has to be reached while avoiding a set of unsafe states.
-Finite-horizon and reach-avoid specifications are types of safety properties -- but they are not invariants -- and can be specified using LTL #cl("DBLP:reference/mc/PitermanP18")#cl("DBLP:reference/mc/ClarkeHV18").
-The following extends @def:FiniteHorizon to describe the probability of staying in a safe set for a finite horizon.
+Both are types of safety properties -- but they are not invariants. Instead, they can be specified using LTL #cl("DBLP:reference/mc/PitermanP18")#cl("DBLP:reference/mc/ClarkeHV18").
+This section focuses on finite horizon specifications, and extends @def:FiniteHorizon to describe the probability of staying in a safe set for a finite horizon.
+Following this definition, two types of probabilistic shield are described.
 
 #definition(name: "Bounded Probabilistic Safety")[
   Given a deterministic policy $pi$, an MDP $mdp = (S, s_0, A, P, R)$ and safe set $phi$, the probability of leaving $phi$ in the next $k$ steps, starting from $s in S$ is 
@@ -782,24 +788,36 @@ The following extends @def:FiniteHorizon to describe the probability of staying 
   For a state $s$, action $a$, and subsequent policy $pi$, the probability of leaving~$phi$ after taking action $a$ is $PP_mdp^k (pi, phi, s, a) =  sum_(s' in S) P(s, a)(s') PP_mdp^(k-1)(pi, phi, s)$.
 ]<def:BoundedProbabilisticSafety>
 
-For a safe set $phi$ and lookahead $k$, the probabilistic guarantees given by a shield can vary greatly.
+For a safe set $phi$ and lookahead $k$, the probabilistic guarantees can vary greatly.
 Two such guarantees will be given here, dubbed respectively _safe_ and _recoverable_ shields.
+These terms are not standard definitions but used here to distinguish two common types of guarantees that a probabilistic shield may give.
  
-#definition(name: [$theta$-safe $k$-step shield])[
-  Intuitively, for some safety threshold $theta$, the policy being shielded will leave $phi$ with probability at most $theta$ in the next $k$ steps. 
+For the former -- safety -- given some safety threshold $theta$, the policy being shielded will leave $phi$ with probability at most $theta$ in the next $k$ steps. 
 
+#definition(name: [$theta$-safe $k$-step shield])[
   For an MDP $mdp$ and safe set $phi$, a nondeterministic policy is a _$theta$-safe $k$-step lookahead shield_ $shield_theta^k$   if for any policy~$pi$ that is shielded by $shield_theta^k$, it holds that $pi models_(<= theta)^k phi$.
 ]<def:ThetaSafe>
  
-#definition(name: [$theta$-recoverable $k$-step shield])[
-  Intuitively, the shield allows an action $a$ if it is possible to take $a$ while remaining within the safe set $phi$ with probability $1 - theta$ for the next $k$ steps.
+The next definition allows an action $a$ if it is possible to take $a$ while remaining within the safe set $phi$ with probability $1 - theta$ for the next $k$ steps.
 
+#definition(name: [$theta$-recoverable $k$-step shield])[
  For an MDP $mdp$ and safe set $phi$, a nondeterministic strategy is a _$theta$-recoverable  $k$-step lookahead shield_ $tildeshield_theta^k$ if whenever $a in tildeshield_theta^k  (s)$, there exists a policy $pi'$ such that $PP_mdp^k (pi', phi, s, a) <= theta$.
 ]<def:ThetaRecoverable>
 
 The main distinction of recoverability is that it does not require the safest policy to be followed. 
-It only requires that a safe policy exists, starting with the current action.
-Consequently, it does not consider past risk when evaluating actions.
+It *only* requires that a safe policy exists, starting with the current action and does not consider past risk when evaluating actions.
+This merely bounds the risk of exiting $φ$ every step to $θ$. 
+Therefore the worst-case risk of a policy $pi$ shielded by $hatshield^k_θ$ leaving $φ$ in $k$ steps is $1 - (1 - θ)^k$. (Assuming the initial state has at least one $θ$-safe action.)
+
+#example(name: ["I can quit whenever I want"])[
+  #todo[Finish writing example and find a better place for it.]
+  $k=100, θ=0.05$, 
+  Risk of reaching $lungexplode$ in $100$ steps is
+  $ 1 - (1 - θ)^k = 1 - (1 - 0.05)^100 = #{calc.round(1 - calc.pow((1 - 0.05), 100), digits: 4)} $
+  #figure(image("../Graphics/Intro/Smoker.png", width: 60%),
+    caption: [An MDP representing a simplified model of the risks of smoking. States $lungexplode$ and $lungsparkle$ are terminal states where all actions lead back to the same state with probability $1.0$ and reward 0.]
+  )
+]<ex:Smoker>
 
 Any $θ$-safe action in $s_0$ is also $θ$-recoverable.
 However, this is not true for any $s in S$, since a $θ$-safe shield may allow irrecoverable actions in states that are unreachable, or reachable with low probability.
@@ -819,16 +837,17 @@ However, this is not true for any $s in S$, since a $θ$-safe shield may allow i
   Besides $pi models tildeshield_0.5^3$ as above, the shield also permits $pi'(s) = flip$ which has probability $0.75$ of losing the bet.
 ]
 
-While $theta$-safety may be more theoretically justified, ignoring cumulative risk has the benefit of making every action dependent only on the current state.
+A $θ$-recoverable shield gives no upper bound on the risk of safety violation for a shielded policy. However, ignoring cumulative risk has the benefit of making every action dependent only on the current state.
 That is, $theta$-recoverable shields are memoryless nondeterministic policies, while $theta$-safe shields require memory.
 
-Synthesis methods for $theta$-safe shields #cl("DBLP:conf/tacas/Junges0DTK16")#cl("DBLP:journals/corr/DragerFK0U15") can also be computationally expensive to obtain, and will be more conservative than approaches focusing on recoverability #cl("DBLP:conf/concur/0001KJSB20")#cl("DBLP:journals/corr/abs-2605-10293")#cl("DBLP:conf/atva/PrangerKPB21")#cl("DBLP:conf/tacas/Junges0DTK16").
+#todo[is#cl("DBLP:conf/tacas/Junges0DTK16") actually θ-safety? ]
+Synthesis methods for $theta$-safe shields #cl("DBLP:conf/tacas/Junges0DTK16")#cl("DBLP:journals/corr/DragerFK0U15") can also be computationally expensive, and will be more conservative than approaches focusing on recoverability #cl("DBLP:conf/concur/0001KJSB20")#cl("DBLP:journals/corr/abs-2605-10293")#cl("DBLP:conf/atva/PrangerKPB21")#cl("DBLP:conf/tacas/Junges0DTK16").
 
 === Permissiveness of Probabilistic Shields
 
 Recalling @def:Shielding, a shield $shield$ is maximally permissive for an MDP $mdp$ and property $phi$, if for every state $s in S$, and every other shield $shield'$ for the same $phi$ and $mdp$, $shield'(s) subset.eq shield(s)$.
 
-As with absolute shields, an MDP $mdp$ has a unique maximally permissive weakly $theta$-safe shield for every feasible safety property $phi$. 
+As with absolute shields, an MDP $mdp$ has a unique maximally permissive $theta$-recoverable shield for every feasible safety property $phi$. 
 This shield is simply  the nondeterministic policy that includes all actions $a$ that satisfy the condition in @def:ThetaRecoverable for every state $s$.
 
 However, no strongly $theta$-safe shield is maximally permissive #cl("DBLP:conf/tacas/Junges0DTK16") since allowing a risky action in one state may require restricting actions elsewhere to stay below the threshold $theta$. 
@@ -837,9 +856,8 @@ An example and detailed proof of this point is given in #cl("DBLP:journals/corr/
 
 === Contingency Actions
 
-For some states in a model, non-probabilistic shields do not permit _any_ actions since they may all lead to failure.
-The shield is simply constructed so that it avoids these states.
-However, probabilistic shields have an inherent risk of reaching undesirable states, including ones where no actions are sufficiently safe to satisfy the safety threshold $theta$.
+For some states in a model, according to @def:Shielding shields must be constructed to completely avoid states where every action carry a risk of safety violation.
+However, probabilistic shields have an inherent risk of reaching undesirable states, including ones where no actions are sufficiently safe to satisfy the safety threshold~$theta$.
 
 Most systems cannot simply be halted when such an eventually occurs.
 Instead the shield should make a best effort of steering the agent out of danger, regardless of the odds.
@@ -864,9 +882,9 @@ A set of such observed traces is called a history $H = {xi_0^a, zeta_0^b, ... }$
 Automated methods can be used to obtain a model estimate from a history $H$, such as neural networks #cl("DBLP:conf/ecai/GoodallB23")#cl("DBLP:conf/ecai/BethellGCI25"), automata learning #cl("DBLP:conf/isola/TapplerPKMBL22"), interval MDPs #cl("DBLP:journals/corr/abs-2605-10293"), or model parameter estimation @senthilvelan_similarity-based_2023#cl("DBLP:journals/pacmpl/FengZPL25"). 
 
 These automated methods presume some degree of prior knowledge about $mdp^star$, such as the action space, initial state, state space or information about the structure of the transition function.
-For example, model parameter estimation requires a _parameterized_ MDP, $hat(mdp)_p$ whose transition function depends on $x$ parameters given as the vector $p in RR^x$ such that $hat(mdp)_p^star = mdp^star$ for some $p^star in RR^x$.
+For example, model parameter estimation requires a _parameterized_ MDP, $hat(mdp)_p$ whose transition function depends on $x$ parameters given as the vector $p in RR^x$ such that $hat(mdp)_(p^star) = mdp^star$ for some $p^star in RR^x$.
 
-For some estimation method $E$, initial knowledge $hat(mdp)$ and history $H$, let $E(hat(mdp), H) = hat(mdp)'$ be the resulting model estimate.
+For some estimation method $E$, initial knowledge $hat(mdp)$ and observation database $D : S times A times S → ZZ_(>=0)$, let $E(hat(mdp), D) = hat(mdp)'$ be the resulting model estimate.
 A shield $shield$ can be synthesized from $hat(mdp)$ and a safe set $phi$, using any absolute, $k$-step or probabilistic method.
 Whether $shield$ is also a shield for $mdp^star$ depends on the guarantees provided by the estimator $E$.
 
@@ -887,7 +905,6 @@ It is extended in @alg:AdaptiveShielding to define an adaptive shielding RL loop
     - *Input:* 
       Estimator $E$, 
       initial knowledge $hat(mdp)$,
-      initial history $H$,
       shield update interval $u$,
       initial $Q : S times A -> RR$,
       number of episodes $n$,
@@ -895,14 +912,23 @@ It is extended in @alg:AdaptiveShielding to define an adaptive shielding RL loop
       remaining parameters required by @alg:QLearning.
       
     - *Output:* Approximations of shield $hatshield$ and of optimal policy $hat(pi) : S -> A$.
+    + *Let* $D(s, a, s') = 0$ for all $s, s' in S, a in A$
     + *Loop*  $i ← 0$ *up to* $n$
       + *If* $n mod u = 0$
-        + $hat(mdp) ← E(hat(mdp), H)$
+        + $hat(mdp) ← E(hat(mdp), D)$
         + $hatshield$ ← shield synthesized from $hat(mdp)$
         + *Apply* $hatshield$ to the system
-      + *Execute* #ref(<l:EpisodeLoop>, supplement: "lines") to #ref(<l:QUpdate>, supplement: "to") of @alg:QLearning and collect trace segment $xi_0^m$.
-      + $H ← H union {xi_0^m}$
-    + *Return* $hat(pi)(s) = argmax_(a in A) Q(s, a), hatshield$
+        
+      + *Loop* $j ← 0$ *up to* $m - 1$ *inclusive* #comment[Mostly as in @alg:QLearning, shielded.]
+        + Flip a weighted coin that has probability $epsilon(i)$ of landing on heads.
+        + *If* heads *then*  select $a$ according to a uniform distribution over $hatshield(s)$ 
+        + *Else* $a  ← argmax_(a' in hatshield(s)) Q (s, a') $   
+        + $s' ~ P(s, a)$
+        + #v(.8em) $Q ← &Q[(s, a) mapsto \
+            &(1-alpha(i))Q (s, a) + alpha (i) (R(s, a, s') + gamma max_(a' in hatshield(s)) Q (s', a')) ]$ 
+        + $D ← D[(s, a, s') mapsto D(s, a, s') + 1]$ #comment[Update observation database.]
+        + $s ← s'$
+    + *Return* $hatshield, hat(pi)(s) = argmax_(a in A) Q(s, a)$
   ]
 )<alg:AdaptiveShielding>
 

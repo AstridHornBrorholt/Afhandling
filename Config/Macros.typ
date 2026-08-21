@@ -157,3 +157,9 @@ Numerals
 // "Double or Nothing" example
 #let flip = smallcaps(text("flip", font: "Gentium Book Plus"))
 #let stop = smallcaps(text("stop", font: "Gentium Book Plus"))
+
+// "Smoker" example
+#let lung = "🫁"
+#let lungexplode = lung + h(-1em) + text("💥", size: 0.9em)
+#let lungsparkle = lung + h(-.4em) + text("✨", size: 0.9em)
+#let smoke = smallcaps(text("smoke", font: "Gentium Book Plus"))
