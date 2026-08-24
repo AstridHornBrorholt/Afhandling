@@ -833,12 +833,9 @@ However, this is not true for any $s in S$, since a $θ$-safe shield may allow i
   $tildeshield_0.5^3 (⦾) = {flip}, tildeshield_0.5^3( ○) = {flip, stop}$.
 
   This is because $flip$ in state $⦾$ has probability $0.5$ of reaching $○$, and from there $stop$ can reach $☺$ with probability~$1.0$.
-  The weak shield includes an additional policy:
+  The $θ$-recoverable shield includes an additional policy:
   Besides $pi models tildeshield_0.5^3$ as above, the shield also permits $pi'(s) = flip$ which has probability $0.75$ of losing the bet.
 ]
-
-A $θ$-recoverable shield gives no upper bound on the risk of safety violation for a shielded policy. However, ignoring cumulative risk has the benefit of making every action dependent only on the current state.
-That is, $theta$-recoverable shields are memoryless nondeterministic policies, while $theta$-safe shields require memory.
 
 #todo[is#cl("DBLP:conf/tacas/Junges0DTK16") actually θ-safety? ]
 Synthesis methods for $theta$-safe shields #cl("DBLP:conf/tacas/Junges0DTK16")#cl("DBLP:journals/corr/DragerFK0U15") can also be computationally expensive, and will be more conservative than approaches focusing on recoverability #cl("DBLP:conf/concur/0001KJSB20")#cl("DBLP:journals/corr/abs-2605-10293")#cl("DBLP:conf/atva/PrangerKPB21")#cl("DBLP:conf/tacas/Junges0DTK16").
@@ -852,7 +849,8 @@ This shield is simply  the nondeterministic policy that includes all actions $a$
 
 However, no strongly $theta$-safe shield is maximally permissive #cl("DBLP:conf/tacas/Junges0DTK16") since allowing a risky action in one state may require restricting actions elsewhere to stay below the threshold $theta$. 
 This dependency between actions at different states is complex to represent, and cannot be encoded as a nondeterministic policy.
-An example and detailed proof of this point is given in #cl("DBLP:journals/corr/abs-2605-10888"), which also describes additional types of probabilistic safety guarantees and permissiveness.
+An example and detailed proof of this point is given in #cl("DBLP:conf/cav/HeckMACJ26"). 
+This paper also presents a formalism which is used to describe a wide range of probabilistic shield types with varying guarantees and representations.
 
 === Contingency Actions
 
@@ -862,14 +860,14 @@ However, probabilistic shields have an inherent risk of reaching undesirable sta
 Most systems cannot simply be halted when such an eventually occurs.
 Instead the shield should make a best effort of steering the agent out of danger, regardless of the odds.
 This can be as simple as only allowing the action with the highest probability of success, but can also include similarly safe actions.
-A weakly safe shield is used in #cl("DBLP:journals/corr/abs-2605-10293"), i.e. it only allows actions that satisfy a constant threshold.
+A $θ$-recoverable shield is used in #cl("DBLP:journals/corr/abs-2605-10293"), i.e. it only allows actions that satisfy a constant threshold.
 However, if no such action exists, the shield allows the safest action and all actions within a constant range of that action.
 Alternatively, the probabilistic shield in #cl("DBLP:conf/concur/0001KJSB20") always allows the safest action, and other actions within some relative range.
 
 == Adaptive Shielding <sec:AdaptiveShielding>
 
 Safety guarantees in shielding are contingent on the model used (MDP or MG) being accurate to the true system, but accurate models are not always easy to obtain.
-Let the MDP $mdp^star$ be the most accurate possible (safety-relevant) model of the underlying system.
+Let the MDP $mdp^star$ be the unknown, ideal, safety-relevant model of the underlying system.
 When constructing a model of the system, uncertainty about the behaviour of $mdp^star$ can be modelled stochastically, creating an MDP $hat(mdp)$.
 This approximation $hat(mdp)$ should ideally be a _conservative_ estimate, such that any shield for $hat(mdp)$ is also a (conservative) shield for $mdp^star$.
 
