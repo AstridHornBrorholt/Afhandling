@@ -9,11 +9,19 @@
   )
 }
 
-#let fallback = {set text(fill: rgb(0, 0, 0, 0)); $nabla$}
-#let shield = $fallback #h(-0.65em) #image("../Graphics/Shield.svg", height: 0.6em)$
+#let annotate(..args) = { // From the docs 
+  box(place(..args))
+  // Word-joiner
+  sym.wj 
+  // The zero-width weak spacing serves to discard spaces between the function call and the next word.
+  h(0pt, weak: true)
+}
 
-#let hatshield = $fallback #h(-0.65em)  hat(#image("../Graphics/Shield.svg", height: 0.6em))$
-#let tildeshield = $fallback #h(-0.65em)  tilde(#image("../Graphics/Shield.svg", height: 0.6em))$
+#let fallback = {set text(fill: rgb(0, 0, 0, 0), size: 0.8em); $nabla$}
+#let shield = $fallback#annotate(bottom + right, image("../Graphics/Shield.svg", height: 0.6em), dx: -0.1em)$
+
+#let hatshield = $hat(fallback)#annotate(bottom + right, image("../Graphics/Shield.svg", height: 0.6em), dx: -0.1em)$
+#let tildeshield = $tilde(fallback)#annotate(bottom + right, image("../Graphics/Shield.svg", height: 0.6em), dx: -0.1em)$
 
 #shield
 #hatshield
@@ -158,8 +166,9 @@ Numerals
 #let flip = smallcaps(text("flip", font: "Gentium Book Plus"))
 #let stop = smallcaps(text("stop", font: "Gentium Book Plus"))
 
+
 // "Smoker" example
 #let lung = "🫁"
-#let lungexplode = lung + h(-1em) + text("💥", size: 0.9em)
-#let lungsparkle = lung + h(-.4em) + text("✨", size: 0.9em)
+#let lungexplode = lung + annotate(bottom + right, text("💥", size: 0.9em), dx: 0pt, dy: 0pt,)
+#let lungsparkle = lung + annotate(bottom + right, text("✨", size: 0.9em), dx: 0.3em, dy: -0.4em,)
 #let smoke = smallcaps(text("smoke", font: "Gentium Book Plus"))
