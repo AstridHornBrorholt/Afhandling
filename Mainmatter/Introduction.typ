@@ -679,10 +679,10 @@ Therefore, operation-only shielding should only be employed when re-training or 
 
 #subpar.grid(columns: 3, align: bottom,
   [#figure(image("../Graphics/Intro/Shielded.png", width: 66.666%),
-    caption: [A shield icon 🛡️ indicates the action is not permitted.]
+    caption: [A shield icon 🛡️ indicates the action is not permitted. A hatched area marks unreachable states.]
   )<fig:GridWorldShield>],
   [#figure(image("../Graphics/Intro/Shielded Q-learning 500.png", width: 66.666%),
-    caption: [Cumulative reward for a shielded Q-learning agent.]
+    caption: [Cumulative reward for a shielded Q-learning agent. \ #hide("a")]
   )<fig:GridWorldShieldedTraining>],
   caption: [Most permissive shield for Grid World.]
 )

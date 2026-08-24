@@ -264,23 +264,44 @@ md"""
 ### Synthesis
 """
 
+# ╔═╡ bef25db2-8a9e-4bb9-9740-b5e66e72e70f
+function allow_all_when_unreachable!(shield::Grid)
+	for partition in shield
+		if get_value(partition) == no_action
+			set_value!(partition, any_action)
+		end
+	end
+	shield
+end
+
 # ╔═╡ 57cd2a0d-3462-4924-8198-af907c763074
-shield, max_steps_reached = make_shield(reachability_function, Action, grid)
+shield, max_steps_reached = let
+	shield, msr =  make_shield(reachability_function, Action, grid)
+	allow_all_when_unreachable!(shield)
+	(shield, msr)
+end
 
 # ╔═╡ ec0c414f-1c6a-4a2d-99cf-468fa617f36b
 shield.array
+
+# ╔═╡ cec21002-d7cd-49a5-8378-324d81922d26
+md"""
+**Resulting shield**
+"""
 
 # ╔═╡ 403a5a86-1fb8-498b-bd83-a418f9165fa3
 let
 	mm = Plots.Measures.mm
 	heatmap(zeros(4, 4),
-		title="Resulting Shield",
+		# title="Resulting Shield",
 		fontfamily="times",
 		color=cgrad([:white, :wheat]),
-		xlabel="x",
-		ylabel="y",
+		xlabel=nothing,
+		ylabel=nothing,
 		yflip=true,
 		ticks=nothing,
+		xlim=(0.5, 4.5),
+		ylim=(0.5, 4.5),
 		clim=(0, 1),
 		cbar=nothing,
 		#title="heatmap of V and strategy π",
@@ -303,11 +324,13 @@ let
 
 	x, y = xy(🏁)
 	annotate!(y + 0.05, x - 0.30, text("⁣🏁", 15, "Helvetica"))
-	
+
+	# State values
 	for x in 1:4, y in 1:4
 		annotate!(y - 0.30, x - 0.30, text(S[x, y], :crimson, 10))
 	end
-	
+
+	# Actions
 	for (s, allowed) in enumerate(shield.array)
 		x, y = xy(s)
 		allowed = [enum_to_action[a] for a in int_to_actions(Action, allowed)]
@@ -323,6 +346,20 @@ let
 		
 		annotate!(y + 0.15, x + 0.15, 
 				  :→ in allowed ? text("→", :green, 12) : text("⁣🛡️", :red, 12, "sans"))
+	end
+
+	# Unreachable areas
+	rectangle(w, h, x, y) = Shape(x .+ [0,w,w,0], y .+ [0,0,h,h])
+	unreachable = Set([10, 11, 15])
+	for s in S
+		if s ∉ unreachable continue end
+		
+		x, y = xy(s)
+		plot!(rectangle(1, 1, y - 0.5, x - 0.5),  # obs xy yx
+			  fillstyle=:/,
+			  fill=:lightgray,
+			  line=nothing,
+			  label=nothing)
 	end
 	plot!()
 end
@@ -2245,7 +2282,9 @@ version = "1.13.0+0"
 # ╠═0ae4c6af-cfa1-4a4e-abb7-7e7db97698a5
 # ╟─fc61b87d-9097-44cb-ab8b-8d3b3db98a43
 # ╠═57cd2a0d-3462-4924-8198-af907c763074
+# ╠═bef25db2-8a9e-4bb9-9740-b5e66e72e70f
 # ╠═ec0c414f-1c6a-4a2d-99cf-468fa617f36b
+# ╟─cec21002-d7cd-49a5-8378-324d81922d26
 # ╟─403a5a86-1fb8-498b-bd83-a418f9165fa3
 # ╟─b7c00112-ebe4-454e-a35a-7ba4e19ba9ea
 # ╠═cc49eb4b-7393-49e8-84ad-167f3853f4f3
