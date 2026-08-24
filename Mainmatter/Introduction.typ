@@ -895,17 +895,21 @@ Periodically updating the shield in this way can e.g. make a conservative estima
 Model estimation and shield synthesis is often computationally expensive.
 Therefore, it is common to update the shield every $u$ episodes of RL.
 In keeping with the manner of @sec:QLearning, Q-learning is used here as an instructive example of RL.
-It is extended in @alg:AdaptiveShielding to define an adaptive shielding RL loop.
+It is extended in @alg:AdaptiveShielding to define an adaptive training-only pre-shielding RL loop.
+
+Note that the pre-shield is implemented by restricting the actions under consideration, rather than by altering how the Q-table is initialized.
+This is to accommodate the adaptive shield, where actions permitted in a given state will change during execution.
 
 #figure(kind: "algorithm", supplement: "Algorithm", 
   pseudocode-list(numbered-title: [Adaptive Shielding])[
 
     - *Input:* 
-      Estimator $E$, 
-      initial knowledge $hat(mdp)$,
-      shield update interval $u$,
-      initial $Q : S times A -> RR$,
-      number of episodes $n$,
+      Estimator~$E$, 
+      initial knowledge~$hat(mdp)$,
+      safe set~$phi$,
+      shield update interval~$u$,
+      initial~$Q : S times A -> RR$,
+      number of episodes~$n$,
       and
       remaining parameters required by @alg:QLearning.
       
@@ -926,7 +930,7 @@ It is extended in @alg:AdaptiveShielding to define an adaptive shielding RL loop
             &(1-alpha(i))Q (s, a) + alpha (i) (R(s, a, s') + gamma max_(a' in hatshield(s)) Q (s', a')) ]$ 
         + $D ← D[(s, a, s') mapsto D(s, a, s') + 1]$ #comment[Update observation database.]
         + $s ← s'$
-    + *Return* $hatshield, hat(pi)(s) = argmax_(a in A) Q(s, a)$
+    + *Return* $hatshield, hat(pi)(s) = argmax_(a in hatshield(s)) Q(s, a)$
   ]
 )<alg:AdaptiveShielding>
 
