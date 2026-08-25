@@ -28,3 +28,5 @@
 #pagebreak(to: "odd", weak: true)
 #include "Mainmatter/Uppaal Coshy: Automatic Synthesis of Compact Shields for Hybrid Systems.typ"
 #pagebreak(to: "odd", weak: true)
+#include "Mainmatter/Adaptive Probabilistic Shielding by Learning MDPs for Safe Reinforcement Learning.typ"
+#pagebreak(to: "odd", weak: true)

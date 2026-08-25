@@ -81,7 +81,7 @@ Notably,
 #link("https://tempest-synthesis.org/")[#smallcaps[Tempest]] #cite(label("DBLP:conf/atva/PrangerKPB21"))
 synthesizes shields for discrete systems and facilitates learning
 through integration with
-#smallcaps[Prism] #cite(label("DBLP:conf/cav/KwiatkowskaNP11")).
+#smallcaps[Prism] #cite(label("PRISM")).
 #smallcaps[Uppaal Tiga] synthesizes shields for timed
 games #cite(label("DBLP:conf/cav/BehrmannCDFLL07")).
 

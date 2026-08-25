@@ -53,7 +53,7 @@ The last part of the introduction summarises the papers which make up the remain
 
 == Reinforcement Learning <sec:rl>
 
-RL  #cl("DBLP:books/lib/SuttonB98") @kaelbling1996reinforcement @arulkumaran2017deep is a major class of machine learning techniques, separate from supervised and unsupervised learning @alloghani2020systematic.
+RL  #cl("DBLP:books/lib/SuttonB98", "kaelbling1996reinforcement", "arulkumaran2017deep") is a major class of machine learning techniques, separate from supervised and unsupervised learning @alloghani2020systematic.
 In supervised learning, models learn from labelled data, to predict the labels of unseen data.
 Unsupervised (or self-supervised) learning similarly trains the model on a set amount of unlabelled data, to discover relevant patterns and approximations.
 In contrast, reinforcement learning _agents_ are actively interacting with a system, directing exploration and receiving observation data and rewards, as the system responds to actions taken by the agent.
@@ -64,7 +64,7 @@ Taking the action yields a reward that the agent can use to update its policy, a
 
 #figure(include("../Graphics/Intro/Unshielded.typ"), caption: [The reinforcement learning loop.] )<fig:RL>
 
-The reinforcement learning problem can be stated in many different ways, depending on the nature of the problem, but is perhaps most commonly defined in terms of a Markov decision process (MDP) #cl("DBLP:journals/siamrev/Feinberg96").
+The reinforcement learning problem can be stated in many different ways, depending on the nature of the problem, but is perhaps most commonly defined in terms of a Markov decision process (MDP) #cl("Puterman94").
 MDPs describe stochastic systems, where the outcomes of actions only depend on the current (observable) state of the system, and not on which actions or states were seen previously.
 
 #definition(name: "MDP")[
@@ -335,7 +335,7 @@ This is ensured by the fact that $s_0$ is visited infinitely often as $n -> infi
   This can be made more likely through changes to the reward function, giving a heavier penalty for reaching this state.
   However it is not straightforward to determine how the reward function should be defined in order to guarantee convergence to a safe policy, or whether this is even possible for a given model.
 
-  The same MDP can be modelled in the model-checking tool *Prism* @Prism, and the optimal policy can be approximated precisely and quickly by its built-in value iteration method.
+  The same MDP can be modelled in the model-checking tool *Prism* @PRISM, and the optimal policy can be approximated precisely and quickly by its built-in value iteration method.
   #footnote[Discounted cost was implemented using a variable `t` that increments each step, multiplying the cost `C` with `gamma^t`. The query `Rmin=?[C<=100]` was used to compute cost. Cost was converted to reward by flipping the sign.]
   The resulting state values $V(s)$ are shown in @fig:VTablePrism.
 ]<ex:GridWorld>
@@ -473,7 +473,7 @@ The paper describes how a "shield" can be synthesized from an *abstract model* o
 Such an abstraction could be significantly simpler than the full system, allowing shielded reinforcement learning to scale to systems where other methods for safe and optimal control are infeasible.
 This is illustrated in @ex:SafetyRelevantAbstraction.
 
-Since this first article covering shielded reinforcement learning in finite MDPs, other shielding methods building upon the same framework have been described in the literature #cl("DBLP:conf/concur/0001KJSB20")@9196867@BastaniL21@PaperA@PaperC@PaperB#cl("DBLP:journals/corr/ZhangB19")#cl("DBLP:conf/amcc/BharadwajBDKT19")#cl("DBLP:conf/atal/Elsayed-AlyBAET21")#cl("DBLP:conf/atal/XiaoLD23")#cl("DBLP:conf/aaai/Carr0JT23")#cl("DBLP:conf/atva/PrangerKPB21")@PaperD@MedicalShielding#cl("DBLP:conf/isola/TapplerPKMBL22")#cl("DBLP:conf/ijcai/YangMRR23")@giacobbe_shielding_2021@xiao_model-based_2023@bloem_its_2020@carr_compositional_2025.
+Since this first article covering shielded reinforcement learning in finite MDPs, other shielding methods building upon the same framework have been described in the literature #cl("DBLP:conf/concur/0001KJSB20")@9196867@BastaniL21@PaperA@PaperC@PaperB#cl("DBLP:journals/corr/ZhangB19")#cl("DBLP:conf/amcc/BharadwajBDKT19")#cl("DBLP:conf/atal/Elsayed-AlyBAET21")#cl("DBLP:conf/atal/XiaoLD23")#cl("DBLP:conf/aaai/Carr0JT23")#cl("DBLP:conf/atva/PrangerKPB21")@PaperD@MedicalShielding#cl("DBLP:conf/isola/TapplerPKMBL22")#cl("DBLP:conf/ijcai/YangMRR23")@giacobbe_shielding_2021#cl("DBLP:conf/atal/XiaoLD23")@bloem_its_2020#cl("DBLP:journals/corr/abs-2509-12085").
 
 #example(name: "Safety-relevant Abstraction")[
   The contract from @ex:QualityInjectionMoulding is once again re-negotiated, this time to replace a fixed price of batches with variable pricing scheme depending on market forces.
@@ -630,8 +630,8 @@ This is a necessity if the RL agent is interacting with a real-life system where
 
 Compared to the completely unshielded case, shielded training was seen in @AlshiekhBEKNT18 to lead to a higher expected reward when given the same number of episodes.
 The authors speculate that the shield acts as a teacher guiding the agent away from undesirable behaviours.
-The same tendency has been observed in other works @carr_compositional_2025 #cl("DBLP:conf/aaai/Carr0JT23") #cl("DBLP:conf/ijcai/YangMRR23") @PaperA.
-This is not a general rule however, and there are also examples of shielded policies yielding less reward than the unshielded one @bloem_its_2020 @court_probabilistic_2025. These are cases where the shield prevents exploitation of risky but more rewarding behaviour.
+The same tendency has been observed in other works #cl("DBLP:conf/aaai/Carr0JT23", "DBLP:conf/ijcai/YangMRR23", "DBLP:journals/corr/abs-2509-12085")@PaperA.
+This is not a general rule however, and there are also examples of shielded policies yielding less reward than the unshielded one @bloem_its_2020#cl("DBLP:conf/aaai/CourtBG25"). These are cases where the shield prevents exploitation of risky but more rewarding behaviour.
 
 Care must be taken when putting the trained policy into operation, in order to preserve safety guarantees.
 Since the state-space $S$ is finite, a deterministic policy can be encoded as a set of state-action pairs $(s, a) in S times A$.
@@ -717,7 +717,7 @@ Instead, a shield may only give guarantees $k$ steps into the future, computed o
 This avoids the initial (intractable) cost of computing the shield, instead incurring a smaller computational cost at each step.
 When steps happen at a fixed frequency or has a maximum waiting period, it is important that the on-line computation of safe actions does not exceed these deadlines.
 
-This outlook is sometimes called _receding horizon_ because the lookahead is always $k$ steps ahead from the current state. It has also been referred to as a _bounded prescience_  shield @giacobbe_shielding_2021, or _$k$-step lookahead_ shield @xiao_model-based_2023 #cl("DBLP:conf/ijcai/YangMRR23").
+This outlook is sometimes called _receding horizon_ because the lookahead is always $k$ steps ahead from the current state. It has also been referred to as a _bounded prescience_  shield @giacobbe_shielding_2021, or _$k$-step lookahead_ shield #cl("DBLP:conf/ijcai/YangMRR23", "DBLP:conf/atal/XiaoLD23").
 
 #definition(name: "Bounded Safety, bounded shielding")[
   Let $phi$ be a safe set for the MDP $mdp$.
@@ -1123,7 +1123,7 @@ Besides explicit communication, agents may co-ordinate responsibilities before t
 ==== Partial Observability
 
 The assumption of full observability is particularly strong in MGs, and may even be computationally infeasible for a large number of players $n$.
-The limits of on-board sensors makes this omniscience technically impractical as well, and thus it is a common #cl("DBLP:conf/iclr/QinZCCF21")#cl("DBLP:conf/atal/MelcerAT24")#cl("carr_compositional_2025") assumption that the game is _partially observable._
+The limits of on-board sensors makes this omniscience technically impractical as well, and thus it is a common #cl("DBLP:conf/iclr/QinZCCF21")#cl("DBLP:conf/atal/MelcerAT24")#cl("DBLP:journals/corr/abs-2509-12085") assumption that the game is _partially observable._
 
 In general, the optimal policy for a partially observable game requires memory of all previous observations.
 If the trace $zeta_1^n = o_1 a_1 o_2 a_2, ... o_n$ is an alternating sequence of observations and actions, a policy with memory would choose the next action as $pi(zeta_1^n) = a_n$, while a memoryless policy would as only rely on the last observation $pi(o_n) = a_n$.

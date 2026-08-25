@@ -1,18 +1,22 @@
-sed -r "Mainmatter/Pandoc Conversions/Uppaal Coshy: Automatic Synthesis of Compact Shields for Hybrid Systems.typ" \
-    -e 's|"Graphics/|"../Graphics/RP25/|g' \
+source="Mainmatter/Pandoc Conversions/Adaptive Probabilistic Shielding by Learning MDPs for Safe Reinforcement Learning.typ"
+target="Mainmatter/Adaptive Probabilistic Shielding by Learning MDPs for Safe Reinforcement Learning.typ"
+
+# preamble
+echo "#import \"../Config/Macros.typ\" : *">"$target"
+echo "" >>"$target"
+
+# replacements
+sed -r "$source" \
+    -e 's|"graphics/|"../Graphics/RV26/|g' \
     -e 's| sect | inter |g' \
     -e 's|([0-9])\\linewidth|\1*100%|g' \
     -e 's|([0-9])\\textwidth|\1*100%|g' \
     -e 's|\\linewidth|100%|g' \
     -e 's|\\textwidth|100%|g' \
-    -e 's| ?#cite\((".*"), (".*"), (".*"), (".*"), (".*")\)| #cite(label(\1)) #cite(label(\2)) #cite(label(\3)) #cite(label(\4)) #cite(label(\5))|g' \
-    -e 's| ?#cite\((".*"), (".*"), (".*"), (".*")\)| #cite(label(\1)) #cite(label(\2)) #cite(label(\3)) #cite(label(\4))|g' \
-    -e 's| ?#cite\((".*"), (".*"), (".*")\)| #cite(label(\1)) #cite(label(\2)) #cite(label(\3))|g' \
-    -e 's| ?#cite\((".*"), (".*")\)| #cite(label(\1)) #cite(label(\2))|g' \
-    -e 's| ?#cite\((".*")\)| #cite(label(\1))|g' \
+    -e 's|#cite| #cl|g' \
     -e 's|[A-Za-z.]+ #link\(<(.*)>\)\[\d+\]|@\1|g' \
     -e 's|[A-Za-z.]+ #link\(<(.*)>\)\[\\\[.+\\\]\]|@\1|g' \
-    > "Mainmatter/Uppaal Coshy: Automatic Synthesis of Compact Shields for Hybrid Systems.typ"
+    >> "$target"
 # [A-Z][a-z]+ #link\(\<(.*)\>\)\[\\\[.*\\\]\]
 # @(DBLP:[^ ]+)
 # #label("$1")

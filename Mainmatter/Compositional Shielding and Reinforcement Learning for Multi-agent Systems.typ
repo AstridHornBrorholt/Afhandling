@@ -36,7 +36,7 @@ We demonstrate the effectiveness and scalability of our multi-agent shielding fr
 == Introduction
 <introduction>
 Reinforcement learning
-(RL) #cite(label("DBLP:books/wi/Puterman94")) #cite(label("DBLP:books/lib/SuttonB98")), and
+(RL) #cite(label("Puterman94")) #cite(label("DBLP:books/lib/SuttonB98")), and
 in particular deep RL, has demonstrated success in automatically
 learning high-performance policies for complex
 systems #cite(label("DBLP:journals/nature/MnihKSRVBGRFOPB15")) #cite(label("DBLP:journals/nature/BellemareCCGMMP20")).
