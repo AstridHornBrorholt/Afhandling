@@ -760,7 +760,7 @@ This section is concerned with staying safe with high probability, rather than t
 ]<ex:DoubleOrNothing>
 
 
-_Probabilistic shielding_ definitions
+Approaches to _probabilistic shielding_
 #cl("DBLP:journals/cacm/KonighoferBJJP25")#cl("DBLP:conf/concur/0001KJSB20")#cl("DBLP:conf/ijcai/YangMRR23")#cl("DBLP:conf/atva/PrangerKPB21")
 vary greatly by the types of guarantee they give.
 The probabilistic guarantees are usually given over a finite horizon (Cf.~@sec:ShieldingHorizon) since the risk of failure over an infinite horizon often compounds to $1.0$.
@@ -861,38 +861,41 @@ Alternatively, the probabilistic shield in #cl("DBLP:conf/concur/0001KJSB20") al
 
 == Adaptive Shielding <sec:AdaptiveShielding>
 
-Safety guarantees in shielding are contingent on the model used (MDP or MG) being accurate to the true system, but accurate models are not always easy to obtain.
+Safety guarantees in shielding are conditional on the model used (MDP or MG) being accurate to the true system, but accurate models are not straightforward to obtain in practice.
 Let the MDP $mdp^star$ be the unknown, ideal, safety-relevant model of the underlying system.
-When constructing a model of the system, uncertainty about the behaviour of $mdp^star$ can be modelled stochastically, creating an MDP $hat(mdp)$.
+Instead, an estimate $hat(mdp)$ is created, with epistemic uncertainty about model behaviour captured as additional stochasticity, or as uncertainty-sets over the transition function #cl("DBLP:journals/sttt/BadingsSSJ23").
 This approximation $hat(mdp)$ should ideally be a _conservative_ estimate, such that any shield for $hat(mdp)$ is also a (conservative) shield for $mdp^star$.
+
+This section assumes that the estimate~$hat(mdp)$ and a safe set $phi$ will be used to synthesize a shield $shield$ by @def:Shielding.
+However, any other form of shielding described in this thesis or in the literature could also be applied.
 
 === Initial Knowledge
 
-The construction of $hat(mdp)$ can be done by domain experts, informed by prior experience and historical data collected from the system.
-From logs of the system's behaviour, trace segments $xi_0^a$ from $mdp^star$ can be obtained.
-A set of such observed traces is called a history $H = {xi_0^a, zeta_0^b, ... }$. 
+From logs of the system's behaviour, trace segments $xi_0^n$ from $mdp^star$ can be obtained.
+This information can be used by automated methods to obtain a model estimate~$hat(mdp)$.
+Model estimation techniques include neural networks #cl("DBLP:conf/ecai/GoodallB23")#cl("DBLP:conf/ecai/BethellGCI25"), automata learning #cl("DBLP:conf/isola/TapplerPKMBL22"), interval MDPs #cl("DBLP:journals/corr/abs-2605-10293"), or model parameter estimation @senthilvelan_similarity-based_2023#cl("DBLP:journals/pacmpl/FengZPL25"). 
 
-Automated methods can be used to obtain a model estimate from a history $H$, such as neural networks #cl("DBLP:conf/ecai/GoodallB23")#cl("DBLP:conf/ecai/BethellGCI25"), automata learning #cl("DBLP:conf/isola/TapplerPKMBL22"), interval MDPs #cl("DBLP:journals/corr/abs-2605-10293"), or model parameter estimation @senthilvelan_similarity-based_2023#cl("DBLP:journals/pacmpl/FengZPL25"). 
-
-These automated methods presume some degree of prior knowledge about $mdp^star$, such as the action space, initial state, state space or information about the structure of the transition function.
+These automated methods presume some degree of initial knowledge about $mdp^star$, such as the action space, initial state, state space, or information about the structure of the transition function.
+This initial knowledge can be provided by domain experts, or estimated using trace segments.
 For example, model parameter estimation requires a _parameterized_ MDP, $hat(mdp)_p$ whose transition function depends on $x$ parameters given as the vector $p in RR^x$ such that $hat(mdp)_(p^star) = mdp^star$ for some $p^star in RR^x$.
-
-For some estimation method $E$, initial knowledge $hat(mdp)$ and observation database $D : S times A times S → ZZ_(>=0)$, let $E(hat(mdp), D) = hat(mdp)'$ be the resulting model estimate.
-A shield $shield$ can be synthesized from $hat(mdp)$ and a safe set $phi$, using any absolute, $k$-step or probabilistic method.
-Whether $shield$ is also a shield for $mdp^star$ depends on the guarantees provided by the estimator $E$.
+Whether a shield for $hat(mdp)$ and  safe set $phi$, is also a shield for $mdp^star$ and $phi$, depends on the guarantees provided by the estimator.
 
 === Updating the Estimate
 
-Shield $shield$ can then be applied (through any manner described in @sec:ApplyingTheShield) to an RL agent interacting with $mdp^star$. 
+A shield $shield$ acquired from an estimate $hat(mdp)$ can then be applied (through any manner described in @sec:ApplyingTheShield) to an RL agent interacting with $mdp^star$. 
 While the shield is in use, more traces are generated, and it is natural to use this additional experience to make $hat(mdp)$, and by extension the shield,  more precise.
 Periodically updating the shield in this way can e.g. make a conservative estimate more permissive, while still ensuring that exploration is done safely.
 
 Model estimation and shield synthesis is often computationally expensive.
 Therefore, it is common to update the shield every $u$ episodes of RL.
-In keeping with the manner of @sec:QLearning, Q-learning is used here as an instructive example of RL.
+In keeping with the manner of @sec:QLearning, Q-learning is used here as an instructive example of RL:
 It is extended in @alg:AdaptiveShielding to define an adaptive training-only pre-shielding RL loop.
 
-Note that the pre-shield is implemented by restricting the actions under consideration, rather than by altering how the Q-table is initialized.
+The algorithm presumes initial knowledge encoded as a preliminary model estimate $hat(mdp)$, and records new traces using a transition database $D : S times A times S → NN$, which records how many times a transition $s a s'$ is encountered during exploration.
+An estimator function $E$ takes as arguments $hat(mdp)$ and $D$, and produces an updated model estimate.
+
+In @sec:ApplyingTheShield, it was described how a pre-shield can be implemented by initializing the Q-table in such a way that unsafe actions will never be considered.
+Note that the pre-shield in @alg:AdaptiveShielding instead restricts the actions under consideration as e.g. $max_(a in shield(s))$ rather than $max_(a in A)$.
 This is to accommodate the adaptive shield, where actions permitted in a given state will change during execution.
 
 #figure(kind: "algorithm", supplement: "Algorithm", 
@@ -913,8 +916,7 @@ This is to accommodate the adaptive shield, where actions permitted in a given s
     + *Loop*  $i ← 0$ *up to* $n$
       + *If* $n mod u = 0$
         + $hat(mdp) ← E(hat(mdp), D)$
-        + $hatshield$ ← shield synthesized from $hat(mdp)$
-        + *Apply* $hatshield$ to the system
+        + $hatshield$ ← shield synthesized from $hat(mdp)$ and $φ$
         
       + *Loop* $j ← 0$ *up to* $m - 1$ *inclusive* #comment[Mostly as in @alg:QLearning, shielded.]
         + Flip a weighted coin that has probability $epsilon(i)$ of landing on heads.
@@ -941,7 +943,7 @@ However, $hatshield$ will not adapt as more data is collected.
 The same applies to absolute guarantees of $k$-step shields.
 
 As such, probabilistic shielding is the natural choice in the adaptive setting.
-Even so, the guarantees given by the adaptive probabilistic shield are contingent on and usually augmented by the guarantees afforded by the estimator $E$.
+Even so, the guarantees given by the adaptive probabilistic shield are contingent on and usually augmented by the guarantees afforded by the estimator.
 
 === Training and Operation <sec:AdaptiveTrainingAndOperation>
 
