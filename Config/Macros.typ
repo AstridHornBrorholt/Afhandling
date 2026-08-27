@@ -17,7 +17,7 @@
   h(0pt, weak: true)
 }
 
-#let fallback = {set text(fill: rgb(0, 0, 0, 0), size: 0.8em); $nabla$}
+#let fallback = {set text(fill: rgb(255, 255, 255, 0), size: 0.8em); $nabla$}
 #let shield = $fallback#annotate(bottom + right, image("../Graphics/Shield.svg", height: 0.6em), dx: -0.1em)$
 
 #let hatshield = $hat(fallback)#annotate(bottom + right, image("../Graphics/Shield.svg", height: 0.6em), dx: -0.1em)$
