@@ -895,7 +895,7 @@ development, we found it helpful to visualize shields, as in
 In the same line, an explanation why a state is marked unsafe in a
 shield would help in debugging a model.
 
-
+==== Acknowledgments
 This research was partly supported by the Independent Research Fund
 Denmark under reference number 10.46540/3120-00041B and the Villum
 Investigator Grant S4OS under reference number 37819.

@@ -1204,6 +1204,11 @@ using formal methods to verify the resulting safety strategies, maybe
 based on #cite(label("ForetsFS20")).
 
 
+==== Acknowledgments
+This research was partly supported by DIREC - Digital Research Centre Den-
+mark and the Villum Investigator Grant S4OS - Scalable analysis and Synthesis
+of Safe, Secure and Optimal Strategies for Cyber-Physical Systems.
+
 #[
   #set heading(numbering: none) 
   == References

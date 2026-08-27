@@ -1266,6 +1266,7 @@ the guarantees and the agents are not given, a trial-and-error approach
 relevant future direction is to generalize our approach to continuous
 systems #cite(label("PaperA")).
 
+==== Acknowledgments
 This research was partly supported by the Independent Research Fund
 Denmark under reference number 10.46540/3120-00041B, DIREC - Digital
 Research Centre Denmark under reference number 9142-0001B, and the
