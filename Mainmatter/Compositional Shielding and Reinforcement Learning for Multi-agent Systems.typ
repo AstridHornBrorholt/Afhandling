@@ -1098,9 +1098,8 @@ Synthesizing a shield for a single agent covering the full safety
 property ($0 lt d_i lt 200$) took 6.5 seconds, which we will apply to a
 platoon of 10 cars, well out of reach of a centralized shield.
 
-==== Comparing centralized, cascading and MAPPO learning
-<comparing-centralized-cascading-and-mappo-learning>
-#figure([#image("../Graphics/AAMAS25/CC 400x150.svg", width: 80%)],
+#figure(placement: bottom,
+  [#image("../Graphics/AAMAS25/CC 400x150.svg", width: 80%)],
   caption: [
     Graph of learning outcomes. Comparison of different learning methods
     on the 10-car platoon. The centralized and the MAPPO policy were
@@ -1110,6 +1109,8 @@ platoon of 10 cars, well out of reach of a centralized shield.
 )
 <fig:cclearning>
 
+
+==== Comparing centralized, cascading and MAPPO learning <comparing-centralized-cascading-and-mappo-learning>
 Given a distributed shield, we consider the learning outcomes for a
 platoon of 10 cars (9 agents), using the learning method of
 #smallcaps[Uppaal Stratego]. We train both a shielded #emph[centralized]
@@ -1152,7 +1153,8 @@ This is likely because of the smaller space in which the policies are
 learned, due to the distributed shield. Thus, cascading learning is more
 effective.
 
-#figure([#image("../Graphics/AAMAS25/MAPPO CC Fraction Safe 350x100.svg", width: 0.8*100%)],
+#figure(placement: bottom,
+  [#image("../Graphics/AAMAS25/MAPPO CC Fraction Safe 350x100.svg", width: 0.8*100%)],
   caption: [
     Percentage of safe runs with the MAPPO policy in the 10-car platoon.
     Blue bars show the mean of 10 repetitions, while black intervals
@@ -1223,9 +1225,8 @@ shields, one for each variant, and adapt them to analogous agents.
 Computing a centralized shield would again be infeasible, while
 computing the distributed shield took less than 1 second.
 
-==== Comparing centralized and cascading learning
-<comparing-centralized-and-cascading-learning>
-#figure([#image("../Graphics/AAMAS25/CP 400x150.svg", width: 80%)],
+#figure(placement: top,
+  [#image("../Graphics/AAMAS25/CP 400x150.svg", width: 80%)],
   caption: [
     Comparison of different learning methods on the chemical production
     plant. The centralized policy was trained for the total episodes
@@ -1235,6 +1236,8 @@ computing the distributed shield took less than 1 second.
 )
 <fig:cplearning>
 
+
+==== Comparing centralized and cascading learning <comparing-centralized-and-cascading-learning>
 Thanks to the guarantees given by the distributed shields, agents 9
 to 10 are only affected by the behavior of the consumers, agents 6 to 8
 only depend on agents 9 to 10, etc. Thus, the agent training order is

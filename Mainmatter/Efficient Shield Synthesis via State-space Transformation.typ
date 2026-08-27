@@ -982,28 +982,8 @@ $400$ cells, as compared to $900$ cells in the original state space.
 Both took less than a second to synthesize, at $244$ ms and $512$ ms,
 respectively.
 
-=== Strategy Reduction
-<strategy-reduction>
 
-
-
-#figure(table(
-    columns: 4,
-    align: (center + horizon, center, right, right),
-    inset: 6pt,
-    table.header([#strong[Model]], [#strong[State space]], [#strong[Number of cells]], [#strong[Number of nodes]]),
-    table.cell(rowspan: 2)[Satellite],  [$S$],  [176,400],  [4,913],  
-                                        [$T$],  [27,300],  [544],
-    table.hline(),
-    table.cell(rowspan: 2)[Bouncing ball],  [$S$],  [520,000],  [940],  
-                                            [$T$],  [650],  [49],
-    table.hline(),
-    table.cell(rowspan: 2)[Cart-pole],  [$S$],  [900],  [99],
-                                        [$T$],  [400],  [32],
-  ),
-  caption: [Representation sizes of the computed shields.]
-)<tab:shield_reduction>
-
+=== Strategy Reduction <strategy-reduction>
 
 We provide an overview of the savings due to computing the shield in the
 transformed state space in @tab:shield_reduction. The
@@ -1024,11 +1004,27 @@ reduction technique from #cite(label("HoegPetersenLWJ23")). The last column in
 decision trees. As can be seen, we always achieve another significant
 reduction by one to two orders of magnitude.
 
-=== Shielded Reinforcement Learning
-<shielded-reinforcement-learning>
+#figure(placement: bottom,
+  table(
+    columns: 4,
+    align: (center + horizon, center, right, right),
+    inset: 6pt,
+    table.header([#strong[Model]], [#strong[State space]], [#strong[Number of cells]], [#strong[Number of nodes]]),
+    table.cell(rowspan: 2)[Satellite],  [$S$],  [176,400],  [4,913],  
+                                        [$T$],  [27,300],  [544],
+    table.hline(),
+    table.cell(rowspan: 2)[Bouncing ball],  [$S$],  [520,000],  [940],  
+                                            [$T$],  [650],  [49],
+    table.hline(),
+    table.cell(rowspan: 2)[Cart-pole],  [$S$],  [900],  [99],
+                                        [$T$],  [400],  [32],
+  ),
+  caption: [Representation sizes of the computed shields.]
+)<tab:shield_reduction>
 
 
-#figure(table(
+#figure(placement: bottom,
+  table(
     columns: 10,
     align: center,
     table.header(
@@ -1046,6 +1042,7 @@ better for the satellite model, and vice versa for the other models.
 Each row’s best result is marked in bold face.],
 )<tab:shielded_learning>
 
+=== Shielded Reinforcement Learning <shielded-reinforcement-learning>
 The only motivation for applying a state-space transformation was to be
 able to compute a cheaper shield. From the theory, we cannot draw any
 conclusions about the impact on the controller performance. We

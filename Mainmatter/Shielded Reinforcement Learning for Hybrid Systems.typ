@@ -450,7 +450,7 @@ initial state density $N$.
   approximately $48$.
 ]<ex:hitting>
 
-#subpar.grid(
+#subpar.grid(placement: bottom,
   [
     #figure([#image("../Graphics/AISOLA23/UnshieldedTrace1.svg")],
       caption: [
@@ -519,7 +519,7 @@ transition system
 $T_M^A eq lr((cal(A) comma italic("Act") comma arrow.r))$, where
 $ mu arrow.r_()^a mu prime arrow.l.r.double exists s in mu dot.basic med exists s prime in mu prime dot.basic med T lr((s comma a)) lr((s prime)) gt 0 dot.basic $
 
-#subpar.grid(
+#subpar.grid(placement: bottom,
   [#figure([#image("../Graphics/AISOLA23/SquaresReachabilityBarbaric.svg")],
     caption: [Scenario where the ball is rising and high enough to be hit. \ #hide("x")]
   )],
@@ -738,39 +738,6 @@ benchmark cases:
   consumption is unknown, a random perturbation is added to the
   reference value. To reduce wear, the volume should be kept low.
 
-#subpar.grid(
-  [#figure([#image("../Graphics/AISOLA23/CCShield.svg")],
-    caption: [ Cruise control ($n eq 4$, $gamma eq 0.5$) when the car’s velocity is $0 m slash s$]
-  ) <fig:CCShield>],
-
-  grid.cell(rowspan: 2)[#figure([#image("../Graphics/AISOLA23/OPShieldOn.svg")],
-    caption: [
-      Oil pump ($n eq 4 comma gamma eq 0.1$) when the pump is #emph[on].
-      The periodic piecewise consumption pattern has been overlaid.
-      Turning off the pump requires it to stay off for two seconds,
-      which could cause an underflow in the yellow area. Conversely, the
-      purple area shows the states where the pump #emph[must] be turned
-      off to avoid overflow. Since the pump is on in this projection,
-      this can wait until the last moment.
-    ]
-  )
-  <fig:OPShieldOn>],
-
-  [#figure([#image("../Graphics/AISOLA23/DCShield.svg")],
-    caption: [
-      DC-DC boost converter ($n eq 4$, $gamma eq 0.01$) when the output
-      resistance is $30 Omega$.
-    ]
-  )
-  <fig:DCShield>],
-
-  columns: 2,
-  label: <fig:Shields>,
-  caption: [
-    Projected views of synthesized most permissive safety strategies.
-  ]
-)
-
 @fig:Shields shows the synthesized most permissive
 safety strategies. For instance, in @fig:CCShield we see
 the strategy for the cruise-control example when the controlled car is
@@ -798,6 +765,57 @@ Our implementation is written in Julia, and we use #smallcaps[Uppaal
 Stratego] #cite(label("stratego")) for learning and statistical model checking.
 The experiments are available online #cite(label("REP")).
 
+#subpar.grid(
+  [#figure([#image("../Graphics/AISOLA23/CCShield.svg")],
+    caption: [ Cruise control ($n eq 4$, $gamma eq 0.5$) when the car’s velocity is $0 m slash s$]
+  ) <fig:CCShield>],
+
+  grid.cell(rowspan: 2)[#figure([#image("../Graphics/AISOLA23/OPShieldOn.svg")],
+    caption: [
+      Oil pump ($n eq 4 comma gamma eq 0.1$) when the pump is #emph[on].
+      The periodic piecewise consumption pattern has been overlaid.
+      Turning off the pump requires it to stay off for two seconds,
+      which could cause an underflow in the yellow area. Conversely, the
+      purple area shows the states where the pump #emph[must] be turned
+      off to avoid overflow. Since the pump is on in this projection,
+      this can wait until the last moment.
+    ]
+  )
+  <fig:OPShieldOn>],
+
+  [#figure([#image("../Graphics/AISOLA23/DCShield.svg")],
+    caption: [
+      DC-DC boost converter ($n eq 4$, $gamma eq 0.01$) when the output
+      resistance is $30 Omega$.
+      #v(.5em)
+    ]
+  )
+  <fig:DCShield>],
+
+  align: top,
+  columns: 2,
+  label: <fig:Shields>,
+  caption: [ 
+    Projected views of synthesized most permissive safety strategies.
+  ]
+)
+
+#figure(
+  stack(dir: ltr, image("../Graphics/AISOLA23/BarbaricAccuracyN.svg", width: 40%), image("../Graphics/AISOLA23/BarbaricAccuracyG.svg", width: 40%)),
+  caption: [
+    Accuracy of the approximation $arrow.r^a_(a p p)$ under different \
+    granularity $gamma$ and number of supporting points $n$ per
+    dimension.
+  ]
+)
+<fig:BarbaricAccuracy>
+
+#figure(
+  image("../Graphics/AISOLA23/DifferenceRigorousBarbaric.svg", height: 100pt), 
+  caption: [Superimposed strategies of our method and #smallcaps("JuliaReach").],
+)<fig:DifferenceRigorousBarbaric>
+
+
 === Quality of the Approximated Transition System
 <quality-of-the-approximated-transition-system>
 In the first experiment we statistically assess the approximation
@@ -810,14 +828,7 @@ uniformly sample $10^8$ states $s$ and compute their successor states
 $s prime$ under a random action $a$. Finally we count how often
 $lr([s])_(cal(A)) arrow.r^a_(a p p) lr([s prime])_(cal(A))$ holds.
 
-#figure(stack(dir: ltr, image("../Graphics/AISOLA23/BarbaricAccuracyN.svg", width: 50%), image("../Graphics/AISOLA23/BarbaricAccuracyG.svg", width: 50%)),
-  caption: [
-    Accuracy of the approximation $arrow.r^a_(a p p)$ under different \
-    granularity $gamma$ and number of supporting points $n$ per
-    dimension.
-  ]
-)
-<fig:BarbaricAccuracy>
+
 
 Here we consider the bouncing-ball model, where we limit the domain to
 $p in lr([0 comma 15])$, $v in lr([minus 15 comma 15])$. The results are
@@ -854,7 +865,8 @@ learned to act safely most of the time and thus not challenge the shield
 as much.) If no safety violation was detected, we compute 99% confidence
 intervals for the statistical safety.
 
-#figure([
+#figure(placement: bottom,
+  [
   #let c(n, content) = table.cell(content, align: horizon, rowspan: n)
   #table(
     columns: 5,
@@ -911,12 +923,6 @@ can synthesize a strategy in $19$ minutes, while the approach based on
 visualizes the two strategies and shows how the two approaches largely
 agree on the synthesized shield – but also the slightly more pessimistic
 nature of the transition relation computed with #smallcaps[JuliaReach].
-
-#figure(
-  image("../Graphics/AISOLA23/DifferenceRigorousBarbaric.svg"), 
-  caption: [Superimposed strategies of our method and #smallcaps("JuliaReach").],
-  placement: top
-)<fig:DifferenceRigorousBarbaric>
 
 === Evaluation of Pre- and Post-shields
 <evaluation-of-pre--and-post-shields>

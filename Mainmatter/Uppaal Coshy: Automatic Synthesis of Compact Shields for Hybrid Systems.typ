@@ -70,7 +70,7 @@ of the workflow in #smallcaps[Uppaal Coshy].
 An extended version of this paper is available
 online #cite(label("PaperD_arxiv")).
 
-=== Related Tools for Shield Synthesis and Compact Representation
+=== Tools for Shield Synthesis and Compact Representation
 <related-tools-for-shield-synthesis-and-compact-representation>
 ==== Shielding.
 <shielding.>
@@ -156,22 +156,8 @@ with respect to $phi$ if $s_i in phi$ for all $i gt.eq 0$. A
 nondeterministic strategy $sigma$ is a #emph[shield] with respect
 to $phi$ if all outcomes of $sigma$ are safe.
 
-=== Running Example (Bouncing Ball)
-<running-example-bouncing-ball>
 
-#subpar.grid(
-  [#figure(image("../Graphics/RP25/Player.pdf", width: 100%) + v(15pt),
-    caption: [Player component.]
-  )<fig:player>],
-
-  [#figure(image("../Graphics/RP25/Ball.pdf", width: 100%),
-    caption: [Ball component.]
-  )<fig:ball>],
-  columns: (3fr, 6fr),
-  caption: [The #emph[bouncing ball] modeled in #smallcaps[Uppaal].]
-)
-<fig:uppaalball>
-
+=== Running Example (Bouncing Ball) <running-example-bouncing-ball>
 We introduce our running example: a #emph[bouncing ball] that can be hit
 by a player to keep it
 bouncing #cite(label("PaperA")) #cite(label("DBLP:conf/atva/JaegerJLLST19")).
@@ -194,6 +180,19 @@ The ball bounces back up with a random dampening (upper edge) or goes to
 the state `Stop` if the velocity is very low (lower edge). In the following, we
 shall see how to obtain a shield that enforces the safety property that `Stop`
 is never reached, i.e., $phi = { s | #[Ball is not in `Stop` in] s}$.
+
+#subpar.grid(
+  [#figure(image("../Graphics/RP25/Player.pdf", width: 100%) + v(15pt),
+    caption: [Player component.]
+  )<fig:player>],
+
+  [#figure(image("../Graphics/RP25/Ball.pdf", width: 100%),
+    caption: [Ball component.]
+  )<fig:ball>],
+  columns: (3fr, 6fr),
+  caption: [The #emph[bouncing ball] modeled in #smallcaps[Uppaal].]
+)
+<fig:uppaalball>
 
 === Partition-Based Shield Synthesis
 <sect:partitioning>
@@ -584,28 +583,6 @@ For an expansion to be legal, it must satisfy the following three
   ]
 ]<def:expansionRules> 
 
-#subpar.grid(columns: 2,
-  align: top,
-  [#figure([#image("../Graphics/RP25/rules_org.svg", width: 100%)],
-    caption: [An input partitioning.]
-  )<fig:expRulesOrg>],
-
-  [#figure([#image("../Graphics/RP25/rule1.svg", width: 100%)],
-    caption: [A violation of @it:rule1[Rule], since the expanded region contains different actions.  ]
-  )<fig:expRules1>],
-
-  [#figure([#image("../Graphics/RP25/rule2.svg", width: 100%)],
-    caption: [A violation of @it:rule2[Rule], since the expanded region overlaps with a striped area.]
-  )<fig:expRules2>],
-
-  [#figure([#image("../Graphics/RP25/rule3.svg", width: 100%)],
-    caption: [A violation of @it:rule3[Rule], since the expansion cuts the rightmost region into two new regions.]
-  )<fig:expRules3>],
-  caption: [Expansion example. Yellow and purple denote distinct actions.
-    Striped regions have been fixed in previous iterations.
-    The dashed border is the new candidate region $R'$.
-  ]
-)
 
 The first two cases are directly related to the definition of the
 problem, i.e., the produced partitioning should respect $cal(T)$ and
@@ -623,6 +600,31 @@ $lr((lr((3 comma 3)) comma lr((4 comma 4))))$. Clearly, all three
 expansion rules of @def:expansionRules
 can be checked in time linear in the number of nodes
 of $cal(P)_(cal(T))$.
+
+
+#subpar.grid(
+  columns: 2,
+  align: top,
+  [#figure([#image("../Graphics/RP25/rules_org.svg", width: 70%)],
+    caption: [An input partitioning.]
+  )<fig:expRulesOrg>],
+
+  [#figure([#image("../Graphics/RP25/rule1.svg", width: 70%)],
+    caption: [A violation of @it:rule1[Rule], since the expanded region contains different actions.  ]
+  )<fig:expRules1>],
+
+  [#figure([#image("../Graphics/RP25/rule2.svg", width: 70%)],
+    caption: [A violation of @it:rule2[Rule], since the expanded region overlaps with a striped area.]
+  )<fig:expRules2>],
+
+  [#figure([#image("../Graphics/RP25/rule3.svg", width: 70%)],
+    caption: [A violation of @it:rule3[Rule], since the expansion cuts the rightmost region into two new regions.]
+  )<fig:expRules3>],
+  caption: [Expansion example. Yellow and purple denote distinct actions.
+    Striped regions have been fixed in previous iterations.
+    The dashed border is the new candidate region $R'$.
+  ]
+)
 
 To determine the expansion of regions, we propose the following greedy
 approach: let $lr((p^min comma p^max))$ define a region. We then want to
@@ -687,6 +689,42 @@ benchmark the implementations on several models.
 === A Complete Run of the Bouncing Ball <sect:bb_queries>
 
 
+
+@tab:bb_queries shows a typical usage of #smallcaps[Uppaal] with a
+sequence of queries on the #emph[bouncing ball] example to produce a
+safe and efficient strategy (cf. @fig:workflow).
+Documentation of the new query syntax is available online and
+in #cite(label("PaperD_arxiv")).
+#footnote[#link("https://docs.uppaal.org/language-reference/query-syntax/controller_synthesis/#approximate-control-queries")[https://docs.uppaal.org/language-reference/query-syntax/controller\_synthesis/\#approximate-control-queries]]
+
+In Query 1, we train a strategy called , which is only concerned with
+cost and does not consider safety. Such a strategy is trivial: simply
+never pick the `hit` action. This is seen in Query 2, which simulates a single
+run of 120 seconds. It outputs position  and velocity , which are
+visualized in @fig:efficient. Query 3 statistically
+evaluates the strategy in 100 runs to estimate the expected value of .
+The result "$approx 0$" indicates that only this value was observed.
+Query 4 estimates the probability of a run being unsafe to be in the
+interval $lr([0.9995 semi 1])$ with 99% confidence; in this case, as
+expected, all $10 thin 000$ runs were unsafe.
+
+Query 5 synthesizes a shield . The shield matches the one shown in
+@fig:leave_bounds. In queries 6 and 7, the shield is
+converted to a compact representation by saving it to a file, calling
+the #smallcaps[Caap] implementation, and loading the result back into
+Uppaal. The shield is simulated in Query 8, for which any of the allowed
+actions is selected randomly (this happens implicitly); while safe, this
+shielded but randomized strategy is not efficient and hits the ball more
+often than needed, as visualized in @fig:safe.
+
+
+In Query 9, we learn a strategy `shielded efficient` under the shield using
+Uppaal Stratego #cite(label("DBLP:conf/tacas/DavidJLMT15")). This strategy
+keeps the ball in the air without excessive hitting, as shown by the
+output of Query 10 in @fig:shielded_efficient. The result of
+Query 11 shows the expected cost, and Query 12 shows that the safety
+property holds with high confidence: None of the $10 thin 000$ runs were
+unsafe.
 #[
   #set par(justify: false)
 
@@ -716,7 +754,8 @@ benchmark the implementations on several models.
   
   
 
-  #figure(table(
+  #figure(
+    table(
       columns: 3,
       align: (col, row) => (right,left,left,).at(col),
       inset: 6pt,
@@ -760,43 +799,7 @@ benchmark the implementations on several models.
       confidence interval.],
   )<tab:bb_queries>
 ]
-@tab:bb_queries shows a typical usage of #smallcaps[Uppaal] with a
-sequence of queries on the #emph[bouncing ball] example to produce a
-safe and efficient strategy (cf. @fig:workflow).
-Documentation of the new query syntax is available online and
-in #cite(label("PaperD_arxiv")).
-#footnote[#link("https://docs.uppaal.org/language-reference/query-syntax/controller_synthesis/#approximate-control-queries")[https://docs.uppaal.org/language-reference/query-syntax/controller\_synthesis/\#approximate-control-queries]]
 
-In Query 1, we train a strategy called , which is only concerned with
-cost and does not consider safety. Such a strategy is trivial: simply
-never pick the `hit` action. This is seen in Query 2, which simulates a single
-run of 120 seconds. It outputs position  and velocity , which are
-visualized in @fig:efficient. Query 3 statistically
-evaluates the strategy in 100 runs to estimate the expected value of .
-The result "$approx 0$" indicates that only this value was observed.
-Query 4 estimates the probability of a run being unsafe to be in the
-interval $lr([0.9995 semi 1])$ with 99% confidence; in this case, as
-expected, all $10 thin 000$ runs were unsafe.
-
-Query 5 synthesizes a shield . The shield matches the one shown in
-@fig:leave_bounds. In queries 6 and 7, the shield is
-converted to a compact representation by saving it to a file, calling
-the #smallcaps[Caap] implementation, and loading the result back into
-Uppaal. The shield is simulated in Query 8, for which any of the allowed
-actions is selected randomly (this happens implicitly); while safe, this
-shielded but randomized strategy is not efficient and hits the ball more
-often than needed, as visualized in @fig:safe.
-
-In Query 9, we learn a strategy `shielded efficient` under the shield using
-Uppaal Stratego #cite(label("DBLP:conf/tacas/DavidJLMT15")). This strategy
-keeps the ball in the air without excessive hitting, as shown by the
-output of Query 10 in @fig:shielded_efficient. The result of
-Query 11 shows the expected cost, and Query 12 shows that the safety
-property holds with high confidence: None of the $10 thin 000$ runs were
-unsafe.
-
-=== Further Examples
-<sect:benchmarks>
 #subpar.grid(columns: 3,
   [#figure([#image("../Graphics/RP25/under_efficient.png", width: 95%)],
     caption: [ `efficient` ]
@@ -817,6 +820,7 @@ unsafe.
   label: <fig:simulate>
 )
 
+=== Further Examples <sect:benchmarks>
 State-space transformations can be used to synthesize a shield more
 efficiently #cite(label("PaperB")). Since #smallcaps[Uppaal]
 supports function calls, transformations can be applied by modifying the
