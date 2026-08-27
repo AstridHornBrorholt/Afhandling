@@ -113,7 +113,8 @@
 }
 
 // Cite Label (CL) shorthand to use mostly with dblp
-#let cl(label_string) = cite(label(label_string))
+#let cl(..label_strings) = {for label_string in label_strings.pos() {cite(label(label_string))}
+}
 
 #let comment(content) = [ #h(1fr) $triangle.r$ #content ]
 
@@ -172,3 +173,7 @@ Numerals
 #let lungexplode = lung + annotate(bottom + right, text("💥", size: 0.9em), dx: 0pt, dy: 0pt,)
 #let lungsparkle = lung + annotate(bottom + right, text("✨", size: 0.9em), dx: 0.3em, dy: -0.4em,)
 #let smoke = smallcaps(text("smoke", font: "Gentium Book Plus"))
+
+
+// Paper E
+#let Unif = $"Unif"$

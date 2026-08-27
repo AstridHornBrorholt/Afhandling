@@ -11,19 +11,19 @@
 
 = Shielded Reinforcement Learning \ for Hybrid Systems <paper:A>
 #grid(columns: (1fr, 1fr), row-gutter: 2em,
-  [Asger Horn Brorholt \
+  [Asger Horn Brorholt \ #set text(size: 0.8em)
   _Department of Computer Science \ Aalborg University, Aalborg, Denmark_],
 
-  [Peter Gjøl Jensen \
+  [Peter Gjøl Jensen \ #set text(size: 0.8em)
   _Department of Computer Science \ Aalborg University, Aalborg, Denmark_],
 
-  [Kim Guldstrand Larsen \
+  [Kim Guldstrand Larsen \ #set text(size: 0.8em)
   _Department of Computer Science \ Aalborg University, Aalborg, Denmark_],
 
-  [Florian~Lorber \
+  [Florian~Lorber \ #set text(size: 0.8em)
   _Department of Computer Science \ Aalborg University, Aalborg, Denmark_],
 
-  [Christian~Schilling \
+  [Christian~Schilling \ #set text(size: 0.8em)
   _Department of Computer Science \ Aalborg University, Aalborg, Denmark_])
 
 #v(1fr)

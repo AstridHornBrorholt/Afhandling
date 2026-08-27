@@ -11,16 +11,16 @@
 
 = Efficient Shield Synthesis via State-space Transformation
 #grid(columns: (1fr, 1fr), row-gutter: 2em,
-  [Asger Horn Brorholt \
+  [Asger Horn Brorholt \ #set text(size: 0.8em)
   _Department of Computer Science \ Aalborg University, Aalborg, Denmark_],
 
-  [Andreas Holck Høeg-Petersen \
+  [Andreas Holck Høeg-Petersen \ #set text(size: 0.8em)
   _Department of Computer Science \ Aalborg University, Copenhagen, Denmark_],
 
-  [Kim Guldstrand Larsen \
+  [Kim Guldstrand Larsen \ #set text(size: 0.8em)
   _Department of Computer Science \ Aalborg University, Aalborg, Denmark_],
 
-  [Christian~Schilling \
+  [Christian~Schilling \ #set text(size: 0.8em)
   _Department of Computer Science \ Aalborg University, Aalborg, Denmark_])
 
 #v(1fr)

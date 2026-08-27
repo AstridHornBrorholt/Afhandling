@@ -1,13 +1,50 @@
+#import "@preview/lovelace:0.3.1": *
+#import "@preview/subpar:0.2.2"
 #import "../Config/Macros.typ" : *
 
 
-// DEBUG: Don't count missing refs as errors
-#show ref: it => {
-  it.target
-}
+// DEBUG: Just print labels so a missing label doesn't error
+// #show ref: it => {
+//   it.target
+// }
 
-=
- Adaptive Probabilistic Shielding by Learning MDPs for Safe Reinforcement Learning
+= Adaptive Probabilistic Shielding by Learning MDPs for Safe Reinforcement Learning
+
+#grid(columns: (1fr, 1fr), row-gutter: 2em, column-gutter: 2em,
+  [Astrid~Horn~Brorholt \ #set text(size: 0.8em)
+  _Depatrment of Computer Science \ Aalborg University, Aalborg, Denmark_],
+
+  [Maris~F.~L.~Galesloot\ #set text(size: 0.8em)
+  _Institute for Computing and Information Sciences \ Radboud University, Nijmegen, Netherlands_],
+
+  [Nils~Jansen\ #set text(size: 0.8em)
+  _Institute for Computing and Information Sciences \  Radboud University, Nijmegen, Netherlands\ \
+  Faculty of Computer Science \ Ruhr University, Bochum, Germany_],
+
+  [Kim~Guldstrand~Larsen\ #set text(size: 0.8em)
+  _Depatrment of Computer Science \ Aalborg University, Aalborg, Denmark_],
+
+  [Christian~Schilling\ #set text(size: 0.8em)
+  _Depatrment of Computer Science \ Aalborg University, Aalborg, Denmark_]
+)
+
+#v(1fr)
+
+Probabilistic shielding is a technique for safe reinforcement learning (RL). 
+Typically, a static observer---called the shield---constrains the learning agent's actions to those for which acting safely remains feasible.
+Traditionally, the shield is computed from the transition probabilities of the underlying Markov decision process (MDP).
+Thus, this technique is not applicable when the MDP model is not given a priori, which, unfortunately, is the case in typical RL applications. 
+In this paper, we study the problem of computing a shield in the setting where the transition graph of the MDP is known, but the transition probabilities are unknown. 
+Our approach integrates probabilistic shielding with online model learning: as the RL agent explores the environment, we estimate the transition probabilities.
+From this estimate, we compute a shield. 
+While the shield may be conservative initially, it adapts as the model estimate becomes more precise. 
+Thus, the shield improves in tandem with the RL agent. 
+This paradigm of #emph[adaptive probabilistic shielding] raises a number of challenges, such as when to recompute the shield and how to balance between exploration and safety during learning. 
+We empirically evaluate multiple variants of this paradigm across several environments. 
+
+// Keywords: #emph[Safe reinforcement learning, Shielding, Model learning, Interval Markov decision process.]
+
+#pagebreak(weak: true)
 
 == Introduction
 <introduction>
@@ -67,14 +104,6 @@ assumption in RL. Second, we assume that the topology, that is, the
 underlying graph of the MDP, is known, which is much more realistic than
 knowing the exact transition probabilities.
 
-#figure([#image("../Graphics/RV26/Adaptive-shielding-loop.drawio.pdf", width: 100%, height: 46mm)],
-  caption: [
-    A high-level overview of our adaptive probabilistic shielding
-    approach.
-  ]
-)
-<fig:flowchart>
-
 ===== Our approach: Safe RL via Adaptive Probabilistic Shielding.
 <our-approach-safe-rl-via-adaptive-probabilistic-shielding.>
 @fig:flowchart shows an overview of our approach. As usual,
@@ -89,6 +118,14 @@ PMC tool PRISM  #cl("PRISM") to compute a shield based on this learned
 MDP  #cl("DBLP:journals/corr/abs-2605-10293"). At any point
 during this process, the shield can be updated #emph[adaptively], and
 additional data can be collected under the updated shield.
+
+#figure([#image("../Graphics/RV26/Adaptive-shielding-loop.drawio.pdf")],
+  caption: [
+    A high-level overview of our adaptive probabilistic shielding
+    approach.
+  ]
+)
+<fig:flowchart>
 
 ===== Interval MDPs and shields.
 <interval-mdps-and-shields.>
@@ -316,19 +353,19 @@ states. A run $s_0 a_0 s_1 a_1 dots.h$ is #emph[safe] if $s_i in phi$
 for all $i$.
 
 Given a deterministic policy $pi colon S arrow.r A$, a #emph[shield] is
-any nondeterministic policy $nabla colon S arrow.r sans(2)^A$ over the
-same states and actions. The #emph[shielded policy] $pi_nabla$ is a
+any nondeterministic policy $shield colon S arrow.r sans(2)^A$ over the
+same states and actions. The #emph[shielded policy] $pi_shield$ is a
 deterministic policy that acts similarly to $pi$ but only chooses
 actions allowed by the shield, i.e.,
-$forall s in S med forall a in A colon pi_nabla lr((s)) eq a arrow.r.double.long a in nabla lr((s))$.
+$forall s in S med forall a in A colon pi_shield lr((s)) eq a arrow.r.double.long a in shield lr((s))$.
 Additionally, the shield only alters actions when necessary:
-$forall s in S colon pi lr((s)) in nabla lr((s)) arrow.r.double.long pi_nabla lr((s)) eq pi lr((s))$.
-The action chosen by $pi_nabla lr((s))$ when
-$pi lr((s)) in.not nabla lr((s))$ depends on the implementation of the
+$forall s in S colon pi lr((s)) in shield lr((s)) arrow.r.double.long pi_shield lr((s)) eq pi lr((s))$.
+The action chosen by $pi_shield lr((s))$ when
+$pi lr((s)) in.not shield lr((s))$ depends on the implementation of the
 RL agent. In our implementation, we use
 Q-learning  #cl("QLearning"), for which it is
 straightforward to read out the best admissible action
-in $nabla lr((s))$.
+in $shield lr((s))$.
 
 == Probabilistic Shielding Using an Estimator
 <sec:shielding-and-estimation>
@@ -343,7 +380,7 @@ trade-offs between safety and exploration.
 
 === Probabilistic shielding approaches for (interval) MDPs
 <sec:shields>
-Next, we recall how to obtain a shield $nabla$ for an (interval) MDP $M$
+Next, we recall how to obtain a shield $shield$ for an (interval) MDP $M$
 and a safety specification $phi$. We assume a horizon $h in bb(N)$ and
 parameters $theta comma kappa in lr([0 comma 1])$, which we explain
 below. Before the formalization, we first describe the high-level idea.
@@ -371,15 +408,15 @@ $bb(P)_max^(M comma phi bar.v h) lr((s comma a)) eq sum_(s prime in S) T lr((s c
 
 Normally, the shield allows all actions guaranteeing a safe $h$-step run
 with probability at least $1 minus theta$; formally:
-$nabla_theta lr((s)) eq brace.l a in A divides bb(P)_max^(M comma phi bar.v h) lr((s comma a)) gt.eq 1 minus theta brace.r$.
+$shield_theta lr((s)) eq brace.l a in A divides bb(P)_max^(M comma phi bar.v h) lr((s comma a)) gt.eq 1 minus theta brace.r$.
 However, a shielded policy may still reach a state $s$ where this shield
 definition would not allow any action (i.e.,
-$nabla_theta lr((s)) eq nothing$). In that case, the shield instead
+$shield_theta lr((s)) eq nothing$). In that case, the shield instead
 allows all actions that are $kappa$-close to the safest available
 action; formally:
-$nabla_kappa lr((s)) eq brace.l a in A divides bb(P)_max^(M comma phi bar.v h) lr((s comma a)) gt.eq max_(a prime) bb(P)_max^(M comma phi bar.v h) lr((s comma a prime)) minus kappa brace.r$.
+$shield_kappa lr((s)) eq brace.l a in A divides bb(P)_max^(M comma phi bar.v h) lr((s comma a)) gt.eq max_(a prime) bb(P)_max^(M comma phi bar.v h) lr((s comma a prime)) minus kappa brace.r$.
 Our shield combines these two cases:
-$ nabla lr((s)) eq cases(delim: "{", nabla_theta lr((s)) & upright(i f) med nabla_theta lr((s)) eq.not nothing, nabla_kappa lr((s)) & upright(o t h e r w i s e dot.basic)) $
+$ shield lr((s)) eq cases(delim: "{", shield_theta lr((s)) & upright(i f) med shield_theta lr((s)) eq.not nothing, shield_kappa lr((s)) & upright(o t h e r w i s e dot.basic)) $<eq:shield>
 
 Following  #cl("DBLP:journals/corr/abs-2605-10293"), we
 extend shields to iMDPs by defining the probability of producing a run
@@ -390,7 +427,7 @@ corresponding to the optimization direction
 $"opt" in brace.l min comma max brace.r$. Moreover, let the iMDP version
 of the probability producing a run in $phi bar.v h$ after taking
 action $a$ in state $s$ be
-$ bb(P)_(max "opt")^(M_I comma phi bar.v h) lr((s comma a)) & eq "opt"_(T^dagger in T_I) thin sum_(s prime in S) T^dagger lr((s comma a comma s prime)) bb(P)_(max "opt")^(M_I comma phi bar.v h minus 1) lr((s prime)) dot.basic $
+$ bb(P)_(max "opt")^(M_I comma phi bar.v h) lr((s comma a)) & eq "opt"_(T^dagger in T_I) thin sum_(s prime in S) T^dagger lr((s comma a comma s prime)) bb(P)_(max "opt")^(M_I comma phi bar.v h minus 1) lr((s prime)) dot.basic $<eq:imdpshield>
 We use the probabilistic model checker PRISM  #cl("PRISM") to
 efficiently compute such probabilities on iMDPs. Statistically speaking,
 a worst-case assumption ($"opt" eq min$) makes the shield #emph[robust]
@@ -460,7 +497,7 @@ $eta_(s comma a) eq frac(log lr([2 / delta_T]), 2 dot.op D lr((s comma a)))$
 denotes the range of the PAC interval around the point estimate for
 $lr((s comma a))$. Using each $eta_(s comma a)$, we construct the
 intervals
-$ hat(T)_I lr((s comma a comma s prime)) eq lr([max lr((xi comma hat(T) lr((s comma a comma s prime)) minus eta_(s comma a))) comma min lr((1 comma hat(T) lr((s comma a comma s prime)) plus eta_(s comma a)))]) $
+$ hat(T)_I lr((s comma a comma s prime)) eq lr([max lr((xi comma hat(T) lr((s comma a comma s prime)) minus eta_(s comma a))) comma min lr((1 comma hat(T) lr((s comma a comma s prime)) plus eta_(s comma a)))]) $<eq:pac>
 where $xi in lr((0 comma 1))$ is a small constant that ensures intervals
 for transitions with nonzero probability (as given by the unknown MDP
 $M_U$) map to $lr([xi comma 1])$. The PAC estimator $E_(upright("PAC"))$
@@ -487,7 +524,7 @@ are:
 $ underline(T)_i arrow.l {frac(overline(n)_i underline(T)_i plus D lr((s comma a comma s prime_i)), overline(n)_i plus D lr((s comma a))) quad upright("if ") F_j gt.eq underline(T)_j upright(" for all ") s_j prime comma\
 frac(underline(n)_i underline(T)_i plus D lr((s comma a comma s prime_i)), underline(n)_i plus D lr((s comma a))) quad upright("otherwise") dot.basic $
 $ overline(T)_i arrow.l {frac(overline(n)_i overline(T)_i plus D lr((s comma a comma s prime_i)), overline(n)_i plus D lr((s comma a))) quad upright("if ") F_j lt.eq overline(T)_j upright(" for all ") s_j prime comma\
-frac(underline(n)_i overline(T)_i plus D lr((s comma a comma s prime_i)), underline(n)_i plus D lr((s comma a))) quad upright("otherwise") dot.basic $
+frac(underline(n)_i overline(T)_i plus D lr((s comma a comma s prime_i)), underline(n)_i plus D lr((s comma a))) quad upright("otherwise") dot.basic $<eq:lui>
 
 The (strength) intervals are found from total counts
 $lr([underline(n)_i plus D lr((s comma a)) comma overline(n)_i plus D lr((s comma a))])$.
@@ -565,31 +602,10 @@ pessimistic robust shields.
 Our final step is to extend the $epsilon$-greedy exploration strategy to
 explore beyond the shield’s boundaries. When the exploration strategy
 decides to explore a random action in state $s$, we choose this action
-from the full set of actions $A$, rather than just from $nabla lr((s))$
+from the full set of actions $A$, rather than just from $shield lr((s))$
 allowed by the shield. We show the impact of this extension empirically
 in the next section
 in @sec:unshieldedexploration.
-
-\
- + $pi arrow.l$ Initialize RL policy
- + $D lr((s comma a comma s prime)) arrow.l 0 comma quad forall thin lr((s comma a comma s prime))$ #comment("Initialize transition database")
- + *for* $i$ *in* $0$ *to* $N-1$ inclusive *do* <ln:outerloop>
-    + *if* $i ≡ 0 mod u$ *then*
-    + $hat(M) arrow.l E lr((M_U comma D))$ #comment([See @sec:introduce:estimators])
-    + $nabla arrow.l$ Synthesize shield from $hat(M)$, $theta$, $kappa$, and $h$ for $phi$  #comment([See @sec:shields])
-    + $s arrow.l s_0$
-  + *for* $j$ *in* $0$ *to* $L - 1$ inclusive *do* <ln:innerloop> 
-    + *if* Random bit with probability $ε$ of being true *then*
-      + $a tilde.op upright("Unif")_A$ <ln:explore>
-    + *else* 
-      + $a eq pi_nabla lr((s))$ <ln:exploit>
-    + $s prime tilde.op T lr((s comma a))$ 
-    + $pi arrow.l$ Update policy with transition $lr((s comma a comma s prime))$ and reward + $R lr((s comma a comma s prime))$
-    + $D lr((s comma a comma s prime)) arrow.l D lr((s comma a comma s prime)) plus 1$
-    + $s arrow.l s prime$
-+ *return* (pi, nabla, hat(M))
-
-<alg:alg>
 
 @alg:alg shows the pseudocode of our proposed
 approach. Notably, we only use white-box access to the environment via
@@ -604,11 +620,11 @@ the outer for-loop in @ln:outerloop,
 $i eq 0$ satisfies the condition in
 @ln:shieldrecomputationconditional,
 which triggers the computation of the first model estimate $hat(M)$ and
-shield $nabla$. Since the transition database is still empty, this
+shield $shield$. Since the transition database is still empty, this
 estimate and shield are most conservative. The inner for-loop in
 @ln:innerloop represents Q-learning for a
 single episode with the extended $epsilon$-greedy exploration strategy
-described above under $nabla$. In particular, we either select a random
+described above under $shield$. In particular, we either select a random
 action ("explore") or select the current best action that is allowed by
 the shield ("exploit"). The selected action is then executed in the
 environment MDP $M$. Its output is recorded in the transition
@@ -617,27 +633,51 @@ Q-table. Every $u$ episodes, we update the model estimate and shield.
 After exceeding the training budget of $N$ episodes, we return the final
 versions of the policy, the shield, and the model estimate.
 
+
+
+#figure(kind: "algorithm", supplement: "Algorithm", pseudocode-list(numbered-title: [Safe RL via Adaptive Probabilistic Shielding])[
+  - *Input:* black-box MDP $mdp = (S, A, s_0 , T )$,
+    uMDP $mdp_U = (S, A, s_0 , T_U )$,
+    reward function $R$,
+    safety specification $φ$,
+    estimator $E$,
+    shield update delay u$ ∈ NN;$
+    shield parameters $θ, κ ∈ [0, 1]$ and $h ∈ NN$,
+    exploration rate $ε ∈ [0, 1]$,
+    number of episodes $N ∈ NN$,
+    maximum episode length $L ∈ NN$
+  + $pi arrow.l$ Initialize RL policy
+  + $D lr((s comma a comma s prime)) arrow.l 0 comma quad forall thin lr((s comma a comma s prime))$ #comment("Initialize transition database")
+  + *For* $i$ *in* $0$ *to* $N-1$ inclusive *do* #line-label(<ln:outerloop>)
+      + *If* $i ≡ 0 mod u$ *then* #line-label(<ln:shieldrecomputationconditional>)
+      + $hat(M) arrow.l E lr((M_U comma D))$ #comment([See @sec:introduce:estimators])
+      + $shield arrow.l$ Synthesize shield from $hat(M)$, $theta$, $kappa$, and $h$ for $phi$  #comment([See @sec:shields])
+      + $s arrow.l s_0$
+    + *For* $j$ *in* $0$ *to* $L - 1$ inclusive *do* #line-label(<ln:innerloop> )
+      + Flip a weighted coin that has probability $epsilon$ of landing on heads.
+      + *If* heads *then* $a tilde.op upright("Unif")_A$ #line-label(<ln:explore>) #comment[“Explore” – uniform choice among all actions]
+      + *Else*  $a eq pi_shield lr((s))$ #line-label(<ln:exploit>) #comment[“Exploit” – agent chooses the best safe action#h(.05em)]
+      + $s prime tilde.op T lr((s comma a))$  #comment[Take a step with action a in the environment#h(.3em)]
+      + $pi arrow.l$ Update policy with transition $lr((s comma a comma s prime))$ and reward + $R lr((s comma a comma s prime))$
+      + $D lr((s comma a comma s prime)) arrow.l D lr((s comma a comma s prime)) plus 1$
+      + $s arrow.l s prime$
+  + *Return* $(pi, shield, hat(M))$
+])<alg:alg>
+
 == Experimental Evaluation
 <sec:evaluation>
 In this section, we evaluate our proposed adaptive probabilistic
 shielding approach from different angles. We aim to answer the following
 research questions:
 
-<sec:safetyandreward> Can our approach learn a safe and optimal policy?
-
-<sec:exploration> What is the effect on the environment exploration?
-
-<sec:modeldistance> Does the model estimate improve over time?
-
-<sec:kapparate> Do the model estimates become sufficiently precise?
-
-<sec:estimators> What is the impact of the specific model estimator?
-
-<sec:unshieldedexploration> Is unshielded exploration beneficial?
-
-<sec:updatefrequency> How often should the shield be updated?
-
-<sec:horizon> What is the impact of the shield lookahead ($h$)?
+*@sec:safetyandreward* Can our approach learn a safe and optimal policy?\
+*@sec:exploration* What is the effect on the environment exploration?\
+*@sec:modeldistance* Does the model estimate improve over time?\
+*@sec:kapparate* Do the model estimates become sufficiently precise?\
+*@sec:estimators* What is the impact of the specific model estimator?\
+*@sec:unshieldedexploration* Is unshielded exploration beneficial?\
+*@sec:updatefrequency* How often should the shield be updated?\
+*@sec:horizon* What is the impact of the shield lookahead ($h$)?
 
 === Implementation and Baseline Methods
 <implementation-and-baseline-methods>
@@ -706,70 +746,78 @@ probability that the agent is dragged towards the well, which increases
 with proximity. Later checkpoints are riskier to visit, and the agent
 can end the episode early by going to one of two exit points.
 
-=== Experimental Results and Discussion of Research Questions
-<experimental-results-and-discussion-of-research-questions>
-Our experiments consists of $21$ hyperparameter configurations (e.g.,
-the choice of the model estimator), and we repeated each run $100$
-times.
 
-===== #link(<sec:safetyandreward>)[\[sec:safetyandreward\]]: Can our
-approach learn a safe and optimal policy?
-<secsafetyandreward-can-our-approach-learn-a-safe-and-optimal-policy>
-#figure([I II III IV \
-  #image("../Graphics/RV26/Aircraft_safety.png", width: 0.24*100%)
-  #image("../Graphics/RV26/Aircraft_reward.png", width: 0.24*100%)
-  #image("../Graphics/RV26/Aircraft_fallback_actions.png", width: 0.24*100%)
-  #image("../Graphics/RV26/Aircraft_TV.png", width: 0.24*100%)
+#figure(grid(columns: 4,
+    [#h(2em)I], [#h(1.2em)II], [#h(2em)III], [#h(2em)IV],
+    image("../Graphics/RV26/Aircraft_safety.png"),
+    image("../Graphics/RV26/Aircraft_reward.png"),
+    image("../Graphics/RV26/Aircraft_fallback_actions.png"),
+    image("../Graphics/RV26/Aircraft_TV.png"),
 
-  #image("../Graphics/RV26/Antlion_safety.png", width: 0.24*100%)
-  #image("../Graphics/RV26/Antlion_reward.png", width: 0.24*100%)
-  #image("../Graphics/RV26/Antlion_fallback_actions.png", width: 0.24*100%)
-  #image("../Graphics/RV26/Antlion_TV.png", width: 0.24*100%)
+    image("../Graphics/RV26/Antlion_safety.png"),
+    image("../Graphics/RV26/Antlion_reward.png"),
+    image("../Graphics/RV26/Antlion_fallback_actions.png"),
+    image("../Graphics/RV26/Antlion_TV.png"),
 
-  #image("../Graphics/RV26/Sinkholes_safety.png", width: 0.24*100%)
-  #image("../Graphics/RV26/Sinkholes_reward.png", width: 0.24*100%)
-  #image("../Graphics/RV26/Sinkholes_fallback_actions.png", width: 0.24*100%)
-  #image("../Graphics/RV26/Sinkholes_TV.png", width: 0.24*100%)
+    image("../Graphics/RV26/Sinkholes_safety.png"),
+    image("../Graphics/RV26/Sinkholes_reward.png"),
+    image("../Graphics/RV26/Sinkholes_fallback_actions.png"),
+    image("../Graphics/RV26/Sinkholes_TV.png"),
 
-  #image("../Graphics/RV26/Crossroads_safety.png", width: 0.24*100%)
-  #image("../Graphics/RV26/Crossroads_reward.png", width: 0.24*100%)
-  #image("../Graphics/RV26/Crossroads_fallback_actions.png", width: 0.24*100%)
-  #image("../Graphics/RV26/Crossroads_TV.png", width: 0.24*100%)
+    image("../Graphics/RV26/Crossroads_safety.png"),
+    image("../Graphics/RV26/Crossroads_reward.png"),
+    image("../Graphics/RV26/Crossroads_fallback_actions.png"),
+    image("../Graphics/RV26/Crossroads_TV.png"),
 
-  #image("../Graphics/RV26/Gravity_safety.png", width: 0.24*100%)
-  #image("../Graphics/RV26/Gravity_reward.png", width: 0.24*100%)
-  #image("../Graphics/RV26/Gravity_fallback_actions.png", width: 0.24*100%)
-  #image("../Graphics/RV26/Gravity_TV.png", width: 0.24*100%)
-
-  ],
+    image("../Graphics/RV26/Gravity_safety.png"),
+    image("../Graphics/RV26/Gravity_reward.png"),
+    image("../Graphics/RV26/Gravity_fallback_actions.png"),
+    image("../Graphics/RV26/Gravity_TV.png"),
+  ),
   caption: [
     Mean outcome of 100 repetitions for different configurations. We
     plot the standard deviation as a ribbon around the lines. Vertical
     grid lines mark updates of the adaptive shield. Column I: Cumulative
     safety violations during training. Column II: Reward during
     training. Column III: Per-episode rate of using the
-    fallback $nabla_kappa$. Column IV: Average total variation between
+    fallback $shield_kappa$. Column IV: Average total variation between
     true model and model estimate during training.
   ]
-)
-<fig:thefigure>
+)<fig:thefigure>
 
-#figure([#image("../Graphics/RV26/Antlion_Unshielded_Heatmap.png", width: 0.17*100%)
-  #image("../Graphics/RV26/Antlion_Oracle_Heatmap.png", width: 0.17*100%)
-  #image("../Graphics/RV26/Antlion_LUI_Heatmap.png", width: 0.17*100%)
-  #image("../Graphics/RV26/Antlion_PAC_Heatmap.png", width: 0.17*100%)
-  #image("../Graphics/RV26/Antlion_MAP_Heatmap.png", width: 0.17*100%)
-  #image("../Graphics/RV26/Antlion_Heatmap_Legend.png", width: 0.08*100%, height: 23mm)
-
-  ],
+#figure(grid(columns: 6, align:  bottom,
+    image("../Graphics/RV26/Antlion_Unshielded_Heatmap.png", height: 65pt),
+    image("../Graphics/RV26/Antlion_Oracle_Heatmap.png", height: 65pt),
+    image("../Graphics/RV26/Antlion_LUI_Heatmap.png", height: 65pt),
+    image("../Graphics/RV26/Antlion_PAC_Heatmap.png", height: 65pt),
+    image("../Graphics/RV26/Antlion_MAP_Heatmap.png", height: 65pt),
+    image("../Graphics/RV26/Antlion_Heatmap_Legend.png", height: 60pt)
+  ),
   caption: [
     Heat map showing how frequently a state is visited in the antlion
     environment. The initial state, predator, and goal are at the
-    bottom, center, and top, respectively.
+    top, center, and bottom, respectively.
   ]
 )
 <fig:heatmap>
 
+
+=== Experimental Results and Discussion of Research Questions
+<experimental-results-and-discussion-of-research-questions>
+Our experiments consists of $21$ hyperparameter configurations (e.g.,
+the choice of the model estimator), and we repeated each run $100$
+times.
+
+
+#[
+  #let myNumbering(..numbers) = {
+    if (numbers.pos().len() != 4) { error() }
+    return numbering("(RQ1)", ..numbers.pos().slice(3))
+  }
+#show heading.where(level: 4): set heading(numbering: myNumbering, supplement:  none)
+
+
+====  Can our approach learn a safe and optimal policy? <sec:safetyandreward>
 We are interested in both safety (@fig:thefigure column I)
 and performance (@fig:thefigure column II) over time. (Note
 that the penalty stemming from the reward shaping is not included in
@@ -788,7 +836,7 @@ generally more conservative than the oracle baseline. The reason we
 still see this behavior is that, during the exploration, profitable
 states are visited more often, making these seem safer as compared to
 less explored states with wider interval estimates. Indeed, column III
-reveals that the shield mostly falls back to the $nabla_kappa$ variant
+reveals that the shield mostly falls back to the $shield_kappa$ variant
 in this case.
 
 Updates to the adaptive shield can be seen to temporarily affect
@@ -796,7 +844,7 @@ performance negatively in the antlion, sinkholes, and gravity
 environments. At the $1000$ episode mark, the shield is updated for the
 first time, leading to a drop in the reward performance. This drop is to
 be expected: as seen in column III, the initial shield typically uses
-the $nabla_kappa$ variant because every action seems unsafe. The first
+the $shield_kappa$ variant because every action seems unsafe. The first
 model update is most impactful and hence typically leads to a very
 different shield, and hence the agent effectively experiences a
 different environment. Over time, the reward performance recovers as the
@@ -807,9 +855,7 @@ explore the environment more safely. This safety may come at a cost when
 risky behavior is profitable, but this is a desirable trade-off in many
 applications.
 
-===== #link(<sec:exploration>)[\[sec:exploration\]]: What is the effect
-on the environment exploration?
-<secexploration-what-is-the-effect-on-the-environment-exploration>
+====  What is the effect  on the environment exploration? <sec:exploration>
 To assess how adaptive shields affect exploration,
 @fig:heatmap visualizes the number of times a state has been
 visited in the antlion environment during one algorithm execution over
@@ -830,11 +876,9 @@ adaptive shield. This highlights the need for exploring states outside
 of what the shield allows, as also investigated in
 @sec:unshieldedexploration below.
 
-===== #link(<sec:modeldistance>)[\[sec:modeldistance\]]: Does the model
-estimate improve over time?
-<secmodeldistance-does-the-model-estimate-improve-over-time>
+====  Does the model  estimate improve over time? <sec:modeldistance>
 We plot mean #emph[total variation] (TV), i.e.,
-$frac(1, lr(|S|) lr(|A|)) sum_(s comma a) 1 / 2 sum_(s prime in S) lr(|T^dagger lr((s comma a comma s prime)) minus T^ast.basic lr((s comma a comma s prime))|)$,
+$ frac(1, lr(|S|) lr(|A|)) sum_(s comma a) 1 / 2 sum_(s prime in S) lr(|T^dagger lr((s comma a comma s prime)) minus T^ast.basic lr((s comma a comma s prime))|) $
 between the true MDP’s transition probabilities $T^ast.basic$ and the
 probabilities $T^dagger$ returned by PMC used for the shield (e.g., for
 robust/optimistic shields, as found from
@@ -853,109 +897,58 @@ during the rest of the training. While the estimates for these
 transitions keep improving, this has little impact on the (global)
 metric.
 
-===== #link(<sec:kapparate>)[\[sec:kapparate\]]: Do the model estimates
-become sufficiently precise?
-<seckapparate-do-the-model-estimates-become-sufficiently-precise>
+====  Do the model estimates  become sufficiently precise? <sec:kapparate>
 We examine how often the shield allows an action because it satisfies
-the $theta$ threshold ($nabla_theta$) respectively how often it has to
-use the fallback ($nabla_kappa$)
+the $theta$ threshold ($shield_theta$) respectively how often it has to
+use the fallback ($shield_kappa$)
 (cf. @eq:shield). Column III of
 @fig:thefigure shows the fallback frequency. Until the first
 model update ($1000$ episodes), the robust and MAP estimates primarily
-use $nabla_kappa$, whereas the optimistic estimates, which consider
-almost all actions safe from the beginning, primarily use $nabla_theta$.
+use $shield_kappa$, whereas the optimistic estimates, which consider
+almost all actions safe from the beginning, primarily use $shield_theta$.
 The slowest improvement of the estimate is observed in the aircraft
 environment. This is because, unlike the static obstacles in the other
 environments, learning the behavior of the randomly moving opponent
-requires more data. In all other environments, $nabla_theta$ is used
+requires more data. In all other environments, $shield_theta$ is used
 most of the time after one or two model updates for all but the robust
 PAC estimator, which sometimes fails to obtain a sufficiently precise
 estimate (due to its higher data requirements).
 
-===== #link(<sec:estimators>)[\[sec:estimators\]]: What is the impact of
-the specific model estimator?
-<secestimators-what-is-the-impact-of-the-specific-model-estimator>
-<tab:estimators>
-#align(center)[#table(
-  columns: 6,
-  align: (col, row) => (center,center,center,center,center,center,).at(col),
-  inset: 6pt,
-  [Estimator], [Aircraft], [Antlion], [Sinkholes], [Crossroads],
-  [Gravity],
-  [#underline[Robust LUI]],
-  [],
-  [],
-  [],
-  [],
-  [],
-  [Robust PAC],
-  [],
-  [],
-  [],
-  [],
-  [],
-  [MAP],
-  [],
-  [],
-  [],
-  [],
-  [],
-  [Optimistic LUI],
-  [],
-  [],
-  [],
-  [],
-  [],
-  [Optimistic PAC],
-  [],
-  [],
-  [],
-  [],
-  [],
-  [Unshielded],
-  [],
-  [],
-  [],
-  [],
-  [],
-  [Oracle],
-  [],
-  [],
-  [],
-  [],
-  [],
-)
-#align(center, [Comparison for different model estimators. The numbers
-in each cell respectively denote the reward in the final evaluation
-(left) and the probability that the final policy produces an unsafe
-episode (right). The numbers are the mean outcomes of $100$ repetitions
-and bold entries mark the best result for each column.])
-]
 
-<tab:exploration>
-#align(center)[#table(
-  columns: 6,
-  align: (col, row) => (center,center,center,center,center,center,).at(col),
-  inset: 6pt,
-  [Exploration], [Aircraft], [Antlion], [Sinkholes], [Crossroads],
-  [Gravity],
-  [#underline[$upright(U n i f)_A$]],
-  [],
-  [],
-  [],
-  [],
-  [],
-  [$upright(U n i f)_(nabla lr((s)))$],
-  [],
-  [],
-  [],
-  [],
-  [],
-)
-#align(center, [Comparison for the two exploration variants. Setup as in
-@tab:estimators.])
-]
+#figure(placement: top,
+  table(
+    columns: 6,
+    inset: (left: 4pt, right: 4pt),
+    align: (col, row) => (center,center,center,center,center,center,).at(col),
+    [Estimator], [Aircraft], [Antlion], [Sinkholes], [Crossroads], [Gravity],
+    [#underline[Robust LUI]], [14.89~~8.3%], [5.27~~4.5%], [57.05~~3.6%], [5.12~~*0.0%*], [8.27~~3.9%],
+    [Robust PAC], [*15.54*~~8.2%], [6.33~~*2.8%*], [46.59~~3.8%], [5.12~~*0.0%*], [-2.56~~*0.0%*],
+    [MAP], [13.24~~*4.0%*], [-8.99~~8.0%], [49.16~~*3.0%*], [5.12~~*0.0%*], [-2.35~~*0.0%*],
+    [Optimis. LUI], [14.17~~5.2%], [6.66~~6.0%], [67.78~~4.1%], [5.11~~*0.0%*], [21.40~~19.6%],
+    [Optimis. PAC], [14.35~~6.8%], [6.36~~10.0%], [65.35~~3.8%], [5.12~~*0.0%*], [23.51~~47.8%],
+    [Unshielded], [14.36~~7.3%], [6.62~~9.0%], [65.62~~3.7%], [*9.57*~~40.1%], [*30.35*~~99.2%],
+    [Oracle], [13.98~~4.1%], [*6.78*~~5.6%], [*73.32*~~3.8%], [5.12~~*0.0%*], [19.86~~4.5%],
+  ),
+  caption: [Comparison for different model estimators. The numbers
+  in each cell respectively denote the reward in the final evaluation
+  (left) and the probability that the final policy produces an unsafe
+  episode (right). The numbers are the mean outcomes of $100$ repetitions
+  and bold entries mark the best result for each column.]
+)<tab:estimators>
 
+#figure(placement: top,
+  table(
+    columns: 6,
+    align: (col, row) => (center,center,center,center,center,center,).at(col),
+    [Exploration], [Aircraft], [Antlion], [Sinkholes], [Crossroads], [Gravity],
+    [#underline[$Unif_A$]], [14.89~~*8.3%*], [*5.27*~~*4.5%*], [57.05~~*3.6%*], [*5.12*~~*0.0%*], [*8.27*~~3.9%],
+    [$Unif_shield(s)$], [*15.04*~~9.8%], [1.93~~5.1%], [*57.29*~~3.7%], [5.00~~*0.0%*], [1.58~~*0.6%*],
+  ),
+  caption: [Comparison for the two exploration variants. Setup as in
+  @tab:estimators.]
+)<tab:exploration>
+
+====  What is the impact of the specific model estimator? <sec:estimators>
 We investigate how the different model estimators impact the results.
 Specifically, we compare the iMDP estimators PAC and LUI, both with the
 robust and the optimistic attitudes, and the MDP estimator MAP. We fix
@@ -984,15 +977,13 @@ is because the goals (checkpoints) in the sinkholes (gravity)
 environment are far apart, and hence finding a good route strongly
 depends on the exploration.
 
-===== #link(<sec:unshieldedexploration>)[\[sec:unshieldedexploration\]]:
-Is unshielded exploration beneficial?
-<secunshieldedexploration-is-unshielded-exploration-beneficial>
+==== Is unshielded exploration beneficial? <sec:unshieldedexploration>
 In @ln:explore of
 @alg:alg, the $epsilon$-greedy exploration chooses
 a random action from the set of all actions $upright(U n i f)_A$, thus
 disregarding the shield. In @tab:exploration, we compare this
 strategy to the alternative that only admissible actions are allowed in
-state $s$ with $upright(U n i f)_(nabla lr((s)))$. Generally, with the
+state $s$ with $upright(U n i f)_(shield lr((s)))$. Generally, with the
 latter variant, the agent eventually stops exploring new actions once
 the shield has found at least one admissible route. For some
 environments, this change has no significant effect on the reward
@@ -1000,136 +991,57 @@ because the route that was identified first was sufficiently good, while
 in the antlion and gravity environments, the restricted variant prevents
 the agent from uncovering more promising routes.
 
-===== #link(<sec:updatefrequency>)[\[sec:updatefrequency\]]: How often
-should the shield be updated?
-<secupdatefrequency-how-often-should-the-shield-be-updated>
-<tab:frequency>
-#align(center)[#table(
-  columns: 6,
-  align: (col, row) => (center,center,center,center,center,center,).at(col),
-  inset: 6pt,
-  [$u$], [Aircraft], [Antlion], [Sinkholes], [Crossroads], [Gravity],
-  [250],
-  [],
-  [],
-  [],
-  [],
-  [],
-  [500],
-  [],
-  [],
-  [],
-  [],
-  [],
-  [#underline[1 000]],
-  [],
-  [],
-  [],
-  [],
-  [],
-  [1 500],
-  [],
-  [],
-  [],
-  [],
-  [],
-  [2 000],
-  [],
-  [],
-  [],
-  [],
-  [],
-)
-#align(center, [Comparison for different update delays $u$. Setup as in
-@tab:estimators.])
-]
 
-<tab:horizon>
-#align(center)[#table(
-  columns: 6,
-  align: (col, row) => (center,center,center,center,center,center,).at(col),
-  inset: 6pt,
-  [$h$], [Aircraft], [Antlion], [Sinkholes], [Crossroads], [Gravity],
-  [6],
-  [],
-  [],
-  [],
-  [],
-  [],
-  [12],
-  [],
-  [],
-  [],
-  [],
-  [],
-  [25],
-  [],
-  [],
-  [],
-  [],
-  [],
-  [50],
-  [],
-  [],
-  [],
-  [],
-  [],
-  [75],
-  [],
-  [],
-  [],
-  [],
-  [],
-  [#underline[100]],
-  [],
-  [],
-  [],
-  [],
-  [],
-  [125],
-  [],
-  [],
-  [],
-  [],
-  [],
-  [150],
-  [],
-  [],
-  [],
-  [],
-  [],
-  [175],
-  [],
-  [],
-  [],
-  [],
-  [],
-  [200],
-  [],
-  [],
-  [],
-  [],
-  [],
-)
-#align(center, [Comparison for varying shield horizon ($h$ in
-$phi bar.v h$). Setup as in @tab:estimators.])
-]
+#figure(placement: top,
+  table(
+    columns: 6,
+    align: (col, row) => (center,center,center,center,center,center,).at(col),
+    [$u$], [Aircraft], [Antlion], [Sinkholes], [Crossroads], [Gravity],
+    [#hide[0#h(1pt)]250], [14.94~~12.9%], [-10.74~~9.7%], [78.71~~5.4%], [*5.12*~~*0.0%*], [-2.32~~*0.0%*],
+    [#hide[0#h(1pt)]500], [*14.99*~~10.5%], [-10.46~~11.0%], [*84.78*~~4.1%], [*5.12*~~*0.0%*], [2.95~~1.9%],
+    [#underline[1#h(1pt)000]], [14.89~~8.3%], [5.27~~4.5%], [57.05~~*3.6%*], [*5.12*~~*0.0%*], [8.27~~3.9%],
+    [1#h(1pt)500], [14.81~~7.8%], [*6.17*~~*3.7%*], [54.40~~*3.6%*], [*5.12*~~*0.0%*], [11.02~~3.5%],
+    [2#h(1pt)000], [14.72~~*7.0%*], [6.06~~4.0%], [57.93~~*3.6%*], [*5.12*~~*0.0%*], [*12.92*~~8.2%],
+  ),
+  caption: [Comparison for different update delays $u$. Setup as in @tab:estimators.]
+)<tab:frequency>
 
+#figure(placement: top,
+  table(
+    columns: 6,
+    align: (col, row) => (center,center,center,center,center,center,).at(col),
+    [$h$], [Aircraft], [Antlion], [Sinkholes], [Crossroads], [Gravity],
+    [#hide[00]6], [14.50 ~~ *8.2%*], [*6.42* ~~ *3.1%*], [48.50 ~~ *3.3%*], [*9.57* ~~ 40.1%], [*24.61* ~~ 47.1%],
+    [#hide[0]12], [14.78 ~~ *8.2%*], [5.90 ~~ 3.8%], [54.81 ~~ 3.4%], [*9.57* ~~ 40.1%], [23.16 ~~ 33.3%],
+    [#hide[0]25], [*14.89* ~~ 8.3%], [5.71 ~~ 4.2%], [56.31 ~~ 3.7%], [*9.57* ~~ 40.1%], [22.16 ~~ 21.5%],
+    [#hide[0]50], [*14.89* ~~ 8.3%], [4.67 ~~ 4.9%], [57.12 ~~ 3.4%], [*9.57* ~~ 40.1%], [19.36 ~~ 13.2%],
+    [#hide[0]75], [*14.89* ~~ 8.3%], [4.39 ~~ 4.4%], [56.35 ~~ 3.7%], [*9.57* ~~ 40.1%], [13.55 ~~ 6.9%],
+    [#underline[100]], [*14.89* ~~ 8.3%], [5.27 ~~ 4.4%], [57.05 ~~ 3.7%], [5.12 ~~ *0.0%*], [8.27 ~~ 4.0%],
+    [125], [*14.89* ~~ 8.3%], [5.37 ~~ 4.0%], [57.09 ~~ 3.7%], [5.12 ~~ *0.0%*], [5.21 ~~ 2.7%],
+    [150], [*14.89* ~~ 8.3%], [5.14 ~~ 3.6%], [57.07 ~~ 3.9%], [5.12 ~~ *0.0%*], [3.81 ~~ 2.5%],
+    [175], [*14.89* ~~ 8.3%], [5.42 ~~ 3.6%], [*57.19* ~~ 3.7%], [5.12 ~~ *0.0%*], [2.90 ~~ 2.0%],
+    [200], [*14.89* ~~ 8.3%], [5.33 ~~ *3.1%*], [57.18 ~~ 3.6%], [5.12 ~~ *0.0%*], [1.24 ~~ *1.5%*],
+  ),
+  caption: [Comparison for varying shield horizon ($h$ in
+  $phi bar.v h$). Setup as in @tab:estimators.]
+)<tab:horizon>
+
+====  How often should the shield be updated? <sec:updatefrequency>
 The model estimate and subsequent shield update are the most expensive
 operations in our approach. We examine the effect of the update
 delay $u$. @tab:frequency shows that the choice of $u$ can be
 impactful, but no single choice is more preferable across the
 environments.
 
-===== #link(<sec:horizon>)[\[sec:horizon\]]: What is the impact of the
-shield lookahead ($h$)?
-<sechorizon-what-is-the-impact-of-the-shield-lookahead-h>
+====  What is the impact of the  shield lookahead ($h$)? <sec:horizon>
 We examine the effect of varying the lookahead horizon $h$ of the
 shield. @tab:horizon shows the results. Aircraft episodes end
 after $20$ steps, making longer horizons redundant. The gravity
 environment is less safe at lower lookahead. In the crossroads
 environment, for $h lt.eq 75$, the agent prefers the more rewarding (but
 less safe) route.
+
+] // End set heading numbering
 
 == Conclusion and Future Work
 <conclusion-and-future-work>
@@ -1157,16 +1069,19 @@ incorporate more elements from model-based RL algorithms. For instance,
 we may replace the uniformly random exploration step with a biased
 choice toward under-explored states and actions.
 
-===
-<section>
+
+==== Acknowledgments
 This research was partly supported by the European Research Council
 (ERC) Starting Grant 101077178 (DEUCE), the Villum Investigator Grant
 S4OS under reference number 37819, and the Independent Research Fund
 Denmark under reference number 10.46540/3120-00041B.
 
-===
-<section-1>
-The authors have no competing interests to declare that are relevant to
-the content of this article.
 
-#bibliography("../Bibliography.bib")
+#[
+  #set heading(numbering: none) 
+  == References
+
+  #bibliography("../Bibliography.bib",
+    title: none,
+  )
+]

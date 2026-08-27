@@ -12,25 +12,25 @@
 = #smallcaps[Uppaal Coshy]: Automatic Synthesis of Compact Shields for Hybrid Systems
 
 #grid(columns: (1fr, 1fr), row-gutter: 2em,
-  [Asger Horn Brorholt \
+  [Asger Horn Brorholt \ #set text(size: 0.8em)
   _Department of Computer Science \ Aalborg University, Aalborg, Denmark_],
 
-  [Andreas Holck Høeg-Petersen \
+  [Andreas Holck Høeg-Petersen \ #set text(size: 0.8em)
   _Department of Computer Science \ Aalborg University, Aalborg, Denmark_],
 
-  [Peter Gjøl Jensen \
+  [Peter Gjøl Jensen \ #set text(size: 0.8em)
   _Department of Computer Science \ Aalborg University, Aalborg, Denmark_],
 
-  [Kim Guldstrand Larsen \
+  [Kim Guldstrand Larsen \ #set text(size: 0.8em)
   _Department of Computer Science \ Aalborg University, Aalborg, Denmark_],
 
-  [Marius Mikučionis \
+  [Marius Mikučionis \ #set text(size: 0.8em)
   _Department of Computer Science \ Aalborg University, Aalborg, Denmark_],
 
-  [Christian Schilling \
+  [Christian Schilling \ #set text(size: 0.8em)
   _Department of Computer Science \ Aalborg University, Aalborg, Denmark_],
 
-  [Andrzej Wąsowski \
+  [Andrzej Wąsowski \ #set text(size: 0.8em)
   _Department of Computer Science \ IT University of Copenhagen, Copenhagen, Denmark_]
 )
 
