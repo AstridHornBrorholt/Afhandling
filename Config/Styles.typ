@@ -56,11 +56,12 @@
   show figure: set block(spacing: 2em)
 
   set table(stroke: (x, y) => (
-    left: if x == 0 or y > 0 { 0.5pt } else { 0pt },
-    right: 0.5pt,
-    top: if y <= 1 { 0.5pt } else { 0pt },
-    bottom: 0.5pt,
-  ))
+      left: if x == 0 or y > 0 { 0.5pt } else { 0pt },
+      right: 0.5pt,
+      top: if y <= 1 { 0.5pt } else { 0pt },
+      bottom: 0.5pt,
+    ),
+  )
 
   set table.hline(stroke: 0.5pt)
 
@@ -84,6 +85,10 @@
     set align(center)
     set heading(supplement: [Paper])
     set text(size: 18pt)
+    counter(figure.where(kind: image)).update(0)
+    counter(figure.where(kind: table)).update(0)
+    counter(figure.where(kind: "algorithm")).update(0)
+    counter(math.equation).update(0)
     // set align(center)
     it
     v(1.5cm)
