@@ -9,7 +9,7 @@
   proof, definition, rules: thm-rules
 ) = default-theorems("thm-group", lang: "en", thm-numbering: thm-numbering-linear)
 
-= #smallcaps[Uppaal Coshy]: Automatic Synthesis of Compact Shields for Hybrid Systems
+= #smallcaps[Uppaal Coshy]: Automatic \ Synthesis of Compact Shields for \ Hybrid Systems
 
 #grid(columns: (1fr, 1fr), row-gutter: 2em,
   [Asger Horn Brorholt \ #set text(size: 0.8em)

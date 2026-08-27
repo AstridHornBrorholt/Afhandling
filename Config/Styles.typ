@@ -73,7 +73,7 @@
   let myNumbering(..numbers) = {
     let len = numbers.pos().len()
     if (len == 1) {
-      return [Paper #numbering("A", ..numbers): \ \ ]
+      return [Paper #numbering("A", ..numbers): ]
     } 
     if (len <= 3) {
       return numbering("1.1", ..numbers.pos().slice(1))
