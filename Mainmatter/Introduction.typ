@@ -410,12 +410,12 @@ Even then, the convergence guarantee for Q-learning relies on an infinite number
 Among the many approaches to enforcing safety in reinforcement learning  #cl("DBLP:conf/iros/WenET15")#cl("DBLP:conf/tacas/Junges0DTK16")#cl("DBLP:journals/jmlr/GarciaF15")@MaderbacherSBBNK23@ChengOMB19@LuoM21@BloemKKW15#cl("DBLP:conf/isola/Jaeger0BLJ20")@BerkenkampTS017, shielding @DavidJLLLST14@AlshiekhBEKNT18@BloemKKW15@ChowNDG18#cl("DBLP:journals/cacm/KonighoferBJJP25") is a promising technique which restricts the actions available to the agent, in order to ensure safe behaviour.
 Since shields work by restricting actions, they can be applied to any existing reinforcement learning method, including deep learning, allowing it to work in concert with state of the art methods to achieve safe and optimized behaviour.
 
-#definition(name: "Shield, maximally permissive shield, shielded policy")[
+#definition(name: "Shield, maximally permissive shield, permitted policies")[
   For an MDP $mdp$ and safe set $phi$, a _shield_ is a safe nondeterministic policy $shield : S -> powerset(A)$.
   
   A shield $shield$ for a safe set $phi$ and MDP $mdp$ is _maximally permissive_ if for all shields $shield'$ for $φ$ and $mdp$, and for all states $s in S$,  it holds that $shield'(s) subset.eq shield(s)$
 
-  A deterministic policy $pi$ is shielded by $shield$ if $forall s in S : pi(s) in shield(s)$.
+  An action $a$ is permitted in state $s$ by $shield$ if $a in shield(s)$. A deterministic policy $pi$ is permitted by $shield$ if $forall s in S : pi(s) in shield(s)$.
   Similarly for a nondeterministic policy $pi$ if $forall s in S : pi(s) subset.eq shield(s)$.
   And for a probabilistic policy $pi(s, a) > 0 => a in shield(s)$.
   The application of a shield in a reinforcement learning setting is discussed in @sec:ApplyingTheShield.
