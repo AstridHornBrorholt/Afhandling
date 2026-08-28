@@ -767,56 +767,49 @@ The probabilistic guarantees are usually given over a finite horizon (Cf.~@sec:S
 Alternatively, the safety property can be formulated as _reach-avoid,_ stating that a goal-state has to be reached while avoiding a set of unsafe states.
 Both are types of safety properties -- but they are not invariants. 
 Instead, they can be specified using LTL #cl("DBLP:reference/mc/PitermanP18")#cl("DBLP:reference/mc/ClarkeHV18").
-This section continues to focus on safe sets $φ subset.eq S$ for a state-space $S$ of an MDP $mdp$.
-As noted previously, other LTL safety properties can be expressed as safe sets (invariants) by modifying the model $mdp$.
+As noted previously, LTL safety properties can be expressed as safe sets (invariants) by modifying the model $mdp$.
+This section continues to focus on safe sets $φ $.
 
 
 #definition(name: "Probability of safety violation")[
-  Given a deterministic policy $pi$, an MDP $mdp = (S, s_0, A, P, R)$ and safe set $phi$, the probability of leaving $phi$ starting from $s in S$ is 
+  Let $mdp = (S, s_0, A, P, R)$ be an MDP, $phi$ a safe set, $pi$ a deterministic policy, and $s in S$ a state.
+  The probability of leaving $phi$ starting from $s$ is written $PP_mdp^φ (pi, s)$. 
+  It is the least fixed point in $[0, 1]$ for the equation
 
   $ PP_mdp^φ (pi, s) = cases(
       1 &"if" s modelsnot phi, 
-      sum_(s' in S) P(s, pi(s))(s') PP_mdp^φ (pi, s) &"otherwise"
+      sum_(s' in S) P(s, pi(s))(s') PP_mdp^φ (pi, s') &"otherwise"
     )
   $
 
-  For a state $s$, action $a$, and subsequent policy $pi$, the probability of leaving~$phi$ after taking action $a$ is $PP_mdp^φ (pi, s, a) =  sum_(s' in S) P(s, a)(s') PP_mdp^φ (pi, s)$.
+  For a state $s$, action $a$, and subsequent policy $pi$, the probability of leaving~$phi$ after taking action $a$ is $PP_mdp^φ (pi, s, a) =  sum_(s' in S) P(s, a)(s') PP_mdp^φ (pi, s')$.
 ]<def:BoundedProbabilisticSafety>
 
 For a safe set $phi$, the probabilistic guarantees can vary greatly.
 Two such guarantees will be given here, dubbed respectively _safe_ and _recoverable_ shields.
 These terms are not standard definitions but used here to distinguish two common types of guarantees that a probabilistic shield may give.
  
-For the former -- safety -- given some safety threshold $theta$, the policy being shielded will leave $phi$ with probability at most $theta$. 
+Firstly, given some safety threshold $theta$, a shielded policy will leave $phi$ with probability at most $theta$.
 
 #definition(name: [$theta$-safe shield])[
-  For an MDP $mdp$ and safe set $phi$, a nondeterministic policy is a _$theta$-safe shield_ $shield_theta$   if for any policy~$pi$ that is shielded by $shield_theta$, it holds that $PP_mdp^φ (pi, s_0)  <= theta$.
+  For an MDP $mdp$ and safe set $phi$, a nondeterministic policy is a _$theta$-safe shield_ $shield_theta$ if for any policy~$pi$ that is permitted by $shield_theta$, it holds that $PP_mdp^φ (pi, s_0)  <= theta$.
+
+  A policy or action is _permitted_ by $shield_θ$ analogously to @def:Shielding. For example a deterministic policy $pi$ is permitted by $shield_θ$ if $pi(s)=a => a in shield_theta (s)$.
 ]<def:ThetaSafe>
- 
+
 The next definition allows an action $a$ if it is possible to take $a$ while remaining within the safe set $phi$ with probability $1 - theta$.
 
 #definition(name: [$theta$-recoverable shield])[
  For an MDP $mdp$ and safe set $phi$, a nondeterministic strategy is a _$theta$-recoverable  shield_ $tildeshield_theta$ if whenever $a in tildeshield_theta  (s)$, there exists a policy $pi'$ such that $PP_mdp^phi (pi', s, a) <= theta$.
+
+ A policy or action is _permitted_ by $hatshield_θ$ analogously to @def:ThetaSafe.
 ]<def:ThetaRecoverable>
 
 The main distinction of recoverability is that it does not require the safest policy to be followed. 
 It *only* requires that a safe policy exists, starting with the current action and does not consider past risk when evaluating actions.
-This merely bounds the risk of exiting $φ$ every step to $θ$.
-The worst-case risk of a policy $pi$ shielded by $hatshield_θ$ leaving $φ$ in $k$ steps is $1 - (1 - θ)^k$. (Assuming the initial state has at least one $θ$-safe action.)
-Consequently, the risk of safety violation can be $1.0$ for a $θ$-recoverable shield when considering unbounded trace lengths.
+As such, recoverability merely bounds the risk of exiting $φ$ at _every_ step to $θ$.
+This difference is illustrated by applying either kind of guarantee to @ex:DoubleOrNothing.
 
-#example(name: ["I can quit whenever I want"])[
-  #todo[Finish writing example and find a better place for it.]
-  $k=100, θ=0.05$, 
-  Risk of reaching $lungexplode$ in $100$ steps is
-  $ 1 - (1 - θ)^k = 1 - (1 - 0.05)^100 = #{calc.round(1 - calc.pow((1 - 0.05), 100), digits: 4)} $
-  #figure(image("../Graphics/Intro/Smoker.png", width: 60%),
-    caption: [An MDP representing a simplified model of the risks of smoking. States $lungexplode$ and $lungsparkle$ are terminal states where all actions lead back to the same state with probability $1.0$.]
-  )
-]<ex:Smoker>
-
-Any $θ$-safe action in $s_0$ is also $θ$-recoverable.
-However, this is not true for any $s in S$, since a $θ$-safe shield may allow irrecoverable actions in states that are unreachable, or reachable with low probability.
 
 #example(name: [Shielding "Double or Nothing"])[
   Consider the MDP $cal(D)$ from @ex:DoubleOrNothing with safe set $phi = {⦾, ○, ☺}$ and $theta=0.5$.
@@ -831,6 +824,37 @@ However, this is not true for any $s in S$, since a $θ$-safe shield may allow i
   The $θ$-recoverable shield includes an additional policy:
   Besides $pi models tildeshield_0.5$ as above, the shield also permits $pi'(s) = flip$ which has probability $0.75$ of losing the bet.
 ]
+
+#remark[
+Any $θ$-safe action in $s_0$ is also $θ$-recoverable.
+However, this is not true for any $s in S$, since a $θ$-safe shield may allow irrecoverable actions in states that are unreachable, or reachable with low probability.
+]
+
+Since $θ$-recoverable shields only bound the risk taken at each step, the probability of safety violation compounds to $1.0$ over an infinite horizon.
+#footnote[The worst-case risk of a policy $pi$ permitted by $hatshield_θ$ leaving $φ$ in $k$ steps is $1 - (1 - θ)^k$. This assumes that the initial state has at least one $θ$-safe action.]
+This is illustrated in the following example.
+
+#example(name: ["I can quit whenever I want"])[
+  A smoker's lungs is modelled as the MDP $cal(L) = (S, s_0, A, R, P)$ with $S={lung, lungexplode}, s_0=lung, A={smoke, stop}$, and $P$ as shown in @fig:Smoker. State $lungexplode$ is terminal with $P(lungexplode, a)(lungexplode) = 1$ for $a in A$.
+  Reward $R$ is left unspecified.
+
+  #figure(image("../Graphics/Intro/Smoker.drawio.pdf", width: 80%),
+    caption: [A simplified model of a smoker's lungs.]
+  )<fig:Smoker>
+
+  Let the safe set be $phi={lung}$ and threshold $θ=0.05$. The maximally permissive $0.05$-recoverable shield~$hatshield_0.05$ permits both actions in the initial state, i.e. $hatshield_0.05 (lung) = {smoke, stop}$.
+  To see this, let $pi_stop (s) = stop$ for $s in S$.
+  Then, 
+
+  $ PP^phi_cal(L) (pi_stop, lung, smoke) &= 
+    &&P(lung, smoke)(lung) times PP^phi_cal(L) (pi_stop, lung) \
+    &+ &&P(lung, smoke)(lungexplode) times PP^phi_cal(L) (pi_stop, lungexplode) \
+    &= &&0.95 times 0 + 0.05 times 1 = 0.05 $
+  
+  Which satisfies @def:ThetaRecoverable.  
+  The shield $hatshield_0.5$ therefore permits the policy $pi_smoke (s) = smoke$, which will almost surely reach $lungexplode$, i.e.~$PP^phi_cal(L) (pi_smoke, lung) = 1$.
+]<ex:Smoker>
+
 
 #todo[is#cl("DBLP:conf/tacas/Junges0DTK16") actually θ-safety? ]
 Synthesis methods for $theta$-safe shields #cl("DBLP:conf/tacas/Junges0DTK16")#cl("DBLP:journals/corr/DragerFK0U15") can also be computationally expensive, and will be more conservative than approaches focusing on recoverability #cl("DBLP:conf/concur/0001KJSB20")#cl("DBLP:journals/corr/abs-2605-10293")#cl("DBLP:conf/atva/PrangerKPB21")#cl("DBLP:conf/tacas/Junges0DTK16").

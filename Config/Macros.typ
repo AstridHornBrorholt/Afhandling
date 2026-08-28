@@ -188,7 +188,6 @@ Numerals
 // "Smoker" example
 #let lung = "🫁"
 #let lungexplode = lung + annotate(bottom + right, text("💥", size: 0.9em), dx: 0pt, dy: 0pt,)
-#let lungsparkle = lung + annotate(bottom + right, text("✨", size: 0.9em), dx: 0.3em, dy: -0.4em,)
 #let smoke = smallcaps(text("smoke", font: "Gentium Book Plus"))
 
 
