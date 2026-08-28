@@ -499,7 +499,7 @@ Since this first article covering shielded reinforcement learning in finite MDPs
 ]<ex:SafetyRelevantAbstraction>
 
 
-=== Shielding a Policy: Pre- and Post-shielding During Training and Operation <sec:ApplyingTheShield>
+=== Pre- and Post-shielding During Training and Operation <sec:ApplyingTheShield>
 
 There are multiple options for how and when a shield is applied.
 The terms _pre-_ and _post-shielding_ #cl("DBLP:journals/corr/abs-1708-08611") #cl("DBLP:journals/cacm/KonighoferBJJP25") commonly refer to how the shield is applied.
