@@ -8,7 +8,7 @@ _I use this file to compile parts of the document, mostly just so that scrolling
 
 Typst version: *#sys.version*
 
-#outline()
+#outline(title: "Table of Contents", depth: 3)
 #pagebreak()
 
 #include "MyNotes.typ"
@@ -21,6 +21,12 @@ Typst version: *#sys.version*
 #include "Mainmatter/Introduction.typ"
 
 #[  // HACK: Dummy forward-references to allow the introduction to compile even though contains labels pointing to the papers.
-  #set heading(numbering: n => "①")
-  = DUMMY <post-shielding-optimization>
+  #set heading(numbering: "①")
+  #counter(heading).update(0)
+  = DUMMY paper:A <paper:A>
+  == DUMMY post-shielding-optimization <post-shielding-optimization>
+  = DUMMY paper:B <paper:B>
+  = DUMMY paper:C <paper:C>
+  = DUMMY paper:D <paper:D>
+  = DUMMY paper:E <paper:E>
 ]

@@ -116,6 +116,23 @@
 #let cl(..label_strings) = {for label_string in label_strings.pos() {cite(label(label_string))}
 }
 
+#let paperref(label, with-title: false) = context{
+  let h = locate(label)
+  
+  if not with-title {
+    link(h, [Paper #numbering("A", ..counter(heading).at(h))])
+  } else {
+    link(h, {
+        [Paper ]
+        numbering("A", ..counter(heading).at(h))
+        [: ]
+        show linebreak: none
+        query(label).first().body
+      }
+    )
+   }
+}
+
 #let comment(content) = [ #h(1fr) $triangle.r$ #content ]
 
 #let Act = $A c t$

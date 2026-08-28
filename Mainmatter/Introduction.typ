@@ -543,18 +543,18 @@ For example, a training-only shielding setup can use either a pre- or post-shiel
 )
 
 #remark[
-  The terminology introduced in this section does not align with Paper A.
+  The terminology introduced in this section does not align with #paperref(<paper:A>).
   This section distinguishes two sets of concepts which are described by the paper as linked, as shown in @tab:NamingDiscrepancy.
   The paper uses _post-shielding_ to mean operation-only post-shielding.
   Conversely, the paper uses _pre-shielding_ to mean end-to-end pre-shielding.
 
   #figure(table(columns: (2), align: center,
-      table.header( [*Term used in Paper A* #h(.5em)], [*Corresponding terms in this section*] ),
+      table.header( [*Term used in #paperref(<paper:A>)* #h(.5em)], [*Corresponding terms in this section*] ),
       [Pre-shielding], [End-to-end Pre-shielding ],
       table.hline(),
       [Post-shielding], [Operation-only Post-shielding]
     ),
-    caption: [This section uses different terms compared to Paper A.]
+    caption: [This section uses different terms compared to #paperref(<paper:A>).]
   )<tab:NamingDiscrepancy>
 ]
 ==== Pre-shielding
@@ -595,7 +595,7 @@ $ R^shield_fehu (s, a, s') = cases(
 
 The fallback policy $fehu$ could pick actions from an ordering, choose according to a model-specific heuristic, or always select a universally safe action, if one exists.
 A probabilistic fallback function may pick among safe actions according to a uniform distribution.
-It could also be obtained using machine learning, as discussed in @post-shielding-optimization of Paper A.
+It could also be obtained using machine learning, as discussed in @post-shielding-optimization of #paperref(<paper:A>).
 
 Note that the fallback policy must be static during the training phase, (when applicable) in order to preserve convergence guarantees.
 Otherwise, $P^shield_(#h(1.5pt) fehu)$ will change during training, violating the assumption that the environment is static.
@@ -663,7 +663,7 @@ Some time during operation, a shield may then be developed to provide formal saf
 In these cases, the shield can be applied only in the operational phase.
 If the policy did learn to avoid unsafe states perfectly, a maximally permissive shield would not interfere with its operation.
 Otherwise, the shield will disrupt the optimized behaviour which the policy has learned.
-It was found in Paper A @PaperA that applying an operation-only post-shield to a policy can lead to substantial drops in the expected reward.
+It was found in #paperref(<paper:A>) @PaperA that applying an operation-only post-shield to a policy can lead to substantial drops in the expected reward.
 Therefore, operation-only shielding should only be employed when re-training or (fine-tuning) the existing policy is not possible.
 
 #example(name: "Staying safe in Grid World")[
@@ -675,7 +675,7 @@ Therefore, operation-only shielding should only be employed when re-training or 
   Lastly, any action in state 10 can cause the agent to slip onto state 11, so this state should be avoided as well. 
   
   @fig:GridWorldShield shows the resulting maximally permissive safe policy for @ex:GridWorld. 
-  This policy was generated using a publicly available package#footnote(link("https://github.com/AstridHornBrorholt/GridShielding.jl")) which implements the method described in Paper A (to be discussed in later sections).
+  This policy was generated using a publicly available package#footnote(link("https://github.com/AstridHornBrorholt/GridShielding.jl")) which implements the method described in #paperref(<paper:A>) (to be discussed in later sections).
 
 #subpar.grid(columns: 3, align: bottom,
   [#figure(image("../Graphics/Intro/Shielded.png", width: 66.666%),
@@ -1226,7 +1226,7 @@ Linear differential equations govern the position of bouncing ball while it's in
 This can express the dynamics of a bouncing ball falling in the air
 
 #example(name: [A linear system $cal(B)$ for BB])[
-  This might be excessive... And doesn't really amount to anything other than repeating what's in Paper A.
+  This might be excessive... And doesn't really amount to anything other than repeating what's in #paperref(<paper:A>).
 ]
 
 Anyway. A hybrid system
@@ -1283,13 +1283,13 @@ But with this contribution of mine it is possible
 
 #[
   #set heading(numbering: none)
-  ==== Paper A: Shielded Reinforcement Learning for Hybrid systems
+  ==== #paperref(<paper:A>, with-title:true)
   ...
-  ==== Paper B: Efficient Shield Synthesis via State-space Transformation
+  ==== #paperref(<paper:B>, with-title:true)
   ...
-  ==== Paper C: Compositional Shielding and Reinforcement Learning for Multi-agent Systems
+  ==== #paperref(<paper:C>, with-title:true)
   ...
-  ==== Paper D: #smallcaps[Uppaal Coshy] - Automatic Synthesis of Compact Shields for Hybrid Systems
+  ==== #paperref(<paper:D>, with-title:true)
   ...
 ]
 

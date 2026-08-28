@@ -8,7 +8,7 @@
 //   it.target
 // }
 
-= Adaptive Probabilistic Shielding by Learning MDPs for \ Safe Reinforcement Learning
+= Adaptive Probabilistic Shielding by Learning MDPs for \ Safe Reinforcement Learning <paper:E>
 
 #grid(columns: (1fr, 1fr), row-gutter: 2em, column-gutter: 2em,
   [Astrid~Horn~Brorholt \ #set text(size: 0.8em)

@@ -83,13 +83,11 @@
   set heading(numbering: myNumbering)
   show heading.where(level: 1): it => {
     set align(center)
-    set heading(supplement: [Paper])
     set text(size: 18pt)
     counter(figure.where(kind: image)).update(0)
     counter(figure.where(kind: table)).update(0)
     counter(figure.where(kind: "algorithm")).update(0)
     counter(math.equation).update(0)
-    // set align(center)
     it
     v(1.5cm)
   }

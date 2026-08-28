@@ -9,7 +9,7 @@
 ) = default-theorems("thm-group", lang: "en", thm-numbering: thm-numbering-linear)
 
 
-= Efficient Shield Synthesis via State-space Transformation
+= Efficient Shield Synthesis via State-space Transformation <paper:B>
 #grid(columns: (1fr, 1fr), row-gutter: 2em,
   [Asger Horn Brorholt \ #set text(size: 0.8em)
   _Department of Computer Science \ Aalborg University, Aalborg, Denmark_],
