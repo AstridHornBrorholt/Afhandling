@@ -1004,7 +1004,7 @@ These are as in @def:policy, except that each policy $pi_i$ is over the player's
 #definition(name:[Individual and joint policies])[
   In an MG $mg$, individual policies $pi_i$ represent one player $i$ choosing from its own action space $A_i$.
   Deterministic, probabilistic and nondeterministic policies are respectively $S -> A_i$,\
-   $S -> (A_i  → [0; 1])$, and $S → powerset(A_i)$ for each $i in N$. 
+   $S -> (A_i  → [0; 1])$, and $S → powerset(A_i) \\ emptyset$ for each $i in N$. 
 
    A full complement of individual policies $(pi_1, pi_2, ...pi_n)$ induce a joint policy:
    - A _deterministic joint policy_ as $pi(s) = (pi_1 (s), pi_2 (s), ... pi_n (s))^top$,
@@ -1013,30 +1013,35 @@ These are as in @def:policy, except that each policy $pi_i$ is over the player's
 ]<def:joint-policy>
 
 Traces are defined from joint policies in the same manner as @def:trace.
-The expected reward of an individual player can be described similarly  to @def:expected-reward:
+
+The expected reward is not defined for an individual policy, since outcomes depend on the joint behaviour of all players.
+Reward is still recorded individually, in much the same way as @def:expected-reward.
 
 #definition(name: [Expected individual reward])[
   Given an MG $mg$, a joint probabilistic policy $pi : S -> (A -> [0; 1])$ and a discount factor $gamma in #h(4pt) ]0; 1]$, the expected reward of player $i in N$ starting in $s$ is the unique fixed point of the following equation
 
   $ EE_pi^(mg, i) (s) = sum_(a in A) pi(s)(a) sum_(s' in S) P(s, a)(s') (R_i (s, a, s') + gamma  EE_pi^(mg, i) (s')) $ 
+
+  And similarly for deterministic policies.
 ]<def:individual-reward>
 
 
 Recall that Q-learning assumes a static environment in order to prove convergence.
 This assumption fails if multiple policies are being trained and interacting in the same environment.
-Players may change their policy to optimize reward given on the current policy of all others, only for other players to update their policies in turn.
+Players may change their policy to optimize reward based on the current joint policy, only for other players to update their policies in turn.
 This prompts further policy changes in a cycle that may continue _ad infinitum._
 
 === Reward Structure and Optimization Objectives
-
-It may not even be clear what the joint policy should converge to, depending on how the reward is defined.
+For an MDP, the goal is simply to maximise expected reward.
+But since an MG has multiple reward functions, the optimization objective can vary depending on how the game is structured.
 An MG $mg$ can fall into one of three different categories which describe the reward structure @zhang2021multi@busoniu_multi-agent_2010@marl-book.
  - Cooperative, where the reward $R$ received by all players is the same: $forall i, j in N : R_i (s, a) = R_j (s, a)$.
  - Competitive, in which the reward $R$ is zero-sum: $sum_(i = 0)^n R_i (s, a) = 0$.
  - Mixed, if the reward is neither competitive or cooperative. 
  
-For mixed reward structures, the set of policies which give the highest possible reward to player $i$, is usually not the same as the set of policies that give the highest mean reward among all players.
-Similarly for competitive games, the joint policy which gives the highest reward for player $i$ is disadvantageous for other players.
+For cooperative games, players can work together to maximise their expected reward.
+However with competitive games, the joint policy which gives the highest reward for player $i$ is disadvantageous for other players.
+Similarly for mixed reward structures, the set of policies which give the highest possible reward to player $i$, is usually not the same as the set of policies that give the highest mean reward among all players.
 Rather than favouring a specific player, optimization objectives are commonly formulated as a _Nash equilibrium_ or a _Pareto optimum._
 
 Nash equilibria are concerned with changes to individual policies.
@@ -1048,7 +1053,6 @@ For a joint policy $pi$ induced by $(pi_1, pi_2, ... pi_n)$ and some individual 
 
   $ EE^(mg, i)_(pi)(s) >= EE^(mg, i)_((pi'_i, pi_(\-i)))(s) " for any policy " pi'_i $
 ]
-#question[ Should this ↑ just be from the initial state? I.e. $EE^(G, i)_pi (s_0)$ ? ]
 
 It may be that changing multiple policies can lead to higher reward, but no single player can improve its policy.
 Pareto optimality is a related, but stronger concept.
@@ -1068,8 +1072,8 @@ Pareto optimality is a related, but stronger concept.
 === Multi-agent Safety and Shielding
 
 Safety as given in @def:Safety (described by safe sets $phi subset.eq S$) can be extended directly to MGs for states, traces and joint policies.
-An individual policy is safe if it ensures the entire MG stays within the safe set, regardless of other agents' behaviour. 
-Formally, an individual policy $pi_i$ is safe if -- for any non-deterministic joint policy $pi$ -- every trace $xi$ that is an outcome of $(shield_i, pi_(\-i))$ is safe.
+An individual policy is safe, if it ensures the entire MG stays within the safe set, regardless of other agents' behaviour. 
+Formally, given $mg$ and $φ$, an individual policy $pi_i$ is safe if -- for any non-deterministic joint policy $pi$ -- every outcome of $(pi_i, pi_(\-i))$ is safe.
 
 Analogously to joint and individual policies, a shield is called either _global_ or _local._
 
