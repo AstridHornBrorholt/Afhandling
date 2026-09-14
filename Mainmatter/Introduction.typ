@@ -1155,8 +1155,6 @@ Instead of assuming agents can communicate their intended actions during run-tim
 By relying on guarantees that are established during shield synthesis, some shields may allow additional actions while ensuring the joint action is safe.
 
 In a partially observable setting, sharing observations may also allow agents to achieve a more precise estimate of the underlying model state @10129007.
-
-#new[
   
 == Hybrid MDPs
 
@@ -1298,8 +1296,6 @@ The discretization method outlined in @ex:BBUnshielded may also be used to obtai
   Applying the pre-shield to the strategy from @ex:BBUnshielded for operation-only shielding yielded a reward of ??.
   #todo[Run the numbers]
 ]
-
-]  // end new
 
 == Tools for Shielding
 
