@@ -227,13 +227,6 @@ The algorithm has additional input parameters, which will be described in the fo
   ],
 )<alg:QLearning>
 
-#question[CS: Two of your comments here were unclear: 
-- Ln 8, "What do the outer s" 
-  - If you meant outer square brackets, I've defined them above but I did discover an error in how I applied them which is now fixed.
-- Ln 9, "i found this confusing because it is not the fixed s from above. i would write: $hat(pi) colon s mapsto ...$"
-  - The algorithm variable $s$ is out of scope here and I don't see how the $mapsto$ notation is clearer.
-]
-
 The algorithm explores the model $mdp$ over a number of episodes $n$, which are finite traces that are cut off at length $m$.
 This inner loop ensures, that $s_0$ will be visited at least $n$ times.
 Setting $m$ too low may impact the estimate, since the policy will not be able to capitalize on future rewards beyond step $m$. 
