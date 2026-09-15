@@ -1167,6 +1167,10 @@ Such hybrid systems contain both continuous dynamics, and discrete states that s
 There are also purely physical phenomena that hybrid systems are suitable for modelling.
 A ball bouncing on the ground is one such example #cl("PaperA", "DBLP:conf/atva/JaegerJLLST19") which will be used in the following to illustrate the workings of a hybrid system.
 
+#definition(name: "Euclidian MDP")[
+  An _Euclidian MDP_ (EMDP) is a tuple (S, s_0, A, T, R) where ...
+]<def:emdp:I> // label exists in Paper A as well
+
 Hybrid systems can be specified in the modelling tool #uppaal through the extension #uppaalsmc #cl("DBLP:journals/sttt/DavidLLMP15").
 An informal description of key features will be given here.
 Models are specified as systems of components interacting through #sync("synchronization") and shared #invariant("variables") or #invariant("clocks").
@@ -1299,31 +1303,121 @@ The discretization method outlined in @ex:BBUnshielded may also be used to obtai
 
 == Tools for Shielding
 
-#citationneeded[uppaal] #citationneeded[tempest]
+#citationneeded[UPPAAL] #citationneeded[PRISM] #citationneeded[TEMPEST]  #citationneeded[STORM]
 
-== Research Statement and Goals
+#new[
+
+== Summary of Papers
 ...
 
-=== Summary of Papers
-...
+#figure(table(columns: 3,
+  [*Paper*], [*Formalism used*], [*Shield type*],
+  [A], [EMDP, @def:emdp:I], [Shield, @def:Shielding],
+  [B], [EMDP, @def:emdp:I], [Shield, @def:Shielding],
+  [C], [MDP, @def:mdp], [Multi-agent shield, @def:GlobalAndLocalShields],
+  [D], [EMDP, @def:emdp:I], [Shield, @def:Shielding],
+  [E], [Unknown MDP, @def:mdp], [$θ$-recoverable shield, @def:ThetaRecoverable]
+  ),
+  caption: [Papers]
+)
 
-#[
-  #set heading(numbering: none)
-  ==== #paperref(<paper:A>, with-title:true)
-  ...
-  ==== #paperref(<paper:B>, with-title:true)
-  ...
-  ==== #paperref(<paper:C>, with-title:true)
-  ...
-  ==== #paperref(<paper:D>, with-title:true)
-  ...
+#[ #set heading(numbering: none, outlined: false)
+
+=== #paperref(<paper:A>, with-title:true)
+
+This paper builds upon a pervious Master's thesis @MastersThesis, providing a general framework which applies ideas that were developed in the thesis for specific case studies.
+
+#contribution[
+  The paper introduces a formalism for describing hybrid systems, the _hybrid Markov decision process,_ which features periodic actions and a system evolving based on both discrete changes to- and continuous evolution of the state.
 ]
 
-#[
-  #set heading(numbering: none) 
-  == References
-
-  #bibliography("../Bibliography.bib",
-    title: none,
-  )
+#contribution[
+  A precise formalism to describe a method of shielding to a hybrid setting using discretization.
 ]
+
+#contribution[
+  Generalization of a sample-based method of approximating reachability, to speed up shield synthesis.
+]
+Formal guarantees are lost using this approximation, but the resulting shields can be checked using statistical model checking.
+This was shown to work in practice for five case studies.
+
+#contribution[
+  Comparison of training-only shielding to operation-only shielding through five case studies.
+  Training-only shielding was found in all cases to yield better expected reward than operation-only shielding.
+]
+
+#contribution[
+  Demonstrated the marginal improvement of performance in operation-only shielding by using RL to obtain a fallback policy $fehu$.
+]
+
+=== #paperref(<paper:B>, with-title:true)
+
+This paper builds upon #paperref(<paper:A>), enhancing the scalability of the method by augmenting the partitioning scheme described in the previous paper. 
+Using a state-space transformations, the partition boundaries can be aligned to the dynamics of a system, which enables coarser partitioning of the state-space.
+
+#contribution[
+  State-space transformations were found analytically, based on the system dynamics of two different case studies.
+  These transformations led to a significant reduction in the initial number of partitions.
+]
+
+#contribution[
+  Preliminary results from a third case study, that demonstrate the potential for automatically discover state-space transformations.
+]
+
+=== #paperref(<paper:C>, with-title:true)
+
+A method for multi-agent shielding is given for models where the interaction of agents have a set structure.
+The shielding method uses offline coordination through an assume-guarantee framework.
+
+#contribution[
+  The _compositional shielding_ method for synthesising local shields using offline-coordination through an assume-guarantee framework.
+  This coordination makes local shields viable where they otherwise would not be.
+]
+
+This same structure was found to be useable for a novel approach to RL in multi-agent systems.
+
+#contribution[
+  The _cascading learning_ RL algorithm to approximate Pareto optimal policies by learning local policies in a fixed ordering.
+]
+
+=== #paperref(<paper:D>, with-title:true)
+
+The tool is extended with a new query to apply the method to a standard #uppaal model.
+Additional settings are added for this particular type of query.
+State-space transformations from #paperref(<paper:B>) are shown to be achievable using standard features of the #uppaal modelling language.
+
+#contribution[
+  The tool #uppaal is extended to include the shield synthesis method of #paperref(<paper:A>).
+]
+
+#contribution[
+  The #caap algorithm, that can reduce the representation size of a shield.
+]
+After synthesis, the shield is converted to a decision tree with axis-aligned predicates, and reductions are applied to significantly reduce the number of nodes.
+
+=== #paperref(<paper:E>, with-title:true)
+
+#contribution[
+  An adaptive shielding algorithm that uses the structure of the otherwise unknown MDP to estimate transition probabilities.
+  The RL agent performs shielded learning with a slight probability of exploring outside the shield in order to learn more about the system.
+]
+
+The adaptive shielding algorithm was applied to four case studies, which were used for an extensive investigation of the impact of parameters and estimator methods.
+
+Though the algorithm does not specify a particular shielding method, a $θ$-recoverable shield was used for the experiments.
+Likewise, several model estimation methods were compared.
+
+#contribution[
+  Comparison of estimators and adaptive shielding parameters based on four case studies.
+]
+
+] // end set heading
+] // end new
+
+#[ #set heading(numbering: none) 
+== References
+
+#bibliography("../Bibliography.bib",
+  title: none,
+)
+] // end set heading

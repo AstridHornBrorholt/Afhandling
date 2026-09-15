@@ -170,6 +170,7 @@
 #let uppaalstratego = smallcaps[Uppaal Stratego]
 #let stratego = uppaalstratego
 #let uppaalcoshy = smallcaps[Uppaal Coshy]
+#let caap = smallcaps[Caap]
 #let coshy = uppaalcoshy
 
 // Numerals
