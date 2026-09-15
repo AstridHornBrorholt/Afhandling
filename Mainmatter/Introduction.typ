@@ -589,7 +589,7 @@ $ R^shield_fehu (s, a, s') = cases(
 The fallback policy $fehu$ could pick actions from an ordering, choose according to a model-specific heuristic, or always select a universally safe action, if one exists.
 A probabilistic fallback function may pick among safe actions according to a uniform distribution.
 
-#contribution[
+#contribution(papers: "Paper A")[
   The fallback policy can could also be obtained using machine learning. This approach is explored in @post-shielding-optimization of #paperref(<paper:A>).
 ]
 
@@ -1267,7 +1267,7 @@ A variant of discretized Q-learning with dynamic partitioning of the state-space
 
 The discretization method outlined in @ex:BBUnshielded may also be used to obtain a shield for hybrid systems, as shown in the following example.
 
-#contribution[
+#contribution(papers: "Paper A")[
   A shield can be obtained from a safety-relevant abstraction (cf. @ex:SafetyRelevantAbstraction) where the system is discretized into a finite number of cells.
   A~formal description of this method is introduced in #paperref(<paper:A>).
 ]

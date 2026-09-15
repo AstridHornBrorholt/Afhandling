@@ -23,10 +23,10 @@ Typst version: *#sys.version*
 #[  // HACK: Dummy forward-references to allow the introduction to compile even though contains labels pointing to the papers.
   #set heading(numbering: "①")
   #counter(heading).update(0)
-  = DUMMY paper:A <paper:A>
+  = Shielded Reinforcement Learning for Hybrid Systems <paper:A>
   == DUMMY post-shielding-optimization <post-shielding-optimization>
-  = DUMMY paper:B <paper:B>
-  = DUMMY paper:C <paper:C>
-  = DUMMY paper:D <paper:D>
-  = DUMMY paper:E <paper:E>
+  = Efficient Shield Synthesis via State-space Transformation <paper:B>
+  = Compositional Shielding and Reinforcement Learning for Multi-agent Systems <paper:C>
+  = #uppaalcoshy: Automatic Synthesis of Compact Shields for Hybrid Systems <paper:D>
+  = Adaptive Probabilistic Shielding by Learning MDPs for Safe Reinforcement Learning <paper:E>
 ]

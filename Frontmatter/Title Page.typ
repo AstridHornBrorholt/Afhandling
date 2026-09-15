@@ -8,12 +8,20 @@
 
 #context[#align(center)[
   #set par(justify: false)
+
+  #box(width: 100%, stroke: (top: 2pt, bottom: 1pt), height: 4pt) // Divider
+
   #text(size: 28pt, weight: "bold")[
     #document.title
   ]
+  
+  #box(width: 100%, stroke: (top: 1pt, bottom: 2pt), height: 4pt) // Divider
+
+  #v(1fr)
+
+  PhD thesis #datetime.today().display("[year]")
 
   #text(size:14pt)[
-    by\
     Astrid Horn Brorholt
   ]
 

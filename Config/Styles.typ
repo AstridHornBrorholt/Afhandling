@@ -14,15 +14,32 @@
 
 #import "@preview/lemmify:0.1.8": *
 #import "Colours.typ" : *
-
+#import "@preview/hydra:0.6.3": hydra
 
 #let apply_style(doc) = {
   
+  let skip-linebreak(_, it) = {
+    show linebreak: none
+    it.body
+  }
+  let add-period(_, it) = {
+    if it.numbering == none {return it.body }
+    numbering(it.numbering, ..counter(heading).at(it.location()))
+    [. ]
+    it.body
+  }
+
   set page(
     width: 170mm,
     height: 240mm,
     margin: 25mm,
-    numbering: "1",
+    header: context {
+      if calc.odd(here().page()) {
+        align(center, emph(hydra(1, display: skip-linebreak)))
+      } else {
+        align(center, emph(hydra(2, display: add-period)))
+      }
+    }
   )
 
   // Text & paragraphs

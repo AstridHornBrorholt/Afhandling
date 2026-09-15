@@ -133,12 +133,15 @@
    }
 }
 
-#let contribution(body) = figure(
+#let contribution(papers: none, body) = figure(
   kind: "contribution",
   supplement: [Contribution],
   caption: [],
   placement: none,
-  body
+  if {papers != none } [*(#papers)*\ ]+
+  [
+    #body
+  ]
 )
 
 #let comment(content) = [ #h(1fr) $triangle.r$ #content ]

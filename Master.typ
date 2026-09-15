@@ -2,13 +2,14 @@
 
 #show: apply_style
 
-
+#set page(numbering: none)
 #include "Frontmatter/Title Page.typ"
 #pagebreak(weak: true)
 #include "Frontmatter/Colophon.typ"
 #pagebreak(to: "even", weak: true)
 // #include "Frontmatter/CV.typ"
 // #pagebreak(weak: true)
+#set page(numbering: "i")
 #include "Frontmatter/Abstract.typ"
 #pagebreak(weak: true)
 #include "Frontmatter/Dansk Abstract.typ"
@@ -17,6 +18,8 @@
 #outline(title: "Table of Contents", depth: 3)
 #pagebreak(to: "odd", weak: true)
 
+#counter(page).update(1)
+#set page(numbering: "1")
 #include "Mainmatter/Introduction.typ"
 #pagebreak(to: "odd", weak: true)
 
