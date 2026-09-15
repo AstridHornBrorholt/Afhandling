@@ -1240,17 +1240,16 @@ A variant of discretized Q-learning with dynamic partitioning of the state-space
   The reward $R$ is set up to give a penalty of $-1$ whenever the $hit$ action is chosen, and penalty $-50$ when the location #location("Stop") is entered.
 
   The Q-table was discretized with an axis-aligned uniform partitioning within the set $S' = [-15; 15[ #h(2pt) times [0; 10[ subset RR^2$.
-  States in $S'$ are grouped into cells of size $0.1 times 0.1$ in the following manner: 
-  ${ \[overline(v); underline(v)\[ #h(2pt) times \[underline(p); overline(p)\[ #h(2pt)  subset S' | underline(v) - overline(v) = overline(p) - underline(p) = 0.1 }$.
-
+  States in $S'$ are grouped into cells of size $0.2 times 0.2$ in the following manner: 
+  ${ \[overline(v); underline(v)\[ #h(2pt) times \[underline(p); overline(p)\[ #h(2pt)  subset S' | underline(v) - overline(v) = overline(p) - underline(p) = 0.2 }$.
   For example, the state $vec(-4, 1)$ is contained in the cell $ [-4; -3.9[#h(2pt) times [1; 1.1[$.
-  In total, the number of cells will be $|S'| = (15 - (-15))/0.1 times 10/0.1 = #{(15 - (-15))/0.1 * 10/0.1}$.
+  In total, the number of cells will be $|S'| = (15 - (-15))/0.2 times 10/0.2 = #{(15 - (-15))/0.2 * 10/0.2}$.
 
   The Q-value of these states were initialized to zero: $Q(s', a) = 0$ for $s' in S'$ and $a in {hit, nohit}$.
   In remaining states, $s in.not S'$, the ball will never be hit: $Q(s, nohit) = 0$ and $Q(s, hit) = -infinity$.
 
   The results of raining are shown in @fig:BBUnshieldedTraining which plots  the reward obtained in each of  $50000$ episodes.
-  Each episode was limited to a length of $1000$ actions, which corresponds to $100$ seconds.
+  Each episode was limited to a length of $1200$ actions, which corresponds to $120$ seconds.
 
   #subpar.grid(columns: 3, align: top,
     [#figure(image("../Graphics/Intro/BB Unshielded Training.png"), caption: [Training graph.])<fig:BBUnshieldedTraining>],
@@ -1259,7 +1258,7 @@ A variant of discretized Q-learning with dynamic partitioning of the state-space
     caption: [Unshielded training of the bouncing ball described in @ex:BB.]
   )
 
-  Unsafe traces were encountered during simulated operation. The average reward during simulated operation was $-30.8$.
+  Unsafe traces were encountered during simulated operation. The average reward during simulated operation was $-37.6$.
 
   A more advanced discretization scheme is available directly in the #uppaal tool, as part of the #uppaalstratego feature set #cl("DBLP:conf/atva/JaegerJLLST19").
   This reinforcement learning technique will dynamically partition the state-space to group states with similar Q-values as it learns.
@@ -1278,7 +1277,7 @@ The discretization method outlined in @ex:BBUnshielded may also be used to obtai
 
 #example(name: [Shielding the Bouncing Ball])[
   A shield is synthesized using the publicly available library @GridShielding.jl based on the formalism given in #paperref(<paper:A>).
-  The abstraction used the same subset of the state space $S' subset S$, but with a smaller cell size of $0.2 times 0.2$.
+  The abstraction used the same subset of the state space $S' subset S$, but with a smaller cell size of $0.02 times 0.02$.
   The package uses a sample-based method for approximating outcomes of actions from a given cell, and in this instance $3$ samples per axis were used.
   The resulting shield is visualized in @fig:BBShield.
 

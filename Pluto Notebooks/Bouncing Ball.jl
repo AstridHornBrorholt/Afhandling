@@ -40,7 +40,7 @@ Plots.default(fontfamily="times")
 
 # ╔═╡ c6f38301-5eb7-4e98-bafd-6a0bcd2fb1b6
 md"""
-# Shielding Grid World
+# Shielding the Bouncing Ball
 """
 
 # ╔═╡ 0f6f658f-56a3-4de3-b1ef-0c3de76a2d37
@@ -367,10 +367,10 @@ end
 
 # ╔═╡ 4883874d-c0e8-4984-be4d-a4c082367f74
 # Episode max length. 1 second is 10 time-steps.
-@bind T Select([100, 1000, 10000], default=1000)
+@bind T Select([120, 1200, 12000], default=1200)
 
 # ╔═╡ 13a65e27-f740-4c89-8374-f85365250aa3
-# Simulate an episode with probability p of choosing "hit"
+# Simulate an episode
 function episode(π)
 	Sₜ = initial_state()
 	Aₜ = nohit
@@ -532,10 +532,10 @@ It prints out erros when an unsafe episode was produced during training, and out
 # ╔═╡ 76249b97-8022-482a-be78-930b9fc22aa0
 function check_safety(traces)
 	any_unsafe = false
-	for (i, ξ) in enumerate(traces)
+	for (i, ξ) in enumerate(reverse(traces))
 		for (S, a, S′) in ξ
 			if !is_safe(S)
-				@error "Unsafe state was reached!" state=S trace=ξ trace_number=i
+				@error "Unsafe state was reached!" state=S trace=ξ trace_number=(episodes - i + 1)
 				any_unsafe = true
 				break
 			end
@@ -582,7 +582,7 @@ let
 		xlim=(-15, 15),
 		ylim=(0,10),
 		ylabel="p",
-		#clim=(-50, 0),
+		#clim=(-1, 0),
 		size=(400, 400))
 end
 
