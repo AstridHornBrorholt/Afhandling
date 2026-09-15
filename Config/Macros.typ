@@ -151,6 +151,7 @@
 #let Act = $A c t$
 #let mdp = $cal(M)$
 #let mg = $cal(G)$
+#let emdp = $cal(E)$
 #let ls = $cal(L)$
 #let powerset(x) = $scr(P)(#x)$
 #let argmax = $op("arg max", limits: #true)$

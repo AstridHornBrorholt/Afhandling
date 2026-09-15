@@ -213,19 +213,14 @@ where
 
 - $cal(S) subset.eq bb(R)^k$ is a bounded and closed part of
   $k$-dimensional Euclidean space,
-
 - $s_0 in cal(S)$ is the initial state,
-
 - $italic("Act")$ is the finite set of actions,
-
 - $T colon cal(S) times italic("Act") arrow.r lr((cal(S) arrow.r bb(R)_(gt.eq 0)))$
   maps each state-action pair $lr((s comma a))$ to a probability density
   function over $cal(S)$, i.e., we have
   $integral_(s prime in cal(S)) T lr((s comma a)) lr((s prime)) d s prime eq 1$,
-
 - $C colon cal(S) times italic("Act") times cal(S) arrow.r bb(R)$ is the
   cost function, and
-
 - $G subset.eq cal(S)$ is the set of goal states.
 
 #example(name: [Random Walk])[

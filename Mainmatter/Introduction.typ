@@ -68,18 +68,13 @@ The reinforcement learning problem can be stated in many different ways, dependi
 MDPs describe stochastic systems, where the outcomes of actions only depend on the current (observable) state of the system, and not on which actions or states were seen previously.
 
 #definition(name: "MDP")[
-An MDP can be described by a tuple $(S, s_0, A, P, R)$ where
+An MDP is defined as a tuple $(S, s_0, A, P, R)$ where
   - $S$ is a finite set of states,
-  - $s_0 in S$ is an initial state,
-  - $A$ is a set of actions,
+  - $s_0 in S$ is the initial state,
+  - $A$ is a finite set of actions,
   - $P : S times A → (S → [0; 1])$ with  $forall s in S, a in A : sum_(s' in S) P(s, a)(s') = 1$ is the transition function, which gives the  probability of reaching state $s'$ from state $s$ as a result of  taking the action $a$, 
   - and $R : S times A times S -> RR$ gives the reward $R(s, a, s')$ for reaching $s'$ by taking $a$ in $s$.
 ]<def:mdp>
-
-In this definition, the state-space is assumed to be finite, though in most cases where the definition is used, it is possible to generalize to a countably infinite state-space. 
-If $S$ were instead uncountably infinite, the transition function $P$ should be modified to give a density function over a set of states, rather than giving probabilities for specific states. 
-I.e. 
-$P : S times A -> (S -> RR_(>=0))$ such that $integral_(s' in S) P(s, a)(s') d s' = 1$.
 
 The state-space $S$ is often represented as a finite set of vectors over $ZZ^n$ where each element of a state-vector represents the value of a variable in the model (usually defined within a bounded interval).
 The number of states $|S|$ grows exponentially with the number of variables $n$. This growth is known as _state-space explosion._
@@ -152,7 +147,7 @@ The discount factor $gamma$ may be interpreted as the probability of the trace c
 In contrast to the reward gained from just one trace, the expected discounted reward #cl("DBLP:books/lib/SuttonB98") for a probabilistic policy is defined as:
 
 #definition(name: "Expected reward")[
-  Given an MDP $M = (S, s_0, A, P, R)$, a deterministic policy $pi : S -> A$ and a discount factor $gamma in #h(4pt) ]0; 1]$, the expected reward of $pi$ on $mdp$ is the unique fixed point of the following equation:
+  Given an MDP $M = (S, s_0, A, P, R)$, a deterministic policy $pi : S -> A$ and a discount factor $gamma in #h(4pt) ]0; 1]$, the expected reward of $pi$ on $mdp$ at state $s in S$ is the unique fixed point of the following equation:
 
   $ EE_pi^mdp (s) = sum_(s' in S) P(s, pi(s))(s') (R(s, pi(s), s') + gamma  EE_pi^mdp (s')) $ 
 
@@ -969,7 +964,7 @@ These multi-agent settings present unique challenges.
   A Markov Game (MG)~@zhang2021multi@busoniu_multi-agent_2010@marl-book with~$n$ agents is a tuple $mg = (S, s_0, N, A, P, R)$
   where
   - $S$ is a finite set of states,
-  - $s_0 in S$ is an initial state,
+  - $s_0 in S$ is the initial state,
   - $N = (1, 2, ..., n)$ represents the agents,
   - $A = A_1 times A_2 times ... times A_n$ is the joint action space,
   - $P : S times A -> (S -> [0; 1])$ gives the transition probability from one state to another by a joint action,
@@ -988,7 +983,7 @@ These are as in @def:policy, except that each policy $pi_i$ is over the agent's 
 #definition(name:[Individual and joint policies])[
   In an MG $mg$, individual policies $pi_i$ represent one agent $i$ choosing from its own action space $A_i$.
   Deterministic, probabilistic and nondeterministic policies are respectively defined over $S -> A_i$,\
-   $S -> (A_i  → [0; 1])$, and $S → powerset(A_i) \\ emptyset$ for each $i in N$. 
+   $S -> (A_i  → [0; 1])$, and $S → powerset(A_i) \\ emptyset$ for each $i in N$.
 
    A full complement of individual policies $(pi_1, pi_2, ..., pi_n)$ induces a joint policy:
    - A _deterministic joint policy_ as $pi(s) = (pi_1 (s), pi_2 (s), ...,  pi_n (s))^top$,
@@ -1167,9 +1162,39 @@ Such hybrid systems contain both continuous dynamics, and discrete states that s
 There are also purely physical phenomena that hybrid systems are suitable for modelling.
 A ball bouncing on the ground is one such example #cl("PaperA", "DBLP:conf/atva/JaegerJLLST19") which will be used in the following to illustrate the workings of a hybrid system.
 
+#new[
 #definition(name: "Euclidian MDP")[
-  An _Euclidian MDP_ (EMDP) is a tuple (S, s_0, A, T, R) where ...
+  An _Euclidian MDP_ (EMDP) is defined as a tuple $emdp = (S, s_0, A, P, R)$ where 
+  - $S subset RR^n$ is part of $n$-dimensional Euclidean space,
+  - $s_0 in S$ is the initial state,
+  - $A$ is a finite set of actions,
+  - $P : S times A → (S → RR_(>= 0))$ with  $integral_(s' in S) P(s, a)(s') d s' = 1$ is the transition function, which gives the  probability density over states that can be reached from state $s$ as a result of  taking the action $a$, 
+  - and $R : S times A times S -> RR$ gives the reward $R(s, a, s')$ for reaching $s'$ by taking $a$ in $s$.
+
 ]<def:emdp:I> // label exists in Paper A as well
+
+Deterministic, probabilistic and nondeterministic policies for EMDPs are as in @def:policy.
+With a policy, traces can be defined: 
+#definition(name: "EMDP traces")[
+  For an EMDP $emdp$, trace $xi = s_0 a_0 s_1 a_2 s_2 a_2 ...$ is an interleaved series of states and actions, starting in the initial state $s_0$.
+
+  For a nondeterministic policy $pi : S -> (A -> [0; 1])$, a trace $xi$ is an outcome of the policy if $a_i in pi(s_i)$ and $P(s_i, a_i)(s_(i+1)) > 0$ for every $i>=0$. Outcomes are defined similarly for probabilistic and deterministic policies.
+  Trace segments $xi_m^n = s_n a_n s_(n + 1) a_(n+1) ... s_m$ are as in @def:trace.
+]
+
+Safe sets $phi subset.eq S$, states $s in phi$, traces, and policies of an EMDP are as in @def:Safety.
+By the definition of safe policies for EMDPs, the definition of shielding likewise extends naturally from @def:Shielding.
+However, the expected reward are over probability densities provided by the euclidean transition function $P$.
+
+#definition(name: "Expected reward of a policy on an EMDP")[
+  For an EMDP $emdp$, discount factor $gamma$ and deterministic policy $pi$, the expected reward  in state $s in S$ is the unique fixed point of the equation
+
+  $ EE_pi^emdp (s) = integral_(s' in S) P(s, pi(s))(s') (R(s, pi(s), s') + gamma EE_pi^emdp (s')) d s' $
+
+  And similarly for probabilistic policies as in @def:expected-reward.
+]
+
+] // end new
 
 Hybrid systems can be specified in the modelling tool #uppaal through the extension #uppaalsmc #cl("DBLP:journals/sttt/DavidLLMP15").
 An informal description of key features will be given here.
@@ -1293,11 +1318,10 @@ The discretization method outlined in @ex:BBUnshielded may also be used to obtai
   This is possible because the shield's cell size of $0.02$, is a divisor of the coarser Q-table which has size $0.1$.
 
   The training results under a pre-shield is shown in @fig:BBShieldedTraining. 
-  During evaluation, the resulting policy achieved a a mean reward of $-32.7$.
-  A visualization of this policy is shown in @fig:BBShieldedPolicy.
+  During evaluation, the resulting policy achieved a a mean reward of $-37.8$.
+  This policy is visualized in @fig:BBShieldedPolicy.
 
-  Applying the pre-shield to the strategy from @ex:BBUnshielded for operation-only shielding yielded a reward of ??.
-  #todo[Run the numbers]
+  Applying the pre-shield to the strategy from @ex:BBUnshielded for operation-only shielding yielded a similar reward, of $-38.5$.
 ]
 
 == Tools for Shielding
