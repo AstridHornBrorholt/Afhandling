@@ -133,7 +133,9 @@
    }
 }
 
-#let contribution(papers: none, body) = figure(
+#let contribution(papers: none, body) = {
+  show figure: set block(spacing: 0.5em)
+  figure(
   kind: "contribution",
   supplement: [Contribution],
   caption: [],
@@ -142,7 +144,7 @@
   [
     #body
   ]
-)
+)}
 
 #let comment(content) = [ #h(1fr) $triangle.r$ #content ]
 
