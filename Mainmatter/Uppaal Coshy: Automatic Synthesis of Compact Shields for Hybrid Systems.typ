@@ -571,7 +571,7 @@ For an expansion to be legal, it must satisfy the following three
   partitioning $cal(P) prime$ derived from $cal(P)_(cal(T))$. Then
   $R prime$ is legal if it satisfies these three rules:
 
-  #pseudocode-list[
+  #pseudocode-list(line-number-alignment: top + right)[
     + #line-label(<it:rule1>) All cells in region $R prime$ have the same action set,
 
     + #line-label(<it:rule2>) Region $R prime$ does not intersect with other regions in
@@ -739,18 +739,18 @@ unsafe.
   )
 
 
-  #show regex("acontrol"): set text(fill: emerald, weight: "bold")
-  #show regex("minE"): set text(fill: nephritis, weight: "bold")
-  #show regex("saveStrategy"): set text(fill: nephritis, weight: "bold")
-  #show regex("loadStrategy"): set text(fill: nephritis, weight: "bold")
-  #show regex("simulate"): set text(fill: nephritis, weight: "bold")
-  #show regex("Pr"): set text(fill: nephritis, weight: "bold")
-  #show regex("E"): set text(fill: nephritis, weight: "bold")
-  #show regex("strategy"): set text(fill: nephritis)
-  #show regex("under"): set text(fill: nephritis)
-  #show regex("max:"): set text(fill: nephritis)
-  #show regex("\".*\""): set text(fill: carrot)
-  #show regex("\d+"): set text(fill: black)
+  #show regex("acontrol"): set text(fill: emerald.darken(30%), weight: "bold")
+  #show regex("minE"): set text(fill: nephritis.darken(30%), weight: "bold")
+  #show regex("saveStrategy"): set text(fill: nephritis.darken(30%), weight: "bold")
+  #show regex("loadStrategy"): set text(fill: nephritis.darken(30%), weight: "bold")
+  #show regex("simulate"): set text(fill: nephritis.darken(30%), weight: "bold")
+  #show regex("Pr"): set text(fill: nephritis.darken(30%), weight: "bold")
+  #show regex("E"): set text(fill: nephritis.darken(30%), weight: "bold")
+  #show regex("strategy"): set text(fill: nephritis.darken(30%))
+  #show regex("under"): set text(fill: nephritis.darken(30%))
+  #show regex("max:"): set text(fill: nephritis.darken(30%))
+  #show regex("\".*\""): set text(fill: carrot.darken(30%))
+  #show regex("\d+"): set text(fill: black.darken(30%))
   
   
 

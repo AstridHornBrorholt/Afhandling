@@ -270,7 +270,7 @@ This is ensured by the fact that $s_0$ is visited infinitely often as $n -> infi
   
     #figure(
       {
-        set text(fill: alizarin, size: 8pt)
+        set text(size: 8pt)
         table(
           stroke: 0.4pt,
           columns: (auto, auto, auto, auto),
@@ -872,6 +872,11 @@ A $θ$-recoverable shield is used in #cl("DBLP:journals/corr/abs-2605-10293"), i
 However, if no such action exists, the shield allows the safest action and all actions within a constant range of that action.
 Alternatively, the probabilistic shield in #cl("DBLP:conf/concur/0001KJSB20") always allows the safest action, and other actions within some relative range.
 
+== Hypothesis
+
+#hypothesis[
+]
+
 == Hybrid MDPs
 
 So far, finite systems have been considered, building upon the finite MDP formalism given in @def:mdp. 
@@ -1247,7 +1252,7 @@ This is shown in @ex:2AgentGridWorld.
 
     #figure(
       {
-        set text(fill: alizarin, size: 8pt)
+        set text(size: 8pt)
         table(
           stroke: 0.4pt,
           columns: (auto, auto, auto, auto),

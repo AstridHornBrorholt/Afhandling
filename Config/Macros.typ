@@ -1,11 +1,12 @@
 #import "Colours.typ" : *
-
+#import "Styles.typ" : *
 
 #let infobox(content, name: none, width: 100%) = {
   set align(left)
   stack(dir: ttb,
-    box({set text(fill: white); name}, stroke: none, inset: 1em, fill: wetasphalt, width: width),
-    box(content, stroke: none, inset: 1em, fill: clouds, width: width),
+    box(text(name, weight: "bold") + h(0.5em) + content, 
+      ..box-style(greensea)
+    ),
   )
 }
 
@@ -133,18 +134,25 @@
    }
 }
 
+// Styled in styles
 #let contribution(papers: none, body) = {
   show figure: set block(spacing: 0.5em)
   figure(
-  kind: "contribution",
-  supplement: [Contribution],
-  caption: [],
-  placement: none,
-  if {papers != none } [*(#papers)*\ ]+
-  [
-    #body
-  ]
-)}
+    kind: "contribution",
+    supplement: [Contribution],
+    caption: [],
+    placement: none,
+    (if {papers != none } [*(#papers)*\ ] )+ body 
+  )
+}
+
+#let hypothesis(body) = block(
+  fill: aaulysblå.lighten(96%),
+  stroke: (1pt + aaublå),
+  inset: 1em,
+  width: 100%,
+  text("Hypothesis", weight: "bold", fill: aaublå) + h(0.5em) + body
+)
 
 #let comment(content) = [ #h(1fr) $triangle.r$ #content ]
 
@@ -177,8 +185,10 @@
 #let coshy = uppaalcoshy
 
 // Numerals
-#let th = "th"
+#let st = "st"
 #let nd = "nd"
+#let rd = "rd"
+#let th = "th"
 
 // The Elder Futhark
 #let fehu = "ᚠ"
@@ -227,7 +237,7 @@
 
 // "Smoker" example
 #let lung = "🫁"
-#let lungexplode = lung + annotate(bottom + right, text("💥", size: 0.9em), dx: 0pt, dy: 0pt,)
+#let lungexplode = image("../Graphics/Intro/lungexplode.png", height: 1.1em)
 #let smoke = smallcaps(text("smoke", font: "Gentium Book Plus"))
 
 // BB example

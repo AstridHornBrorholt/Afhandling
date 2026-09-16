@@ -14,7 +14,19 @@
 
 #import "@preview/lemmify:0.1.8": *
 #import "Colours.typ" : *
+#import "@preview/lovelace:0.3.1": *
 #import "@preview/hydra:0.6.3": hydra
+
+#let box-style(c, background: none) = {
+  if background == none {background = c.lighten(96%)}
+    (
+    fill: background,
+    stroke: (left: 0.3em + c),
+    inset: 0.6em,
+    outset: -0.15em,
+    width: 100%,
+  )
+}
 
 #let apply_style(doc) = {
   
@@ -54,7 +66,7 @@
 
   // Re-size emoji because at their default height they bump up the line-height wherever they appear.
   show regex("\p{Emoji_Presentation}") : it => {
-    text(size: 0.8em)[#it]
+    text(size: 0.8em, it, font: "Noto Emoji")
   }
 
   show regex("☺|☹") : it => {
@@ -84,13 +96,10 @@
 
   // Contributions
   show figure.where(kind: "contribution"): it => block(
-  fill: aaulysblå.lighten(96%),
-  stroke: (left: 0.3em + aaublå),
-  inset: 0.5em,
-  outset: -0.15em,
+  ..box-style(aaublå, background: aaulysblå.lighten(96%)),
   width: 100%,
   align(left)[
-    #text(fill: aaublå)[*#it.supplement #it.counter.display(it.numbering)*]
+    #text(weight: "bold")[#it.supplement #it.counter.display(it.numbering)]
     #h(.4em)
     #it.body
   ],
@@ -158,37 +167,27 @@
 
   show: thm-rules
   
-  show thm-selector("thm-group", subgroup: "example"): it => block(
-    it,
-    breakable: true,
-    stroke: (0.5pt + aaublå),
-    inset: 0.5em,
-  )
-  show thm-selector("thm-group", subgroup: "remark"): it => block(
-    it,
-    breakable: true,
-    stroke: (left:1pt),
-    inset: 0.5em
-  )
+  show thm-selector("thm-group", subgroup: "example"): it => block( it,  ..box-style(nephritis), breakable: true,)
+  show thm-selector("thm-group", subgroup: "remark"): it => block( it, ..box-style(wisteria), breakable: true,)
   
   show thm-selector("thm-group", subgroup: "definition"): it => {
     v(-1em) // I don't know how to do this properly :< 
-    block(it, inset: (left: 1em, right: 1em))
+    block(it, ..box-style(peterriver), breakable: true)
   }
   
   show thm-selector("thm-group", subgroup: "theorem"): it => {
     v(-1em)
-    block(it, inset: (left: 1em, right: 1em))
+    block(it, ..box-style(greensea), breakable: true)
   }
   
   show thm-selector("thm-group", subgroup: "lemma"): it => {
     v(-1em)
-    block(it, inset: (left: 1em, right: 1em))
+    block(it, ..box-style(greensea), breakable: true)
   }
   
   show thm-selector("thm-group", subgroup: "proof"): it => {
     v(-1em)
-    block(it, inset: (left: 1em, right: 1em))
+    block(it, ..box-style(greensea), breakable: true)
   }
 
 

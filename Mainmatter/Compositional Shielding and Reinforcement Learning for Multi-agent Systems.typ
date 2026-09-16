@@ -748,7 +748,9 @@ for the global system.
 
 #proof[By definition, each local shield $shield_i$ ensures that
   the (#emph[restricted] projected) agent safety property $phi.alt_i$
-  holds in $cal(T)^i$. Since $cal(T)^i$ is a projection of $cal(T)$, any
+  holds in $cal(T)^i$. 
+  
+  Since $cal(T)^i$ is a projection of $cal(T)$, any
   distributed shield with $i$-th component $shield_i$ also preserves
   $phi.alt_i$ in $cal(T)$ (by @lem:proj). Hence,
   $shield eq inter.sq_i thin arrow.t lr((shield_i))$ ensures all agent safety
