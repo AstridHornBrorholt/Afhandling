@@ -1318,10 +1318,6 @@ By relying on guarantees that are established during shield synthesis, some shie
 
 In a partially observable setting, sharing observations may also allow agents to achieve a more precise estimate of the underlying model state @10129007.
   
-== Tools for Shielding
-
-#citationneeded[UPPAAL] #citationneeded[PRISM] #citationneeded[TEMPEST]  #citationneeded[STORM]
-
 #new[
 
 == Summary of Papers
