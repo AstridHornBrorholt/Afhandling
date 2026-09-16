@@ -1162,9 +1162,10 @@ Such hybrid systems contain both continuous dynamics, and discrete states that s
 There are also purely physical phenomena that hybrid systems are suitable for modelling.
 A ball bouncing on the ground is one such example #cl("PaperA", "DBLP:conf/atva/JaegerJLLST19") which will be used in the following to illustrate the workings of a hybrid system.
 
-#new[
+#new[ \
+
 #definition(name: "Euclidian MDP")[
-  An _Euclidian MDP_ (EMDP) is defined as a tuple $emdp = (S, s_0, A, P, R)$ where 
+  An _Euclidian MDP_ (EMDP) #cite(label("DBLP:conf/atva/JaegerJLLST19")) #cite(label("randomwalk")) is a tuple $emdp = (S, s_0, A, P, R)$ where 
   - $S subset RR^n$ is part of $n$-dimensional Euclidean space,
   - $s_0 in S$ is the initial state,
   - $A$ is a finite set of actions,
