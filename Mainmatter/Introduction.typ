@@ -1270,6 +1270,8 @@ A variant of discretized Q-learning with dynamic partitioning of the state-space
   ${ \[overline(v); underline(v)\[ #h(2pt) times \[underline(p); overline(p)\[ #h(2pt)  subset S' | underline(v) - overline(v) = overline(p) - underline(p) = 0.2 }$.
   For example, the state $vec(-4, 1)$ is contained in the cell $ [-4; -3.9[#h(2pt) times [1; 1.1[$.
   In total, the number of cells will be $|S'| = (15 - (-15))/0.2 times 10/0.2 = #{(15 - (-15))/0.2 * 10/0.2}$.
+  Through experimentation, learning outcomes were found to be highly sensitive to the choice of cell size.
+  Coarser cells required fewer training episodes to achieve a mean reward greater than $-50$, but the expected reward of the final policy would be lower.
 
   The Q-value of these states were initialized to zero: $Q(s', a) = 0$ for $s' in S'$ and $a in {hit, nohit}$.
   In remaining states, $s in.not S'$, the ball will never be hit: $Q(s, nohit) = 0$ and $Q(s, hit) = -infinity$.
