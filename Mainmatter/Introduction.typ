@@ -872,12 +872,33 @@ A $θ$-recoverable shield is used in #cl("DBLP:journals/corr/abs-2605-10293"), i
 However, if no such action exists, the shield allows the safest action and all actions within a constant range of that action.
 Alternatively, the probabilistic shield in #cl("DBLP:conf/concur/0001KJSB20") always allows the safest action, and other actions within some relative range.
 
-== Hypothesis
+== Research Hypothesis
+
+The previous sections have assumed finite environments, with a fully known safety-relevant abstraction.
+Under these assumptions, there exist several shield synthesis methods to achieve policies optimized with RL that are verifiably safe.
+
+#figure(image("../Graphics/Intro/CPS.drawio.pdf", width: 80%),
+  caption: [A cyber-physical system with (discrete) digital hardware, (continuous) physical processes, and unknown components interacting -- shown as dotted lines.]
+)<fig:cps>
+
+However, cyber-physical systems -- pictured in @fig:cps -- are made up of several components interacting.
+These components will be some combination of continuous dynamics, discrete state changes, and components with unknown behaviours.
+Shielding has the potential to create safe and optimal policies for these systems, but that requires scalable shield synthesis methods for formalisms that can accurately model their behaviour.
+This leads to the research hypothesis of this thesis, 
 
 #hypothesis[
+
+  Scalable shielding methods can be extended to formalisms that accurately model cyber-physical systems, to achieve safe and optimal performance.
 ]
 
-== Hybrid MDPs
+The following sections will describe safety and shielding in such formalisms.
+A~combination of continuous and discrete dynamics are modelled as a hybrid system, which is described in @sec:HybridShielding.
+When an environment is unknown, its behaviour can be learned by (safely) interacting with it.
+As more information about the system is revealed, the set of known safe behaviour changes, as described in @sec:AdaptiveShielding. 
+As shown in @fig:cps, multiple digital components may interact in these cyber-physical systems, and these may sometimes be individual RL agents. Multi-agent systems pose unique challenges in terms of safety and optimality, which are discussed in @sec:MultiAgentShielding.
+Lastly, @sec:Summary summarises the peer-reviewed papers that make up the remainder of this thesis, and which each contribute to addressing the hypothesis stated above.
+
+== Hybrid MDPs <sec:HybridShielding>
 
 So far, finite systems have been considered, building upon the finite MDP formalism given in @def:mdp. 
 This discrete view fits well with the logic of electronic systems, being suited both for modelling their behaviour and for being simulated by them. 
@@ -1325,7 +1346,7 @@ In a partially observable setting, sharing observations may also allow agents to
   
 #new[
 
-== Summary of Papers
+== Summary of Papers <sec:Summary>
 ...
 
 #figure(table(columns: 3,
