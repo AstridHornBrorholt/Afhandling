@@ -1337,11 +1337,13 @@ A memoryless shield is instead limited to allowing only actions that are safe fo
 Any global shield or joint policy assumes agents are able to communicate and agree on joint actions. 
 Actions can also be broadcast when they are chosen @RajuBDT21 @busoniu_multi-agent_2010, i.e. agents choose their actions in a specific order, and each agent knows the choices of others if they are lower in the ordering.
 
-Instead of assuming agents can communicate their intended actions during run-time, some methods use _off-line co-ordination_ #cl("DBLP:conf/atal/MelcerAT24")#cl("DBLP:conf/nips/MelcerAT22").
 By relying on guarantees that are established during shield synthesis, some shields may allow additional actions while ensuring the joint action is safe.
 
 In a partially observable setting, sharing observations may also allow agents to achieve a more precise estimate of the underlying model state @10129007.
-  
+
+==== Co-ordination
+
+Instead of assuming agents can communicate their intended actions during run-time, some methods use _off-line co-ordination_ #cl("DBLP:conf/atal/MelcerAT24")#cl("DBLP:conf/nips/MelcerAT22").
 
 \
 #new[
