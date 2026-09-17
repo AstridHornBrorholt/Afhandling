@@ -554,7 +554,7 @@ If $epsilon$-greedy exploration (@l:Explore in @alg:QLearning) is used, the expl
 Directly applying the shield to the Q-table is possible because the learning method is able to assign values to every state in the finite state-space.
 A similar approach is not possible for e.g. decision trees, neural networks, etc. where states in the system are not explicitly represented. 
 
-==== Post-shielding
+==== Post-shielding <sec:postshielding>
 Rather than provide a set of safe actions to choose from, post-shielding overrides the RL algorithm whenever it takes an unsafe action.
 The RL algorithm can choose any action $a in A$, which, as shown in @fig:PostShielding, is intercepted by the shield.
 If the action is safe, the shield passes it on to the environment unaltered.
@@ -870,7 +870,7 @@ A $θ$-recoverable shield is used in #cl("DBLP:journals/corr/abs-2605-10293"), i
 However, if no such action exists, the shield allows the safest action and all actions within a constant range of that action.
 Alternatively, the probabilistic shield in #cl("DBLP:conf/concur/0001KJSB20") always allows the safest action, and other actions within some relative range.
 
-== Research Hypothesis
+== Research Hypothesis <sec:Hypothesis>
 
 The previous sections have assumed finite environments, with a fully known safety-relevant abstraction.
 Under these assumptions, there exist several shield synthesis methods to achieve policies optimized with RL that are verifiably safe.
@@ -1402,29 +1402,43 @@ Note that I changed my first name from Asger to Astrid between the publication o
 === #paperref(<paper:A>, with-title:true)
 
 This paper builds upon a pervious Master's thesis @MastersThesis, providing a general framework which applies ideas that were developed in the thesis for specific case studies.
+A code library based on this generalized model was released @GridShielding.jl for the programming language Julia.
+
+Safe and optimal controller synthesis for switched-controlled hybrid systems, which combine differential equations and discrete changes of the system's state, is known to be intricately hard.
+These systems have previously #cite(label("DBLP:conf/atva/JaegerJLLST19"))#cite(label("randomwalk"))  been described as EMDPs (@def:emdp), but this paper introduces a more precise definition.
 
 #contribution[
-  The paper introduces a formalism for describing hybrid systems, the _hybrid Markov decision process,_ which features periodic actions and a system evolving based on both discrete changes to- and continuous evolution of the state.
+  A formalism for describing hybrid systems, called the _hybrid Markov decision process._
+]
+
+Optimized policies can be trained using RL, but obtaining a shield for non-linear and hybrid environments is intractable.
+The paper details the construction of a shield using the so-called _barbaric method_, where an approximate finite representation of an underlying partition-based two-player safety game is extracted via systematically picked samples of the true transition function.
+
+#contribution[
+  Formalization the approach investigated in @MastersThesis, providing a method of shielding to a hybrid setting using discretization.
 ]
 
 #contribution[
-  A precise formalism to describe a method of shielding to a hybrid setting using discretization.
+  Generalization of a sample-based (_barbaric_) method of approximating reachability, to speed up shield synthesis.
 ]
 
-#contribution[
-  Generalization of a sample-based method of approximating reachability, to speed up shield synthesis.
-]
-Formal guarantees are lost using this approximation, but the resulting shields can be checked using statistical model checking.
-This was shown to work in practice for five case studies.
+While hard safety guarantees are out of reach, strong statistical safety guarantees are demonstrated experimentally with a prototype implementation and #uppaalstratego.
+Furthermore, the impact of the synthesized shield is studied when applied as either training-only or operation-only.
 
 #contribution[
-  Comparison of training-only shielding to operation-only shielding through five case studies.
-  Training-only shielding was found in all cases to yield better expected reward than operation-only shielding.
+  Comparison of training-only pre-shielding to operation-only post-shielding through five case studies, including two industrial examples.
 ]
 
+Training-only shielding was found in all cases to yield better expected reward than operation-only shielding.
+
+As described in @sec:ApplyingTheShield, #ref(<sec:postshielding>, form: "page"), post-shielding relies on a fallback policy $fehu$ to select an alternative safe action whenever the shield intervenes.
+This paper investigated ways of obtaining $fehu$:
+
 #contribution[
-  Demonstrated the marginal improvement of performance in operation-only shielding by using RL to obtain a fallback policy $fehu$.
+  Demonstrated post-optimization of operation-only shielding, by using RL to obtain a fallback policy.
 ]
+
+Marginal improvement -- compared to a uniformly random choice of safe actions -- was found for either the expected reward (cost), or for the number of interventions, depending on the optimization criterion.
 
 === #paperref(<paper:B>, with-title:true)
 
