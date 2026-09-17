@@ -151,7 +151,7 @@
   stroke: (1pt + aaublå),
   inset: 1em,
   width: 100%,
-  text("Hypothesis", weight: "bold", fill: aaublå) + h(0.5em) + body
+  text("Hypothesis", weight: "bold") + h(0.5em) + body
 )
 
 #let comment(content) = [ #h(1fr) $triangle.r$ #content ]

@@ -167,27 +167,28 @@
 
   show: thm-rules
   
-  show thm-selector("thm-group", subgroup: "example"): it => block( it,  ..box-style(nephritis), breakable: true,)
-  show thm-selector("thm-group", subgroup: "remark"): it => block( it, ..box-style(wisteria), breakable: true,)
+  show thm-selector("thm-group", subgroup: "example"): it => block( it,  ..box-style(oakleaf, background: oakleaf.lighten(98%)), breakable: true,)
+
+  show thm-selector("thm-group", subgroup: "remark"): it => block( it, ..box-style(wine), breakable: true,)
   
   show thm-selector("thm-group", subgroup: "definition"): it => {
     v(-1em) // I don't know how to do this properly :< 
-    block(it, ..box-style(peterriver), breakable: true)
+    block(it, ..box-style(aaulysblå), breakable: true)
   }
   
   show thm-selector("thm-group", subgroup: "theorem"): it => {
     v(-1em)
-    block(it, ..box-style(greensea), breakable: true)
+    block(it, ..box-style(leather), breakable: true)
   }
   
   show thm-selector("thm-group", subgroup: "lemma"): it => {
     v(-1em)
-    block(it, ..box-style(greensea), breakable: true)
+    block(it, ..box-style(leather), breakable: true)
   }
   
   show thm-selector("thm-group", subgroup: "proof"): it => {
     v(-1em)
-    block(it, ..box-style(greensea), breakable: true)
+    block(it, ..box-style(leather), breakable: true)
   }
 
 

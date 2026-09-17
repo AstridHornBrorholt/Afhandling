@@ -4,6 +4,12 @@
 #let aaulysblå = cmyk(82%, 63%, 0%, 0%)
 #let aaumørkgrå = cmyk(33%, 6%, 0%, 71%)
 
+// Palette from AAU Blå https://leejsinclair.github.io/cmyk-colour-palette-generator/
+
+#let wine = cmyk(0%, 100%, 21%, 62%)
+#let leather = cmyk(0%, 30%, 100%, 62%)
+#let oakleaf = cmyk(100%, 0%, 79%, 62%)
+
 // https://flatuicolors.com/palette/defo
 
 #let turquoise = cmyk(86%, 00%, 17%, 26%)
