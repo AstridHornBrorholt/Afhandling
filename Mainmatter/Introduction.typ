@@ -1342,20 +1342,59 @@ By relying on guarantees that are established during shield synthesis, some shie
 
 In a partially observable setting, sharing observations may also allow agents to achieve a more precise estimate of the underlying model state @10129007.
   
-#new[
 
-== Summary of Papers <sec:Summary>
-...
+\
+#new[
+== Summary of Research Contributions <sec:Summary>
+
+Based on the definitions of the previous sections, the research hypothesis from @sec:Hypothesis can be answered as a summary of contributions from the following papers.
+Summaries are given below based on the abstracts of each paper, and research contributions are listed.
+
+Note that I changed my first name from Asger to Astrid between the publication of #paperref(<paper:D>) and #paperref(<paper:E>)
+
+#grid(columns: 2, row-gutter: 1em, column-gutter: 1em,
+  [#paperref(<paper:A>)], [  // This insane string is to make the brackets align regardless of kerning :3 
+    Asger Horn Brorholt, Peter Gjøl Jensen, Kim Guldstrand Larsen, Florian~Lorber and Christian~Schilling
+    "Shielded Reinforcement Learning for Hybrid Systems"
+    _AISoLA,_ B.Steffen, Ed., in LNCS, vol. 14380. Springer, 2023,~pp.~33–54.
+    @PaperA
+  ],
+  [#paperref(<paper:B>)], [
+    Asger Horn Brorholt, Andreas Holck Høeg-Petersen, Kim Guldstrand Larsen and Christian~Schilling
+    "Efficient Shield Synthesis via State-space Transformation" 
+    _AISoLA,_ B. Steffen, Ed., in LNCS, vol. 15217. Springer, 2024, pp.~206–224. 
+    @PaperB
+  ],
+  [#paperref(<paper:C>)], [
+    Asger Horn Brorholt, Kim Guldstrand Larsen and Christian~Schilling
+    "Compositional Shielding and Reinforcement Learning for Multi-agent Systems"
+    _Proceedings of the 24th International Conference on Autonomous Agents and Multiagent Systems (AAMAS),_
+     S. Das, A. Nowé, and Y. Vorobeychik, Eds.,  in ACM, 2025, pp.~399–407.
+    @PaperC
+  ],
+  [#paperref(<paper:D>)], [
+    Asger Horn Brorholt, Andreas Holck Høeg-Petersen, Peter Gjøl Jensen, Kim Guldstrand Larsen, Marius Mikučionis, Christian Schilling and Andrzej Wąsowski
+    "#uppaalcoshy: Automatic Synthesis of Compact Shields for Hybrid Systems"
+    _Reachability Problems - 19th International Conference (RP),_ P. Ganty and A. Mansutti, Eds., in LNCS, vol. 16230. Springer, 2025,~pp.~97–111.
+    @PaperD
+  ],
+  [#paperref(<paper:E>)], [Astrid~Horn~Brorholt, Maris~F.~L.~Galesloot, Nils~Jansen, Kim~Guldstrand~Larsen and Christian~Schilling
+    "Adaptive Probabilistic Shielding by Learning MDPs for Safe Reinforcement Learning"
+    To appear in _Proceedings of the 26th International Conference on Runtime Verification (RV),_ October~6-9,2026.
+    @PaperE
+  ],
+)
+
 
 #figure(table(columns: 3,
-  [*Paper*], [*Formalism used*], [*Shield type*],
+  [*Paper*], [*Model*], [*Safety*],
   [A], [EMDP, @def:emdp:I], [Shield, @def:Shielding],
   [B], [EMDP, @def:emdp:I], [Shield, @def:Shielding],
-  [C], [MDP, @def:mdp], [Multi-agent shield, @def:GlobalAndLocalShields],
+  [C], [MG, @def:mg], [Multi-agent shield, @def:GlobalAndLocalShields],
   [D], [EMDP, @def:emdp:I], [Shield, @def:Shielding],
-  [E], [Unknown MDP, @def:mdp], [$θ$-recoverable shield, @def:ThetaRecoverable]
+  [E], [(Unknown) MDP, @def:mdp], [$θ$-recoverable shield, @def:ThetaRecoverable]
   ),
-  caption: [Papers]
+  caption: [Formalism used in each paper.]
 )
 
 #[ #set heading(numbering: none, outlined: false)
