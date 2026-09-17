@@ -24,11 +24,10 @@ With applications such as autonomous vehicles, water management systems, industr
 Under these safety constraints, the systems must also behave in a way that achieves their objectives efficiently.
 
 This can be achieved through the field of formal methods, which has a wide variety of approaches that can provide proof that a given system restricts itself to a safe subset of behaviours #cl("HandbookOfModelChecking")@lewis2012optimal@doyle2013feedback.
-This presumes an accurate model of the (cyber-physical) system under verification.
-Such a model can be subject to _state-space explosion_ in which the number of states grows exponentially in the number of variables used to represent it.
-As the complexity of the model increases, correct-by-construction methods of policy synthesis become computationally infeasible.
+This presumes an accurate model of the (cyber-physical) system under verification. 
+However, with the complexity of many real-world systems, correct-by-construction methods of policy synthesis become computationally infeasible.
 
-When the state-space reaches a size that is prohibitive for these methods, _reinforcement learning_ (RL) #cl("DBLP:books/lib/SuttonB98") @kaelbling1996reinforcement @arulkumaran2017deep has proven useful at approximating the optimal policy through exploration even in complex systems.
+_Reinforcement learning_ (RL) #cl("DBLP:books/lib/SuttonB98") @kaelbling1996reinforcement @arulkumaran2017deep has proven useful at approximating the optimal policy through exploration even in complex systems.
 RL methods based on neural networks #cl("DBLP:journals/nature/LeCunBH15") are especially notable for having achieved impressive performance in a wide variety of tasks #cl("DBLP:journals/nature/SchrittwieserAH20").
 This performance is achieved by controllers that use a high number of neurons, making direct formal verification infeasible.
 
@@ -36,8 +35,7 @@ This performance is achieved by controllers that use a high number of neurons, m
 *Shielding* @AlshiekhBEKNT18 @BloemKKW15@DavidJLLLST14 is a promising technique that restricts the behaviour of an RL policy in a way that formally guarantees a safety specification.
 A _shield,_ tasked with enforcing this safety specification, acts as a guardrail to keep the RL policy within safe bounds.
 To do so, the shield must avoid any states where leaving the bounds cannot be prevented.
-Synthesizing such a shield is subject to state-space explosion as described above.
-However, the size of the state-space can often be brought down significantly by creating a safety-relevant abstraction.
+Synthesizing such a shield is subject to the same complexities discussed above, but these can be significantly mitigated by creating a safety-relevant abstraction.
 This abstraction omits aspects of the system that are only relevant for keeping track of the reward.
 This shield can then be combined with an efficient policy, such as one obtained by RL, to achieve both safety and efficiency.
 Therefore, shielding has been widely studied in the literature 
@@ -45,10 +43,10 @@ Therefore, shielding has been widely studied in the literature
 but the ability of a shield to enforce safety depends on which assumptions can be made about the system, and there is no truly scalable "silver bullet" to ensure safety in all cases.
 
 This thesis continues the work of developing novel shielding methods -- with a focus on scalability -- that enforce safety under systems and assumptions that are realistic for real-world cyber-physical systems.
-This thesis addresses shielding  hybrid systems, multi-agent settings and unknown environments, and describes efforts to enhance scalability, and accessibility through the development of user-friendly tools.
+The thesis will address shielding  hybrid systems, multi-agent settings and unknown environments, and describes efforts to enhance scalability, and accessibility through the development of user-friendly tools.
 
 The remainder of this introduction will describe the basics first of RL, then of shielding.
-Beyond the fundamental definitions, alternative systems and shielding approaches are described. 
+These fundamental definitions are used as a basis for formulating a research hypothesis, after which alternative systems and shielding approaches are described. 
 The last part of the introduction summarises the papers which make up the remainder of this thesis.
 
 == Reinforcement Learning <sec:rl>
