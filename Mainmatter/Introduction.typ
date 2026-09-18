@@ -1352,7 +1352,9 @@ Instead of assuming agents can communicate their intended actions during run-tim
 Based on the definitions of the previous sections, the research hypothesis from @sec:Hypothesis can be answered as a summary of contributions from the following papers.
 Summaries are given below based on the abstracts of each paper, and research contributions are listed.
 
-Note that I changed my first name from Asger to Astrid between the publication of #paperref(<paper:D>) and #paperref(<paper:E>)
+#infobox[
+  ⚧ I changed my first name from Asger to Astrid between the publication of #paperref(<paper:D>) and #paperref(<paper:E>).
+]
 
 #grid(columns: 2, row-gutter: 1em, column-gutter: 1em,
   [#paperref(<paper:A>)], [  // This insane string is to make the brackets align regardless of kerning :3 
@@ -1444,63 +1446,96 @@ Marginal improvement -- compared to a uniformly random choice of safe actions --
 
 === #paperref(<paper:B>, with-title:true)
 
-This paper builds upon #paperref(<paper:A>), enhancing the scalability of the method by augmenting the partitioning scheme described in the previous paper. 
-Using a state-space transformations, the partition boundaries can be aligned to the dynamics of a system, which enables coarser partitioning of the state-space.
+This paper builds upon #paperref(<paper:A>), enhancing the scalability of the method by augmenting the axis-aligned partitioning scheme described in the previous paper. 
+
+For many systems such a partitioning scheme does not align well with the safety property or the system dynamics. That is why a coarse partitioning is rarely sufficient, but a fine partitioning is typically computationally infeasible to obtain. 
+This paper 
 
 #contribution[
-  State-space transformations were found analytically, based on the system dynamics of two different case studies.
-  These transformations led to a significant reduction in the initial number of partitions.
+  State-space transformations can still allow to use a coarse partitioning, at almost no computational overhead.
 ]
 
+In three case studies, transformation-based synthesis was faster than standard synthesis by several orders of magnitude. 
+
+In the first two case studies, domain knowledge was used to select a suitable transformation. 
+In the third case study, the dynamics did not point to any particular transformation that would be suitable.
+Instead, a transformation was found by experimentation.
+
 #contribution[
-  Preliminary results from a third case study, that demonstrate the potential for automatically discover state-space transformations.
+  Results in engineering a state-space transformation without domain knowledge.
 ]
+
+The result is not presented as a general method, as it was not investigated if this could apply to other case studies.
 
 === #paperref(<paper:C>, with-title:true)
 
 A method for multi-agent shielding is given for models where the interaction of agents have a set structure.
 The shielding method uses offline coordination through an assume-guarantee framework.
 
+Computing a shield scales exponentially in the number of state variables. 
+As shown in @ex:2AgentGridWorld, this is a particular concern in multi-agent systems with many agents.
+This paper introduces a novel approach for multi-agent shielding. 
+Scalability is addressed by computing individual shields for each agent.
+Typical safety specifications are global properties, but the shields of individual agents only ensure local properties. 
+The key to overcome this challenge is to apply assume-guarantee reasoning. 
+A sound proof rule is presented, that decomposes a (global, complex) safety specification into (local, simple) obligations for the shields of the individual agents.
+This proof rule applies to systems where the interaction between agents is structures, such that each agent interacts with a limited number of other agents, as is illustrated in @fig:cps.
+
 #contribution[
   The _compositional shielding_ method for synthesising local shields using offline-coordination through an assume-guarantee framework.
-  This coordination makes local shields viable where they otherwise would not be.
 ]
 
-This same structure was found to be useable for a novel approach to RL in multi-agent systems.
+The effectiveness and scalability of this multi-agent shielding framework is demonstrated in two case studies, reducing the computation time from hours to seconds.
+
+This same compositional structure was found to be useable for a novel approach to RL in multi-agent systems.
+With the safety guarantees provided by compositional shielding,  a the structure of interactions
 
 #contribution[
   The _cascading learning_ RL algorithm to approximate Pareto optimal policies by learning local policies in a fixed ordering.
 ]
 
+The cascading learning under compositional shielding is compared to the state of the art (unshielded) multi-agent RL method MAPPO #cl("DBLP:conf/nips/YuVVGWBW22").
+It is shown that this shielded RL approach significantly improves the safety and reward of the policies obtained for a given training budget.
+
 === #paperref(<paper:D>, with-title:true)
 
-The tool is extended with a new query to apply the method to a standard #uppaal model.
-Additional settings are added for this particular type of query.
+
+The modelling tool #uppaal is extended with the methodology presented in #paperref(<paper:A>). 
+
+#contribution[
+  The extension, #coshy, is a tool for automatic synthesis of shields for continuous state spaces and complex hybrid dynamics.
+]
+
+The implementation is fully automatic and supports the expressive formalism of #uppaal models, which encompass stochastic hybrid automata.
 State-space transformations from #paperref(<paper:B>) are shown to be achievable using standard features of the #uppaal modelling language.
 
-#contribution[
-  The tool #uppaal is extended to include the shield synthesis method of #paperref(<paper:A>).
-]
+The precision of our partition-based approach benefits from using finer grids, which however are not efficient to store.
+To integrate compact strategies into the workflow, #coshy is made compatible with a stand-alone application for reduction of strategy representations.
 
 #contribution[
-  The #caap algorithm, that can reduce the representation size of a shield.
+  The algorithm called  #smallcaps[caap] can efficiently compute a compact representation of a shield in the form of a decision tree.
 ]
-After synthesis, the shield is converted to a decision tree with axis-aligned predicates, and reductions are applied to significantly reduce the number of nodes.
+
+The tool is applied to four case studies, and the integrated of #caap into the workflow shows significant reductions in represented size.
+
 
 === #paperref(<paper:E>, with-title:true)
 
+Traditionally, the shield is computed from the transition probabilities of the underlying Markov decision process (MDP).
+Thus, this technique is not applicable when the MDP model is not given a priori, which, unfortunately, is the case in typical RL applications. 
+
+The paper studies the problem of computing a probabilistic shield in the setting where the transition graph of the MDP is known, but the transition probabilities are unknown. 
+Maintaining a safe set through shielding (cf. @def:Shielding) is often not feasible, so the probabilistic $θ$-recoverable shielding approach from @def:ThetaRecoverable is chosen.
+
 #contribution[
-  An adaptive shielding algorithm that uses the structure of the otherwise unknown MDP to estimate transition probabilities.
-  The RL agent performs shielded learning with a slight probability of exploring outside the shield in order to learn more about the system.
+  Adaptive shielding with suitable estimators, based on an initial model estimate containing the transition structure but not probabilities.
 ]
 
-The adaptive shielding algorithm was applied to four case studies, which were used for an extensive investigation of the impact of parameters and estimator methods.
-
-Though the algorithm does not specify a particular shielding method, a $θ$-recoverable shield was used for the experiments.
-Likewise, several model estimation methods were compared.
+This paradigm of #emph[adaptive probabilistic shielding] raises a number of challenges, such as when to recompute the shield and how to balance between exploration and safety during learning. 
+These challenges are investigated through case studies.
 
 #contribution[
-  Comparison of estimators and adaptive shielding parameters based on four case studies.
+  Multiple variants of this paradigm are empirically validated across five environments.
 ]
 
 ] // end set heading
