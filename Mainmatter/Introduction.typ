@@ -542,7 +542,8 @@ For example, a training-only shielding setup can use either a pre- or post-shiel
     ),
     caption: [This section uses different terms compared to #paperref(<paper:A>).]
   )<tab:NamingDiscrepancy>
-]
+]<re:NamingDiscrepancy>
+
 ==== Pre-shielding
 Illustrated in @fig:PreShielding, this term refers to the shield $shield$ restricting the behaviour of the the policy by providing a set of actions $shield(s) subset.eq A$, that are permitted for the given state $s$.
 The learning must be set up in such a way as to only pick an action $a$ if it is included in the set $shield(s)$.
@@ -1037,11 +1038,11 @@ A variant of discretized Q-learning with dynamic partitioning of the state-space
   This reinforcement learning technique will dynamically partition the state-space to group states with similar Q-values as it learns.
   A policy was trained using the query `minE(c + Ball.Stop*50) [<=100] {} -> {v, p} : <> time>=100` which achieved an average reward of ?? during simulated operation.
   #todo[Run the numbers]
-]<ex:BBUnshielded>
+]<ex:UnshieldedBB>
 
 === Shielding Hybrid Systems
 
-The discretization method outlined in @ex:BBUnshielded may also be used to obtain a shield for hybrid systems, as shown in the following example.
+The discretization method outlined in @ex:UnshieldedBB may also be used to obtain a shield for hybrid systems, as shown in the following example.
 
 #example(name: [Shielding the Bouncing Ball])[
   A shield is synthesized using the publicly available library @GridShielding.jl based on the formalism given in #paperref(<paper:A>).
@@ -1056,7 +1057,7 @@ The discretization method outlined in @ex:BBUnshielded may also be used to obtai
     caption: [Shielding the Bouncing Ball],
   )<fig:ShieldingBB>
 
-  Training-only pre-shielding was used for Q-learning with parameters otherwise identical to @ex:BBUnshielded.
+  Training-only pre-shielding was used for Q-learning with parameters otherwise identical to @ex:UnshieldedBB.
   Although the cell size of the Q-table does not match that of the shield, the safe-by-construction policy can be represented using the smallest cell-size.
   This is possible because the shield's cell size of $0.02$, is a divisor of the coarser Q-table which has size $0.1$.
 
@@ -1064,8 +1065,8 @@ The discretization method outlined in @ex:BBUnshielded may also be used to obtai
   During evaluation, the resulting policy achieved a a mean reward of $-37.8$.
   This policy is visualized in @fig:BBShieldedPolicy.
 
-  Applying the pre-shield to the strategy from @ex:BBUnshielded for operation-only shielding yielded a similar reward, of $-38.5$.
-]
+  Applying the pre-shield to the strategy from @ex:UnshieldedBB for operation-only shielding yielded a similar reward, of $-38.5$.
+]<ex:ShieldingBB>
 
 == Adaptive Shielding <sec:AdaptiveShielding>
 
@@ -1251,9 +1252,9 @@ Analogously to joint and individual policies, a shield is called either _global_
   For an $n$-agent MG $mg = (S, s_0, N, A, P, R)$ and a safe set $phi subset.eq S$, a nondeterministic global policy is a global shield $shield : S → powerset(A) \\ emptyset$, if it is safe.
 
   A safe nondeterministic individual policy is called a local shield $shield_i : S -> powerset(A_i) \\ emptyset$.
-]<def:GlobalAndLocalShields>
+]<def:MultiAgentShielding>
 
-The concepts in @def:Shielding of maximally permissive shields, and permitted actions and policies (global and local) extend naturally from @def:GlobalAndLocalShields.
+The concepts in @def:Shielding of maximally permissive shields, and permitted actions and policies (global and local) extend naturally from @def:MultiAgentShielding.
 
 A safe set may be feasible (cf. @def:Feasibility) with a global shield, but not feasible for any of the agents with a local shield.
 This is shown in @ex:2AgentGridWorld.
@@ -1349,8 +1350,10 @@ Instead of assuming agents can communicate their intended actions during run-tim
 #new[
 == Summary of Research Contributions <sec:Summary>
 
-Based on the definitions of the previous sections, the research hypothesis from @sec:Hypothesis can be answered as a summary of contributions from the following papers.
-Summaries are given below based on the abstracts of each paper, and research contributions are listed.
+Using the definitions of the previous sections, the research hypothesis from @sec:Hypothesis can be answered as a summary of contributions from the following papers.
+Each summary is based on the paper's abstract, but re-written to use terminology established in this introduction, and to list research contributions.
+
+Full references are given below, and @tab:Formalisms shows the model and safety criterion used in each paper.
 
 #infobox[
   ⚧ I changed my first name from Asger to Astrid between the publication of #paperref(<paper:D>) and #paperref(<paper:E>).
@@ -1384,7 +1387,7 @@ Summaries are given below based on the abstracts of each paper, and research con
   ],
   [#paperref(<paper:E>)], [Astrid~Horn~Brorholt, Maris~F.~L.~Galesloot, Nils~Jansen, Kim~Guldstrand~Larsen and Christian~Schilling
     "Adaptive Probabilistic Shielding by Learning MDPs for Safe Reinforcement Learning"
-    To appear in _Proceedings of the 26th International Conference on Runtime Verification (RV),_ October~6-9,2026.
+    To appear in _Proceedings of the 26th International Conference on Runtime Verification (RV),_ LNCS, vol. 17117. Springer.
     @PaperE
   ],
 )
@@ -1394,19 +1397,16 @@ Summaries are given below based on the abstracts of each paper, and research con
   [*Paper*], [*Model*], [*Safety*],
   [A], [EMDP, @def:emdp:I], [Shield, @def:Shielding],
   [B], [EMDP, @def:emdp:I], [Shield, @def:Shielding],
-  [C], [MG, @def:mg], [Multi-agent shield, @def:GlobalAndLocalShields],
+  [C], [MG, @def:mg], [Multi-agent shield, @def:MultiAgentShielding],
   [D], [EMDP, @def:emdp:I], [Shield, @def:Shielding],
   [E], [(Unknown) MDP, @def:mdp], [$θ$-recoverable shield, @def:ThetaRecoverable]
   ),
-  caption: [Formalism used in each paper.]
-)
+  caption: [Formalisms used in each paper.]
+)<tab:Formalisms>
 
 #[ #set heading(numbering: none, outlined: false)
 
-=== #paperref(<paper:A>, with-title:true)
-
-This paper builds upon a pervious Master's thesis @MastersThesis, providing a general framework which applies ideas that were developed in the thesis for specific case studies.
-A code library based on this generalized model was released @GridShielding.jl for the programming language Julia.
+==== #paperref(<paper:A>, with-title:true)
 
 Safe and optimal controller synthesis for switched-controlled hybrid systems, which combine differential equations and discrete changes of the system's state, is known to be intricately hard.
 These systems have previously #cite(label("DBLP:conf/atva/JaegerJLLST19"))#cite(label("randomwalk"))  been described as EMDPs (@def:emdp), but this paper introduces a more precise definition.
@@ -1415,8 +1415,16 @@ These systems have previously #cite(label("DBLP:conf/atva/JaegerJLLST19"))#cite(
   A formalism for describing hybrid systems, called the _hybrid Markov decision process._
 ]
 
+The versatility of this formalism was demonstrated through an accurate definition of the Bouncing Ball problem (informally described in @ex:BB).
+
 Optimized policies can be trained using RL, but obtaining a shield for non-linear and hybrid environments is intractable.
 The paper details the construction of a shield using the so-called _barbaric method_, where an approximate finite representation of an underlying partition-based two-player safety game is extracted via systematically picked samples of the true transition function.
+The finite representation is obtained by discretizing the continuous state-space into equal-sized, axis-aligned partitions -- similar to how the Q-table is constructed in @ex:UnshieldedBB.
+
+This paper builds upon a pervious Master's thesis @MastersThesis.
+The ideas in the Master's thesis were developed specifically for two case studies, and are extended in the paper to a general framework.
+A code library based on this generalized model was released @GridShielding.jl for the programming language Julia.
+This is the library used to shield the Bouncing Ball in @ex:ShieldingBB.
 
 #contribution[
   Formalization the approach investigated in @MastersThesis, providing a method of shielding to a hybrid setting using discretization.
@@ -1427,7 +1435,7 @@ The paper details the construction of a shield using the so-called _barbaric met
 ]
 
 While hard safety guarantees are out of reach, strong statistical safety guarantees are demonstrated experimentally with a prototype implementation and #uppaalstratego.
-Furthermore, the impact of the synthesized shield is studied when applied as either training-only or operation-only.
+Furthermore, the impact of the synthesized shield is studied when applied as either training-only or operation-only (NB @re:NamingDiscrepancy).
 
 #contribution[
   Comparison of training-only pre-shielding to operation-only post-shielding through five case studies, including two industrial examples.
@@ -1442,20 +1450,24 @@ This paper investigated ways of obtaining $fehu$:
   Demonstrated post-optimization of operation-only shielding, by using RL to obtain a fallback policy.
 ]
 
-Marginal improvement -- compared to a uniformly random choice of safe actions -- was found for either the expected reward (cost), or for the number of interventions, depending on the optimization criterion.
+A fallback policy obtained using RL was found to improve outcomes, compared to a uniformly random choice of safe actions.
 
-=== #paperref(<paper:B>, with-title:true)
+==== #paperref(<paper:B>, with-title:true)
 
-This paper builds upon #paperref(<paper:A>), enhancing the scalability of the method by augmenting the axis-aligned partitioning scheme described in the previous paper. 
-
-For many systems such a partitioning scheme does not align well with the safety property or the system dynamics. That is why a coarse partitioning is rarely sufficient, but a fine partitioning is typically computationally infeasible to obtain. 
-This paper 
+This paper builds upon #paperref(<paper:A>), enhancing the scalability of the method by augmenting the axis-aligned partitioning scheme. 
+For many systems such a partitioning scheme does not align well with the safety property or the system dynamics. 
+That is why a coarse partitioning is rarely sufficient, but a fine partitioning is typically computationally infeasible to obtain. 
+The solution proposed by this paper is to align the shield's partitioning with decision boundaries.
 
 #contribution[
-  State-space transformations can still allow to use a coarse partitioning, at almost no computational overhead.
+  Demonstration of the viability of state-space transformations, allowing the use of a coarse partitioning at almost no computational overhead.
 ]
 
-In three case studies, transformation-based synthesis was faster than standard synthesis by several orders of magnitude. 
+In three case studies, transformation-based shield synthesis was faster than standard synthesis by several orders of magnitude.
+
+#question[Awkward phrasing in this paragraph since I haven't done revisions to~it. But basically: Should I even include the paragraph?]
+The representation of these shields were similarly smaller than ones obtained by standard synthesis.
+It was shown that the difference in representation size was greater than what could be achieved by applying reductions to the representation, and that the size of the transformation-based shields could also benefit from such reductions.
 
 In the first two case studies, domain knowledge was used to select a suitable transformation. 
 In the third case study, the dynamics did not point to any particular transformation that would be suitable.
@@ -1465,21 +1477,20 @@ Instead, a transformation was found by experimentation.
   Results in engineering a state-space transformation without domain knowledge.
 ]
 
-The result is not presented as a general method, as it was not investigated if this could apply to other case studies.
+The result is not presented as a general method, but further research applying it to more case studies could determine its viability as such.
 
-=== #paperref(<paper:C>, with-title:true)
+==== #paperref(<paper:C>, with-title:true)
 
-A method for multi-agent shielding is given for models where the interaction of agents have a set structure.
+A method for multi-agent shielding (@def:MultiAgentShielding) is given for models where the interaction of agents have a set structure.
 The shielding method uses offline coordination through an assume-guarantee framework.
 
-Computing a shield scales exponentially in the number of state variables. 
-As shown in @ex:2AgentGridWorld, this is a particular concern in multi-agent systems with many agents.
-This paper introduces a novel approach for multi-agent shielding. 
-Scalability is addressed by computing individual shields for each agent.
-Typical safety specifications are global properties, but the shields of individual agents only ensure local properties. 
+Computing a shield scales exponentially in the number of state variables which, -- as shown in @ex:2AgentGridWorld -- is a particular concern in multi-agent systems.
+This paper introduces a novel approach for multi-agent shielding, synthesising local shields to enhance scalability.
+Typical safety specifications are global properties, which are often infeasible for local shields.
 The key to overcome this challenge is to apply assume-guarantee reasoning. 
-A sound proof rule is presented, that decomposes a (global, complex) safety specification into (local, simple) obligations for the shields of the individual agents.
-This proof rule applies to systems where the interaction between agents is structures, such that each agent interacts with a limited number of other agents, as is illustrated in @fig:cps.
+
+A sound proof rule is presented, that decomposes a (global, complex) safe set into (local, simple) obligations for the local shields.
+This proof rule applies to systems where the interaction between agents is structured, such that each agent interacts with a limited number of other agents, as is illustrated in @fig:cps.
 
 #contribution[
   The _compositional shielding_ method for synthesising local shields using offline-coordination through an assume-guarantee framework.
@@ -1487,45 +1498,45 @@ This proof rule applies to systems where the interaction between agents is struc
 
 The effectiveness and scalability of this multi-agent shielding framework is demonstrated in two case studies, reducing the computation time from hours to seconds.
 
-This same compositional structure was found to be useable for a novel approach to RL in multi-agent systems.
-With the safety guarantees provided by compositional shielding,  a the structure of interactions
+This same structure of interaction was leveraged for a novel approach to RL in multi-agent systems.
+With the safety guarantees provided by local shields,  agent interactions may enable sequential training.
 
 #contribution[
-  The _cascading learning_ RL algorithm to approximate Pareto optimal policies by learning local policies in a fixed ordering.
+  The _cascading learning_ algorithm which converges to Pareto optimal policies, by using RL to train local policies in a fixed ordering.
 ]
 
 The cascading learning under compositional shielding is compared to the state of the art (unshielded) multi-agent RL method MAPPO #cl("DBLP:conf/nips/YuVVGWBW22").
 It is shown that this shielded RL approach significantly improves the safety and reward of the policies obtained for a given training budget.
 
-=== #paperref(<paper:D>, with-title:true)
+==== #paperref(<paper:D>, with-title:true)
 
 
-The modelling tool #uppaal is extended with the methodology presented in #paperref(<paper:A>). 
+The modelling tool #uppaal is extended with the method presented in #paperref(<paper:A>). 
 
 #contribution[
   The extension, #coshy, is a tool for automatic synthesis of shields for continuous state spaces and complex hybrid dynamics.
 ]
 
-The implementation is fully automatic and supports the expressive formalism of #uppaal models, which encompass stochastic hybrid automata.
+Shield synthesis fully automatic and supports the expressive formalism of #uppaal models, which encompass stochastic hybrid automata.
 State-space transformations from #paperref(<paper:B>) are shown to be achievable using standard features of the #uppaal modelling language.
 
 The precision of our partition-based approach benefits from using finer grids, which however are not efficient to store.
-To integrate compact strategies into the workflow, #coshy is made compatible with a stand-alone application for reduction of strategy representations.
+#coshy is made compatible with a stand-alone application for reduction of strategy representations.
 
 #contribution[
   The algorithm called  #smallcaps[caap] can efficiently compute a compact representation of a shield in the form of a decision tree.
 ]
 
-The tool is applied to four case studies, and the integrated of #caap into the workflow shows significant reductions in represented size.
+The tool is applied to four case studies, and the integration of #caap into the workflow enables significant reductions in representation size.
 
+==== #paperref(<paper:E>, with-title:true)
 
-=== #paperref(<paper:E>, with-title:true)
-
-Traditionally, the shield is computed from the transition probabilities of the underlying Markov decision process (MDP).
+Traditionally, shields are computed from the transition probabilities of the underlying MDP.
 Thus, this technique is not applicable when the MDP model is not given a priori, which, unfortunately, is the case in typical RL applications. 
 
 The paper studies the problem of computing a probabilistic shield in the setting where the transition graph of the MDP is known, but the transition probabilities are unknown. 
-Maintaining a safe set through shielding (cf. @def:Shielding) is often not feasible, so the probabilistic $θ$-recoverable shielding approach from @def:ThetaRecoverable is chosen.
+Maintaining a safe set through shielding (cf. @def:Shielding) is often not feasible when a precise model is not available.
+Instead, probabilistic $θ$-recoverable shielding from @def:ThetaRecoverable is used.
 
 #contribution[
   Adaptive shielding with suitable estimators, based on an initial model estimate containing the transition structure but not probabilities.
@@ -1535,7 +1546,7 @@ This paradigm of #emph[adaptive probabilistic shielding] raises a number of chal
 These challenges are investigated through case studies.
 
 #contribution[
-  Multiple variants of this paradigm are empirically validated across five environments.
+  Multiple variants of this paradigm are empirically evaluated across five environments.
 ]
 
 ] // end set heading

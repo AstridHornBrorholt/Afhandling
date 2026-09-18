@@ -40,7 +40,7 @@ From this estimate, we compute a shield.
 While the shield may be conservative initially, it adapts as the model estimate becomes more precise. 
 Thus, the shield improves in tandem with the RL agent. 
 This paradigm of #emph[adaptive probabilistic shielding] raises a number of challenges, such as when to recompute the shield and how to balance between exploration and safety during learning. 
-We empirically evaluate multiple variants of this paradigm across several environments. 
+We  lly evaluate multiple variants of this paradigm across several environments. 
 
 // Keywords: #emph[Safe reinforcement learning, Shielding, Model learning, Interval Markov decision process.]
 
