@@ -74,8 +74,8 @@ An MDP is defined as a tuple $(S, s_0, A, P, R)$ where
   - and $R : S times A times S -> RR$ gives the reward $R(s, a, s')$ for reaching $s'$ by taking $a$ in $s$.
 ]<def:mdp>
 
-The state-space $S$ is often represented as a finite set of vectors over $ZZ^n$ where each element of a state-vector represents the value of a variable in the model (usually defined within a bounded interval).
-The number of states $|S|$ grows exponentially with the number of variables $n$. This growth is known as _state-space explosion._
+The state space $S$ is often represented as a finite set of vectors over $ZZ^n$ where each element of a state-vector represents the value of a variable in the model (usually defined within a bounded interval).
+The number of states $|S|$ grows exponentially with the number of variables $n$. This growth is known as _state space explosion._
 
 The definition also requires every action $a in A$ to be defined for every state in $S$. 
 This assumption is made w.l.o.g. to simplify notation.
@@ -166,9 +166,9 @@ This is used in the definition of the optimization problem of finding the policy
 For an MDP, the optimal policy is deterministic #cl("DBLP:books/lib/SuttonB98").
 It may be possible to compute $pi^star$ directly, through e.g. direct search, through dynamic- or linear programming, or to accurately approximate them using value iteration #cl("DBLP:books/lib/SuttonB98").
 These methods require full knowledge of the transition probabilities $P$ and rewards $R$, and have polynomial runtime on the number of states $|S|$ which make them suitable for a wide range of problems, with up to millions of states on modern hardware.
-However, MDPs are often described using several variables or components. Known as the _state-space explosion,_ the size of the state-space is exponential in the number of these components or variables.  
+However, MDPs are often described using several variables or components. Known as the _state space explosion,_ the size of the state space is exponential in the number of these components or variables.  
 
-If the state-space is prohibitively large, or the MDP is not fully known but can be sampled from, the optimal policy may instead be approximated through learning. 
+If the state space is prohibitively large, or the MDP is not fully known but can be sampled from, the optimal policy may instead be approximated through learning. 
 
 #todo[The following section conflates representations, implementations, and learning algorithms. Re-write.]
 
@@ -229,7 +229,7 @@ Updates are performed according to a learning rate $alpha: NN -> [0; 1[$, a func
 This represents how much the new experience should influence the estimation of $Q(s,a)$.
 As the number of episodes increases, so does the number of times $Q(s,a)$ is updated, and a decreasing learning rate reflects growing confidence in the estimate.
 
-The $epsilon$-greedy exploration strategy in @alg:QLearning ensures that every possible transition is taken infinitely often in an infinite number of episodes. That is, with with $P(s, a)(s') > 0$ and $s$ reachable from $s_0$, the expected number of times a transition triple $s a s'$ is seen increases with the number of episodes $n$.
+The $epsilon$-greedy exploration strategy in @alg:QLearning ensures that every possible transition is taken infinitely often in an infinite number of episodes. That is, with $P(s, a)(s') > 0$ and $s$ reachable from $s_0$, the expected number of times a transition triple $s a s'$ is seen increases with the number of episodes $n$.
 
 The $epsilon$-greedy exploration strategy is conceptually simple, and therefore used in many textbooks and standard implementations.
 Other exploration strategies exist that makes better use of existing knowledge to find out which actions are worth exploring.
@@ -254,7 +254,7 @@ This is ensured by the fact that $s_0$ is visited infinitely often as $n -> infi
   A robot 🤖 can move around along the cardinal directions on a $4 times 4$ grid, and must find an efficient path towards a goal 🏁 while avoiding a harmful tile 💀.  Movement is deterministic except for the ice tiles 🧊 where there is a chance of slipping in a different random direction. 
   The system is defined by the MDP $cal(W) = (S, s_0, A, P, R)$, with $S={1, 2, ...,  16}$, $s_0=14$ and $A={⬅, ⬆, ➡, ⬇}$. $P$ and $R$ are described below:
 
-  The state-space is laid out in a $4 times 4$ grid as illustrated in @fig:GridWorld, with $s_0$ marked by 🤖.
+  The state space is laid out in a $4 times 4$ grid as illustrated in @fig:GridWorld, with $s_0$ marked by 🤖.
   With the exception of states 10, 11, (🧊) 15 (💀) and 16(🏁), transitions deterministically follow the cardinal direction indicated by the action. If the action would cause the agent to leave the grid, it remains in the same state.  
 
   For example, $P(1, ➡)(2)  = 1$ (for $s!=2$ then $P(1, ➡)(s) = 0$), $P(2, ⬇)(6) = 1$ and $P(5, ⬅)(5) = 1$.
@@ -416,7 +416,7 @@ The permissiveness of the shield is an important property, since an overly restr
 
   Recall the MDP $cal(I) = ({○, ◍},○, { p, c }, P, R)$ shown in @fig:InjectionMoulding. This new requirement in the contract corresponds to the safety property "for any trace $xi = s_0, a_0, s_1, a_1...$, for every $s_i$ in $xi$, $s_i = ◍  => s_(i+1) = ○$."
 
-  This safety property can be turned into an invariant, by extending the state-space to $S={○, ◍, ●}$ with the safe set $phi = {○, ◍}$.
+  This safety property can be turned into an invariant, by extending the state space to $S={○, ◍, ●}$ with the safe set $phi = {○, ◍}$.
   The state $●$ is reached when a batch is produced in a contaminated mould, as shown in @fig:QualityInjectionMoulding. 
 
   #figure(image("../Graphics/Intro/FactorySink.png", width: 200pt),
@@ -473,15 +473,15 @@ Since this first article covering shielded reinforcement learning in finite MDPs
   - whether the MSCI World stock market index is trending _up_ or _down,_ and 
   - the quality of the material used for casting, on a 10-step scale.
 
-  These market factors all become part of the state-space, which grows in size from $|{○, ◍, ●}| = 3$ to size $3 times 100 times 52 times 2 times 10 = 312#h(1pt)000$.
-  This growth in the state-space from adding just four variables is an example of state-space explosion.
+  These market factors all become part of the state space, which grows in size from $|{○, ◍, ●}| = 3$ to size $3 times 100 times 52 times 2 times 10 = 312#h(1pt)000$.
+  This growth in the state space from adding just four variables is an example of state space explosion.
 
   The updated reward function $R$ and transition function $P$ will not be given here.
-  Instead, it is sufficient to note that the state-space has become significantly larger, but not in a way that affects the safety property.
+  Instead, it is sufficient to note that the state space has become significantly larger, but not in a way that affects the safety property.
   To stay within the safe set, it is still sufficient to always clean $c$ the mould whenever a state with $◍$ is entered, regardless of the other values in a state.
 
   Thus, the model described in @ex:QualityInjectionMoulding is a _safety-relevant abstraction_ of the more complex model given in this example.
-  The state-space of this abstraction is significantly smaller, and for some models, such reductions can make shield synthesis computationally feasible where it was not otherwise.
+  The state space of this abstraction is significantly smaller, and for some models, such reductions can make shield synthesis computationally feasible where it was not otherwise.
 ]<ex:SafetyRelevantAbstraction>
 
 
@@ -545,14 +545,14 @@ For example, a training-only shielding setup can use either a pre- or post-shiel
 ]<re:NamingDiscrepancy>
 
 ==== Pre-shielding
-Illustrated in @fig:PreShielding, this term refers to the shield $shield$ restricting the behaviour of the the policy by providing a set of actions $shield(s) subset.eq A$, that are permitted for the given state $s$.
+Illustrated in @fig:PreShielding, this term refers to the shield $shield$ restricting the behaviour of the policy by providing a set of actions $shield(s) subset.eq A$, that are permitted for the given state $s$.
 The learning must be set up in such a way as to only pick an action $a$ if it is included in the set $shield(s)$.
 
 For Q-learning, unsafe actions can be excluded from consideration as follows: 
 For some default value $q_0$ and bottom element $-infinity$, the Q-values can be initialized as $Q(s, a) = cases(-infinity &" if " a in.not shield(s), q_0 &"otherwise")$.
 If $epsilon$-greedy exploration (@l:Explore in @alg:QLearning) is used, the exploratory actions should picked from just $shield(s)$ and not the full action space $A$.
 
-Directly applying the shield to the Q-table is possible because the learning method is able to assign values to every state in the finite state-space.
+Directly applying the shield to the Q-table is possible because the learning method is able to assign values to every state in the finite state space.
 A similar approach is not possible for e.g. decision trees, neural networks, etc. where states in the system are not explicitly represented. 
 
 ==== Post-shielding <sec:postshielding>
@@ -620,21 +620,21 @@ The same tendency has been observed in other works #cl("DBLP:conf/aaai/Carr0JT23
 This is not a general rule however, and there are also examples of shielded policies yielding less reward than the unshielded one @bloem_its_2020#cl("DBLP:conf/aaai/CourtBG25"). These are cases where the shield prevents exploitation of risky but more rewarding behaviour.
 
 Care must be taken when putting the trained policy into operation, in order to preserve safety guarantees.
-Since the state-space $S$ is finite, a deterministic policy can be encoded as a set of state-action pairs $(s, a) in S times A$.
+Since the state space $S$ is finite, a deterministic policy can be encoded as a set of state-action pairs $(s, a) in S times A$.
 Shielded policies encoded in this way will naturally have $a in shield(s)$ for all encoded pairs $(s, a)$.
 #footnote[The encoded policy is still shielded according to @def:Shielding, but the full shield is not kept.]
 Such an encoding can save space on embedded hardware, which might not be able to accommodate an explicit representation of the shield.
 
-Training-only shielding is not always an option. For e.g. neural networks working on continuous state-spaces, this $(s, a)$ representation is not possible.
+Training-only shielding is not always an option. For e.g. neural networks working on continuous state spaces, this $(s, a)$ representation is not possible.
 Here, the shield needs to be kept during operation, as described in the next section.
 
 
 
 ==== End-to-end Shielding
 When the shield is in place and explicitly represented during _both_ the learning  _and_ operational phases, this is called end-to-end shielding (@fig:EndToEnd).
-This is a necessity for continuous state-spaces that cannot be represented as a state-action lookup table.
+This is a necessity for continuous state spaces that cannot be represented as a state-action lookup table.
 Instead, the shield must be kept along with the policy representation when put into operation, so it can preserve the safe behaviour.
-Reductions can be applied to the shield before operation, to reduce its memory footprint significantly @PaperB@PaperD.
+Reductions can be applied to the shield before operation, to reduce its memory footprint significantly, as shown in #paperref(<paper:B>) and #paperref(<paper:D>).
 
 As stated earlier, an end-to-end setup can make use of either a pre- or post-shield.
 However, alternating between the two with e.g. pre-shielded training and a post-shielded operation will negatively impact the expected reward.
@@ -649,7 +649,7 @@ Some time during operation, a shield may then be developed to provide formal saf
 In these cases, the shield can be applied only in the operational phase.
 If the policy did learn to avoid unsafe states perfectly, a maximally permissive shield would not interfere with its operation.
 Otherwise, the shield will disrupt the optimized behaviour which the policy has learned.
-It was found in #paperref(<paper:A>) @PaperA that applying an operation-only post-shield to a policy can lead to substantial drops in the expected reward.
+It was found in #paperref(<paper:A>) that applying an operation-only post-shield can lead to substantial drops in the expected reward.
 Therefore, operation-only shielding should only be employed when re-training or (fine-tuning) the existing policy is not possible.
 
 #example(name: "Staying safe in Grid World")[
@@ -873,7 +873,7 @@ Alternatively, the probabilistic shield in #cl("DBLP:conf/concur/0001KJSB20") al
 
 == Research Hypothesis <sec:Hypothesis>
 
-The previous sections have assumed finite environments, with a fully known safety-relevant abstraction.
+The previous sections have assumed finite-state environments, with a fully known safety-relevant abstraction.
 Under these assumptions, there exist several shield synthesis methods to achieve policies optimized with RL that are verifiably safe.
 
 #figure(image("../Graphics/Intro/CPS.drawio.pdf", width: 80%),
@@ -929,9 +929,9 @@ With a policy, traces can be defined:
   Trace segments $xi_m^n = s_n a_n s_(n + 1) a_(n+1) ... s_m$ are as in @def:trace.
 ]
 
-Safe sets $phi subset.eq S$, states $s in phi$, traces, and policies of an EMDP are as in @def:Safety.
+Safe sets $phi subset.eq S$, states $s in phi$, safe traces, and safe policies of an EMDP are as in @def:Safety.
 By the definition of safe policies for EMDPs, the definition of shielding likewise extends naturally from @def:Shielding.
-However, the expected reward are over probability densities provided by the euclidean transition function $P$.
+However, the expected reward is defined over probability densities provided by the Euclidean transition function $P$.
 
 #definition(name: "Expected reward of a policy on an EMDP")[
   For an EMDP $emdp$, discount factor $gamma$ and deterministic policy $pi$, the expected reward  in state $s in S$ is the unique fixed point of the equation

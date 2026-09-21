@@ -121,10 +121,10 @@
   let h = locate(label)
   
   if not with-title {
-    link(h, [Paper #numbering("A", ..counter(heading).at(h))])
+    link(h, [Paper~#numbering("A", ..counter(heading).at(h))])
   } else {
     link(h, {
-        [Paper ]
+        [Paper~]
         numbering("A", ..counter(heading).at(h))
         [: ]
         show linebreak: none
