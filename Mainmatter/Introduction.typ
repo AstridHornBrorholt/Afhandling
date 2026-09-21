@@ -877,7 +877,7 @@ The previous sections have assumed finite-state environments, with a fully known
 Under these assumptions, there exist several shield synthesis methods to achieve policies optimized with RL that are verifiably safe.
 
 #figure(image("../Graphics/Intro/CPS.drawio.pdf", width: 80%),
-  caption: [A cyber-physical system with (discrete) digital hardware, (continuous) physical processes, and unknown components interacting -- shown as dotted lines.]
+  caption: [A cyber-physical system with (discrete) digital hardware/software, (continuous) physical processes, and unknown components, interacting -- shown as dotted lines.]
 )<fig:cps>
 
 However, cyber-physical systems -- pictured in @fig:cps -- are made up of several components interacting.
@@ -904,15 +904,13 @@ This discrete view fits well with the logic of electronic systems, being suited 
 However, the physical world is continuous, and can often be modelled accurately by differential equations.
 To simulate cyber-physical systems, one needs to capture both the discrete states of the electronic components and the continuous behaviour of real-world objects.
 
-Such hybrid systems contain both continuous dynamics, and discrete states that switch based on thresholds set for the continuous values.
+Such hybrid systems contain both continuous dynamics, and instantaneous changes to the state.
 There are also purely physical phenomena that hybrid systems are suitable for modelling.
 A ball bouncing on the ground is one such example #cl("PaperA", "DBLP:conf/atva/JaegerJLLST19") which will be used in the following to illustrate the workings of a hybrid system.
 
-#new[ \
-
-#definition(name: "Euclidian MDP")[
-  An _Euclidian MDP_ (EMDP) #cite(label("DBLP:conf/atva/JaegerJLLST19")) #cite(label("randomwalk")) is a tuple $emdp = (S, s_0, A, P, R)$ where 
-  - $S subset RR^n$ is part of $n$-dimensional Euclidean space,
+#definition(name: "Euclidean MDP")[
+  An _Euclidean MDP_ (EMDP) #cite(label("DBLP:conf/atva/JaegerJLLST19")) #cite(label("randomwalk")) is a tuple $emdp = (S, s_0, A, P, R)$ where 
+  - $S subset.eq RR^n$ is an $n$-dimensional Euclidean space,
   - $s_0 in S$ is the initial state,
   - $A$ is a finite set of actions,
   - $P : S times A → (S → RR_(>= 0))$ with  $integral_(s' in S) P(s, a)(s') d s' = 1$ is the transition function, which gives the  probability density over states that can be reached from state $s$ as a result of  taking the action $a$, 
@@ -941,41 +939,42 @@ However, the expected reward is defined over probability densities provided by t
   And similarly for probabilistic policies as in @def:expected-reward.
 ]
 
-] // end new
-
 Hybrid systems can be specified in the modelling tool #uppaal through the extension #uppaalsmc #cl("DBLP:journals/sttt/DavidLLMP15").
 An informal description of key features will be given here.
 Models are specified as systems of components interacting through #sync("synchronization") and shared #invariant("variables") or #invariant("clocks").
-Components made up of #location("locations") which may have an #invariant("invariants"), and transitions between locations that contain #guard("guards"), #sync("synchronization channels") and #update("updates").
+Components consist of #location("locations") which may have an #invariant("invariant"), and transitions between locations that contain #guard("guards"), #sync("synchronization channels") and #update("updates").
+@fig:BBBall shows an example of such a component.
 
 Transitions are shown as arrows between locations, and are controlled either stochastically by the environment (dashed) or chosen by the agent (solid). 
 A transition is possible when the component is currently in the transition's outgoing location, and the predicate in the guard, e.g. #guard("p >= 4 && v >= 0"), is satisfied.
 When a transition is taken, it moves the component from the outgoing to the incoming location, applying the specified update, e.g. #update("v = -4").
 
 Invariants control the evolution of clocks over time, e.g. #invariant("x <= 0.1"), whenever the component is in the location which contains the invariant.
-Time cannot progress if it would violate an active invariant, but taking a transition may allow the system to progress.
+An invariant of an active location may prevent time from progressing, but taking a transition may allow the system to progress.
 If no transition can be taken, a model deadlocks.
-In addition to constraints, invariants may also specify generalized clock rates, e.g. #invariant("p' == v"), which allows modelling linear dynamics.
+In addition to constraints, invariants may also specify generalized clock rates, e.g. #invariant("p' == v").
 
-Synchronization between components happen through #sync("channels").
-This may be initiated by transitions where the channel is suffixed by an exclamation point #sync("!"), i.e. #sync("hit!").
+Synchronization between components happens through #sync("channels").
+This may be initiated by transitions where the channel is suffixed by an exclamation point #sync("!"), e.g. #sync("hit!").
 When a channel is initiated by a transition, all receiving channels suffixed with a question mark #sync("?") will fire at the same time, if their guards are enabled.
 A~channel may be urgent, which prevents time from progressing whenever the guard on an initiating transition is satisfied.
 
 #example(name: "Bouncing Ball")[
   A ball bounces on a flat surface, and can be struck by a piston whenever it is above a certain height #cl("PaperA", "PaperB", "PaperC", "JaegerJLLST19"), as shown in @fig:BBIllustration.
+  The goal is to strike the ball as little as possible, while preventing it from coming to a stop.
+
   The energy preserved is stochastic both when the ball bounces on the ground, and when hit.
   The ball experiences standard gravity $g = 9.81 skew("m"/"s"^2)$ and has a mass of $1$kg to simplify equations.
   
   #subpar.grid(columns: (0.4fr, 1fr), align: bottom,
     [#figure(image("../Graphics/Intro/BB Illustration.svg"), caption: [Illustration of the system @JaegerJLLST19.])<fig:BBIllustration>],
-    [#figure(image("../Graphics/Intro/BB Ball.pdf"), caption: [#uppaal "Ball" template from @PaperD. \ #hide("a")])<fig:BBBall>],
-    [#figure(image("../Graphics/Intro/BB Player.pdf"), caption: [#uppaal "Player" template from @PaperD. \ #hide("a")])<fig:BBPlayer>],
-    [#figure(image("../Graphics/Intro/BB Random Trace.svg", height: 100pt), caption: [Example trace produced by random agent with 5% chance of choosing $hit$ when $p > 4$.] )<fig:BBRandomTrace>],
+    [#figure(image("../Graphics/Intro/BB Ball.pdf"), caption: [#uppaal "Ball" template from #paperref(<paper:D>). \ #hide("a")])<fig:BBBall>],
+    [#figure(image("../Graphics/Intro/BB Player.pdf"), caption: [#uppaal "Player" template from \ #paperref(<paper:D>). ])<fig:BBPlayer>],
+    [#figure(image("../Graphics/Intro/BB Random Trace.svg", height: 100pt), caption: [Example trace produced by random agent with 5% chance of choosing $hit$ when $p > 4$. \ #hide[x]] )<fig:BBRandomTrace>],
     caption: [Hitting bouncing ball.]
   )
 
-  The behaviour of the system is shown as an #uppaal model in @fig:BBBall.
+  The behaviour of the system is shown as a #uppaal model in @fig:BBBall.
   The system has velocity $v$ (#skew($"m"/"s"$)) and position $p$ ($"m"$) measured as distance to the floor.
   In the #location("InAir") location, these  variables have the rate  #invariant("p' == v && v' == -9.81") which govern the trajectory of the ball while it is in the air.
   
@@ -986,57 +985,58 @@ A~channel may be urgent, which prevents time from progressing whenever the guard
 
   A player component shown in @fig:BBPlayer is given the option to initiate the #sync("hit!") channel once every 0.1 seconds.
   A clock $x$ enforces a decision period of $0.1$, moving the player component into the location named #location("Choose").
-  This location has two outgoing transitions that lead back to the #location("Wait") location, one of which initiates the #sync("hit!") synchronization and increments #update("c") variable.
+  This location has two outgoing transitions that lead back to the #location("Wait") location, one of which initiates the #sync("hit!") synchronization and increments the accumulated cost #update("c").
 
   Two transitions on @fig:BBBall may synchronize on the channel #sync("hit"), subject to the guards on these transitions.
   These guards and transitions correspond to the following update rule with $r ~ Unif([0.9, 1])$:
 
   $ v ← cases(
-    -4.0 &"if" p >= 4 and v < 0 and v >= -4, 
+    -4 &"if" p >= 4 and v < 0 and v >= -4, 
     -4 - r v &"if" p >= 4 and v > 0,
     v &"otherwise"
   ) $ 
 
-  The behaviour of the system is shown in @fig:BBRandomTrace, which plots the position of the ball over time. 
+  An example of the behaviour of the system is shown in @fig:BBRandomTrace, which plots the position of the ball over time. 
 
 ]<ex:BB>
 
 It is not possible to apply Q-learning as described in @alg:QLearning directly to continuous systems like @ex:BB.
 It is not practical to represent a Q-table over uncountably infinite states, and most states will almost-surely never be visited twice.
-However, you can discretize the Q-table @kaelbling1996reinforcement by grouping similar states according to some partitioning scheme.
-A variant of discretized Q-learning with dynamic partitioning of the state-space is a feature of #uppaal @JaegerJLLST19, but for the next example a simple uniform partitioning scheme is used.
+However, the state space can be discretized by grouping similar states according to some partitioning scheme, in order to obtain a finite Q-table @kaelbling1996reinforcement.
+A variant of discretized Q-learning with dynamic partitioning of the state space is a feature of #uppaal @JaegerJLLST19, but for the next example a simple uniform partitioning scheme is used.
 
-#example(name: "Q-learning on BB")[
+#example(name: "Q-learning for the Bouncing Ball")[
   A Q-learning agent is set up to make a decision whenever the player is in the #location("Choose") location. 
-  Thus, only variables $vec(v, p)$ will be tracked, resulting in the state space $S = RR^2$. The initial state is set to $s_0 = vec(0, 7)$ and the action set is called $A = {hit, nohit}$. 
-  The reward $R$ is set up to give a penalty of $-1$ whenever the $hit$ action is chosen, and penalty $-50$ when the location #location("Stop") is entered.
+  Thus, only variables $vec(v, p)$ will be tracked, resulting in the state space $S = RR^2$, with initial state is set to $s_0 = vec(0, 7)$. The action set is called $A = {hit, nohit}$, representing resp. the upper and lower controllable transitions in @fig:BBPlayer. 
+  The reward $R$ is set up to give a penalty of $-1$ whenever the $hit$ action is chosen, $0$ when $nohit$ is chosen, and a penalty of $-50$ when the location #location("Stop") is entered. 
 
-  The Q-table was discretized with an axis-aligned uniform partitioning within the set $S' = [-15; 15[ #h(2pt) times [0; 10[ subset RR^2$.
+  The state space was discretized with an axis-aligned uniform partitioning within the set $S' = [-15; 15[ #h(2pt) times [0; 10[ subset RR^2$.
   States in $S'$ are grouped into cells of size $0.2 times 0.2$ in the following manner: 
-  ${ \[overline(v); underline(v)\[ #h(2pt) times \[underline(p); overline(p)\[ #h(2pt)  subset S' | underline(v) - overline(v) = overline(p) - underline(p) = 0.2 }$.
-  For example, the state $vec(-4, 1)$ is contained in the cell $ [-4; -3.9[#h(2pt) times [1; 1.1[$.
+  ${ \[underline(v); overline(v)\[ #h(2pt) times \[underline(p); overline(p)\[ #h(2pt)  subset S' | overline(v) - underline(v) = overline(p) - underline(p) = 0.2 }$.
+  For example, the state $vec(-4, 1)$ is contained in the cell $ [-4; -3.8[#h(2pt) times [1; 1.2[$.
   In total, the number of cells will be $|S'| = (15 - (-15))/0.2 times 10/0.2 = #{(15 - (-15))/0.2 * 10/0.2}$.
   Through experimentation, learning outcomes were found to be highly sensitive to the choice of cell size.
   Coarser cells required fewer training episodes to achieve a mean reward greater than $-50$, but the expected reward of the final policy would be lower.
 
-  The Q-value of these states were initialized to zero: $Q(s', a) = 0$ for $s' in S'$ and $a in {hit, nohit}$.
+  The Q-value of states in $S'$ were initialized to zero: $Q(s', a) = 0$ for $s' in S'$ and $a in {hit, nohit}$.
   In remaining states, $s in.not S'$, the ball will never be hit: $Q(s, nohit) = 0$ and $Q(s, hit) = -infinity$.
 
-  The results of raining are shown in @fig:BBUnshieldedTraining which plots  the reward obtained in each of  $50000$ episodes.
+  The results of training are shown in @fig:BBUnshieldedTraining which plots  the reward obtained in each of  $50000$ episodes.
   Each episode was limited to a length of $1200$ actions, which corresponds to $120$ seconds.
+  An example of a trace that was observed during training is shown in @fig:BBUnshieldedTrace.
 
   #subpar.grid(columns: 3, align: top,
     [#figure(image("../Graphics/Intro/BB Unshielded Training.png"), caption: [Training graph.])<fig:BBUnshieldedTraining>],
     [#figure(image("../Graphics/Intro/BB Unshielded Policy.svg"), caption: [Visualization of the resulting policy.])<fig:BBUnshieldedPolicy>],
-    [#figure(image("../Graphics/Intro/BB Unshielded Trace.svg"), caption: [Safety violation \ during training.])<fig:BBUnshieldedTrace>],
+    [#figure(image("../Graphics/Intro/BB Unshielded Trace.svg"), caption: [Ball comes to a stop \ during training.])<fig:BBUnshieldedTrace>],
     caption: [Unshielded training of the bouncing ball described in @ex:BB.]
   )
 
-  Unsafe traces were encountered during simulated operation. The average reward during simulated operation was $-37.6$.
+  The average reward during simulated operation was $-37.6$.
 
   A more advanced discretization scheme is available directly in the #uppaal tool, as part of the #uppaalstratego feature set #cl("DBLP:conf/atva/JaegerJLLST19").
-  This reinforcement learning technique will dynamically partition the state-space to group states with similar Q-values as it learns.
-  A policy was trained using the query `minE(c + Ball.Stop*50) [<=100] {} -> {v, p} : <> time>=100` which achieved an average reward of ?? during simulated operation.
+  This reinforcement learning technique will dynamically partition the state space to group states with similar Q-values as it learns.
+  A policy was trained using the query `minE(c + Ball.Stop*50) [<=120] {} -> {v, p} : <> time>=120`#footnote[C.f.  https://docs.uppaal.org/language-reference/query-syntax/learning_queries/] which achieved an average reward of ?? during simulated operation.
   #todo[Run the numbers]
 ]<ex:UnshieldedBB>
 
@@ -1050,7 +1050,7 @@ The discretization method outlined in @ex:UnshieldedBB may also be used to obtai
   The package uses a sample-based method for approximating outcomes of actions from a given cell, and in this instance $3$ samples per axis were used.
   The resulting shield is visualized in @fig:BBShield.
 
-  #subpar.grid(columns: 3,
+  #subpar.grid(columns: 3, align: top,
     [#figure(image("../Graphics/Intro/BB Shield.svg"), caption: [Visualization of the shield with cell size 0.02])<fig:BBShield>],
     [#figure(image("../Graphics/Intro/BB Shielded Training.png"), caption: [Training graph when shield is applied.])<fig:BBShieldedTraining>],
     [#figure(image("../Graphics/Intro/BB Shielded Policy.svg"), caption: [Shielded policy.])<fig:BBShieldedPolicy>],
@@ -1059,10 +1059,10 @@ The discretization method outlined in @ex:UnshieldedBB may also be used to obtai
 
   Training-only pre-shielding was used for Q-learning with parameters otherwise identical to @ex:UnshieldedBB.
   Although the cell size of the Q-table does not match that of the shield, the safe-by-construction policy can be represented using the smallest cell-size.
-  This is possible because the shield's cell size of $0.02$, is a divisor of the coarser Q-table which has size $0.1$.
+  This is possible because the shield's cell size of $0.02$, is a divisor of the coarser Q-table which has size $0.2$.
 
   The training results under a pre-shield is shown in @fig:BBShieldedTraining. 
-  During evaluation, the resulting policy achieved a a mean reward of $-37.8$.
+  During evaluation, the resulting policy achieved a mean reward of $-37.8$.
   This policy is visualized in @fig:BBShieldedPolicy.
 
   Applying the pre-shield to the strategy from @ex:UnshieldedBB for operation-only shielding yielded a similar reward, of $-38.5$.
@@ -1075,14 +1075,11 @@ Let the MDP $mdp^star$ be the unknown, ideal, safety-relevant model of the under
 Instead, an estimate $hat(mdp)$ can be created, with epistemic uncertainty about model behaviour captured as additional stochasticity, or as uncertainty-sets over the transition function #cl("DBLP:journals/sttt/BadingsSSJ23").
 This approximation $hat(mdp)$ should ideally be a _conservative_ estimate, such that any shield for $hat(mdp)$ is also a (conservative) shield for $mdp^star$.
 
-This section assumes that the estimate~$hat(mdp)$ and a safe set $phi$ will be used to synthesize a shield $shield$ by @def:Shielding.
-However, any other form of shielding described in this thesis or in the literature could also be applied.
-
 === Initial Knowledge
 
 From logs of the system's behaviour, trace segments $xi_0^n$ from $mdp^star$ can be obtained.
 This information can be used by automated methods to obtain a model estimate~$hat(mdp)$.
-Model estimation techniques include neural networks #cl("DBLP:conf/ecai/GoodallB23")#cl("DBLP:conf/ecai/BethellGCI25"), automata learning #cl("DBLP:conf/isola/TapplerPKMBL22"), interval MDPs #cl("DBLP:journals/corr/abs-2605-10293"), or model parameter estimation @senthilvelan_similarity-based_2023#cl("DBLP:journals/pacmpl/FengZPL25"). 
+Options for representing the model estimate include neural networks #cl("DBLP:conf/ecai/GoodallB23")#cl("DBLP:conf/ecai/BethellGCI25"), MDPs #cl("DBLP:conf/isola/TapplerPKMBL22"), interval MDPs #cl("DBLP:journals/corr/abs-2605-10293"), and parameterized MDPs @senthilvelan_similarity-based_2023#cl("DBLP:journals/pacmpl/FengZPL25"). 
 
 These automated methods presume some degree of initial knowledge about $mdp^star$, such as the action space, initial state, state space, or information about the structure of the transition function.
 This initial knowledge can be provided by domain experts, or estimated using trace segments.
@@ -1096,16 +1093,11 @@ While the shield is in use, more traces are generated, and it is natural to use 
 Periodically updating the shield in this way can e.g. make a conservative estimate more permissive, while still ensuring that exploration is done safely  #cl("DBLP:conf/isola/TapplerPKMBL22").
 
 Model estimation and shield synthesis is often computationally expensive.
-Therefore, it is reasonable to update the shield every $u$ episodes of RL.
-In keeping with the manner of @sec:QLearning, Q-learning is used here as an instructive example of RL:
-It is extended in @alg:AdaptiveShielding to define an adaptive training-only pre-shielding RL loop.
+Therefore, it is reasonable to update the shield occasionally.
+An adaptive training-only pre-shielding RL loop is outlined in @alg:AdaptiveShielding and visualized in @fig:AdaptiveShielding.
 
-The algorithm presumes initial knowledge encoded as a preliminary model estimate $hat(mdp)$, and records new traces using a transition database $D : S times A times S → NN$, which records how many times a transition $(s, a, s')$ is encountered during exploration.
+The algorithm presumes initial knowledge encoded as a preliminary model estimate $hat(mdp)$, and records new traces using a transition database $D$, which records which transitions $(s, a, s')$ are encountered during exploration.
 An estimator function $E$ takes as arguments $hat(mdp)$ and $D$, and produces an updated model estimate.
-
-In @sec:ApplyingTheShield, it was described how a pre-shield can be implemented by initializing the Q-table in such a way that unsafe actions will never be considered.
-Note that the pre-shield in @alg:AdaptiveShielding instead restricts the actions under consideration as e.g. $max_(a in shield(s))$ rather than $max_(a in A)$.
-This is to accommodate the adaptive shield, where actions permitted in a given state will change during execution.
 
 #figure(kind: "algorithm", supplement: "Algorithm", 
   pseudocode-list(numbered-title: [Adaptive Shielding])[
@@ -1119,7 +1111,7 @@ This is to accommodate the adaptive shield, where actions permitted in a given s
       
     - *Output:* Approximations of shield $hatshield$ and of optimal policy $hat(pi) : S -> A$.
     + *Initialize* observation database $D$
-    + *Loop*  $i ← 0$ *up to* $n$
+    + *Loop*  $i ← 0$ *up to* $n - 1$ *inclusive*
       + $hat(mdp) ← E(hat(mdp), D)$
       + $hatshield$ ← shield synthesized from $hat(mdp)$ and $φ$
       + *Perform* 1 episode of shielded RL with $L$ under $hatshield$, while collecting traces in $D$
@@ -1127,25 +1119,30 @@ This is to accommodate the adaptive shield, where actions permitted in a given s
   ]
 )<alg:AdaptiveShielding>
 
+#figure(include("../Graphics/Intro/Adaptive Shielding.typ"), 
+  caption: [Adaptive shielding.]
+)<fig:AdaptiveShielding>
+
+
 === Safety Guarantees of Adaptive Shielding
 
 By observing past traces, one may learn of new possible transitions, but never entirely eliminate the possibility that a transition $P(s, a)(s') > 0$ can occur.
-The probability can become lower if it is never observed in data, but never reach zero. 
+The probability can become lower if it is never observed in data, but never reach zero.
 
-Thus, obtaining a shield which is safe according to @def:Shielding, requires that the initial estimate is already conservative.
+Thus, obtaining a shield which is safe according to @def:Safety, requires that the initial estimate is already conservative.
 If initially $hat(mdp)$ is not conservative, then a shield $hatshield$ for $hat(mdp)$ may not be safe for the underlying system.
-If on the other hand $hat(mdp)$ is conservative from the beginning, then $hatshield$ will not adapt since the same transitions will always remain possible.
-The same applies to absolute guarantees of $k$-step shields.
+If on the other hand $hat(mdp)$ is conservative from the beginning, then the probability of a transition may change but which transitions are possible remain static. Therefore the shield $hatshield$ does not change since @def:Shielding does not depend on probabilities.
+The same applies to absolute guarantees of $k$-step lookahead shields.
 
 As such, probabilistic shielding is the natural choice in the adaptive setting.
 Even so, the guarantees given by the adaptive probabilistic shield are contingent on and usually augmented by the guarantees given by the estimator.
 
 === Training and Operation <sec:AdaptiveTrainingAndOperation>
 
-The training and operation phases described in @sec:TrainingAndOperation extends naturally to include adaptive shielding:
+The training and operation phases described in @sec:TrainingAndOperation extend naturally to include adaptive shielding:
 When the shield and policy are put into operation, they both become static.
-In this way, adaptive shielding can be end-to-end or training-only, depending on whether the final shield is explicitly represented during operation.
-If the shield must be static during operation, then the term _operation-only adaptive shielding_ is an oxymoron.
+Therefore, operation-only shielding cannot be adaptive.
+Instead, adaptive shielding can either be end-to-end or training-only, depending on whether the final shield is explicitly represented during operation.
 
 == Multi-agent Shielding <sec:MultiAgentShielding>
 
@@ -1204,7 +1201,7 @@ This prompts further policy changes in a cycle that may continue _ad infinitum._
 
 === Reward Structure and Optimization Objectives
 For an MDP, the goal is simply to maximise expected reward.
-But since the rewards of an MG is individualized, the optimization objective can vary depending on how the game is structured.
+But since the reward of an MG is individualized, the optimization objective can vary depending on how the game is structured.
 An MG $mg$ can fall into one of three different categories which describe the reward structure @zhang2021multi@busoniu_multi-agent_2010@marl-book.
  - Cooperative, where the reward $R$ received by all agents is the same: $forall i, j in N : R_i (s, a) = R_j (s, a)$.
  - Competitive, in which the reward $R$ is zero-sum: $sum_(i = 0)^n R_i (s, a) = 0$.
@@ -1266,7 +1263,7 @@ This is shown in @ex:2AgentGridWorld.
   The transition probability function $P^2 : S^2 times A^2 → (S^2 → [0, 1])$ extends movement to two agents in the natural way, while allowing both agents to occupy the same space.
   Similarly $R^2$ is defined by applying $R$ to the individual action and states of each agent (yielding a mixed reward structure).
 
-  Notice how the state-space grows exponentially in the number of agents: From $|S| = 16$ to $|S^2| = 16 times 16 = 256$.
+  Notice how the state space grows exponentially in the number of agents: From $|S| = 16$ to $|S^2| = 16 times 16 = 256$.
 
 
 
@@ -1305,9 +1302,7 @@ This is shown in @ex:2AgentGridWorld.
 ]<ex:2AgentGridWorld>
 
 The assumption that all agents can act in concert following some centralized shield is often unrealistic.
-Additionally, the synthesis of  a global shield is often not computationally feasible because of state-space explosion:
-The size of the state-space increases with the number of agents, which in some parts of the literature can be in the hundreds or low thousands #cl("DBLP:conf/iclr/QinZCCF21")@marl-book.
-A state-space of this size can strain many RL algorithms, and the behaviour and positions of other agents far away, may not have a substantial impact on individual reward.
+Additionally, the synthesis of  a global shield is often not computationally feasible because of state space explosion.
 
 This necessitates the use of local shields, but many important safe sets may not be feasible to enforce with purely local shields.
 However, global shields may also be infeasible as previously noted.
@@ -1316,14 +1311,14 @@ Thus, the current literature on multi-agent shielding relies on additional assum
 
 === Variations on Markov Games
 It is common in multi-agent shielding to make additional assumptions about the model, to make multi-agent shielding feasible and sufficiently permissive.
-Rather than observing the full state of the  system, it is more realistic to assume the MG is partially observable, which also reduces the size of the state-space (observation space).
+Rather than observing the full state of the  system, it is more realistic to assume the MG is partially observable, which also reduces the size of the state space (observation space).
 Orthogonally, assuming that agents are able to communicate amongst themselves can make shields more permissive by reducing uncertainty. 
-Besides explicit communication, agents may co-ordinate responsibilities before training starts, providing guarantees which can be relied on at runtime.
+Besides explicit communication, agents may coordinate responsibilities before training starts, providing guarantees which can be relied on at runtime.
 
 ==== Partial Observability
 
 The assumption of full observability is particularly strong in MGs, and may even be computationally infeasible for a large number of agents $n$.
-The limits of on-board sensors makes this omniscience technically impractical as well, and thus it is a common #cl("DBLP:conf/iclr/QinZCCF21")#cl("DBLP:conf/atal/MelcerAT24")#cl("DBLP:journals/corr/abs-2509-12085") assumption that the game is _partially observable._
+When agents control physical systems, the limitations of sensors makes this omniscience technically impractical as well, and thus it is a common #cl("DBLP:conf/iclr/QinZCCF21")#cl("DBLP:conf/atal/MelcerAT24")#cl("DBLP:journals/corr/abs-2509-12085") assumption that the game is _partially observable._
 
 In general, the optimal policy for a partially observable game requires memory of all previous observations.
 If the trace $zeta_1^n = o_1 a_1 o_2 a_2, ...,  o_n$ is an alternating sequence of observations and actions, a policy with memory would choose the next action as $pi(zeta_1^n) = a_n$, while a memoryless policy would as only rely on the last observation $pi(o_n) = a_n$.
@@ -1338,16 +1333,13 @@ A memoryless shield is instead limited to allowing only actions that are safe fo
 Any global shield or joint policy assumes agents are able to communicate and agree on joint actions. 
 Actions can also be broadcast when they are chosen @RajuBDT21 @busoniu_multi-agent_2010, i.e. agents choose their actions in a specific order, and each agent knows the choices of others if they are lower in the ordering.
 
-By relying on guarantees that are established during shield synthesis, some shields may allow additional actions while ensuring the joint action is safe.
 
 In a partially observable setting, sharing observations may also allow agents to achieve a more precise estimate of the underlying model state @10129007.
 
-==== Co-ordination
+==== Coordination
 
 Instead of assuming agents can communicate their intended actions during run-time, some methods use _off-line co-ordination_ #cl("DBLP:conf/atal/MelcerAT24")#cl("DBLP:conf/nips/MelcerAT22").
 
-\
-#new[
 == Summary of Research Contributions <sec:Summary>
 
 Using the definitions of the previous sections, the research hypothesis from @sec:Hypothesis can be answered as a summary of contributions from the following papers.
@@ -1355,7 +1347,7 @@ Each summary is based on the paper's abstract, but re-written to use terminology
 
 Full references are given below, and @tab:Formalisms shows the model and safety criterion used in each paper.
 
-#infobox[
+#box(..box-style(wine))[
   ⚧ I changed my first name from Asger to Astrid between the publication of #paperref(<paper:D>) and #paperref(<paper:E>).
 ]
 
@@ -1409,7 +1401,7 @@ Full references are given below, and @tab:Formalisms shows the model and safety 
 ==== #paperref(<paper:A>, with-title:true)
 
 Safe and optimal controller synthesis for switched-controlled hybrid systems, which combine differential equations and discrete changes of the system's state, is known to be intricately hard.
-These systems have previously #cite(label("DBLP:conf/atva/JaegerJLLST19"))#cite(label("randomwalk"))  been described as EMDPs (@def:emdp), but this paper introduces a more precise definition.
+These systems have previously #cite(label("DBLP:conf/atva/JaegerJLLST19"))#cite(label("randomwalk"))  been described as EMDPs (@def:emdp:I), but this paper introduces a more precise definition.
 
 #contribution[
   A formalism for describing hybrid systems, called the _hybrid Markov decision process._
@@ -1419,15 +1411,15 @@ The versatility of this formalism was demonstrated through an accurate definitio
 
 Optimized policies can be trained using RL, but obtaining a shield for non-linear and hybrid environments is intractable.
 The paper details the construction of a shield using the so-called _barbaric method_, where an approximate finite representation of an underlying partition-based two-player safety game is extracted via systematically picked samples of the true transition function.
-The finite representation is obtained by discretizing the continuous state-space into equal-sized, axis-aligned partitions -- similar to how the Q-table is constructed in @ex:UnshieldedBB.
+The finite representation is obtained by discretizing the continuous state space into uniformly sized, axis-aligned partitions -- similar to how the Q-table is constructed in @ex:UnshieldedBB.
 
-This paper builds upon a pervious Master's thesis @MastersThesis.
+This paper builds upon a previous Master's thesis @MastersThesis.
 The ideas in the Master's thesis were developed specifically for two case studies, and are extended in the paper to a general framework.
 A code library based on this generalized model was released @GridShielding.jl for the programming language Julia.
 This is the library used to shield the Bouncing Ball in @ex:ShieldingBB.
 
 #contribution[
-  Formalization the approach investigated in @MastersThesis, providing a method of shielding to a hybrid setting using discretization.
+  Formalization of the approach investigated in @MastersThesis, providing a method shield synthesis for hybrid settings, using discretization.
 ]
 
 #contribution[
@@ -1460,21 +1452,17 @@ That is why a coarse partitioning is rarely sufficient, but a fine partitioning 
 The solution proposed by this paper is to align the shield's partitioning with decision boundaries.
 
 #contribution[
-  Demonstration of the viability of state-space transformations, allowing the use of a coarse partitioning at almost no computational overhead.
+  Demonstration of the viability of state-space transformations, allowing the use of a coarse partitioning.
 ]
 
 In three case studies, transformation-based shield synthesis was faster than standard synthesis by several orders of magnitude.
-
-#question[Awkward phrasing in this paragraph since I haven't done revisions to~it. But basically: Should I even include the paragraph?]
-The representation of these shields were similarly smaller than ones obtained by standard synthesis.
-It was shown that the difference in representation size was greater than what could be achieved by applying reductions to the representation, and that the size of the transformation-based shields could also benefit from such reductions.
 
 In the first two case studies, domain knowledge was used to select a suitable transformation. 
 In the third case study, the dynamics did not point to any particular transformation that would be suitable.
 Instead, a transformation was found by experimentation.
 
 #contribution[
-  Results in engineering a state-space transformation without domain knowledge.
+  Demonstration of a way to engineer a state-space transformation without domain knowledge.
 ]
 
 The result is not presented as a general method, but further research applying it to more case studies could determine its viability as such.
@@ -1493,7 +1481,7 @@ A sound proof rule is presented, that decomposes a (global, complex) safe set in
 This proof rule applies to systems where the interaction between agents is structured, such that each agent interacts with a limited number of other agents, as is illustrated in @fig:cps.
 
 #contribution[
-  The _compositional shielding_ method for synthesising local shields using offline-coordination through an assume-guarantee framework.
+  A method for synthesising local shields using offline-coordination through an assume-guarantee framework, called  _compositional shielding._
 ]
 
 The effectiveness and scalability of this multi-agent shielding framework is demonstrated in two case studies, reducing the computation time from hours to seconds.
@@ -1502,7 +1490,7 @@ This same structure of interaction was leveraged for a novel approach to RL in m
 With the safety guarantees provided by local shields,  agent interactions may enable sequential training.
 
 #contribution[
-  The _cascading learning_ algorithm which converges to Pareto optimal policies, by using RL to train local policies in a fixed ordering.
+  An algorithm which converges to Pareto optimal policies, by using RL to train local policies in a fixed ordering, called _cascading learning._
 ]
 
 The cascading learning under compositional shielding is compared to the state of the art (unshielded) multi-agent RL method MAPPO #cl("DBLP:conf/nips/YuVVGWBW22").
@@ -1511,35 +1499,33 @@ It is shown that this shielded RL approach significantly improves the safety and
 ==== #paperref(<paper:D>, with-title:true)
 
 
-The modelling tool #uppaal is extended with the method presented in #paperref(<paper:A>). 
+The tool #uppaal is extended with the method presented in #paperref(<paper:A>). 
 
 #contribution[
-  The extension, #coshy, is a tool for automatic synthesis of shields for continuous state spaces and complex hybrid dynamics.
+  An extension of #uppaal providing automatic synthesis of shields for continuous state spaces and complex hybrid dynamics.
 ]
 
-Shield synthesis fully automatic and supports the expressive formalism of #uppaal models, which encompass stochastic hybrid automata.
+Shield synthesis is fully automatic and supports the expressive formalism of #uppaal models, which es stochastic hybrid automata.
 State-space transformations from #paperref(<paper:B>) are shown to be achievable using standard features of the #uppaal modelling language.
 
 The precision of our partition-based approach benefits from using finer grids, which however are not efficient to store.
 #coshy is made compatible with a stand-alone application for reduction of strategy representations.
 
 #contribution[
-  The algorithm called  #smallcaps[caap] can efficiently compute a compact representation of a shield in the form of a decision tree.
+  An algorithm called  #smallcaps[caap] which can efficiently compute a compact representation of a shield in the form of a decision tree.
 ]
 
 The tool is applied to four case studies, and the integration of #caap into the workflow enables significant reductions in representation size.
 
 ==== #paperref(<paper:E>, with-title:true)
 
-Traditionally, shields are computed from the transition probabilities of the underlying MDP.
-Thus, this technique is not applicable when the MDP model is not given a priori, which, unfortunately, is the case in typical RL applications. 
+Traditionally, probabilistic shields are synthesized from the transition probabilities of the underlying MDP.
+Shield synthesis is not directly possible when the MDP model is not given a priori, which, unfortunately, is the case in typical RL applications. 
 
-The paper studies the problem of computing a probabilistic shield in the setting where the transition graph of the MDP is known, but the transition probabilities are unknown. 
-Maintaining a safe set through shielding (cf. @def:Shielding) is often not feasible when a precise model is not available.
-Instead, probabilistic $θ$-recoverable shielding from @def:ThetaRecoverable is used.
+The paper studies the problem of computing a $θ$-recoverable shield (cf. @def:ThetaRecoverable) in the setting where the transition graph of the MDP is known, but the transition probabilities are unknown. 
 
 #contribution[
-  Adaptive shielding with suitable estimators, based on an initial model estimate containing the transition structure but not probabilities.
+  Adaptive shielding with suitable estimators, based on an initial model estimate containing the *transition structure* but not probabilities.
 ]
 
 This paradigm of #emph[adaptive probabilistic shielding] raises a number of challenges, such as when to recompute the shield and how to balance between exploration and safety during learning. 
@@ -1550,7 +1536,6 @@ These challenges are investigated through case studies.
 ]
 
 ] // end set heading
-] // end new
 
 #[ #set heading(numbering: none) 
 == References
