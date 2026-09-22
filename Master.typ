@@ -27,9 +27,9 @@
 #pagebreak(to: "odd", weak: true)
 #include "Mainmatter/Efficient Shield Synthesis via State-space Transformation.typ"
 #pagebreak(to: "odd", weak: true)
-#include "Mainmatter/Compositional Shielding and Reinforcement Learning for Multi-agent Systems.typ"
-#pagebreak(to: "odd", weak: true)
 #include "Mainmatter/Uppaal Coshy: Automatic Synthesis of Compact Shields for Hybrid Systems.typ"
+#pagebreak(to: "odd", weak: true)
+#include "Mainmatter/Compositional Shielding and Reinforcement Learning for Multi-agent Systems.typ"
 #pagebreak(to: "odd", weak: true)
 #include "Mainmatter/Adaptive Probabilistic Shielding by Learning MDPs for Safe Reinforcement Learning.typ"
 #pagebreak(to: "odd", weak: true)

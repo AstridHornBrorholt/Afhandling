@@ -1364,18 +1364,18 @@ Full references are given below, and @tab:Formalisms shows the model and safety 
     _AISoLA,_ B. Steffen, Ed., in LNCS, vol. 15217. Springer, 2024, pp.~206–224. 
     @TransPaper
   ],
+  [#paperref(<paper:Coshy>)], [
+    Asger Horn Brorholt, Andreas Holck Høeg-Petersen, Peter Gjøl Jensen, Kim Guldstrand Larsen, Marius Mikučionis, Christian Schilling and Andrzej Wąsowski
+    "#uppaalcoshy: Automatic Synthesis of Compact Shields for Hybrid Systems"
+    _Reachability Problems - 19th International Conference (RP),_ P. Ganty and A. Mansutti, Eds., in LNCS, vol. 16230. Springer, 2025,~pp.~97–111.
+    @CoshyPaper
+  ],
   [#paperref(<paper:Compositional>)], [
     Asger Horn Brorholt, Kim Guldstrand Larsen and Christian~Schilling
     "Compositional Shielding and Reinforcement Learning for Multi-agent Systems"
     _Proceedings of the 24th International Conference on Autonomous Agents and Multiagent Systems (AAMAS),_
      S. Das, A. Nowé, and Y. Vorobeychik, Eds.,  in ACM, 2025, pp.~399–407.
     @CompositionalPaper
-  ],
-  [#paperref(<paper:Coshy>)], [
-    Asger Horn Brorholt, Andreas Holck Høeg-Petersen, Peter Gjøl Jensen, Kim Guldstrand Larsen, Marius Mikučionis, Christian Schilling and Andrzej Wąsowski
-    "#uppaalcoshy: Automatic Synthesis of Compact Shields for Hybrid Systems"
-    _Reachability Problems - 19th International Conference (RP),_ P. Ganty and A. Mansutti, Eds., in LNCS, vol. 16230. Springer, 2025,~pp.~97–111.
-    @CoshyPaper
   ],
   [#paperref(<paper:Adaptive>)], [Astrid~Horn~Brorholt, Maris~F.~L.~Galesloot, Nils~Jansen, Kim~Guldstrand~Larsen and Christian~Schilling
     "Adaptive Probabilistic Shielding by Learning MDPs for Safe Reinforcement Learning"
@@ -1389,8 +1389,8 @@ Full references are given below, and @tab:Formalisms shows the model and safety 
   [*Paper*], [*Model*], [*Safety*],
   [A], [EMDP, @def:emdp:I], [Shield, @def:Shielding],
   [B], [EMDP, @def:emdp:I], [Shield, @def:Shielding],
-  [C], [MG, @def:mg], [Multi-agent shield, @def:MultiAgentShielding],
-  [D], [EMDP, @def:emdp:I], [Shield, @def:Shielding],
+  [C], [EMDP, @def:emdp:I], [Shield, @def:Shielding],
+  [D], [MG, @def:mg], [Multi-agent shield, @def:MultiAgentShielding],
   [E], [(Unknown) MDP, @def:mdp], [$θ$-recoverable shield, @def:ThetaRecoverable]
   ),
   caption: [Formalisms used in each paper.]
@@ -1467,6 +1467,27 @@ Instead, a transformation was found by experimentation.
 
 The result is not presented as a general method, but further research applying it to more case studies could determine its viability as such.
 
+==== #paperref(<paper:Coshy>, with-title:true)
+
+
+The tool #uppaal is extended with the method presented in #paperref(<paper:Hybrid>). 
+
+#contribution[
+  An extension of #uppaal providing automatic synthesis of shields for continuous state spaces and complex hybrid dynamics.
+]
+
+Shield synthesis is fully automatic and supports the expressive formalism of #uppaal models, which es stochastic hybrid automata.
+State-space transformations from #paperref(<paper:Trans>) are shown to be achievable using standard features of the #uppaal modelling language.
+
+The precision of our partition-based approach benefits from using finer grids, which however are not efficient to store.
+#coshy is made compatible with a stand-alone application for reduction of strategy representations.
+
+#contribution[
+  An algorithm called  #smallcaps[caap] which can efficiently compute a compact representation of a shield in the form of a decision tree.
+]
+
+The tool is applied to four case studies, and the integration of #caap into the workflow enables significant reductions in representation size.
+
 ==== #paperref(<paper:Compositional>, with-title:true)
 
 A method for multi-agent shielding (@def:MultiAgentShielding) is given for models where the interaction of agents have a set structure.
@@ -1495,27 +1516,6 @@ With the safety guarantees provided by local shields,  agent interactions may en
 
 The cascading learning under compositional shielding is compared to the state of the art (unshielded) multi-agent RL method MAPPO #cl("DBLP:conf/nips/YuVVGWBW22").
 It is shown that this shielded RL approach significantly improves the safety and reward of the policies obtained for a given training budget.
-
-==== #paperref(<paper:Coshy>, with-title:true)
-
-
-The tool #uppaal is extended with the method presented in #paperref(<paper:Hybrid>). 
-
-#contribution[
-  An extension of #uppaal providing automatic synthesis of shields for continuous state spaces and complex hybrid dynamics.
-]
-
-Shield synthesis is fully automatic and supports the expressive formalism of #uppaal models, which es stochastic hybrid automata.
-State-space transformations from #paperref(<paper:Trans>) are shown to be achievable using standard features of the #uppaal modelling language.
-
-The precision of our partition-based approach benefits from using finer grids, which however are not efficient to store.
-#coshy is made compatible with a stand-alone application for reduction of strategy representations.
-
-#contribution[
-  An algorithm called  #smallcaps[caap] which can efficiently compute a compact representation of a shield in the form of a decision tree.
-]
-
-The tool is applied to four case studies, and the integration of #caap into the workflow enables significant reductions in representation size.
 
 ==== #paperref(<paper:Adaptive>, with-title:true)
 

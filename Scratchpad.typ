@@ -26,7 +26,7 @@ Typst version: *#sys.version*
   = Shielded Reinforcement Learning for Hybrid Systems <paper:Hybrid>
   == DUMMY post-shielding-optimization <post-shielding-optimization>
   = Efficient Shield Synthesis via State-space Transformation <paper:Trans>
-  = Compositional Shielding and Reinforcement Learning for Multi-agent Systems <paper:Compositional>
   = #uppaalcoshy: Automatic Synthesis of Compact Shields for Hybrid Systems <paper:Coshy>
+  = Compositional Shielding and Reinforcement Learning for Multi-agent Systems <paper:Compositional>
   = Adaptive Probabilistic Shielding by Learning MDPs for Safe Reinforcement Learning <paper:Adaptive>
 ]
