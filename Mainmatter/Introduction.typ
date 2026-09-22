@@ -407,8 +407,8 @@ Since shields work by restricting actions, they can be applied to any existing r
   The application of a shield in a reinforcement learning setting is discussed in @sec:ApplyingTheShield.
 ]<def:Shielding>
 
-For any MDP $mdp$ and feasible safe set $phi$, a unique maximally permissive shield exists @BernetJW02 @PaperB.
-Many shield synthesis methods guarantee the resulting shield will be maximally permissive for the given model, such as @AlshiekhBEKNT18@DavidJLLLST14@PaperA#cl("DBLP:journals/cacm/KonighoferBJJP25").
+For any MDP $mdp$ and feasible safe set $phi$, a unique maximally permissive shield exists @BernetJW02 @TransPaper.
+Many shield synthesis methods guarantee the resulting shield will be maximally permissive for the given model, such as @AlshiekhBEKNT18@DavidJLLLST14@HybridPaper#cl("DBLP:journals/cacm/KonighoferBJJP25").
 The permissiveness of the shield is an important property, since an overly restrictive shield can severely harm the performance of the resulting policy.
 
 #example(name: "Quality standards for injection moulding")[
@@ -459,7 +459,7 @@ The paper describes how a "shield" can be synthesized from an *abstract model* o
 Such an abstraction could be significantly simpler than the full system, allowing shielded reinforcement learning to scale to systems where other methods for safe and optimal control are infeasible.
 This is illustrated in @ex:SafetyRelevantAbstraction.
 
-Since this first article covering shielded reinforcement learning in finite MDPs, other shielding methods building upon the same framework have been described in the literature #cl("DBLP:conf/concur/0001KJSB20")@9196867@BastaniL21@PaperA@PaperC@PaperB#cl("DBLP:journals/corr/ZhangB19")#cl("DBLP:conf/amcc/BharadwajBDKT19")#cl("DBLP:conf/atal/Elsayed-AlyBAET21")#cl("DBLP:conf/atal/XiaoLD23")#cl("DBLP:conf/aaai/Carr0JT23")#cl("DBLP:conf/atva/PrangerKPB21")@PaperD@MedicalShielding#cl("DBLP:conf/isola/TapplerPKMBL22")#cl("DBLP:conf/ijcai/YangMRR23")@giacobbe_shielding_2021#cl("DBLP:conf/atal/XiaoLD23")@bloem_its_2020#cl("DBLP:journals/corr/abs-2509-12085").
+Since this first article covering shielded reinforcement learning in finite MDPs, other shielding methods building upon the same framework have been described in the literature #cl("DBLP:conf/concur/0001KJSB20")@9196867@BastaniL21@HybridPaper@CompositionalPaper@TransPaper#cl("DBLP:journals/corr/ZhangB19")#cl("DBLP:conf/amcc/BharadwajBDKT19")#cl("DBLP:conf/atal/Elsayed-AlyBAET21")#cl("DBLP:conf/atal/XiaoLD23")#cl("DBLP:conf/aaai/Carr0JT23")#cl("DBLP:conf/atva/PrangerKPB21")@CoshyPaper@MedicalShielding#cl("DBLP:conf/isola/TapplerPKMBL22")#cl("DBLP:conf/ijcai/YangMRR23")@giacobbe_shielding_2021#cl("DBLP:conf/atal/XiaoLD23")@bloem_its_2020#cl("DBLP:journals/corr/abs-2509-12085").
 
 #example(name: "Safety-relevant Abstraction")[
   The contract from @ex:QualityInjectionMoulding is once again re-negotiated, this time to replace a fixed price of batches with variable pricing scheme depending on market forces.
@@ -529,18 +529,18 @@ For example, a training-only shielding setup can use either a pre- or post-shiel
 )
 
 #remark[
-  The terminology introduced in this section does not align with #paperref(<paper:A>).
+  The terminology introduced in this section does not align with #paperref(<paper:Hybrid>).
   This section distinguishes two sets of concepts which are described by the paper as linked, as shown in @tab:NamingDiscrepancy.
   The paper uses _post-shielding_ to mean operation-only post-shielding.
   Conversely, the paper uses _pre-shielding_ to mean end-to-end pre-shielding.
 
   #figure(table(columns: (2), align: center,
-      table.header( [*Term used in #paperref(<paper:A>)* #h(.5em)], [*Corresponding terms in this section*] ),
+      table.header( [*Term used in #paperref(<paper:Hybrid>)* #h(.5em)], [*Corresponding terms in this section*] ),
       [Pre-shielding], [End-to-end Pre-shielding ],
       table.hline(),
       [Post-shielding], [Operation-only Post-shielding]
     ),
-    caption: [This section uses different terms compared to #paperref(<paper:A>).]
+    caption: [This section uses different terms compared to #paperref(<paper:Hybrid>).]
   )<tab:NamingDiscrepancy>
 ]<re:NamingDiscrepancy>
 
@@ -616,7 +616,7 @@ This is a necessity if the RL agent is interacting with a real-life system where
 
 Compared to the completely unshielded case, shielded training was seen in @AlshiekhBEKNT18 to lead to a higher expected reward when given the same number of episodes.
 The authors speculate that the shield acts as a teacher guiding the agent away from undesirable behaviours.
-The same tendency has been observed in other works #cl("DBLP:conf/aaai/Carr0JT23", "DBLP:conf/ijcai/YangMRR23", "DBLP:journals/corr/abs-2509-12085")@PaperA.
+The same tendency has been observed in other works #cl("DBLP:conf/aaai/Carr0JT23", "DBLP:conf/ijcai/YangMRR23", "DBLP:journals/corr/abs-2509-12085")@HybridPaper.
 This is not a general rule however, and there are also examples of shielded policies yielding less reward than the unshielded one @bloem_its_2020#cl("DBLP:conf/aaai/CourtBG25"). These are cases where the shield prevents exploitation of risky but more rewarding behaviour.
 
 Care must be taken when putting the trained policy into operation, in order to preserve safety guarantees.
@@ -634,7 +634,7 @@ Here, the shield needs to be kept during operation, as described in the next sec
 When the shield is in place and explicitly represented during _both_ the learning  _and_ operational phases, this is called end-to-end shielding (@fig:EndToEnd).
 This is a necessity for continuous state spaces that cannot be represented as a state-action lookup table.
 Instead, the shield must be kept along with the policy representation when put into operation, so it can preserve the safe behaviour.
-Reductions can be applied to the shield before operation, to reduce its memory footprint significantly, as shown in #paperref(<paper:B>) and #paperref(<paper:D>).
+Reductions can be applied to the shield before operation, to reduce its memory footprint significantly, as shown in #paperref(<paper:Trans>) and #paperref(<paper:Coshy>).
 
 As stated earlier, an end-to-end setup can make use of either a pre- or post-shield.
 However, alternating between the two with e.g. pre-shielded training and a post-shielded operation will negatively impact the expected reward.
@@ -649,7 +649,7 @@ Some time during operation, a shield may then be developed to provide formal saf
 In these cases, the shield can be applied only in the operational phase.
 If the policy did learn to avoid unsafe states perfectly, a maximally permissive shield would not interfere with its operation.
 Otherwise, the shield will disrupt the optimized behaviour which the policy has learned.
-It was found in #paperref(<paper:A>) that applying an operation-only post-shield can lead to substantial drops in the expected reward.
+It was found in #paperref(<paper:Hybrid>) that applying an operation-only post-shield can lead to substantial drops in the expected reward.
 Therefore, operation-only shielding should only be employed when re-training or (fine-tuning) the existing policy is not possible.
 
 #example(name: "Staying safe in Grid World")[
@@ -661,7 +661,7 @@ Therefore, operation-only shielding should only be employed when re-training or 
   Lastly, any action in state 10 can cause the agent to slip onto state 11, so this state should be avoided as well. 
   
   @fig:GridWorldShield shows the resulting maximally permissive safe policy for @ex:GridWorld. 
-  This policy was generated using a publicly available package @GridShielding.jl which implements the method described in #paperref(<paper:A>) (to be discussed in later sections).
+  This policy was generated using a publicly available package @GridShielding.jl which implements the method described in #paperref(<paper:Hybrid>) (to be discussed in later sections).
 
 #subpar.grid(columns: 3, align: bottom,
   [#figure(image("../Graphics/Intro/Shielded.png", width: 66.666%),
@@ -906,7 +906,7 @@ To simulate cyber-physical systems, one needs to capture both the discrete state
 
 Such hybrid systems contain both continuous dynamics, and instantaneous changes to the state.
 There are also purely physical phenomena that hybrid systems are suitable for modelling.
-A ball bouncing on the ground is one such example #cl("PaperA", "DBLP:conf/atva/JaegerJLLST19") which will be used in the following to illustrate the workings of a hybrid system.
+A ball bouncing on the ground is one such example #cl("HybridPaper", "DBLP:conf/atva/JaegerJLLST19") which will be used in the following to illustrate the workings of a hybrid system.
 
 #definition(name: "Euclidean MDP")[
   An _Euclidean MDP_ (EMDP) #cite(label("DBLP:conf/atva/JaegerJLLST19")) #cite(label("randomwalk")) is a tuple $emdp = (S, s_0, A, P, R)$ where 
@@ -960,7 +960,7 @@ When a channel is initiated by a transition, all receiving channels suffixed wit
 A~channel may be urgent, which prevents time from progressing whenever the guard on an initiating transition is satisfied.
 
 #example(name: "Bouncing Ball")[
-  A ball bounces on a flat surface, and can be struck by a piston whenever it is above a certain height #cl("PaperA", "PaperB", "PaperC", "JaegerJLLST19"), as shown in @fig:BBIllustration.
+  A ball bounces on a flat surface, and can be struck by a piston whenever it is above a certain height #cl("HybridPaper", "TransPaper", "CompositionalPaper", "JaegerJLLST19"), as shown in @fig:BBIllustration.
   The goal is to strike the ball as little as possible, while preventing it from coming to a stop.
 
   The energy preserved is stochastic both when the ball bounces on the ground, and when hit.
@@ -968,8 +968,8 @@ A~channel may be urgent, which prevents time from progressing whenever the guard
   
   #subpar.grid(columns: (0.4fr, 1fr), align: bottom,
     [#figure(image("../Graphics/Intro/BB Illustration.svg"), caption: [Illustration of the system @JaegerJLLST19.])<fig:BBIllustration>],
-    [#figure(image("../Graphics/Intro/BB Ball.pdf"), caption: [#uppaal "Ball" template from #paperref(<paper:D>). \ #hide("a")])<fig:BBBall>],
-    [#figure(image("../Graphics/Intro/BB Player.pdf"), caption: [#uppaal "Player" template from \ #paperref(<paper:D>). ])<fig:BBPlayer>],
+    [#figure(image("../Graphics/Intro/BB Ball.pdf"), caption: [#uppaal "Ball" template from #paperref(<paper:Coshy>). \ #hide("a")])<fig:BBBall>],
+    [#figure(image("../Graphics/Intro/BB Player.pdf"), caption: [#uppaal "Player" template from \ #paperref(<paper:Coshy>). ])<fig:BBPlayer>],
     [#figure(image("../Graphics/Intro/BB Random Trace.svg", height: 100pt), caption: [Example trace produced by random agent with 5% chance of choosing $hit$ when $p > 4$. \ #hide[x]] )<fig:BBRandomTrace>],
     caption: [Hitting bouncing ball.]
   )
@@ -1045,7 +1045,7 @@ A variant of discretized Q-learning with dynamic partitioning of the state space
 The discretization method outlined in @ex:UnshieldedBB may also be used to obtain a shield for hybrid systems, as shown in the following example.
 
 #example(name: [Shielding the Bouncing Ball])[
-  A shield is synthesized using the publicly available library @GridShielding.jl based on the formalism given in #paperref(<paper:A>).
+  A shield is synthesized using the publicly available library @GridShielding.jl based on the formalism given in #paperref(<paper:Hybrid>).
   The abstraction used the same subset of the state space $S' subset S$, but with a smaller cell size of $0.02 times 0.02$.
   The package uses a sample-based method for approximating outcomes of actions from a given cell, and in this instance $3$ samples per axis were used.
   The resulting shield is visualized in @fig:BBShield.
@@ -1348,39 +1348,39 @@ Each summary is based on the paper's abstract, but re-written to use terminology
 Full references are given below, and @tab:Formalisms shows the model and safety criterion used in each paper.
 
 #box(..box-style(wine))[
-  ⚧ I changed my first name from Asger to Astrid between the publication of #paperref(<paper:D>) and #paperref(<paper:E>).
+  ⚧ I changed my first name from Asger to Astrid between the publication of #paperref(<paper:Coshy>) and #paperref(<paper:Adaptive>).
 ]
 
 #grid(columns: 2, row-gutter: 1em, column-gutter: 1em,
-  [#paperref(<paper:A>)], [  // This insane string is to make the brackets align regardless of kerning :3 
+  [#paperref(<paper:Hybrid>)], [  // This insane string is to make the brackets align regardless of kerning :3 
     Asger Horn Brorholt, Peter Gjøl Jensen, Kim Guldstrand Larsen, Florian~Lorber and Christian~Schilling
     "Shielded Reinforcement Learning for Hybrid Systems"
     _AISoLA,_ B.Steffen, Ed., in LNCS, vol. 14380. Springer, 2023,~pp.~33–54.
-    @PaperA
+    @HybridPaper
   ],
-  [#paperref(<paper:B>)], [
+  [#paperref(<paper:Trans>)], [
     Asger Horn Brorholt, Andreas Holck Høeg-Petersen, Kim Guldstrand Larsen and Christian~Schilling
     "Efficient Shield Synthesis via State-space Transformation" 
     _AISoLA,_ B. Steffen, Ed., in LNCS, vol. 15217. Springer, 2024, pp.~206–224. 
-    @PaperB
+    @TransPaper
   ],
-  [#paperref(<paper:C>)], [
+  [#paperref(<paper:Compositional>)], [
     Asger Horn Brorholt, Kim Guldstrand Larsen and Christian~Schilling
     "Compositional Shielding and Reinforcement Learning for Multi-agent Systems"
     _Proceedings of the 24th International Conference on Autonomous Agents and Multiagent Systems (AAMAS),_
      S. Das, A. Nowé, and Y. Vorobeychik, Eds.,  in ACM, 2025, pp.~399–407.
-    @PaperC
+    @CompositionalPaper
   ],
-  [#paperref(<paper:D>)], [
+  [#paperref(<paper:Coshy>)], [
     Asger Horn Brorholt, Andreas Holck Høeg-Petersen, Peter Gjøl Jensen, Kim Guldstrand Larsen, Marius Mikučionis, Christian Schilling and Andrzej Wąsowski
     "#uppaalcoshy: Automatic Synthesis of Compact Shields for Hybrid Systems"
     _Reachability Problems - 19th International Conference (RP),_ P. Ganty and A. Mansutti, Eds., in LNCS, vol. 16230. Springer, 2025,~pp.~97–111.
-    @PaperD
+    @CoshyPaper
   ],
-  [#paperref(<paper:E>)], [Astrid~Horn~Brorholt, Maris~F.~L.~Galesloot, Nils~Jansen, Kim~Guldstrand~Larsen and Christian~Schilling
+  [#paperref(<paper:Adaptive>)], [Astrid~Horn~Brorholt, Maris~F.~L.~Galesloot, Nils~Jansen, Kim~Guldstrand~Larsen and Christian~Schilling
     "Adaptive Probabilistic Shielding by Learning MDPs for Safe Reinforcement Learning"
     To appear in _Proceedings of the 26th International Conference on Runtime Verification (RV),_ LNCS, vol. 17117. Springer.
-    @PaperE
+    @AdaptivePaper
   ],
 )
 
@@ -1398,7 +1398,7 @@ Full references are given below, and @tab:Formalisms shows the model and safety 
 
 #[ #set heading(numbering: none, outlined: false)
 
-==== #paperref(<paper:A>, with-title:true)
+==== #paperref(<paper:Hybrid>, with-title:true)
 
 Safe and optimal controller synthesis for switched-controlled hybrid systems, which combine differential equations and discrete changes of the system's state, is known to be intricately hard.
 These systems have previously #cite(label("DBLP:conf/atva/JaegerJLLST19"))#cite(label("randomwalk"))  been described as EMDPs (@def:emdp:I), but this paper introduces a more precise definition.
@@ -1444,9 +1444,9 @@ This paper investigated ways of obtaining $fehu$:
 
 A fallback policy obtained using RL was found to improve outcomes, compared to a uniformly random choice of safe actions.
 
-==== #paperref(<paper:B>, with-title:true)
+==== #paperref(<paper:Trans>, with-title:true)
 
-This paper builds upon #paperref(<paper:A>), enhancing the scalability of the method by augmenting the axis-aligned partitioning scheme. 
+This paper builds upon #paperref(<paper:Hybrid>), enhancing the scalability of the method by augmenting the axis-aligned partitioning scheme. 
 For many systems such a partitioning scheme does not align well with the safety property or the system dynamics. 
 That is why a coarse partitioning is rarely sufficient, but a fine partitioning is typically computationally infeasible to obtain. 
 The solution proposed by this paper is to align the shield's partitioning with decision boundaries.
@@ -1467,7 +1467,7 @@ Instead, a transformation was found by experimentation.
 
 The result is not presented as a general method, but further research applying it to more case studies could determine its viability as such.
 
-==== #paperref(<paper:C>, with-title:true)
+==== #paperref(<paper:Compositional>, with-title:true)
 
 A method for multi-agent shielding (@def:MultiAgentShielding) is given for models where the interaction of agents have a set structure.
 The shielding method uses offline coordination through an assume-guarantee framework.
@@ -1496,17 +1496,17 @@ With the safety guarantees provided by local shields,  agent interactions may en
 The cascading learning under compositional shielding is compared to the state of the art (unshielded) multi-agent RL method MAPPO #cl("DBLP:conf/nips/YuVVGWBW22").
 It is shown that this shielded RL approach significantly improves the safety and reward of the policies obtained for a given training budget.
 
-==== #paperref(<paper:D>, with-title:true)
+==== #paperref(<paper:Coshy>, with-title:true)
 
 
-The tool #uppaal is extended with the method presented in #paperref(<paper:A>). 
+The tool #uppaal is extended with the method presented in #paperref(<paper:Hybrid>). 
 
 #contribution[
   An extension of #uppaal providing automatic synthesis of shields for continuous state spaces and complex hybrid dynamics.
 ]
 
 Shield synthesis is fully automatic and supports the expressive formalism of #uppaal models, which es stochastic hybrid automata.
-State-space transformations from #paperref(<paper:B>) are shown to be achievable using standard features of the #uppaal modelling language.
+State-space transformations from #paperref(<paper:Trans>) are shown to be achievable using standard features of the #uppaal modelling language.
 
 The precision of our partition-based approach benefits from using finer grids, which however are not efficient to store.
 #coshy is made compatible with a stand-alone application for reduction of strategy representations.
@@ -1517,7 +1517,7 @@ The precision of our partition-based approach benefits from using finer grids, w
 
 The tool is applied to four case studies, and the integration of #caap into the workflow enables significant reductions in representation size.
 
-==== #paperref(<paper:E>, with-title:true)
+==== #paperref(<paper:Adaptive>, with-title:true)
 
 Traditionally, probabilistic shields are synthesized from the transition probabilities of the underlying MDP.
 Shield synthesis is not directly possible when the MDP model is not given a priori, which, unfortunately, is the case in typical RL applications. 

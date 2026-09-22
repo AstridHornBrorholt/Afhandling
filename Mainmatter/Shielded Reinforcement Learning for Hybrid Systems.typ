@@ -11,7 +11,7 @@
   proof, rules: thm-rules
 ) = default-theorems("thm-group", lang: "en")
 
-= Shielded Reinforcement Learning \ for Hybrid Systems <paper:A>
+= Shielded Reinforcement Learning \ for Hybrid Systems <paper:Hybrid>
 #grid(columns: (1fr, 1fr), row-gutter: 2em,
   [Asger Horn Brorholt \ #set text(size: 0.8em)
   _Department of Computer Science \ Aalborg University, Aalborg, Denmark_],

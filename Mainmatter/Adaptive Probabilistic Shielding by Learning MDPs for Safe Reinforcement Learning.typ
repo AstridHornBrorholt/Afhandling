@@ -8,7 +8,7 @@
 //   it.target
 // }
 
-= Adaptive Probabilistic Shielding by Learning MDPs for \ Safe Reinforcement Learning <paper:E>
+= Adaptive Probabilistic Shielding by Learning MDPs for \ Safe Reinforcement Learning <paper:Adaptive>
 
 #grid(columns: (1fr, 1fr), row-gutter: 2em, column-gutter: 2em,
   [Astrid~Horn~Brorholt \ #set text(size: 0.8em)
@@ -195,7 +195,7 @@ Classic shields provide unconditional safety guarantees, but this is
 often too
 conservative  #cl("DBLP:conf/cav/HeckMACJ26", "DBLP:journals/cacm/KonighoferBJJP25").
 Shielding has been extended to many classes of
-models  #cl("DBLP:conf/atal/Elsayed-AlyBAET21", "PaperA", "DBLP:journals/corr/abs-2509-12085", "DBLP:conf/l4dc/KimCRLPBSF25", "AlshiekhBEKNT18", "DBLP:conf/amcc/ReedL25", "DBLP:journals/corr/abs-2510-03481", "PaperC").
+models  #cl("DBLP:conf/atal/Elsayed-AlyBAET21", "HybridPaper", "DBLP:journals/corr/abs-2509-12085", "DBLP:conf/l4dc/KimCRLPBSF25", "AlshiekhBEKNT18", "DBLP:conf/amcc/ReedL25", "DBLP:journals/corr/abs-2510-03481", "CompositionalPaper").
 We consider probabilistic shields that permit a level of risk of
 reaching unsafe
 states  #cl("DBLP:conf/aaai/CourtBG25", "DBLP:conf/concur/0001KJSB20", "DBLP:conf/cav/HeckMACJ26", "DBLP:journals/cacm/KonighoferBJJP25").

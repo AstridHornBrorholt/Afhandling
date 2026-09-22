@@ -9,7 +9,7 @@
   proof, definition, rules: thm-rules
 ) = default-theorems("thm-group", lang: "en", thm-numbering: thm-numbering-linear)
 
-= Compositional Shielding and \ Reinforcement Learning for \ Multi-agent Systems <paper:C>
+= Compositional Shielding and \ Reinforcement Learning for \ Multi-agent Systems <paper:Compositional>
 
 #grid(columns: (1fr, 1fr), row-gutter: 2em,
   [Asger Horn Brorholt \ #set text(size: 0.8em)
@@ -206,7 +206,7 @@ extended to probabilistic
 systems #cite(label("DBLP:conf/concur/0001KJSB20")) #cite(label("DBLP:conf/ijcai/YangMRR23")),
 partial observability #cite(label("DBLP:conf/aaai/Carr0JT23")), and
 continuous-time
-dynamics #cite(label("PaperA")) #cite(label("PaperB")).
+dynamics #cite(label("HybridPaper")) #cite(label("TransPaper")).
 For more background we refer to
 surveys #cite(label("DBLP:conf/birthday/KonighoferBEP22")) #cite(label("DBLP:journals/tmlr/KrasowskiTM0WA23")).
 In this work, we focus on discrete but multi-agent systems, which we now
@@ -1059,7 +1059,7 @@ the (deep) MARL approach MAPPO #cite(label("DBLP:conf/nips/YuVVGWBW22")) later.
 <car-platoon-with-adaptive-cruise-controls>
 Recall the car platoon model from
 @sect:platoon. The front car follows a random
-distribution depending on $v_n$ (described in #cite(label("PaperC_arxiv")), appendix).
+distribution depending on $v_n$ (described in #cite(label("CompositionalPaper_arxiv")), appendix).
 
 The individual cost of an agent is the sum of the observed distances to
 the car immediately in front of it, during a 100-second episode (i.e.,
@@ -1189,7 +1189,7 @@ consumers with periodically varying demand. Arrows from source to target
 nodes denote potential flow at no incurred cost. Arrows without a source
 node denote potential flow from external providers, at a cost that
 individually and periodically varies. Consumption patterns and examples
-of the cost patterns are shown in the appendix of #cite(label("PaperC_arxiv")). The flow rate in all
+of the cost patterns are shown in the appendix of #cite(label("CompositionalPaper_arxiv")). The flow rate in all
 arrows follows a uniform random distribution in the range
 $lr([2.15 semi 3.15])$ $ell$/s.
 
@@ -1250,7 +1250,7 @@ centralized learning, MAPPO, and shielded random agents in
 @fig:cplearning. Centralized learning achieved a cost
 of $292$. The lowest cost overall, $172$, was achieved by cascading
 learning. We compare this to the (unshielded) MAPPO agents, whose lowest
-cost was $291$. More background information is given in #cite(label("PaperC_arxiv")).
+cost was $291$. More background information is given in #cite(label("CompositionalPaper_arxiv")).
 
 == Conclusion
 <sect:conclusion>
@@ -1269,7 +1269,7 @@ agents/components are fixed. We believe that in our setting where both
 the guarantees and the agents are not given, a trial-and-error approach
 (e.g., a genetic algorithm) is a fruitful direction to explore. Another
 relevant future direction is to generalize our approach to continuous
-systems #cite(label("PaperA")).
+systems #cite(label("HybridPaper")).
 
 ==== Acknowledgments
 This research was partly supported by the Independent Research Fund
