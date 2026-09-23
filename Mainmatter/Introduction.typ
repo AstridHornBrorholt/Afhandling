@@ -311,7 +311,7 @@ This is ensured by the fact that $s_0$ is visited infinitely often as $n -> infi
     caption: [Q-learning in the grid world.]
   )
 
-  After training, the behaviour of the policy during operation (cf. @sec:TrainingAndOperation) was simulated by generating 1000 traces of length 100, using the resulting greedy policy (returned in @l:Return of @alg:QLearning).
+  After training, the behaviour of the policy during operation (@sec:TrainingAndOperation) was simulated by generating 1000 traces of length 100, using the resulting greedy policy (returned in @l:Return of @alg:QLearning).
   The mean undiscounted reward was found to be -7.624.
 
   During evaluation, the policy was seen to reach 💀, which is unsurprising since it passes through state 10.
@@ -435,7 +435,7 @@ The permissiveness of the shield is an important property, since an overly restr
   (100 + 0.05 times 0.99)/(1 - 0.95 times 0.99 - 0.05 times 0.99^2) approx 9533.06$.
 
   A less permissive shield with $shield^-(○) = {c}$, $shield^-(◍) = {c}$ and $shield^-(●) = emptyset$
-  is still safe, but disallows the optimal policy. The only policy allowed by $shield^-$ is the one which collects an expected discounted reward of 100 (cf. @ex:discounted).
+  is still safe, but disallows the optimal policy. The only policy allowed by $shield^-$ is the one which collects an expected discounted reward of 100 (@ex:discounted).
 ] <ex:QualityInjectionMoulding>
 
 === Origin of the Term
@@ -720,7 +720,7 @@ Finite-horizon shielding is also the standard formulation of probabilistic shiel
 
 == Probabilistic Shielding <sec:ProbabilisticShielding>
 
-Not every safe set is feasible (cf. @def:Feasibility), i.e. it is not always possible to ensure that a policy is safe 100% of the time from the initial state.
+Not every safe set is feasible (@def:Feasibility), i.e. it is not always possible to ensure that a policy is safe 100% of the time from the initial state.
 This can be due to uncertainty about behaviour of the underlying system -- which gets modelled as probabilistic behaviour -- or it can be a genuine reflection of a system where failure is always a possibility.
 In such cases, methods like @AlshiekhBEKNT18@bloem_its_2020, that assume the worst-case outcome of any action, will fail.
 
@@ -748,7 +748,7 @@ In such cases, _probabilistic shielding_
 #cl("DBLP:journals/cacm/KonighoferBJJP25")#cl("DBLP:conf/concur/0001KJSB20")#cl("DBLP:conf/ijcai/YangMRR23")#cl("DBLP:conf/atva/PrangerKPB21")
 is a pragmatic alternative which increases the likelihood of staying safe.
 Approaches to probabilistic shielding vary greatly by the types of guarantee they give.
-The probabilistic guarantees are usually given over a finite horizon (Cf.~@sec:ShieldingHorizon) since the risk of failure over an infinite horizon often compounds to $1.0$.
+The probabilistic guarantees are usually given over a finite horizon (@sec:ShieldingHorizon) since the risk of failure over an infinite horizon often compounds to $1.0$.
 Alternatively, the safety property can be formulated as _reach-avoid,_ stating that a goal-state has to be reached while avoiding a set of unsafe states.
 Both are types of safety properties -- but they are not invariants. 
 Instead, they can be specified using LTL #cl("DBLP:reference/mc/PitermanP18")#cl("DBLP:reference/mc/ClarkeHV18").
@@ -1042,7 +1042,7 @@ A variant of discretized Q-learning with dynamic partitioning of the state space
 
   A more advanced discretization scheme is available directly in the #uppaal tool, as part of the #uppaalstratego feature set #cl("JaegerJLLST19").
   This reinforcement learning technique will dynamically partition the state space to group states with similar Q-values as it learns.
-  A policy was trained using the query `maxE(-c - Ball.Stop*50) [<=120] {} -> {v, p} : <> time>=120`#footnote[C.f.  https://docs.uppaal.org/language-reference/query-syntax/learning_queries/] which achieved an average reward of -38.5 during simulated operation.
+  A policy was trained using the query `maxE(-c - Ball.Stop*50) [<=120] {} -> {v, p} : <> time>=120`#footnote[Cf.  https://docs.uppaal.org/language-reference/query-syntax/learning_queries/] which achieved an average reward of -38.5 during simulated operation.
 ]<ex:UnshieldedBB>
 
 === Shielding Hybrid Systems
@@ -1258,7 +1258,7 @@ Analogously to joint and individual policies, a shield is called either _global_
 
 The concepts in @def:Shielding of maximally permissive shields, and permitted actions and policies (global and local) extend naturally from @def:MultiAgentShielding.
 
-A safe set may be feasible (cf. @def:Feasibility) with a global shield, but not feasible for any of the agents with a local shield.
+A safe set may be feasible (@def:Feasibility) with a global shield, but not feasible for any of the agents with a local shield.
 This is shown in @ex:2AgentGridWorld.
 
 #example(name: "2-agent Grid World")[
@@ -1530,7 +1530,7 @@ It is shown that this shielded RL approach significantly improves the safety and
 Traditionally, probabilistic shields are synthesized from the transition probabilities of the underlying MDP.
 Shield synthesis is not directly possible when the MDP model is not given a priori, which, unfortunately, is the case in typical RL applications. 
 
-The paper studies the problem of computing a $θ$-recoverable shield (cf. @def:ThetaRecoverable) in the setting where the transition graph of the MDP is known, but the transition probabilities are unknown. 
+The paper studies the problem of computing a $θ$-recoverable shield (@def:ThetaRecoverable) in the setting where the transition graph of the MDP is known, but the transition probabilities are unknown. 
 
 #contribution[
   Adaptive shielding with suitable estimators, based on an initial model estimate containing the *transition structure* but not probabilities.
