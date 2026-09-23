@@ -764,7 +764,7 @@ This section continues to focus on safe sets $φ $.
   It is the least fixed point in $[0, 1]$ for the equation
 
   $ PP_mdp^φ (pi, s) = cases(
-      1 &"if" s modelsnot phi, 
+      1 &"if" s in.not phi, 
       sum_(s' in S) P(s, pi(s))(s') PP_mdp^φ (pi, s') &"otherwise"
     )
   $
