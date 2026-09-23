@@ -16,7 +16,7 @@
 #let emerald = cmyk(77%, 00%, 45%, 20%)
 #let peterriver = cmyk(76%, 31%, 00%, 14%)
 #let amethyst = cmyk(15%, 51%, 00%, 29%)
-#let wetasphalt = cmyk(45%, 22%, 00%, 63%)
+#let wetasphalt = cmyk(45%, 22%, 00%, 63%).darken(15%)
 
 #let greensea = cmyk(86%, 00%, 17%, 37%)
 #let nephritis = cmyk(78%, 00%, 45%, 32%)

@@ -96,7 +96,7 @@
 
   // Contributions
   show figure.where(kind: "contribution"): it => block(
-  ..box-style(aaublå, background: aaulysblå.lighten(96%)),
+  ..box-style(aaublå),
   width: 100%,
   align(left)[
     #text(weight: "bold")[#it.supplement #it.counter.display(it.numbering)]
@@ -167,9 +167,9 @@
 
   show: thm-rules
   
-  show thm-selector("thm-group", subgroup: "example"): it => block( it,  ..box-style(oakleaf, background: oakleaf.lighten(98%)), breakable: true,)
+  show thm-selector("thm-group", subgroup: "example"): it => block( it,  ..box-style(oakleaf), breakable: true,)
 
-  show thm-selector("thm-group", subgroup: "remark"): it => block( it, ..box-style(wine ,background: wine.lighten(98%)), breakable: true,)
+  show thm-selector("thm-group", subgroup: "remark"): it => block( it, ..box-style(wine), breakable: true,)
   
   show thm-selector("thm-group", subgroup: "definition"): it => {
     v(-1em) // I don't know how to do this properly :< 

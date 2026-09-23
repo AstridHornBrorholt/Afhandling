@@ -10,41 +10,9 @@
   proof, definition, rules: thm-rules
 ) = default-theorems("thm-group", lang: "en", thm-numbering: thm-numbering-linear)
 
-= Style & Macro Showcase
-(Top-level headings represent papers by default.)
+This document demonstrates the custom styles and macros. Emoji test: ☺️ 🤖 🌏
 
-This document demonstrates the custom styles and macros. \ #lorem(50)
-
-== Text Styles
-
-Normal text.
-
-Inline code: `let x = 42`
-
-Emoji test 😊 💥 🤖 ☺ ☹
-
-Footnote test.#footnote[Test footnote.]
-
-== Headings (Level 2)
-#lorem(10)
-
-=== Level 3
-#lorem(10)
-
-==== Level 4
-#lorem(10)
-
-===== Level 5
-#lorem(10)
-
-== Info Boxes
-
-#infobox(
-  [This is content inside an infobox. It is only used in one of the papers.],
-  name: [Infobox  title]
-)
-
-== Contribution boxes
+== Boxes
 
 #contribution[
 A concise description of a contribution.
@@ -54,25 +22,9 @@ A concise description of a contribution.
 A contribution linked to specific papers.
 ]
 
-== Hypothesis box
-
 #hypothesis[
 There is only ever going to be one of these, but it seems common to use a bespoke graphical element.
 ]
-
-== Shorthand Macros
-
-$shield hatshield tildeshield mdp mg emdp ls powerset(X) argmax_(x in X) arg fehu$
-
-#prism, #uppaal, #uppaalsmc, #uppaalstratego, #stratego, #uppaalcoshy, #caap, #coshy, 
-
-$1st, 2nd, 3rd, 4th, 1^st, 2^nd, 3^rd, 4^th$ 
-
-$ pi models_(>=θ) phi and pi' modelsnot_(>=θ) phi$
-
-
-== Math-boxes
-
 
 #theorem(name: "Theorem example")[
   This is a theorem. With an equation
@@ -84,14 +36,9 @@ $ pi models_(>=θ) phi and pi' modelsnot_(>=θ) phi$
 
 #proof[
   And proofs go nicely after theorems. 
-  
-  #lorem(20)
 ]
 
 #lemma[A lemma as well]
-
-Some more text to break up the boxes: 
-#lorem(20)
 
 #definition(name: "Definition example")[
   This is a definition. With an equation
@@ -105,29 +52,94 @@ Some more text to break up the boxes:
   This is an example \ #lorem(20)
 ]
 
-#lorem(30)
 
 #remark(name: "A remark")[
   #lorem(20)
 ]
 
+== UPPAAL Highlighting
 
-== Editorial Markup
+#[
+  #set par(justify: false)
 
-(None of this will appear in the final version.)
+  #set table(
+    fill: (_, y) => {
+      if y == 5 {
+         cmyk(6%, 0%, 0%, 6%)
+      } else {
+        (none, cmyk(0%, 0%, 0%, 4%)).at(calc.rem(y, 2))
+      }
+    }
+  )
 
-#todo[Todos are presented like this. \ #lorem(20)]
 
-#question[Should this be moved to another paper? \ #lorem(20)]
+  #show regex("acontrol"): set text(fill: emerald.darken(30%), weight: "bold")
+  #show regex("minE"): set text(fill: nephritis.darken(30%), weight: "bold")
+  #show regex("saveStrategy"): set text(fill: nephritis.darken(30%), weight: "bold")
+  #show regex("loadStrategy"): set text(fill: nephritis.darken(30%), weight: "bold")
+  #show regex("simulate"): set text(fill: nephritis.darken(30%), weight: "bold")
+  #show regex("Pr"): set text(fill: nephritis.darken(30%), weight: "bold")
+  #show regex("E"): set text(fill: nephritis.darken(30%), weight: "bold")
+  #show regex("strategy"): set text(fill: nephritis.darken(30%))
+  #show regex("under"): set text(fill: nephritis.darken(30%))
+  #show regex("max:"): set text(fill: nephritis.darken(30%))
+  #show regex("\".*\""): set text(fill: carrot.darken(30%))
+  #show regex("\d+"): set text(fill: black.darken(30%))
+  
+  
 
-#new[
-This section presents entirely new material. \ #lorem(50)
+  #figure(
+    table(
+      columns: 3,
+      align: (col, row) => (right,left,left,).at(col),
+      inset: 6pt,
+      table.header([#strong[\#]], [#strong[Query]], [#strong[Result]]),
+      [1], [```
+      strategy efficient 
+        = minE(c) [<=120] {} -> {v, p} : <> time>=120
+      ```], [$checkmark$],
+
+      [2], [``` simulate [<=120]{ p, v } under efficient```], [$checkmark$],
+      [3], [``` E[<=120;100] (max: c) under efficient```], [$approx 0$],
+      [4], [``` Pr[<=120;10000] (<> Ball.Stop) under efficient```], [$lr([0.9995 semi 1])$],
+
+      [5], [``` 
+      strategy shield = acontrol: A[] !Ball.Stop 
+        { v[-13, 13]:1300, p[0, 11]:550, Ball.location }
+      ```], [$checkmark$],
+
+      [6], [``` saveStrategy("shield.json", shield)```], [$checkmark$],
+    ),
+    caption: [Queries run on the #emph[bouncing ball] model. New query
+      type highlighted. All statistical results are given with a 99%
+      confidence interval.],
+  )<tab:bb_queries>
 ]
 
-#updated[
-This section has been revised since the previous draft. \ #lorem(50)
-]
+Text words, keyword: #keyword("keyword")
+type: #type("type")
+location: #location("location")
+invariant: #invariant("invariant")
+rate: #rate("rate")
+select: #select("select")
+guard: #guard("guard")
+sync: #sync("sync")
+update: #update("update")
+weight: #weight("weight")
+transition: #transition("transition")
 
-Citation missing #citationneeded[]
+== Key figures
 
-Citation missing with note #citationneeded[Source?]
+#grid(columns: 2,
+  figure(image("../Graphics/Intro/CPS.drawio.pdf", width: 100%),
+    caption: [A cyber-physical system ]
+  ),
+  figure(include("../Graphics/Intro/Post-shielding.typ"),
+    caption: [Post-shielding],
+  ),
+  figure(image("../Graphics/Intro/BB Ball.pdf"), caption: [#uppaal "Ball" template from COSHY. \ #hide("a")]
+  ),
+  figure(image("../Graphics/Intro/V-table 500.png", width: 50%),
+    caption: [Value $max_a Q(s, a)$ and best action \ after 500 episodes.]
+  )
+)
