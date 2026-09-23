@@ -205,7 +205,7 @@ stochastic dynamics.
 === Euclidean Markov Decision Processes
 <euclidean-markov-decision-processes>
 A Euclidean Markov decision process
-(EMDP) #cite(label("DBLP:conf/atva/JaegerJLLST19")) #cite(label("randomwalk")) is a
+(EMDP) #cite(label("JaegerJLLST19")) #cite(label("randomwalk")) is a
 continuous-space extension of a Markov decision process (MDP). We recall
 its definition below.
 

@@ -910,10 +910,10 @@ To simulate cyber-physical systems, one needs to capture both the discrete state
 
 Such hybrid systems contain both continuous dynamics, and instantaneous changes to the state.
 There are also purely physical phenomena that hybrid systems are suitable for modelling.
-A ball bouncing on the ground is one such example #cl("HybridPaper", "DBLP:conf/atva/JaegerJLLST19") which will be used in the following to illustrate the workings of a hybrid system.
+A ball bouncing on the ground is one such example #cl("HybridPaper", "JaegerJLLST19") which will be used in the following to illustrate the workings of a hybrid system.
 
 #definition(name: "Euclidean MDP")[
-  An _Euclidean MDP_ (EMDP) #cite(label("DBLP:conf/atva/JaegerJLLST19")) #cite(label("randomwalk")) is a tuple $emdp = (S, s_0, A, P, R)$ where 
+  An _Euclidean MDP_ (EMDP) #cite(label("JaegerJLLST19")) #cite(label("randomwalk")) is a tuple $emdp = (S, s_0, A, P, R)$ where 
   - $S subset.eq RR^n$ is an $n$-dimensional Euclidean space,
   - $s_0 in S$ is the initial state,
   - $A$ is a finite set of actions,
@@ -1038,7 +1038,7 @@ A variant of discretized Q-learning with dynamic partitioning of the state space
 
   The average reward during simulated operation was $-37.6$.
 
-  A more advanced discretization scheme is available directly in the #uppaal tool, as part of the #uppaalstratego feature set #cl("DBLP:conf/atva/JaegerJLLST19").
+  A more advanced discretization scheme is available directly in the #uppaal tool, as part of the #uppaalstratego feature set #cl("JaegerJLLST19").
   This reinforcement learning technique will dynamically partition the state space to group states with similar Q-values as it learns.
   A policy was trained using the query `maxE(-c - Ball.Stop*50) [<=120] {} -> {v, p} : <> time>=120`#footnote[C.f.  https://docs.uppaal.org/language-reference/query-syntax/learning_queries/] which achieved an average reward of -38.5 during simulated operation.
 ]<ex:UnshieldedBB>
@@ -1408,7 +1408,7 @@ Full references are given below, and @tab:Formalisms shows the model and safety 
 ==== #paperref(<paper:Hybrid>, with-title:true)
 
 Safe and optimal controller synthesis for switched-controlled hybrid systems, which combine differential equations and discrete changes of the system's state, is known to be intricately hard.
-These systems have previously #cite(label("DBLP:conf/atva/JaegerJLLST19"))#cite(label("randomwalk"))  been described as EMDPs (@def:emdp:I), but this paper introduces a more precise definition.
+These systems have previously #cite(label("JaegerJLLST19"))#cite(label("randomwalk"))  been described as EMDPs (@def:emdp:I), but this paper introduces a more precise definition.
 
 #contribution[
   A formalism for describing hybrid systems, called the _hybrid Markov decision process._

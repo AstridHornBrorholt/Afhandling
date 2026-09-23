@@ -1049,7 +1049,7 @@ were repeated 10 times; solid lines in plots represent the mean cost of
 these 10 repetitions, while ribbons mark the minimum and maximum costs.
 Costs are evaluated as the mean of $1 comma 000$ episodes. We use the
 learning method implemented in #smallcaps[Uppaal
-Stratego] #cite(label("DBLP:conf/atva/JaegerJLLST19")) because the
+Stratego] #cite(label("JaegerJLLST19")) because the
 implementation has a native interface for shields. This method learns a
 policy by partition refinement of the state space. With this learning
 method, only few episodes are needed for convergence. We also compare to

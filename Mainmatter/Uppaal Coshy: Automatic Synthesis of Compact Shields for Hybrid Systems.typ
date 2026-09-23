@@ -160,7 +160,7 @@ to $phi$ if all outcomes of $sigma$ are safe.
 === Running Example (Bouncing Ball) <running-example-bouncing-ball>
 We introduce our running example: a #emph[bouncing ball] that can be hit
 by a player to keep it
-bouncing #cite(label("HybridPaper")) #cite(label("DBLP:conf/atva/JaegerJLLST19")).
+bouncing #cite(label("HybridPaper")) #cite(label("JaegerJLLST19")).
 We shortly explain our two-component #smallcaps[Uppaal] model. The player component
 is shown in @fig:player. In the (initial) location `Choose`, there
 are two available control actions (solid lines). The player chooses
