@@ -1042,8 +1042,7 @@ A variant of discretized Q-learning with dynamic partitioning of the state space
 
   A more advanced discretization scheme is available directly in the #uppaal tool, as part of the #uppaalstratego feature set #cl("DBLP:conf/atva/JaegerJLLST19").
   This reinforcement learning technique will dynamically partition the state space to group states with similar Q-values as it learns.
-  A policy was trained using the query `minE(c + Ball.Stop*50) [<=120] {} -> {v, p} : <> time>=120`#footnote[C.f.  https://docs.uppaal.org/language-reference/query-syntax/learning_queries/] which achieved an average reward of ?? during simulated operation.
-  #todo[Run the numbers]
+  A policy was trained using the query `maxE(-c - Ball.Stop*50) [<=120] {} -> {v, p} : <> time>=120`#footnote[C.f.  https://docs.uppaal.org/language-reference/query-syntax/learning_queries/] which achieved an average reward of -38.5 during simulated operation.
 ]<ex:UnshieldedBB>
 
 === Shielding Hybrid Systems
