@@ -170,9 +170,7 @@ However, MDPs are often described using several variables or components. Known a
 
 If the state space is prohibitively large, or the MDP is not fully known but can be sampled from, the optimal policy may instead be approximated through learning. 
 
-#todo[The following section conflates representations, implementations, and learning algorithms. Re-write.]
-
-State of the art reinforcement learning techniques learn intricate behaviour through deep neural networks such as PPO~#cl("DBLP:journals/corr/SchulmanWDRK17"), and decision trees such as random forest~#cl("DBLP:journals/ml/Breiman01"), or a combination of the two like MuZero~#cl("DBLP:journals/nature/SchrittwieserAH20").
+State of the art reinforcement learning techniques learn intricate behaviour through sophisticated representations and optimization algorithms #cl("DBLP:journals/corr/SchulmanWDRK17")#cl("DBLP:journals/nature/SchrittwieserAH20").
 In the following, a description of the comparatively simple Q-learning approach will be given. The method serves to illustrate the core concepts of reinforcement learning, such as the difference between on-policy and off-policy learning, value estimation, and exploration strategies. 
 
 === Q-learning <sec:QLearning>
