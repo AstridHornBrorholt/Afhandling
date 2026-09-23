@@ -1341,7 +1341,11 @@ In a partially observable setting, sharing observations may also allow agents to
 
 ==== Coordination
 
-Instead of assuming agents can communicate their intended actions during run-time, some methods use _off-line co-ordination_ #cl("DBLP:conf/atal/MelcerAT24")#cl("DBLP:conf/nips/MelcerAT22").
+Instead of assuming agents can communicate their intended actions during run-time, some methods use _off-line coordination._
+By relying on guarantees that are established during shield synthesis, some shields may allow additional actions while ensuring the joint action is safe.
+
+For example, in #cl("DBLP:conf/atal/MelcerAT24")#cl("DBLP:conf/nips/MelcerAT22") a global shield is synthesized and then converted to local shields.
+The conversion creates local shields whose allowed actions jointly form a subset of the globally permitted actions.
 
 == Summary of Research Contributions <sec:Summary>
 
