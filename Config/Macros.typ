@@ -180,6 +180,8 @@
 #let uppaalsmc = smallcaps[Uppaal SMC]
 #let uppaalstratego = smallcaps[Uppaal Stratego]
 #let stratego = uppaalstratego
+#let uppaaltiga = smallcaps[Uppaal Tiga]
+#let tiga = uppaaltiga
 #let uppaalcoshy = smallcaps[Uppaal Coshy]
 #let caap = smallcaps[Caap]
 #let coshy = uppaalcoshy
