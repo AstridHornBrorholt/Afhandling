@@ -1497,15 +1497,14 @@ The tool is applied to four case studies, and the integration of #caap into the 
 
 ==== #paperref(<paper:Compositional>, with-title:true)
 
-A method for multi-agent shielding (@def:MultiAgentShielding) is given for models where the interaction of agents have a set structure.
-The shielding method uses offline coordination through an assume-guarantee framework.
+A method for multi-agent shielding (@def:MultiAgentShielding) is given for MGs (@def:mg), which uses offline coordination through an assume-guarantee framework.
 
-Computing a shield scales exponentially in the number of state variables which, -- as shown in @ex:2AgentGridWorld -- is a particular concern in multi-agent systems.
+Computing a shield scales exponentially in the number of state variables which, -- as shown in @ex:2AgentGridWorld -- is a particular concern for global shields in multi-agent systems.
 This paper introduces a novel approach for multi-agent shielding, synthesising local shields to enhance scalability.
 Typical safety specifications are global properties, which are often infeasible for local shields.
 The key to overcome this challenge is to apply assume-guarantee reasoning. 
 
-A sound proof rule is presented, that decomposes a (global, complex) safe set into (local, simple) obligations for the local shields.
+A sound proof rule is presented, that decomposes a (global, complex) safe set $phi$ into (local, simple) obligations $phi_i$ for the local shields $shield_i$.
 This proof rule applies to systems where the interaction between agents is structured, such that each agent interacts with a limited number of other agents, as is illustrated in @fig:cps.
 
 #contribution[
