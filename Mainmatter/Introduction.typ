@@ -375,13 +375,15 @@ In the following, safety will be discussed in terms of invariants, given as a se
  Safety according to $phi$ is indicated with $models$, as respectively $s models phi$, $xi models phi$ and $pi models phi$.
 ]<def:Safety>
 
-A safe set $phi$ does not necessarily have a safe policy $pi models phi$. For example, consider a Grid World $cal(W)' = (S, s_0, A, P, R)$ as described in @ex:GridWorld, except with $s_0 = 10$.
+A safe set $phi$ does not necessarily have a safe policy $pi models phi$. For example, consider a Grid World $cal(W)' = (S, 10, A, P, R)$ as described in @ex:GridWorld, except its initial state is 10.
 From this initial state, there is a nonzero probability of reaching 💀 regardless of which actions are taken.
-The safe set $S \\ {💀}$ is said to be infeasible for $cal(W)'$.
+The safe set $S \\ {💀}$ is infeasible for $cal(W)'$.
 
 
 #definition(name: "Feasibility")[
   A safe set $phi$ is said to be feasible for an MDP $mdp$ if there exists at least one safe policy $pi models phi$ for $mdp$.
+
+  A state $s in S$ is feasible for $phi$ and $mdp=(S, s_0, A, P, R)$, if $phi$ is feasible for the modified MDP $(S, s, A, P, R)$ which has $s$ as initial state.
 ]<def:Feasibility>
 
 However, some policies may be safe with higher probability than others. For a discussion of probabilistic safety and shielding, see @sec:ProbabilisticShielding.
@@ -394,15 +396,16 @@ Even then, the convergence guarantee for Q-learning relies on an infinite number
 Among the many approaches to enforcing safety in reinforcement learning  #cl("DBLP:conf/iros/WenET15")#cl("DBLP:conf/tacas/Junges0DTK16")#cl("DBLP:journals/jmlr/GarciaF15")@MaderbacherSBBNK23@ChengOMB19@LuoM21@BloemKKW15#cl("DBLP:conf/isola/Jaeger0BLJ20")@BerkenkampTS017, shielding @DavidJLLLST14@AlshiekhBEKNT18@BloemKKW15@ChowNDG18#cl("DBLP:journals/cacm/KonighoferBJJP25") is a promising technique which restricts the actions available to the agent, in order to ensure safe behaviour.
 Since shields work by restricting actions, they can be applied to any existing reinforcement learning method, including deep learning, allowing it to work in concert with state of the art methods to achieve safe and optimized behaviour.
 
-#definition(name: "Shield, maximally permissive shield, permitted policies")[
+#definition(name: "Shield, permitted policies, maximally permissive shield")[
   For an MDP $mdp$ and safe set $phi$, a _shield_ is a safe nondeterministic policy $shield : S -> powerset(A)$.
-  
-  A shield $shield$ for a safe set $phi$ and MDP $mdp$ is _maximally permissive_ if for all shields $shield'$ for $φ$ and $mdp$, and for all states $s in S$,  it holds that $shield'(s) subset.eq shield(s)$
 
   An action $a$ is permitted in state $s$ by $shield$ if $a in shield(s)$. A deterministic policy $pi$ is permitted by $shield$ if $forall s in S : pi(s) in shield(s)$.
   Similarly for a nondeterministic policy $pi$ if $forall s in S : pi(s) subset.eq shield(s)$.
   And for a probabilistic policy $pi(s, a) > 0 => a in shield(s)$.
   The application of a shield in a reinforcement learning setting is discussed in @sec:ApplyingTheShield.
+  
+  A shield $shield$ for a safe set $phi$ and MDP $mdp = (S, s_0, A, P, R)$ is _maximally permissive_ if for all shields $shield'$ for $φ$ and $mdp$ and for all feasible states $s in S$,  it holds that $shield'(s) subset.eq shield(s)$.
+  Additionally, for all states $s' in S$ which are not feasible, the maximally permissive shield must have $shield(s') = A$.
 ]<def:Shielding>
 
 For any MDP $mdp$ and feasible safe set $phi$, a unique maximally permissive shield exists @BernetJW02 @TransPaper.
@@ -663,7 +666,7 @@ Therefore, operation-only shielding should only be employed when re-training or 
 
 #subpar.grid(columns: 3, align: bottom,
   [#figure(image("../Graphics/Intro/Shielded.png", width: 66.666%),
-    caption: [A shield icon 🛡️ indicates the action is not permitted. A hatched area marks unreachable states.]
+    caption: [A shield icon 🛡️ indicates the action is not permitted. A hatched area marks infeasible (@def:Feasibility) states.]
   )<fig:GridWorldShield>],
   [#figure(image("../Graphics/Intro/Shielded Q-learning 500.png", width: 66.666%),
     caption: [Cumulative reward for a shielded Q-learning agent. \ #hide("a")]
