@@ -191,7 +191,7 @@ The method of approximation is given in @alg:QLearning, with the update rule sho
 Note the similarity of the update rule to @def:expected-reward.
 The algorithm has additional input parameters, which will be described in the following.
 
-#figure(kind: "algorithm", supplement: "Algorithm", 
+#figure(kind: "algorithm", supplement: "Algorithm", placement: top,
   pseudocode-list(numbered-title: [Q-learning])[
     - *Input:* MDP $mdp = (S, s_0, A, P, R)$, 
       discount factor $gamma$,
