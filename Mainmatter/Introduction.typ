@@ -979,7 +979,7 @@ A~channel may be urgent, which prevents time from progressing whenever the guard
     [#figure(image("../Graphics/Intro/BB Illustration.svg"), caption: [Illustration of the system @JaegerJLLST19.])<fig:BBIllustration>],
     [#figure(image("../Graphics/Intro/BB Ball.pdf"), caption: [#uppaal "Ball" template from #paperref(<paper:Coshy>). \ #hide("a")])<fig:BBBall>],
     [#figure(image("../Graphics/Intro/BB Player.pdf"), caption: [#uppaal "Player" template from \ #paperref(<paper:Coshy>). ])<fig:BBPlayer>],
-    [#figure(image("../Graphics/Intro/BB Random Trace.svg", height: 100pt), caption: [Example trace produced by random agent with 5% chance of choosing $hit$ when $p > 4$. \ #hide[x]] )<fig:BBRandomTrace>],
+    [#figure(image("../Graphics/Intro/BB Random Trace.svg"), caption: [Example trace produced by random agent with 10% chance of choosing $hit$ when $p > 4$. \ #hide[x]] )<fig:BBRandomTrace>],
     caption: [Hitting bouncing ball.]
   )
 
