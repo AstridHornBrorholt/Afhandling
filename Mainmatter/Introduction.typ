@@ -950,33 +950,16 @@ However, the expected reward is defined over probability densities provided by t
 ]
 
 Hybrid systems can be specified in the modelling tool #uppaal through the extension #uppaalsmc #cl("DBLP:journals/sttt/DavidLLMP15").
-An informal description of key features will be given here.
-Models are specified as systems of components interacting through #sync("synchronization") and shared #invariant("variables") or #invariant("clocks").
-Components consist of #location("locations") which may have an #invariant("invariant"), and transitions between locations that contain #guard("guards"), #sync("synchronization channels") and #update("updates").
-@fig:BBBall shows an example of such a component.
-
-Transitions are shown as arrows between locations, and are controlled either stochastically by the environment (dashed) or chosen by the agent (solid). 
-A transition is possible when the component is currently in the transition's outgoing location, and the predicate in the guard, e.g. #guard("p >= 4 && v >= 0"), is satisfied.
-When a transition is taken, it moves the component from the outgoing to the incoming location, applying the specified update, e.g. #update("v = -4").
-
-Invariants control the evolution of clocks over time, e.g. #invariant("x <= 0.1"), whenever the component is in the location which contains the invariant.
-An invariant of an active location may prevent time from progressing, but taking a transition may allow the system to progress.
-If no transition can be taken, a model deadlocks.
-In addition to constraints, invariants may also specify generalized clock rates, e.g. #invariant("p' == v").
-
-Synchronization between components happens through #sync("channels").
-This may be initiated by transitions where the channel is suffixed by an exclamation point #sync("!"), e.g. #sync("hit!").
-When a channel is initiated by a transition, all receiving channels suffixed with a question mark #sync("?") will fire at the same time, if their guards are enabled.
-A~channel may be urgent, which prevents time from progressing whenever the guard on an initiating transition is satisfied.
 
 #example(name: "Bouncing Ball")[
-  A ball bounces on a flat surface, and can be struck by a piston whenever it is above a certain height #cl("HybridPaper", "TransPaper", "CompositionalPaper", "JaegerJLLST19"), as shown in @fig:BBIllustration.
+  Pictured in @fig:BBIllustration, a ball bounces on a flat surface, and can be struck by a piston whenever it is above a certain height #cl("HybridPaper", "TransPaper", "CoshyPaper", "JaegerJLLST19").
   The goal is to strike the ball as little as possible, while preventing it from coming to a stop.
+  This behaviour is shown using the #uppaal modelling language #ref(<fig:BBBall>, supplement: "figures") #ref(<fig:BBPlayer>, supplement: "and").
 
   The energy preserved is stochastic both when the ball bounces on the ground, and when hit.
   The ball experiences standard gravity $g = 9.81 skew("m"/"s"^2)$ and has a mass of $1$kg to simplify equations.
   
-  #subpar.grid(columns: (0.4fr, 1fr), align: bottom,
+  #subpar.grid(columns: (0.4fr, 1fr), align: bottom, placement: auto,
     [#figure(image("../Graphics/Intro/BB Illustration.svg"), caption: [Illustration of the system @JaegerJLLST19.])<fig:BBIllustration>],
     [#figure(image("../Graphics/Intro/BB Ball.pdf"), caption: [#uppaal "Ball" template from #paperref(<paper:Coshy>). \ #hide("a")])<fig:BBBall>],
     [#figure(image("../Graphics/Intro/BB Player.pdf"), caption: [#uppaal "Player" template from \ #paperref(<paper:Coshy>). ])<fig:BBPlayer>],
@@ -984,42 +967,40 @@ A~channel may be urgent, which prevents time from progressing whenever the guard
     caption: [Hitting bouncing ball.]
   )
 
-  The behaviour of the system is shown as a #uppaal model in @fig:BBBall.
-  The system has velocity $v$ (#skew($"m"/"s"$)) and position $p$ ($"m"$) measured as distance to the floor.
-  In the #location("InAir") location, these  variables have the rate  #invariant("p' == v && v' == -9.81") which govern the trajectory of the ball while it is in the air.
+  Call the EMDP $cal(B) = (S, s_0, A, P, R)$.
+  The state space $S = R times R_(<=0)$ represents the ball's velocity $v$ (#skew($"m"/"s"$)) and position relative to the floor $p$ ($"m"$).
+  Initially, the ball is motionless 7m above the ground, $s_0 = vec(7, 0)$.
   
-  The urgent channel #sync("bounce!") forces the system to take an uncontrollable (dashed) edge whenever the ball touches the ground #guard("p <= 0 && v <= 0").
-  For a sufficiently high speed, this causes the update $v ← -r v$ with $r ~ Unif(\[0.85; 0.97\])$, where $Unif(X)$ represents the uniform distribution over some set $X$.
-  If the speed of the ball is near zero #guard("v > -1e-5") as it touches the ground, the component may instead move to the location named #location("Stop").
-  As its name implies, the velocity and position remain fixed at (near) zero in this location: #invariant("p' == 0 && v' == 0").
-
-  A player component shown in @fig:BBPlayer is given the option to initiate the #sync("hit!") channel once every 0.1 seconds.
-  A clock $x$ enforces a decision period of $0.1$, moving the player component into the location named #location("Choose").
-  This location has two outgoing transitions that lead back to the #location("Wait") location, one of which initiates the #sync("hit!") synchronization and increments the accumulated cost #update("c").
-
-  Two transitions on @fig:BBBall may synchronize on the channel #sync("hit"), subject to the guards on these transitions.
-  These guards and transitions correspond to the following update rule with $r ~ Unif(\[0.9; 1\])$:
+  Once every 0.1 seconds, a player can choose between actions $A = {hit, nohit}$, with the latter having no effect on the system.
+  When the $hit$ action is chosen, this leads to the following update, with $r' ~ Unif(\[0.9; 1\])$:
 
   $ v ← cases(
     -4 &"if" p >= 4 and v < 0 and v >= -4, 
-    -4 - r v &"if" p >= 4 and v > 0,
+    -4 - r' v &"if" p >= 4 and v > 0,
     v &"otherwise"
   ) $ 
 
-  An example of the behaviour of the system is shown in @fig:BBRandomTrace, which plots the position of the ball over time. 
+  The reward $R$ is set up to give a penalty of $-1$ whenever the $hit$ action is chosen, $0$ when $nohit$ is chosen, and a penalty of $-50$ when the location #location("Stop") is entered. 
 
+  An example of the behaviour of the system is shown in @fig:BBRandomTrace, which plots the position of the ball over time. 
+  While the ball is in the air, its trajectory is determined by the differential equations
+
+  $ p' = v, #h(2em) v' = -9.81 $
+  
+  Let $Unif(X)$ be the uniform distribution over some set $X$.
+  When the ball impacts with the ground at a speed greater than $10^(-5)$,  velocity is updated as $v ← -r v$ with $r ~ Unif(\[0.85; 0.97\])$. 
+  If the speed of the ball is near zero, the ball instead comes to a stop ($p=0, v=0, p'=0, v'=0$).
+
+  The transition density $P(s,a)$ describing this behaviour is not straightforward, and will not be given here.
+  Instead, refer to #paperref(<paper:Hybrid>), which presents a more expressive formalism, and gives examples that accurately describe the Bouncing Ball's behaviour.
 ]<ex:BB>
 
 It is not possible to apply Q-learning as described in @alg:QLearning directly to continuous systems like @ex:BB.
-It is not practical to represent a Q-table over uncountably infinite states, and most states will almost-surely never be visited twice.
+Clearly, it is not practical to represent a Q-table over uncountably infinite states, and most states will almost-surely never be visited twice.
 However, the state space can be discretized by grouping similar states according to some partitioning scheme, in order to obtain a finite Q-table @kaelbling1996reinforcement.
-A variant of discretized Q-learning with dynamic partitioning of the state space is a feature of #uppaal @JaegerJLLST19, but for the next example, a simple uniform partitioning scheme is used.
+A variant of discretized Q-learning with dynamic partitioning of the state space is a feature of #uppaalstratego @JaegerJLLST19, but for the next example, a simple uniform partitioning scheme is used.
 
 #example(name: "Q-learning for the Bouncing Ball")[
-  A Q-learning agent is set up to make a decision whenever the player is in the #location("Choose") location. 
-  Thus, only variables $vec(v, p)$ will be tracked, resulting in the state space $S = RR^2$, with $s_0 = vec(0, 7)$. The action set is called $A = {hit, nohit}$, representing resp. the upper and lower controllable transitions in @fig:BBPlayer. 
-  The reward $R$ is set up to give a penalty of $-1$ whenever the $hit$ action is chosen, $0$ when $nohit$ is chosen, and a penalty of $-50$ when the location #location("Stop") is entered. 
-
   The state space was discretized with an axis-aligned uniform partitioning within the set $S' = \[-15; 15\[ #h(2pt) times \[0; 10\[ subset RR^2$.
   States in $S'$ are grouped into cells of size $0.5 times 0.5$, i.e. the set 
   ${ \[underline(v); overline(v)\[ #h(2pt) times \[underline(p); overline(p)\[ #h(2pt)  subset S' | overline(v) - underline(v) = overline(p) - underline(p) = 0.5 }$.
@@ -1031,7 +1012,7 @@ A variant of discretized Q-learning with dynamic partitioning of the state space
   Lastly, $gamma$, $alpha$, and $ε$ were as in @ex:GridWorld.
 
   Training was limited to 3000 episodes, with the plot in @fig:BBUnshieldedTraining showing the reward obtained in each episode.
-  Episodes terminated after the ball came to a stop, or after $1200$ time-steps, which corresponds to $120$ seconds.
+  Episodes terminated after the ball came to a stop, or after $1200$ time-steps ($120$ seconds).
   An example of a trace that was observed during training is shown in @fig:BBUnshieldedTrace.
 
   #subpar.grid(columns: 3, align: top,
@@ -1044,6 +1025,7 @@ A variant of discretized Q-learning with dynamic partitioning of the state space
   The average reward during simulated operation was $-53.6$.
 
   A more advanced discretization scheme is available directly in the #uppaal tool, as part of the #uppaalstratego feature set #cl("JaegerJLLST19").
+  This learning algorithm is applied to the Bouncing Ball in #paperref(<paper:Hybrid>, supplement: "papers"), #paperref(<paper:Trans>, supplement: "") #paperref(<paper:Coshy>, supplement: "and")
 ]<ex:UnshieldedBB>
 
 === Shielding Hybrid Systems
@@ -1071,9 +1053,9 @@ The discretization method outlined in @ex:UnshieldedBB may also be used to obtai
   During evaluation, the resulting policy achieved a mean reward of $-35.4$.
   This policy is visualized in @fig:BBShieldedPolicy.
 
-  Applying the pre-shield to the strategy from @ex:UnshieldedBB for operation-only shielding yielded a similar reward, of $-48.3$.
+  Applying the pre-shield to the strategy from @ex:UnshieldedBB for operation-only shielding yielded a reward of $-48.3$.
 
-  More shielding experiments on the Bouncing Ball example can be found in #paperref(<paper:Hybrid>) and #paperref(<paper:Coshy>).
+  More shielding experiments on the Bouncing Ball can  be found in #paperref(<paper:Hybrid>).
 ]<ex:ShieldingBB>
 
 == Adaptive Shielding <sec:AdaptiveShielding>

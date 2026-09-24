@@ -117,14 +117,14 @@
 #let cl(..label_strings) = {for label_string in label_strings.pos() {cite(label(label_string))}
 }
 
-#let paperref(label, with-title: false) = context{
+#let paperref(label, with-title: false, supplement: "Paper") = context{
   let h = locate(label)
   
   if not with-title {
-    link(h, [Paper~#numbering("A", ..counter(heading).at(h))])
+    link(h, [#supplement~#numbering("A", ..counter(heading).at(h))])
   } else {
     link(h, {
-        [Paper~]
+        [#supplement~]
         numbering("A", ..counter(heading).at(h))
         [: ]
         show linebreak: none
