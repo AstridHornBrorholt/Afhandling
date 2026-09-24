@@ -1012,40 +1012,37 @@ A~channel may be urgent, which prevents time from progressing whenever the guard
 It is not possible to apply Q-learning as described in @alg:QLearning directly to continuous systems like @ex:BB.
 It is not practical to represent a Q-table over uncountably infinite states, and most states will almost-surely never be visited twice.
 However, the state space can be discretized by grouping similar states according to some partitioning scheme, in order to obtain a finite Q-table @kaelbling1996reinforcement.
-A variant of discretized Q-learning with dynamic partitioning of the state space is a feature of #uppaal @JaegerJLLST19, but for the next example a simple uniform partitioning scheme is used.
+A variant of discretized Q-learning with dynamic partitioning of the state space is a feature of #uppaal @JaegerJLLST19, but for the next example, a simple uniform partitioning scheme is used.
 
 #example(name: "Q-learning for the Bouncing Ball")[
   A Q-learning agent is set up to make a decision whenever the player is in the #location("Choose") location. 
-  Thus, only variables $vec(v, p)$ will be tracked, resulting in the state space $S = RR^2$, with initial state is set to $s_0 = vec(0, 7)$. The action set is called $A = {hit, nohit}$, representing resp. the upper and lower controllable transitions in @fig:BBPlayer. 
+  Thus, only variables $vec(v, p)$ will be tracked, resulting in the state space $S = RR^2$, with $s_0 = vec(0, 7)$. The action set is called $A = {hit, nohit}$, representing resp. the upper and lower controllable transitions in @fig:BBPlayer. 
   The reward $R$ is set up to give a penalty of $-1$ whenever the $hit$ action is chosen, $0$ when $nohit$ is chosen, and a penalty of $-50$ when the location #location("Stop") is entered. 
 
   The state space was discretized with an axis-aligned uniform partitioning within the set $S' = [-15; 15[ #h(2pt) times [0; 10[ subset RR^2$.
-  States in $S'$ are grouped into cells of size $0.2 times 0.2$ in the following manner: 
-  ${ \[underline(v); overline(v)\[ #h(2pt) times \[underline(p); overline(p)\[ #h(2pt)  subset S' | overline(v) - underline(v) = overline(p) - underline(p) = 0.2 }$.
-  For example, the state $vec(-4, 1)$ is contained in the cell $ [-4; -3.8[#h(2pt) times [1; 1.2[$.
-  In total, the number of cells will be $|S'| = (15 - (-15))/0.2 times 10/0.2 = #{(15 - (-15))/0.2 * 10/0.2}$.
-  Through experimentation, learning outcomes were found to be highly sensitive to the choice of cell size.
-  Coarser cells required fewer training episodes to achieve a mean reward greater than $-50$, but the expected reward of the final policy would be lower.
+  States in $S'$ are grouped into cells of size $0.5 times 0.5$, i.e. the set 
+  ${ \[underline(v); overline(v)\[ #h(2pt) times \[underline(p); overline(p)\[ #h(2pt)  subset S' | overline(v) - underline(v) = overline(p) - underline(p) = 0.5 }$.
+  For example, the state $vec(-4, 1)$ is contained in the cell $ [-4; -3.5[#h(2pt) times [1; 1.5[$.
+  In total, the number of cells will be $|S'| = (15 - (-15))/0.5 times 10/0.5 = #{(15 - (-15))/0.5 * 10/0.5}$.
 
   The Q-value of states in $S'$ were initialized to zero: $Q(s', a) = 0$ for $s' in S'$ and $a in {hit, nohit}$.
   In remaining states, $s in.not S'$, the ball will never be hit: $Q(s, nohit) = 0$ and $Q(s, hit) = -infinity$.
+  Lastly, $gamma$, $alpha$, and $ε$ were as in @ex:GridWorld.
 
-  The results of training are shown in @fig:BBUnshieldedTraining which plots  the reward obtained in each of  $50000$ episodes.
-  Each episode was limited to a length of $1200$ actions, which corresponds to $120$ seconds.
+  Training was limited to 3000 episodes, with the plot in @fig:BBUnshieldedTraining showing the reward obtained in each episode.
+  Episodes terminated after the ball came to a stop, or after $1200$ time-steps, which corresponds to $120$ seconds.
   An example of a trace that was observed during training is shown in @fig:BBUnshieldedTrace.
 
   #subpar.grid(columns: 3, align: top,
-    [#figure(image("../Graphics/Intro/BB Unshielded Training.png"), caption: [Training graph.])<fig:BBUnshieldedTraining>],
+    [#figure(image("../Graphics/Intro/BB Unshielded Training.svg"), caption: [Training graph.])<fig:BBUnshieldedTraining>],
     [#figure(image("../Graphics/Intro/BB Unshielded Policy.svg"), caption: [Visualization of the resulting policy.])<fig:BBUnshieldedPolicy>],
     [#figure(image("../Graphics/Intro/BB Unshielded Trace.svg"), caption: [Ball comes to a stop \ during training.])<fig:BBUnshieldedTrace>],
     caption: [Unshielded training of the bouncing ball described in @ex:BB.]
   )
 
-  The average reward during simulated operation was $-37.6$.
+  The average reward during simulated operation was $-53.6$.
 
   A more advanced discretization scheme is available directly in the #uppaal tool, as part of the #uppaalstratego feature set #cl("JaegerJLLST19").
-  This reinforcement learning technique will dynamically partition the state space to group states with similar Q-values as it learns.
-  A policy was trained using the query `maxE(-c - Ball.Stop*50) [<=120] {} -> {v, p} : <> time>=120`#footnote[Cf.  https://docs.uppaal.org/language-reference/query-syntax/learning_queries/] which achieved an average reward of -38.5 during simulated operation.
 ]<ex:UnshieldedBB>
 
 === Shielding Hybrid Systems
@@ -1060,20 +1057,22 @@ The discretization method outlined in @ex:UnshieldedBB may also be used to obtai
 
   #subpar.grid(columns: 3, align: top,
     [#figure(image("../Graphics/Intro/BB Shield.svg"), caption: [Visualization of the shield with cell size 0.02])<fig:BBShield>],
-    [#figure(image("../Graphics/Intro/BB Shielded Training.png"), caption: [Training graph when shield is applied.])<fig:BBShieldedTraining>],
+    [#figure(image("../Graphics/Intro/BB Shielded Training.svg"), caption: [Training graph when shield is applied.])<fig:BBShieldedTraining>],
     [#figure(image("../Graphics/Intro/BB Shielded Policy.svg"), caption: [Shielded policy.])<fig:BBShieldedPolicy>],
     caption: [Shielding the Bouncing Ball],
   )<fig:ShieldingBB>
 
   Training-only pre-shielding was used for Q-learning with parameters otherwise identical to @ex:UnshieldedBB.
   Although the cell size of the Q-table does not match that of the shield, the safe-by-construction policy can be represented using the smallest cell-size.
-  This is possible because the shield's cell size of $0.02$, is a divisor of the coarser Q-table which has size $0.2$.
+  This is possible because the shield's cell size of $0.02$, is a divisor of the coarser Q-table which has size $0.5$.
 
   The training results under a pre-shield is shown in @fig:BBShieldedTraining. 
-  During evaluation, the resulting policy achieved a mean reward of $-37.8$.
+  During evaluation, the resulting policy achieved a mean reward of $-35.4$.
   This policy is visualized in @fig:BBShieldedPolicy.
 
-  Applying the pre-shield to the strategy from @ex:UnshieldedBB for operation-only shielding yielded a similar reward, of $-38.5$.
+  Applying the pre-shield to the strategy from @ex:UnshieldedBB for operation-only shielding yielded a similar reward, of $-48.3$.
+
+  More shielding experiments on the Bouncing Ball example can be found in #paperref(<paper:Hybrid>) and #paperref(<paper:Coshy>).
 ]<ex:ShieldingBB>
 
 == Adaptive Shielding <sec:AdaptiveShielding>
