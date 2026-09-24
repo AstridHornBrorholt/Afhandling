@@ -47,9 +47,9 @@
     margin: 25mm,
     header: context {
       if calc.odd(here().page()) {
-        align(center, emph(hydra(1, display: skip-linebreak)))
+        align(center, emph(hydra(1, skip-starting: false, display: skip-linebreak)))
       } else {
-        align(center, emph(hydra(2, display: add-period)))
+        align(center, emph(hydra(2, skip-starting: false, display: add-period)))
       }
     }
   )
