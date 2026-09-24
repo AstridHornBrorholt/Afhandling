@@ -12,7 +12,7 @@
 
 #[
   #set heading(numbering: none)
-  = Introduction
+  = Extended Summary
 ]
 
 Digital control of physical components enables time-saving automation and efficient use of available resources.
@@ -877,7 +877,7 @@ Alternatively, the probabilistic shield in #cl("DBLP:conf/concur/0001KJSB20") al
 The previous sections have assumed finite-state environments, with a fully known safety-relevant abstraction.
 Under these assumptions, there exist several shield synthesis methods to achieve policies optimized with RL that are verifiably safe.
 
-Other existing methods can synthesize shields in certain continuous settings~#cl("DBLP:conf/l4dc/KimCRLPBSF25"). 
+There also exist methods can synthesize shields in certain continuous settings.
 In fact, shielded RL was developed in @DavidJLLLST14 for _timed MDPs_, a type of model that features continuous clock values. 
 Shield synthesis from an abstraction of a timed MDP, and subsequent training a near-optimal strategy using RL, was made available through the tool #stratego #cl("DBLP:conf/tacas/DavidJLMT15").
 Timed MDPs and their various extensions have successfully been used to model many aspects of cyber-physical systems~@PowerTools.
@@ -886,16 +886,16 @@ Timed MDPs and their various extensions have successfully been used to model man
   caption: [A cyber-physical system with (discrete) digital hardware/software, (continuous) physical processes, and unknown components. Direct interaction between components is shown as dotted lines.]
 )<fig:cps>
 
-This thesis will take the full step towards shielding and RL in the setting of cyber-physical systems.
+This thesis will address the challenges which arise for shielding and RL in the setting of cyber-physical systems.
 Pictured in @fig:cps, the systems are made up of several components interacting.
 These components will be some combination of continuous dynamics, discrete state changes, and components with unknown behaviours.
 Shielding has the potential to enable RL methods to safely train policies to achieve increased performance in cyber-physical systems.
 However, this necessitates scalable shield synthesis methods for formalisms that can accurately model their behaviour, including modelling of uncountably infinite systems.
-This leads to the research hypothesis of this thesis,
+This leads to the research hypothesis of this thesis:
 
 #hypothesis[
 
-  Shielding methods can be scalably extended to formalisms that accurately model cyber-physical systems, enabling the use of RL methods to train optimized policies that are verifiably safe.
+  Shielding methods can be scalably extended to formalisms that accurately phenomena of cyber-physical systems, enabling the use of RL methods to train optimized policies that are verifiably safe.
 ]
 
 The following sections will describe safety and shielding in such formalisms.
