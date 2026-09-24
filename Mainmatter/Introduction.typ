@@ -70,7 +70,7 @@ An MDP is defined as a tuple $(S, s_0, A, P, R)$ where
   - $S$ is a finite set of states,
   - $s_0 in S$ is the initial state,
   - $A$ is a finite set of actions,
-  - $P : S times A → (S → [0; 1])$ with  $forall s in S, a in A : sum_(s' in S) P(s, a)(s') = 1$ is the transition function, which gives the  probability of reaching state $s'$ from state $s$ as a result of  taking the action $a$, 
+  - $P : S times A → (S → \[0; 1\])$ with  $forall s in S, a in A : sum_(s' in S) P(s, a)(s') = 1$ is the transition function, which gives the  probability of reaching state $s'$ from state $s$ as a result of  taking the action $a$, 
   - and $R : S times A times S -> RR$ gives the reward $R(s, a, s')$ for reaching $s'$ by taking $a$ in $s$.
 ]<def:mdp>
 
@@ -87,14 +87,14 @@ To maximise the reward yielded by $R$, a policy $pi$ acts upon the model $mdp$.
   A policy  is a function that chooses the next action from a given state. 
   There are three different kinds of policy:
     - _deterministic_ $S -> A$, uniquely selecting one specific action for each state, 
-    - _probabilistic_ $S -> (A -> [0; 1])$, giving a probability distribution ($forall s in S : sum_(a in A) pi(s)(a) = 1$) over actions, 
+    - _probabilistic_ $S -> (A -> \[0; 1\])$, giving a probability distribution ($forall s in S : sum_(a in A) pi(s)(a) = 1$) over actions, 
     - or _nondeterministic_ $S -> powerset(A) \\ emptyset $, giving a set $A' subset.eq A$ of possible actions. 
 
 ]<def:policy>
 
 #definition(name: "Traces, trace segments")[
   For an MDP $mdp$, a _trace_ $xi$ is an interleaved series of states and actions $xi = s_0 a_0 s_1 a_1 s_2 a_2 ...$ starting in the initial state~$s_0$. 
-  A trace $xi$ is an _outcome_ of a probabilistic policy $pi : S -> (A -> [0; 1])$ if for every $i >= 0$ it holds $pi(s_i)(a_i) > 0$ and $P(s_i, a_i)(s_(i+1)) > 0$.
+  A trace $xi$ is an _outcome_ of a probabilistic policy $pi : S -> (A -> \[0; 1\])$ if for every $i >= 0$ it holds $pi(s_i)(a_i) > 0$ and $P(s_i, a_i)(s_(i+1)) > 0$.
   Outcomes are defined similarly for deterministic and nondeterministic policies.
 
   Since @def:mdp does not include a stopping condition, traces will be infinite.
@@ -130,7 +130,7 @@ This is illustrated in the following example.
    lim_(n -> infinity) sum_(i=0)^n 100 $
 ]<ex:InjectionMoulding>
 
-To measure the relative usefulness of strategies over an infinite horizon, a  discount factor $gamma in #h(4pt) ]0; 1]$ is applied to the reward, giving preference to more immediate gains.
+To measure the relative usefulness of strategies over an infinite horizon, a  discount factor $gamma in #h(4pt) \]0; 1\]$ is applied to the reward, giving preference to more immediate gains.
 This _discounted_ reward is defined as $R_gamma (xi) = sum_(i=0)^infinity gamma^i R(s_i)$. 
 Note that in the special case where $gamma = 1$, $R_1$ is the same as the undiscounted reward $R$.
 The discount factor $gamma$ may be interpreted as the probability of the trace continuing, while with probability $1 - gamma$ the trace may end in the next step, losing access to future rewards.
@@ -145,11 +145,11 @@ The discount factor $gamma$ may be interpreted as the probability of the trace c
 In contrast to the reward gained from just one trace, the expected discounted reward #cl("DBLP:books/lib/SuttonB98") for a probabilistic policy is defined as:
 
 #definition(name: "Expected reward")[
-  Given an MDP $M = (S, s_0, A, P, R)$, a deterministic policy $pi : S -> A$ and a discount factor $gamma in #h(4pt) ]0; 1]$, the expected reward of $pi$ on $mdp$ at state $s in S$ is the unique fixed point of the following equation:
+  Given an MDP $M = (S, s_0, A, P, R)$, a deterministic policy $pi : S -> A$ and a discount factor $gamma in #h(4pt) \]0; 1\]$, the expected reward of $pi$ on $mdp$ at state $s in S$ is the unique fixed point of the following equation:
 
   $ EE_pi^mdp (s) = sum_(s' in S) P(s, pi(s))(s') (R(s, pi(s), s') + gamma  EE_pi^mdp (s')) $ 
 
-  A similar definition of expected reward can be given for probabilistic policies $pi : S → (A → [0;1])$.
+  A similar definition of expected reward can be given for probabilistic policies $pi : S → (A → \[0;1\])$.
   It is undefined for nondeterministic policies.
 
   $ EE_pi^mdp (s) = sum_(a in A) pi(s)(a) sum_(s' in S) P(s, a)(s') (R(s, a, s') + gamma  EE_pi^mdp (s')) $ 
@@ -198,9 +198,9 @@ The algorithm has additional input parameters, which will be described in the fo
       initial $Q : S times A -> RR$,
       number of episodes $n$,
       episode length $m$,
-      learning rate $alpha : NN -> #h(4pt) ]0; 1]$,
+      learning rate $alpha : NN -> #h(4pt) \]0; 1\]$,
       and 
-      exploration factor $epsilon : NN -> [ 0; 1]$.
+      exploration factor $epsilon : NN -> \[ 0; 1\]$.
       
     - *Output:* Approximation $hat(pi) : S -> A$ of the optimal deterministic policy.
     + *Loop*  $i ← 0$ *up to* $n - 1$ *inclusive*
@@ -223,7 +223,7 @@ This inner loop ensures, that $s_0$ will be visited at least $n$ times.
 Setting $m$ too low may impact the estimate, since the policy will not be able to capitalize on future rewards beyond step $m$. 
 Thus, $m$ should be picked according to $gamma$ such that $gamma^m$ is suitably low. 
 
-Updates are performed according to a learning rate $alpha: NN -> [0; 1[$, a function over the learning steps.
+Updates are performed according to a learning rate $alpha: NN -> \[0; 1\[$, a function over the learning steps.
 This represents how much the new experience should influence the estimation of $Q(s,a)$.
 As the number of episodes increases, so does the number of times $Q(s,a)$ is updated, and a decreasing learning rate reflects growing confidence in the estimate.
 
@@ -761,7 +761,7 @@ This section continues to focus on safe sets $φ $.
 #definition(name: "Probability of safety violation")[
   Let $mdp = (S, s_0, A, P, R)$ be an MDP, $phi$ a safe set, $pi$ a deterministic policy, and $s in S$ a state.
   The probability of leaving $phi$ starting from $s$ is written $PP_mdp^φ (pi, s)$. 
-  It is the least fixed point in $[0, 1]$ for the equation
+  It is the least fixed point in $\[0; 1\]$ for the equation
 
   $ PP_mdp^φ (pi, s) = cases(
       1 &"if" s in.not phi, 
@@ -988,7 +988,7 @@ A~channel may be urgent, which prevents time from progressing whenever the guard
   In the #location("InAir") location, these  variables have the rate  #invariant("p' == v && v' == -9.81") which govern the trajectory of the ball while it is in the air.
   
   The urgent channel #sync("bounce!") forces the system to take an uncontrollable (dashed) edge whenever the ball touches the ground #guard("p <= 0 && v <= 0").
-  For a sufficiently high speed, this causes the update $v ← -r v$ with $r ~ Unif([0.85; 0.97])$, where $Unif(X)$ represents the uniform distribution over some set $X$.
+  For a sufficiently high speed, this causes the update $v ← -r v$ with $r ~ Unif(\[0.85; 0.97\])$, where $Unif(X)$ represents the uniform distribution over some set $X$.
   If the speed of the ball is near zero #guard("v > -1e-5") as it touches the ground, the component may instead move to the location named #location("Stop").
   As its name implies, the velocity and position remain fixed at (near) zero in this location: #invariant("p' == 0 && v' == 0").
 
@@ -997,7 +997,7 @@ A~channel may be urgent, which prevents time from progressing whenever the guard
   This location has two outgoing transitions that lead back to the #location("Wait") location, one of which initiates the #sync("hit!") synchronization and increments the accumulated cost #update("c").
 
   Two transitions on @fig:BBBall may synchronize on the channel #sync("hit"), subject to the guards on these transitions.
-  These guards and transitions correspond to the following update rule with $r ~ Unif([0.9, 1])$:
+  These guards and transitions correspond to the following update rule with $r ~ Unif(\[0.9; 1\])$:
 
   $ v ← cases(
     -4 &"if" p >= 4 and v < 0 and v >= -4, 
@@ -1019,10 +1019,10 @@ A variant of discretized Q-learning with dynamic partitioning of the state space
   Thus, only variables $vec(v, p)$ will be tracked, resulting in the state space $S = RR^2$, with $s_0 = vec(0, 7)$. The action set is called $A = {hit, nohit}$, representing resp. the upper and lower controllable transitions in @fig:BBPlayer. 
   The reward $R$ is set up to give a penalty of $-1$ whenever the $hit$ action is chosen, $0$ when $nohit$ is chosen, and a penalty of $-50$ when the location #location("Stop") is entered. 
 
-  The state space was discretized with an axis-aligned uniform partitioning within the set $S' = [-15; 15[ #h(2pt) times [0; 10[ subset RR^2$.
+  The state space was discretized with an axis-aligned uniform partitioning within the set $S' = \[-15; 15\[ #h(2pt) times \[0; 10\[ subset RR^2$.
   States in $S'$ are grouped into cells of size $0.5 times 0.5$, i.e. the set 
   ${ \[underline(v); overline(v)\[ #h(2pt) times \[underline(p); overline(p)\[ #h(2pt)  subset S' | overline(v) - underline(v) = overline(p) - underline(p) = 0.5 }$.
-  For example, the state $vec(-4, 1)$ is contained in the cell $ [-4; -3.5[#h(2pt) times [1; 1.5[$.
+  For example, the state $vec(-4, 1)$ is contained in the cell $ \[-4; -3.5\[#h(2pt) times \[1; 1.5\[$.
   In total, the number of cells will be $|S'| = (15 - (-15))/0.5 times 10/0.5 = #{(15 - (-15))/0.5 * 10/0.5}$.
 
   The Q-value of states in $S'$ were initialized to zero: $Q(s', a) = 0$ for $s' in S'$ and $a in {hit, nohit}$.
@@ -1163,7 +1163,7 @@ These multi-agent settings present unique challenges.
   - $s_0 in S$ is the initial state,
   - $N = (1, 2, ..., n)$ represents the agents,
   - $A = A_1 times A_2 times ... times A_n$ is the joint action space,
-  - $P : S times A -> (S -> [0; 1])$ gives the transition probability from one state to another by a joint action,
+  - $P : S times A -> (S -> \[0; 1\])$ gives the transition probability from one state to another by a joint action,
   - and $R : S times A times S -> RR^n$ is the reward function.
 
   $R$ induces individual reward functions $R_1, R_2, ..., R_n$ where each $R_i$ gives the $i^"th"$ value of the vector: If $R(s, a, s) = r$ then $R_i (s, a, s) = r_i$.
@@ -1179,7 +1179,7 @@ These are as in @def:policy, except that each policy $pi_i$ is over the agent's 
 #definition(name:[Individual and joint policies])[
   In an MG $mg$, individual policies $pi_i$ represent one agent $i$ choosing from its own action space $A_i$.
   Deterministic, probabilistic and nondeterministic policies are respectively defined over $S -> A_i$,\
-   $S -> (A_i  → [0; 1])$, and $S → powerset(A_i) \\ emptyset$ for each $i in N$.
+   $S -> (A_i  → \[0; 1\])$, and $S → powerset(A_i) \\ emptyset$ for each $i in N$.
 
    A full complement of individual policies $(pi_1, pi_2, ..., pi_n)$ induces a joint policy:
    - A _deterministic joint policy_ as $pi(s) = (pi_1 (s), pi_2 (s), ...,  pi_n (s))^top$,
@@ -1193,7 +1193,7 @@ The expected reward is not defined for an individual policy, since outcomes depe
 Reward is still recorded individually, in much the same way as @def:expected-reward.
 
 #definition(name: [Expected individual reward])[
-  Given an MG $mg$, a joint probabilistic policy $pi : S -> (A -> [0; 1])$ and a discount factor $gamma in #h(4pt) ]0; 1]$, the expected reward of agent $i in N$ starting in $s$ is the unique fixed point of the following equation
+  Given an MG $mg$, a joint probabilistic policy $pi : S -> (A -> \[0; 1\])$ and a discount factor $gamma in #h(4pt) \]0; 1\]$, the expected reward of agent $i in N$ starting in $s$ is the unique fixed point of the following equation
 
   $ EE_pi^(mg, i) (s) = sum_(a in A) pi(s)(a) sum_(s' in S) P(s, a)(s') (R_i (s, a, s') + gamma  EE_pi^(mg, i) (s')) $ 
 
@@ -1267,7 +1267,7 @@ This is shown in @ex:2AgentGridWorld.
   Recall the Grid World $cal(W) = (S, s_0, A, P, R)$ from @ex:GridWorld. 
   Let the two-agent version be $cal(W)^2 = (S^2, s'_0, N, A^2, P^2, R^2)$ with agents $🤖=1$, $👾=2$ so that $N = { 🤖, 👾 }$.
   Here, the state space $S^2$ is defined as $S times S$, the initial state $s_0 = (14, 2)$ and the action space likewise $A^2 = A times A $.
-  The transition probability function $P^2 : S^2 times A^2 → (S^2 → [0, 1])$ extends movement to two agents in the natural way, while allowing both agents to occupy the same space.
+  The transition probability function $P^2 : S^2 times A^2 → (S^2 → \[0; 1\])$ extends movement to two agents in the natural way, while allowing both agents to occupy the same space.
   Similarly $R^2$ is defined by applying $R$ to the individual action and states of each agent (yielding a mixed reward structure).
 
   Notice how the state space grows exponentially in the number of agents: From $|S| = 16$ to $|S^2| = 16 times 16 = 256$.
