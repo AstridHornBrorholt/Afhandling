@@ -314,7 +314,7 @@ This is ensured by the fact that $s_0$ is visited infinitely often as $n -> infi
   After training, the behaviour of the policy during operation (@sec:TrainingAndOperation) was simulated by generating 1000 traces of length 100, using the resulting greedy policy (returned in @l:Return of @alg:QLearning).
   The mean undiscounted reward was found to be -7.624.
 
-  During evaluation, the policy was seen to reach 💀, which is unsurprising since it passes through state 10.
+  During evaluation, the policy was seen to reach 💀, as expected for a policy passing through state 10.
   Re-training the policy with the same parameters may yield a safe policy.
   This can be made more likely through changes to the reward function, giving a heavier penalty for reaching this state.
   However it is not straightforward to determine how the reward function should be defined in order to guarantee convergence to a safe policy, or whether this is even possible for a given model.
@@ -481,7 +481,7 @@ Since this first article covering shielded reinforcement learning in finite MDPs
   Instead, it is sufficient to note that the state space has become significantly larger, but not in a way that affects the safety property.
   To stay within the safe set, it is still sufficient to always clean $c$ the mould whenever a state with $◍$ is entered, regardless of the other values in a state.
 
-  Thus, the model described in @ex:QualityInjectionMoulding is a _safety-relevant abstraction_ of the more complex model given in this example.
+  Thus, the model described in @ex:QualityInjectionMoulding is a safety-relevant abstraction of the more complex model given in this example.
   The state space of this abstraction is significantly smaller, and for some models, such reductions can make shield synthesis computationally feasible where it was not otherwise.
 ]<ex:SafetyRelevantAbstraction>
 
@@ -902,8 +902,8 @@ The following sections will describe safety and shielding in such formalisms.
 A~combination of continuous and discrete dynamics are modelled as a hybrid system, which is described in @sec:HybridShielding.
 When an environment is unknown, its behaviour can be learned by (safely) interacting with it.
 As more information about the system is revealed, the set of known safe behaviour changes.
-Such changes should be reflected through corresponding updates to the shield, as described in~@sec:AdaptiveShielding. 
-As shown in @fig:cps, multiple digital components may interact within the same cyber-physical system, and these may sometimes be individual RL agents. Multi-agent systems pose unique challenges in terms of safety and optimality, which are discussed in @sec:MultiAgentShielding.
+Such changes should be reflected through updates to the shield, as described in~@sec:AdaptiveShielding. 
+As~shown in @fig:cps, multiple digital components may interact within the same cyber-physical system, and these components may be individual RL agents. Multi-agent systems pose unique challenges in terms of safety and optimality, which are discussed in @sec:MultiAgentShielding.
 Lastly, @sec:Summary summarises the peer-reviewed papers that make up the remainder of this thesis, and which each contribute to addressing the hypothesis stated above.
 
 == Hybrid MDPs <sec:HybridShielding>
@@ -913,9 +913,9 @@ This discrete view fits well with the logic of electronic systems, being suited 
 However, the physical world is continuous, and can often be modelled accurately by differential equations.
 To simulate cyber-physical systems, one needs to capture both the discrete states of the electronic components and the continuous behaviour of real-world objects.
 
-Such hybrid systems contain both continuous dynamics, and instantaneous changes to the state.
+These _hybrid_ systems contain both continuous dynamics, and instantaneous changes to the state.
 There are also purely physical phenomena that hybrid systems are suitable for modelling.
-A ball bouncing on the ground is one such example #cl("HybridPaper", "JaegerJLLST19") which will be used in the following to illustrate the workings of a hybrid system.
+A ball bouncing on the ground is one such example #cl("HybridPaper", "JaegerJLLST19") which will be used in the following to illustrate the workings of a hybrid~system.
 
 #definition(name: "Euclidean MDP")[
   An _Euclidean MDP_ (EMDP) #cite(label("JaegerJLLST19")) #cite(label("randomwalk")) is a tuple $emdp = (S, s_0, A, P, R)$ where 
@@ -928,11 +928,12 @@ A ball bouncing on the ground is one such example #cl("HybridPaper", "JaegerJLLS
 ]<def:emdp:I> // label exists in Paper A as well
 
 Deterministic, probabilistic and nondeterministic policies for EMDPs are as in @def:policy.
-With a policy, traces can be defined: 
+Traces are defined from policies in the natural way:
+
 #definition(name: "EMDP traces")[
   For an EMDP $emdp$, trace $xi = s_0 a_0 s_1 a_2 s_2 a_2 ...$ is an interleaved series of states and actions, starting in the initial state $s_0$.
 
-  For a nondeterministic policy $pi : S -> (A -> [0; 1])$, a trace $xi$ is an outcome of the policy if $a_i in pi(s_i)$ and $P(s_i, a_i)(s_(i+1)) > 0$ for every $i>=0$. Outcomes are defined similarly for probabilistic and deterministic policies.
+  For a nondeterministic policy $pi : S -> (A -> \[0; 1\])$, a trace $xi$ is an outcome of the policy if $a_i in pi(s_i)$ and $P(s_i, a_i)(s_(i+1)) > 0$ for every $i>=0$. Outcomes are defined similarly for probabilistic and deterministic policies.
   Trace segments $xi_m^n = s_n a_n s_(n + 1) a_(n+1) ... s_m$ are as in @def:trace.
 ]
 
