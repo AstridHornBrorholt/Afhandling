@@ -23,7 +23,7 @@ Such cyber-physical systems @lee2006cyber @lee2008cyber are becoming more ubiqui
 With applications such as autonomous vehicles, water management systems, industrial hydraulics, and power controllers, great care must be taken to ensure the safety of people, equipment, and resources that are directly or indirectly affected by the system.
 Under these safety constraints, the systems must also behave in a way that achieves their objectives efficiently.
 
-This can be achieved through the field of formal methods, which has a wide variety of approaches that can provide proof that a given system restricts itself to a safe subset of behaviours #cl("HandbookOfModelChecking")@lewis2012optimal@doyle2013feedback.
+The field of formal methods has a wide variety of approaches that can prove a given system restricts itself to a safe subset of behaviours, or can synthesize provably safe and optimal policies #cl("HandbookOfModelChecking")@lewis2012optimal@doyle2013feedback.
 This presumes an accurate model of the (cyber-physical) system under verification. 
 However, with the complexity of many real-world systems, correct-by-construction methods of policy synthesis become computationally infeasible.
 
@@ -32,18 +32,18 @@ RL methods based on neural networks #cl("DBLP:journals/nature/LeCunBH15") are es
 This performance is achieved by controllers that use a high number of neurons, making direct formal verification infeasible.
 
 
-*Shielding* @AlshiekhBEKNT18 @BloemKKW15@DavidJLLLST14 is a promising technique that restricts the behaviour of an RL policy in a way that formally guarantees a safety specification.
-A _shield,_ tasked with enforcing this safety specification, acts as a guardrail to keep the RL policy within safe bounds.
+_Shielding_ @DavidJLLLST14@AlshiekhBEKNT18 @BloemKKW15 is a promising technique that restricts the behaviour of an RL policy in a way that formally guarantees a safety specification.
+A _shield_ -- tasked with enforcing this safety specification -- acts as a guardrail to keep the RL policy within safe bounds.
 To do so, the shield must avoid any states where leaving the bounds cannot be prevented.
-Synthesizing such a shield is subject to the same complexities discussed above, but these can be significantly mitigated by creating a safety-relevant abstraction.
-This abstraction omits aspects of the system that are only relevant for keeping track of the reward.
+Synthesizing such a shield is subject to the same complexities discussed above, but these can be significantly mitigated through the use of a _safety-relevant abstraction_.
+This abstraction omits aspects of the system that are only relevant for keeping track of the reward, simplifying shield synthesis.
 This shield can then be combined with an efficient policy, such as one obtained by RL, to achieve both safety and efficiency.
 Therefore, shielding has been widely studied in the literature 
 #cl("DBLP:conf/concur/0001KJSB20")#cl("DBLP:conf/aaai/Carr0JT23")#cl("DBLP:conf/nips/MelcerAT22")
 but the ability of a shield to enforce safety depends on which assumptions can be made about the system, and there is no truly scalable "silver bullet" to ensure safety in all cases.
 
 This thesis continues the work of developing novel shielding methods -- with a focus on scalability -- that enforce safety under systems and assumptions that are realistic for real-world cyber-physical systems.
-The thesis will address shielding  hybrid systems, multi-agent settings and unknown environments, and describes efforts to enhance scalability, and accessibility through the development of user-friendly tools.
+It will address shielding  hybrid systems, multi-agent settings and unknown environments, and describe efforts to enhance scalability of methods, as well as their accessibility through the development of a user-friendly tool.
 
 The remainder of this introduction will describe the basics first of RL, then of shielding.
 These fundamental definitions are used as a basis for formulating a research hypothesis, after which alternative systems and shielding approaches are described. 
