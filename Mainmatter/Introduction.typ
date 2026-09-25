@@ -878,9 +878,9 @@ The previous sections have assumed finite-state environments, with a fully known
 Under these assumptions, there exist several shield synthesis methods to achieve policies optimized with RL that are verifiably safe.
 
 There also exist methods can synthesize shields in certain continuous settings.
-In fact, shielded RL was developed in @DavidJLLLST14 for _timed MDPs_, a type of model that features continuous clock values. 
+In fact, shielded RL was developed in @DavidJLLLST14 for _timed MDPs_, which have continuous clock variables as in timed automata #cl("DBLP:journals/tcs/AlurD94"). 
 Shield synthesis from an abstraction of a timed MDP, and subsequent training a near-optimal strategy using RL, was made available through the tool #stratego #cl("DBLP:conf/tacas/DavidJLMT15").
-Timed MDPs and their various extensions have successfully been used to model many aspects of cyber-physical systems~@PowerTools.
+Timed MDPs and the extension to _priced timed MDPs_ have successfully been used to model resource-aware real-time systems, to synthesize or learn safe and optimal policies #cl("PowerTools", "DBLP:conf/setss/LarsenM25").
 
 #figure(image("../Graphics/Intro/CPS.drawio.pdf", width: 80%),
   caption: [A cyber-physical system with (discrete) digital hardware/software, (continuous) physical processes, and unknown components. Direct interaction between components is shown as dotted lines.]
