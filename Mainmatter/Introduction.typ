@@ -710,10 +710,10 @@ When steps happen at a fixed frequency or has a maximum waiting period, it is im
 This outlook is sometimes called _receding horizon_ because the lookahead is always $k$ steps ahead from the current state. It has also been referred to as a _bounded prescience_  shield @giacobbe_shielding_2021, or _$k$-step lookahead_ shield #cl("DBLP:conf/ijcai/YangMRR23", "DBLP:conf/atal/XiaoLD23").
 
 #definition(name: "Bounded Safety, bounded shielding")[
-  Let $phi$ be a safe set for the MDP $mdp$.
-  A trace $xi = s_0 a_0 s_1 a_1 ...$ is _safe in state $s in S$  for $k in NN$ steps_ if, for every $s_i = s$, the trace segment $xi_i^(k+i)$ is safe. I.e. $forall i in NN, s_i = s : xi_i^(k+i) models phi$.
+  Let $phi$ be a safe set for the MDP~$mdp$.
+  A trace $xi = s_0 a_0 s_1 a_1 ...$ is _safe in state $s in S$  for $k in NN$ steps_ if, for every~$s_i = s$, the trace segment $xi_i^(k+i)$ is safe. I.e. $forall i in NN, s_i = s : xi_i^(k+i) models phi$.
 
-  A policy  $pi$ is safe in state $s in S$ for $k$ steps if every outcome $xi$ of $pi$ is safe in $s$ for $k$ steps.
+  A policy  $pi$ is safe in $s$ for $k$ steps if every outcome $xi$ of $pi$ is safe in $s$ for $k$ steps.
 
   A single state $s$ is safe for $k$ steps if there exists a policy $pi$ safe for $k$ steps in $s$.
 
@@ -865,7 +865,7 @@ This paper also presents a formalism which is used to describe a wide range of p
 
 === Contingency Actions
 
-For some states in a model, according to @def:Shielding shields must be constructed to completely avoid states where every action carries a risk of safety violation.
+According to @def:Shielding shields must be constructed to completely avoid infeasible states, where every action carries a risk of safety violation.
 However, probabilistic shields have an inherent risk of reaching undesirable states, including ones where no actions are sufficiently safe to satisfy the safety threshold~$theta$.
 
 Most systems cannot simply be halted when such an event occurs.
