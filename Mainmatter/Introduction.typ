@@ -1531,6 +1531,27 @@ These challenges are investigated through case studies.
 
 ] // end set heading
 
+== Conclusion
+
+These contributions add scalable approaches to shield hybrid, unknown and multi-agent systems, each of which are individual challenges of cyber-physical systems.
+This enables RL agents to safely interact with these systems, in order to learn optimized policies that will be safe by construction.
+
+Future work is called for in improving the scalability of existing methods.
+For example, automated discovery of suitable state-space transformations is an open problem left in #paperref(<paper:Trans>).
+Additionally, the current static partitioning scheme used in #paperref(<paper:Hybrid>, supplement: "papers"), #paperref(<paper:Trans>, supplement: "") #paperref(<paper:Coshy>, supplement: "and") may be substituted by a more efficient, dynamic partitioning scheme.
+A decision tree structure similar to the strategy representation in #uppaalstratego @stratego could be used for this purpose, and may be sped up significantly by continuously applying the reductions described in #paperref(<paper:Coshy>) in order to maintain a small representation.
+
+A sample-based method was used in #paperref(<paper:Hybrid>, supplement: "papers"), #paperref(<paper:Trans>, supplement: "") #paperref(<paper:Coshy>, supplement: "and") to approximate a safety-relevant abstraction for the underlying system.
+However, though efficient, this method results in an under-approximation.
+If an efficient, over-approximating method for computing the safety-relevant abstraction could be found, this would remove the current need for verifying the safety of shields using statistical model checking.
+
+The methods presented in each paper address only part of the challenges of cyber-physical systems.
+However, these approaches are complimentary and may be combined through future work.
+In fact, it was demonstrated in #paperref(<paper:Coshy>) that the state-space transformations used in #paperref(<paper:Trans>) could be applied using the expressive modelling language of #uppaal.
+For future work, the adaptive shielding method described in #paperref(<paper:Adaptive>) might be modified to work with a hybrid model learner #cl("DBLP:conf/aaai/NiggemannSVMB12").
+Likewise, the assume-guarantee reasoning in #paperref(<paper:Compositional>) can be used to learn shields of the type described in #paperref(<paper:Hybrid>).
+Therefore, is possible to provide safe RL for hybrid, multi-agent environments with unknown components, by combining and extending these methods.
+
 #[ #set heading(numbering: none) 
 == References
 
