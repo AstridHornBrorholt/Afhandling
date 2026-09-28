@@ -54,7 +54,7 @@ The last part of the introduction summarises the papers which make up the remain
 RL  #cl("DBLP:books/lib/SuttonB98", "kaelbling1996reinforcement", "arulkumaran2017deep") is a major class of machine learning techniques, separate from supervised and unsupervised learning @alloghani2020systematic.
 In supervised learning, models learn from labelled data, to predict the labels of unseen data.
 Unsupervised (or self-supervised) learning similarly trains the model on a set amount of unlabelled data, to discover relevant patterns and approximations.
-In contrast, reinforcement learning _agents_ are actively interacting with a system, directing exploration and receiving observation data and rewards, as the system responds to actions taken by the agent.
+In contrast, reinforcement learning _agents_ are actively interacting with a system, directing exploration and receiving observation data and rewards, which it must learn to maximise.
 
 The interaction between an agent and a system is illustrated in @fig:RL:
 The agent observes its current state, and makes a decision on which action to take.
@@ -1396,6 +1396,10 @@ Full references are given in the following, while @tab:Formalisms shows the mode
 
 ==== #paperref(<paper:Hybrid>, with-title:true)
 
+This paper builds upon my previous Master's thesis @MastersThesis.
+The ideas in the Master's thesis were developed specifically for two case studies, and are extended in the paper to a general framework.
+A code library based on this generalized model from the paper is available @GridShielding.jl, and is used in #ref(<ex:GridWorldShield>, supplement: "examples") #ref(<ex:ShieldingBB>, supplement: "and").
+
 Safe and optimal controller synthesis for switched-controlled hybrid systems, which combine differential equations and discrete changes of the system's state, is known to be intricately hard.
 These systems have previously #cite(label("JaegerJLLST19"))#cite(label("randomwalk"))  been described as EMDPs (@def:emdp:I). This paper introduces a more precise definition.
 
@@ -1406,12 +1410,8 @@ These systems have previously #cite(label("JaegerJLLST19"))#cite(label("randomwa
 The versatility of this formalism was demonstrated through an accurate definition of the Bouncing Ball problem (also discussed in @ex:BB).
 
 Optimized policies can be trained using RL, but obtaining a shield for non-linear and hybrid environments is intractable.
-The paper details the construction of a shield using the so-called _barbaric method_, where an approximate finite representation of an underlying partition-based two-player safety game is extracted via systematically picked samples of the true transition function.
+The paper details the construction of a shield using the so-called _barbaric method_, where an approximate finite representation of an underlying partition-based safety-relevant abstraction is extracted via systematically picked samples of the true transition function.
 The finite representation is obtained by discretizing the continuous state space into uniformly sized, axis-aligned partitions -- similar to how the Q-table is constructed in @ex:UnshieldedBB.
-
-This paper builds upon my previous Master's thesis @MastersThesis.
-The ideas in the Master's thesis were developed specifically for two case studies, and are extended in the paper to a general framework.
-A code library based on this generalized model from the paper is available @GridShielding.jl, and is used in #ref(<ex:GridWorldShield>, supplement: "examples") #ref(<ex:ShieldingBB>, supplement: "and").
 
 #contribution[
   Formalization of the approach investigated in @MastersThesis, providing a method shield synthesis for hybrid settings, using discretization.
