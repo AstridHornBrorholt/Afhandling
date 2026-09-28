@@ -489,12 +489,12 @@ Since this first article covering shielded reinforcement learning in finite MDPs
 === Pre- and Post-shielding During Training and Operation <sec:ApplyingTheShield>
 
 There are multiple options for how and when a shield is applied.
-The terms _pre-_ and _post-shielding_ #cl("DBLP:journals/corr/abs-1708-08611") #cl("DBLP:journals/cacm/KonighoferBJJP25") commonly refer to how the shield is applied.
-Additionally, this section introduces terms to describe when the shield is in use.
+The terms _pre-_ and _post-shielding_ #cl("DBLP:journals/corr/abs-1708-08611") #cl("DBLP:journals/cacm/KonighoferBJJP25") commonly refer to *how* the shield is applied.
+Additionally, this section introduces terms to describe *when* the shield is in use.
 A brief overview of the terms is given below, followed by detailed descriptions of each.
 
 / How: the shield ensures only safe actions reach the environment:
-  / Pre-shielding: gives a set of safe actions that the shielded agent or policy must choose from.(@fig:PreShielding)
+  / Pre-shielding: gives a set of safe actions that the shielded agent or policy must choose from. (@fig:PreShielding)
   / Post-shielding: changes unsafe actions to alternative, safe actions. Safe actions remain unchanged. (@fig:PostShielding)
 / When: the shield is an active component:
   / Training-only: uses the shield in the training phase, and produces a trained policy that is safe by construction. (@fig:TrainingOnly)
@@ -554,7 +554,9 @@ For some default value $q_0$ and bottom element $-infinity$, the Q-values can be
 If $epsilon$-greedy exploration (@l:Explore in @alg:QLearning) is used, the exploratory actions should picked from just $shield(s)$ and not the full action space $A$.
 
 Directly applying the shield to the Q-table is possible because the learning method is able to assign values to every state in the finite state space.
-A similar approach is not possible for e.g. decision trees, neural networks, etc. where states in the system are not explicitly represented. 
+For representations such as decision trees, neural networks, etc. the states in the system are not explicitly represented.
+In these cases, for each step $s_i$ the shield must be queried $shield(s_i)$ and the optimization algorithms should be set up such that always $a_(i + 1) in shield(s_i)$.
+
 
 ==== Post-shielding <sec:postshielding>
 Rather than provide a set of safe actions to choose from, post-shielding overrides the RL algorithm whenever it takes an unsafe action.
@@ -595,7 +597,7 @@ Otherwise, $P^shield_(#h(1.5pt) fehu)$ will change during training, violating th
   I.e. $Q(s, a)$ is updated with reward $R^shield_fehu (s, a, s')$
   #footnote[Equivalent to $R (s, a', s')$ cf. @eq:PostShieldedReward.]
    as in @alg:QLearning, @l:QUpdate.
-  It would be unsound to only update $Q(s, a')$, or to use the unaltered reward $R(s, a, s')$ from the original MDP.
+  It would be unsound to only update $Q(s, a')$, or to use the unaltered $R(s, a, s')$ from the original MDP.
 
   When updated correctly, the model will learn the outcome of picking $a in.not shield(s)$ as $sum_(s' in S) P(s, a')(s')R(s, a', s')$.
   Other alterations to how value-updates are performed may be sound.
@@ -604,7 +606,7 @@ Otherwise, $P^shield_(#h(1.5pt) fehu)$ will change during training, violating th
 
 Both pre- and post-shielding preserve the assumptions necessary to guarantee convergence of a reinforcement learning algorithm to an optimal policy, but pre-shielding will likely converge faster than post-shielding in general:
 If a model has a state $s$, with one safe action $a_1$ and unsafe actions $a_2$ and $a_3$, a post-shielded agent will have to explore actions $a_1, a_2$ and $a_3$ to estimate the expected reward attainable in $s$.
-However, a pre-shielded agent will only explore $a_1$, since the other actions are masked.
+However, a pre-shielded agent will only explore $a_1$, since the other actions are excluded from consideration.
 Thus, it will gain a more precise estimate of the expected value of $s$ from the same amount of visits to the state.
 A post-shielded agent may also choose to visit $s$ more often, if the RL method is configured to encourage exploration.
 
@@ -633,8 +635,8 @@ Here, the shield needs to be kept during operation, as described in the next sec
 
 ==== End-to-end Shielding
 When the shield is in place and explicitly represented during _both_ the learning  _and_ operational phases, this is called end-to-end shielding (@fig:EndToEnd).
-This is a necessity for continuous state spaces that cannot be represented as a state-action lookup table.
-Instead, the shield must be kept along with the policy representation when put into operation, so it can preserve the safe behaviour.
+This may be necessary for continuous state spaces, since the policy cannot be represented as a state-action lookup table.
+Instead, the shield must be kept along with the policy representation, so it can preserve the safe behaviour when put into operation.
 Reductions can be applied to the shield before operation, to reduce its memory footprint significantly, as shown in #paperref(<paper:Trans>) and #paperref(<paper:Coshy>).
 
 As stated earlier, an end-to-end setup can make use of either a pre- or post-shield.
@@ -643,7 +645,7 @@ The trained policy depends on how the shield is applied, and a change to the shi
 
 ==== Operation-only Shielding
 
-Shielding is not widely adopted in the industry, and many shield synthesis techniques require a detailed (safety-relevant) model of the system.
+Shielding is not widely adopted in the industry, and many shield synthesis techniques require a detailed safety-relevant model of the system.
 Therefore, policies that are "safe in practice" might be trained, tested and implemented at great expense.
 Some time during operation, a shield may then be developed to provide formal safety guarantees, but it might not be cost effective or necessary to re-train the policy from scratch.
 
@@ -651,7 +653,9 @@ In these cases, the shield can be applied only in the operational phase.
 If the policy did learn to avoid unsafe states perfectly, a maximally permissive shield would not interfere with its operation.
 Otherwise, the shield will disrupt the optimized behaviour which the policy has learned.
 It was found in #paperref(<paper:Hybrid>) that applying an operation-only post-shield can lead to substantial drops in the expected reward.
-Therefore, operation-only shielding should only be employed when re-training or (fine-tuning) the existing policy is not possible.
+Therefore, operation-only shielding should only be employed when re-training (or fine-tuning) the existing policy is not possible.
+
+This subsection concludes with the following example, which applies some of the terms that were described above.
 
 #example(name: "Staying safe in Grid World")[
   Recall the MDP $cal(W)=(S, s_0, A, P, R)$ from @ex:GridWorld.
@@ -662,16 +666,16 @@ Therefore, operation-only shielding should only be employed when re-training or 
   Lastly, any action in state 10 can cause the agent to slip onto state 11, so this state should be avoided as well. 
   
   @fig:GridWorldShield shows the resulting maximally permissive safe policy for @ex:GridWorld. 
-  This policy was generated using a publicly available package @GridShielding.jl which implements the method described in #paperref(<paper:Hybrid>) (to be discussed in later sections).
+  This policy was generated using a publicly available package @GridShielding.jl which implements the method described in #paperref(<paper:Hybrid>) (to be discussed in @sec:Summary).
 
-#subpar.grid(columns: 3, align: bottom,
+#subpar.grid(columns: 3, align: bottom, placement: bottom, 
   [#figure(image("../Graphics/Intro/Shielded.png", width: 66.666%),
-    caption: [A shield icon 🛡️ indicates the action is not permitted. A hatched area marks infeasible (@def:Feasibility) states.]
+    caption: [A shield icon 🛡️ indicates actions that are not permitted. The hatched area marks infeasible states (@def:Feasibility).]
   )<fig:GridWorldShield>],
   [#figure(image("../Graphics/Intro/Shielded Q-learning 500.png", width: 66.666%),
     caption: [Cumulative reward for a shielded Q-learning agent. \ #hide("a")]
   )<fig:GridWorldShieldedTraining>],
-  caption: [Most permissive shield for Grid World.]
+  caption: [Shielding the  Grid World.]
 )
 
   This can be applied as a pre-shield by 
