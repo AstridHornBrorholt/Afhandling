@@ -899,7 +899,7 @@ This leads to the research hypothesis of this thesis:
 
 #hypothesis[
 
-  Shielding methods can be scalably extended to formalisms that accurately phenomena of cyber-physical systems, enabling the use of RL methods to train optimized policies that are verifiably safe.
+  Shielding methods can be scalably extended to formalisms that accurately model phenomena of cyber-physical systems, enabling the use of RL methods to train optimized policies that are verifiably safe.
 ]
 
 The following sections will describe safety and shielding in such formalisms.
