@@ -18,6 +18,7 @@ Typst version: *#sys.version*
 #counter(page).update(1)
 #set page(numbering: "1")
 
+#pagebreak(to: "even")
 #include "Mainmatter/Introduction.typ"
 
 #[  // HACK: Dummy forward-references to allow the introduction to compile even though contains labels pointing to the papers.

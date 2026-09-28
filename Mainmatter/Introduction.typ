@@ -61,17 +61,16 @@ The agent observes its current state, and makes a decision on which action to ta
 Taking the action yields a reward that the agent can use to update its policy, and an observation of the updated state which it will use to pick the next action.
 
 #figure(include("../Graphics/Intro/Unshielded.typ"), caption: [The reinforcement learning loop.] )<fig:RL>
-
 The reinforcement learning problem can be stated in many different ways, depending on the nature of the problem, but is perhaps most commonly defined in terms of a Markov decision process (MDP) #cl("Puterman94").
 MDPs describe stochastic systems, where the outcomes of actions only depend on the current (observable) state of the system, and not on which actions or states were seen previously.
 
-#definition(name: "MDP")[
+#definition(name: "MDP")[ #set block(breakable: true)
 An MDP is defined as a tuple $(S, s_0, A, P, R)$ where
   - $S$ is a finite set of states,
   - $s_0 in S$ is the initial state,
   - $A$ is a finite set of actions,
-  - $P : S times A → (S → \[0; 1\])$ with  $forall s in S, a in A : sum_(s' in S) P(s, a)(s') = 1$ is the transition function, which gives the  probability of reaching state $s'$ from state $s$ as a result of  taking the action $a$, 
-  - and $R : S times A times S -> RR$ gives the reward $R(s, a, s')$ for reaching $s'$ by taking $a$ in $s$.
+  - $P : S times A → (S → \[0; 1\])$ with  $forall s in S, a in A : sum_(s' in S) P(s, a)(s') = 1$ is the transition function, which gives the  probability of reaching state $s'$ from state $s$ as a result of  taking the action $a$, and
+  - $R : S times A times S -> RR$ gives the reward $R(s, a, s')$ for reaching $s'$ by taking action~$a$ in state $s$.
 ]<def:mdp>
 
 The state space $S$ is often represented as a finite set of vectors over $ZZ^n$ where each element of a state-vector represents the value of a variable in the model (usually defined within a bounded interval).
@@ -137,9 +136,9 @@ The discount factor $gamma$ may be interpreted as the probability of the trace c
 
 #example[
   With $mdp, pi$ and $pi'$ as in @ex:InjectionMoulding, a discounted reward can be used to compare them.
-  For example, $gamma = 0.99$ gives the geometric series
-  $ & lim_(n -> infinity) sum_(i=0)^n 0.99^i times 1 && = 1/(1-0.99) = 100  & "and" \
-     & lim_(n -> infinity) sum_(i=0)^n 0.99^i times 100 && = 100/(1-0.99) = 10000 & "" $
+  For example, $gamma = 0.99$ gives the two geometric series:
+  $ lim_(n -> infinity) sum_(i=0)^n 0.99^i times 1 && = 1/(1-0.99) = 100 $
+  $ lim_(n -> infinity) sum_(i=0)^n 0.99^i times 100 && = 100/(1-0.99) = 10000 $
 ]<ex:discounted>
 
 In contrast to the reward gained from just one trace, the expected discounted reward #cl("DBLP:books/lib/SuttonB98") for a probabilistic policy is defined as:
@@ -1343,7 +1342,18 @@ The conversion creates local shields whose allowed actions jointly form a subset
 Using the definitions of the previous sections, the research hypothesis from @sec:Hypothesis can be answered as a summary of contributions from the papers included in this thesis.
 Each summary is based on the paper's abstract, but re-written to use terminology established in this introduction, and to list research contributions.
 
-Full references are given below, and @tab:Formalisms shows the model and safety criterion used in each paper.
+Full references are given in the following, while @tab:Formalisms shows the model and safety criterion used in each paper.
+
+#figure(table(columns: (auto, 1fr, 1fr),
+  [*Paper*], [*Model*], [*Safety*],
+  [A], [EMDP, @def:emdp:I], [Shield, @def:Shielding],
+  [B], [EMDP, @def:emdp:I], [Shield, @def:Shielding],
+  [C], [EMDP, @def:emdp:I], [Shield, @def:Shielding],
+  [D], [MG, @def:mg], [Multi-agent shield, @def:MultiAgentShielding],
+  [E], [(Unknown) MDP, @def:mdp], [$θ$-recoverable shield, @def:ThetaRecoverable]
+  ),
+  caption: [Formalisms used in each paper.]
+)<tab:Formalisms>
 
 #box(..box-style(wine))[#text("⚧", weight: "bold", font: "Noto Emoji") 
   I changed my first name from Asger to Astrid between the publication of #paperref(<paper:Coshy>) and #paperref(<paper:Adaptive>).
@@ -1381,18 +1391,6 @@ Full references are given below, and @tab:Formalisms shows the model and safety 
     @AdaptivePaper
   ],
 )
-
-
-#figure(table(columns: (auto, 1fr, 1fr),
-  [*Paper*], [*Model*], [*Safety*],
-  [A], [EMDP, @def:emdp:I], [Shield, @def:Shielding],
-  [B], [EMDP, @def:emdp:I], [Shield, @def:Shielding],
-  [C], [EMDP, @def:emdp:I], [Shield, @def:Shielding],
-  [D], [MG, @def:mg], [Multi-agent shield, @def:MultiAgentShielding],
-  [E], [(Unknown) MDP, @def:mdp], [$θ$-recoverable shield, @def:ThetaRecoverable]
-  ),
-  caption: [Formalisms used in each paper.]
-)<tab:Formalisms>
 
 #[ #set heading(numbering: none, outlined: false)
 
