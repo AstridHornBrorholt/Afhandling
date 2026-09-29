@@ -882,7 +882,7 @@ Under these assumptions, there exist several shield synthesis methods to achieve
 
 There also exist methods can synthesize shields in certain continuous settings.
 In fact, shielded RL was developed in @DavidJLLLST14 for _timed MDPs_, which have continuous clock variables as in timed automata #cl("DBLP:journals/tcs/AlurD94"). 
-Shield synthesis from an abstraction of a timed MDP, and subsequent training a near-optimal strategy using RL, was made available through the tool #stratego #cl("DBLP:conf/tacas/DavidJLMT15").
+Shield synthesis from an abstraction of a timed MDP, and subsequent training a near-optimal sub-strategy using RL, was made available through the tool #stratego #cl("DBLP:conf/tacas/DavidJLMT15").
 Timed MDPs and the extension to _priced timed MDPs_ have successfully been used to model resource-aware real-time systems, to synthesize or learn safe and optimal policies #cl("PowerTools", "DBLP:conf/setss/LarsenM25").
 
 #figure(image("../Graphics/Intro/CPS.drawio.pdf", width: 80%),
@@ -1401,7 +1401,7 @@ The ideas in the Master's thesis were developed specifically for two case studie
 A code library based on this generalized model from the paper is available @GridShielding.jl, and is used in #ref(<ex:GridWorldShield>, supplement: "examples") #ref(<ex:ShieldingBB>, supplement: "and").
 
 Safe and optimal controller synthesis for switched-controlled hybrid systems, which combine differential equations and discrete changes of the system's state, is known to be intricately hard.
-These systems have previously #cite(label("JaegerJLLST19"))#cite(label("randomwalk"))  been described as EMDPs (@def:emdp:I). This paper introduces a more precise definition.
+These systems have previously #cite(label("JaegerJLLST19"))#cite(label("randomwalk"))  been described as EMDPs (@def:emdp:I). This paper introduces a more detailed formalism.
 
 #contribution[
   A formalism for describing hybrid systems, called the _hybrid Markov decision process._
@@ -1414,7 +1414,7 @@ The paper details the construction of a shield using the so-called _barbaric met
 The finite representation is obtained by discretizing the continuous state space into uniformly sized, axis-aligned partitions -- similar to how the Q-table is constructed in @ex:UnshieldedBB.
 
 #contribution[
-  Formalization of the approach investigated in @MastersThesis, providing a method shield synthesis for hybrid settings, using discretization.
+  Formalization of the approach investigated in @MastersThesis, providing a method for shield synthesis in hybrid settings, using discretization.
 ]
 
 #contribution[
@@ -1519,7 +1519,7 @@ Shield synthesis is not directly possible when the MDP model is not given a prio
 The paper studies the problem of computing a $θ$-recoverable shield (@def:ThetaRecoverable) in the setting where the transition graph of the MDP is known, but the transition probabilities are unknown. 
 
 #contribution[
-  Adaptive shielding with suitable estimators, based on an initial model estimate *containing the transition structure* but not probabilities.
+  Adaptive shielding with suitable estimators, based on an initial model estimate containing the transition structure but not probabilities.
 ]
 
 This approach to #emph[adaptive probabilistic shielding] raises a number of challenges, such as when to recompute the shield and how to balance between exploration and safety during learning. 
@@ -1536,7 +1536,7 @@ These challenges are investigated through case studies.
 These contributions add scalable approaches to shield hybrid, unknown and multi-agent systems, each of which are individual challenges of cyber-physical systems.
 This enables RL agents to safely interact with these systems, in order to learn optimized policies that will be safe by construction.
 
-Future work is called for in improving the scalability of existing methods.
+Future work is called for, to find ways of improving the scalability of existing methods.
 For example, automated discovery of suitable state-space transformations is an open problem left in #paperref(<paper:Trans>).
 Additionally, the current static partitioning scheme used in #paperref(<paper:Hybrid>, supplement: "papers"), #paperref(<paper:Trans>, supplement: "") #paperref(<paper:Coshy>, supplement: "and") may be substituted by a more efficient, dynamic partitioning scheme.
 A decision tree structure similar to the strategy representation in #uppaalstratego @stratego could be used for this purpose, and may be sped up significantly by continuously applying the reductions described in #paperref(<paper:Coshy>) in order to maintain a small representation.
@@ -1545,12 +1545,15 @@ A sample-based method was used in #paperref(<paper:Hybrid>, supplement: "papers"
 However, though efficient, this method results in an under-approximation.
 If an efficient, over-approximating method for computing the safety-relevant abstraction could be found, this would remove the current need for verifying the safety of shields using statistical model checking.
 
+The compositional shielding method in #paperref(<paper:Compositional>) uses assume-guarantee reasoning with an acyclic structure to guarantee global safety through local shields.
+Developing proofs that allow circular dependencies between local shields could expand the set of systems for which this method can be applied.
+
 The methods presented in each paper address only part of the challenges of cyber-physical systems.
 However, these approaches are complimentary and may be combined through future work.
 In fact, it was demonstrated in #paperref(<paper:Coshy>) that the state-space transformations used in #paperref(<paper:Trans>) could be applied using the expressive modelling language of #uppaal.
-For future work, the adaptive shielding method described in #paperref(<paper:Adaptive>) might be modified to work with a hybrid model learner #cl("DBLP:conf/aaai/NiggemannSVMB12").
+For future work, the adaptive shielding method described in #paperref(<paper:Adaptive>) might be modified to work with a hybrid model learner #cl("DBLP:conf/aaai/NiggemannSVMB12", "DBLP:conf/cav/SotoHSZ19").
 Likewise, the assume-guarantee reasoning in #paperref(<paper:Compositional>) can be used to learn shields of the type described in #paperref(<paper:Hybrid>).
-Therefore, is possible to provide safe RL for hybrid, multi-agent environments with unknown components, by combining and extending these methods.
+Therefore, it is possible to provide safe RL for hybrid, multi-agent environments with unknown components, by combining and extending these methods.
 
 #[ #set heading(numbering: none) 
 == References
