@@ -654,7 +654,7 @@ Otherwise, the shield will disrupt the optimized behaviour which the policy has 
 It was found in #paperref(<paper:Hybrid>) that applying an operation-only post-shield can lead to substantial drops in the expected reward.
 Therefore, operation-only shielding should only be employed when re-training (or fine-tuning) the existing policy is not possible.
 
-This subsection concludes with the following example, which applies some of the terms that were described above.
+The following example applies some of the terms that were described above.
 
 #example(name: "Staying safe in Grid World")[
   Recall the MDP $cal(W)=(S, s_0, A, P, R)$ from @ex:GridWorld.
@@ -697,7 +697,7 @@ This subsection concludes with the following example, which applies some of the 
   Re-running the example with different random seeds, the operation-only shielded policy was always safe, but would sometimes not reach 🏁️.
 ]<ex:GridWorldShield>
 
-== Finite- and Infinite-horizon Shielding <sec:ShieldingHorizon>
+=== Finite- and Infinite-horizon Shielding <sec:ShieldingHorizon>
 
 Note that @def:Shielding requires safety over all infinite traces that are outcomes of the shield.
 This will require computing the shield offline, which can be computationally infeasible for some models or safety-relevant abstractions. 
