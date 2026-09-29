@@ -1545,14 +1545,16 @@ A sample-based method was used in #paperref(<paper:Hybrid>, supplement: "papers"
 However, though efficient, this method results in an under-approximation.
 If an efficient, over-approximating method for computing the safety-relevant abstraction could be found, this would remove the current need for verifying the safety of shields using statistical model checking.
 
-The compositional shielding method in #paperref(<paper:Compositional>) uses assume-guarantee reasoning with an acyclic structure to guarantee global safety through local shields.
+The compositional shielding method in #paperref(<paper:Compositional>) enabled the use of local shields to enforce global properties. 
+It uses assume-guarantee reasoning with an acyclic structure to guarantee global safety through local shields.
 Developing proofs that allow circular dependencies between local shields could expand the set of systems for which this method can be applied.
 
 The methods presented in each paper address only part of the challenges of cyber-physical systems.
 However, these approaches are complimentary and may be combined through future work.
 In fact, it was demonstrated in #paperref(<paper:Coshy>) that the state-space transformations used in #paperref(<paper:Trans>) could be applied using the expressive modelling language of #uppaal.
 For future work, the adaptive shielding method described in #paperref(<paper:Adaptive>) might be modified to work with a hybrid model learner #cl("DBLP:conf/aaai/NiggemannSVMB12", "DBLP:conf/cav/SotoHSZ19").
-Likewise, the assume-guarantee reasoning in #paperref(<paper:Compositional>) can be used to synthesize shields of the type described in #paperref(<paper:Hybrid>).
+The compositional shielding method in #paperref(<paper:Compositional>) was presented using finite MDPs.
+However, the method can be extended to synthesize hybrid shields of the type described in #paperref(<paper:Hybrid>).
 Therefore, it is possible to provide safe RL for hybrid, multi-agent environments with unknown components, by combining and extending these methods.
 
 #[ #set heading(numbering: none) 
