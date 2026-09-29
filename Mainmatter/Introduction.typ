@@ -23,11 +23,11 @@ Such cyber-physical systems @lee2006cyber @lee2008cyber are becoming more ubiqui
 With applications such as autonomous vehicles, water management systems, industrial hydraulics, and power controllers, great care must be taken to ensure the safety of people, equipment, and resources that are directly or indirectly affected by the system.
 Under these safety constraints, the systems must also behave in a way that achieves their objectives efficiently.
 
-The field of formal methods has a wide variety of approaches that can prove a given system restricts itself to a safe subset of behaviours, or can synthesize provably safe and optimal policies #cl("HandbookOfModelChecking")@lewis2012optimal@doyle2013feedback.
+The field of formal methods has a wide variety of approaches that can prove a given system is restricted to a safe subset of behaviours, or that can synthesize provably safe and optimal policies #cl("HandbookOfModelChecking")@lewis2012optimal@doyle2013feedback.
 This presumes an accurate model of the (cyber-physical) system under verification. 
 However, with the complexity of many real-world systems, correct-by-construction methods of policy synthesis become computationally infeasible.
 
-_Reinforcement learning_ (RL) #cl("DBLP:books/lib/SuttonB98") @kaelbling1996reinforcement @arulkumaran2017deep has proven useful at approximating the optimal policy through exploration even in complex systems.
+_Reinforcement learning_ (RL) #cl("DBLP:books/lib/SuttonB98") @kaelbling1996reinforcement @arulkumaran2017deep has proven useful at approximating the optimal policy through exploration, even in complex systems.
 RL methods based on neural networks #cl("DBLP:journals/nature/LeCunBH15") are especially notable for having achieved impressive performance in a wide variety of tasks #cl("DBLP:journals/nature/SchrittwieserAH20").
 This performance is achieved by controllers that use a high number of neurons, making direct formal verification infeasible.
 
@@ -37,15 +37,15 @@ A _shield_ -- tasked with enforcing this safety specification -- acts as a guard
 To do so, the shield must avoid any states where leaving the bounds cannot be prevented.
 Synthesizing such a shield is subject to the same complexities discussed above, but these can be significantly mitigated through the use of a _safety-relevant abstraction_.
 This abstraction omits aspects of the system that are only relevant for keeping track of the reward, simplifying shield synthesis.
-This shield can then be combined with an efficient policy, such as one obtained by RL, to achieve both safety and efficiency.
+This shield can then be combined with an efficient policy, such as one trained with RL, to achieve both safety and efficiency.
 Therefore, shielding has been widely studied in the literature 
 #cl("DBLP:conf/concur/0001KJSB20")#cl("DBLP:conf/aaai/Carr0JT23")#cl("DBLP:conf/nips/MelcerAT22")
 but the ability of a shield to enforce safety depends on which assumptions can be made about the system, and there is no truly scalable "silver bullet" to ensure safety in all cases.
 
 This thesis continues the work of developing novel shielding methods -- with a focus on scalability -- that enforce safety under systems and assumptions that are realistic for real-world cyber-physical systems.
-It will address shielding  hybrid systems, multi-agent settings and unknown environments, and describe efforts to enhance scalability of methods, as well as their accessibility through the development of a user-friendly tool.
+It will cover shielding of  hybrid systems, multi-agent settings and unknown environments, and describe work that enhances scalability of methods, as well as their accessibility through the development of a user-friendly tool.
 
-The remainder of this introduction will describe the basics first of RL, then of shielding.
+The remainder of this introduction will first describe the basics of RL, then the basics of shielding.
 These fundamental definitions are used as a basis for formulating a research hypothesis, after which alternative systems and shielding approaches are described. 
 The last part of the introduction summarises the papers which make up the remainder of this thesis.
 
@@ -880,20 +880,20 @@ Alternatively, the probabilistic shield in #cl("DBLP:conf/concur/0001KJSB20") al
 The previous sections have assumed finite-state environments, with a fully known safety-relevant abstraction.
 Under these assumptions, there exist several shield synthesis methods to achieve policies optimized with RL that are verifiably safe.
 
-There also exist methods can synthesize shields in certain continuous settings.
+There also exist methods which can synthesize shields in certain continuous settings.
 In fact, shielded RL was developed in @DavidJLLLST14 for _timed MDPs_, which have continuous clock variables as in timed automata #cl("DBLP:journals/tcs/AlurD94"). 
-Shield synthesis from an abstraction of a timed MDP, and subsequent training a near-optimal sub-strategy using RL, was made available through the tool #stratego #cl("DBLP:conf/tacas/DavidJLMT15").
-Timed MDPs and the extension to _priced timed MDPs_ have successfully been used to model resource-aware real-time systems, to synthesize or learn safe and optimal policies #cl("PowerTools", "DBLP:conf/setss/LarsenM25").
+Shield synthesis from an abstraction of a timed MDP, and subsequently training a near-optimal sub-strategy using RL, was made available through the tool #stratego #cl("DBLP:conf/tacas/DavidJLMT15").
+Timed MDPs and the extension to _priced timed MDPs_ have successfully been used to model resource-aware real-time systems, in order to synthesize or learn safe and optimal policies #cl("PowerTools", "DBLP:conf/setss/LarsenM25").
 
 #figure(image("../Graphics/Intro/CPS.drawio.pdf", width: 80%),
   caption: [A cyber-physical system with (discrete) digital hardware/software, (continuous) physical processes, and unknown components. Direct interaction between components is shown as dotted lines.]
 )<fig:cps>
 
-This thesis will address the challenges which arise for shielding and RL in the setting of cyber-physical systems.
+This thesis will address the challenges that arise for shielding and RL in the setting of cyber-physical systems.
 Pictured in @fig:cps, the systems are made up of several components interacting.
 These components will be some combination of continuous dynamics, discrete state changes, and components with unknown behaviours.
 Shielding has the potential to enable RL methods to safely train policies to achieve increased performance in cyber-physical systems.
-However, this necessitates scalable shield synthesis methods for formalisms that can accurately model their behaviour, including modelling of uncountably infinite systems.
+However, this necessitates scalable shield synthesis methods for formalisms that can accurately model their behaviour, including modelling of systems with uncountably infinite sate-spaces.
 This leads to the research hypothesis of this thesis:
 
 #hypothesis[
@@ -907,7 +907,7 @@ When an environment is unknown, its behaviour can be learned by (safely) interac
 As more information about the system is revealed, the set of known safe behaviour changes.
 Such changes should be reflected through updates to the shield, as described in~@sec:AdaptiveShielding. 
 As~shown in @fig:cps, multiple digital components may interact within the same cyber-physical system, and these components may be individual RL agents. Multi-agent systems pose unique challenges in terms of safety and optimality, which are discussed in @sec:MultiAgentShielding.
-Lastly, @sec:Summary summarises the peer-reviewed papers that make up the remainder of this thesis, and which each contribute to addressing the hypothesis stated above.
+Lastly, @sec:Summary summarises the peer-reviewed papers that make up the remainder of this thesis, with each contributing to addressing the hypothesis stated above.
 
 == Hybrid MDPs <sec:HybridShielding>
 
@@ -1339,7 +1339,7 @@ The conversion creates local shields whose allowed actions jointly form a subset
 
 == Summary of Research Contributions <sec:Summary>
 
-Using the definitions of the previous sections, the research hypothesis from @sec:Hypothesis can be answered as a summary of contributions from the papers included in this thesis.
+Using the definitions of the previous sections, the research hypothesis from @sec:Hypothesis can be answered by a summary of contributions from the papers included in this thesis.
 Each summary is based on the paper's abstract, but re-written to use terminology established in this introduction, and to list research contributions.
 
 Full references are given in the following, while @tab:Formalisms shows the model and safety criterion used in each paper.
@@ -1474,7 +1474,7 @@ The tool #uppaal is extended with the method presented in #paperref(<paper:Hybri
 Shield synthesis is fully automatic and supports the expressive formalism of #uppaal models -- that of stochastic hybrid automata.
 State-space transformations from #paperref(<paper:Trans>) are shown to be achievable using standard features of the #uppaal modelling language.
 
-The precision of the partition-based approach benefits from using finer grids, which however are not efficient to store.
+The precision of the partition-based approach benefits from using finer grids, but storing a high resolution discretization may not be feasible on embedded hardware with limited memory.
 #coshy is made compatible with a stand-alone application for reduction of strategy representations.
 
 #contribution[
@@ -1492,7 +1492,7 @@ This paper introduces a novel approach for multi-agent shielding, which makes th
 Typical safety specifications are global properties, which are often infeasible for local shields.
 The key to overcome this challenge is to apply assume-guarantee reasoning. 
 
-A sound proof rule is presented, that decomposes a (global, complex) safe set into (local, simple) obligations for the local shields.
+A proof rule is presented, that decomposes a (global, complex) safe set into (local, simple) obligations for the local shields.
 This proof rule applies to systems where the interaction between agents is structured, such that each agent interacts with a limited number of other agents, as is illustrated in @fig:cps.
 
 #contribution[
@@ -1519,7 +1519,7 @@ Shield synthesis is not directly possible when the MDP model is not given a prio
 The paper studies the problem of computing a $θ$-recoverable shield (@def:ThetaRecoverable) in the setting where the transition graph of the MDP is known, but the transition probabilities are unknown. 
 
 #contribution[
-  Adaptive shielding with suitable estimators, based on an initial model estimate containing the transition structure but not probabilities.
+  Adaptive shielding is extended, with suitable estimators, to models where the transition structure is known, but not the probabilities.
 ]
 
 This approach to #emph[adaptive probabilistic shielding] raises a number of challenges, such as when to recompute the shield and how to balance between exploration and safety during learning. 
@@ -1533,10 +1533,10 @@ These challenges are investigated through case studies.
 
 == Conclusion
 
-These contributions add scalable approaches to shield hybrid, unknown and multi-agent systems, each of which are individual challenges of cyber-physical systems.
+These contributions add scalable approaches to shielding hybrid, unknown and multi-agent systems, each of which are individual challenges of cyber-physical systems.
 This enables RL agents to safely interact with these systems, in order to learn optimized policies that will be safe by construction.
 
-Future work is called for, to find ways of improving the scalability of existing methods.
+Further work is needed to improve the scalability of existing methods.
 For example, automated discovery of suitable state-space transformations is an open problem left in #paperref(<paper:Trans>).
 Additionally, the current static partitioning scheme used in #paperref(<paper:Hybrid>, supplement: "papers"), #paperref(<paper:Trans>, supplement: "") #paperref(<paper:Coshy>, supplement: "and") may be substituted by a more efficient, dynamic partitioning scheme.
 A decision tree structure similar to the strategy representation in #uppaalstratego @stratego could be used for this purpose, and may be sped up significantly by continuously applying the reductions described in #paperref(<paper:Coshy>) in order to maintain a small representation.
@@ -1552,7 +1552,7 @@ The methods presented in each paper address only part of the challenges of cyber
 However, these approaches are complimentary and may be combined through future work.
 In fact, it was demonstrated in #paperref(<paper:Coshy>) that the state-space transformations used in #paperref(<paper:Trans>) could be applied using the expressive modelling language of #uppaal.
 For future work, the adaptive shielding method described in #paperref(<paper:Adaptive>) might be modified to work with a hybrid model learner #cl("DBLP:conf/aaai/NiggemannSVMB12", "DBLP:conf/cav/SotoHSZ19").
-Likewise, the assume-guarantee reasoning in #paperref(<paper:Compositional>) can be used to learn shields of the type described in #paperref(<paper:Hybrid>).
+Likewise, the assume-guarantee reasoning in #paperref(<paper:Compositional>) can be used to synthesize shields of the type described in #paperref(<paper:Hybrid>).
 Therefore, it is possible to provide safe RL for hybrid, multi-agent environments with unknown components, by combining and extending these methods.
 
 #[ #set heading(numbering: none) 
