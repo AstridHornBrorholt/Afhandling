@@ -1286,21 +1286,19 @@ Villum Investigator Grant S4OS under reference number 37819.
   #bibliography("../Bibliography.bib",
     title: none,
   )
+
+  #pagebreak(weak: true)
+  == Appendix
 ]
-
-
-
-
 
 // APPENDIX
 
-#pagebreak(weak: true)
-#counter(heading).update(1)
 #set heading(
-  numbering: (..numbers) => "Appendix " + numbering("A", ..numbers.pos().slice(1)) + ":",
-  supplement: none)
+  numbering: (..numbers) => numbering("A ", ..numbers.pos().slice(2)),
+  supplement: "Appendix")
 
-== Policy of the Environment-controlled Car <sect:envcar>
+
+=== Policy of the Environment-controlled Car <sect:envcar>
 
 The envrionment-controlled front car decides between accelera-
 tions of respectively −2 $skew(m/s^2)$ , 0 $skew(m/s^2)$ , or 2 $skew(m/s^2)$ through a random
@@ -1314,7 +1312,7 @@ w_0 = 1 \
 w_2 = cases(2 & " if " v_n < 0, 1 &" otherwise")
 $
 
-== Chemical Production Plant: MAPPO Safety <sect:cpmapposfaety>
+=== Chemical Production Plant: MAPPO Safety <sect:cpmapposfaety>
 
 The agents controlling the chemical production units were penalized by an immediate cost of $25600$ whenever they were in unsafe states.
 We arrived at that penalty value by the same process as the car platoon example, i.e., starting from $100$ and doubling the penalty until the rate of safety started to diminish.
@@ -1327,7 +1325,7 @@ The severity of this penalty means that a single highly unsafe outlier can skew 
 )<fig:cpmappopercentagesafe>
 
 
-== Demand and Cost Patterns of the Chemical Production Plant <sect:plant>
+=== Demand and Cost Patterns of the Chemical Production Plant <sect:plant>
 
 #subpar.grid(columns: 1, align: top,
   [#figure(image("../Graphics/AAMAS25/Consumer Demand.svg"),

@@ -907,20 +907,17 @@ Investigator Grant S4OS under reference number 37819.
   #bibliography("../Bibliography.bib",
     title: none,
   )
+
+  #pagebreak(weak: true)
+  == Appendix
 ]
 
-
-
-// APPENDIX
-
-#pagebreak(weak: true)
-#counter(heading).update(1)
 #set heading(
-  numbering: (..numbers) => "Appendix " + numbering("A", ..numbers.pos().slice(1)) + ":",
-  supplement: none
+  numbering: (..numbers) => numbering("A ", ..numbers.pos().slice(2)),
+  supplement: "Appendix"
 )
 
-== Query Syntax <appendix:query_syntax>
+=== Query Syntax <appendix:query_syntax>
 
 #ref(<eq:query>) shows a query to compute the shield in
 #ref(<fig:leave_bounds>) for the #emph[bouncing ball].
@@ -973,7 +970,7 @@ cell where the ball is in location (half of all cells) is immediately
 marked as unsafe. In the next section, we describe a general method to
 obtaining a compact shield representation.
 
-== Nonperiodic Controllers
+=== Nonperiodic Controllers
 <appendix:nonperiodic>
 The previous work #cl("HybridPaper") focused on
 systems with periodic control, i.e. there is a constant amount of time
@@ -982,7 +979,7 @@ time between player actions to vary according to the environment. As
 described in #ref(<sect:reachability>), it does so by running the
 simulation until the player faces a new choice. We demonstrate this by
 modifying the player component from #ref(<fig:player>), which uses
-guards and invariants to ensure that the player can act exactly when `x == 0.1`.
+guards and invariants to ensure that the player can act exactly when `x === 0.1`.
 
 The guard on the edge between and is changed to allow the system to stay
 in for any period in the interval $\]0.05; 0.1\]$ (see
@@ -1011,7 +1008,7 @@ a slightly different shield, as shown in
   ]
 )
 
-== State-Space Transformation
+=== State-Space Transformation
 <appendix:transformations>
 In #cl("TransPaper"), we showed that state-space
 transformations can drastically reduce the synthesis time of a shield.
@@ -1082,7 +1079,7 @@ reduce to just $79$ regions.
 ]
 
 
-== From Regions to a Decision Tree
+=== From Regions to a Decision Tree
 <appendix:regionsToD>
 The output of the #smallcaps[Caap] algorithm is a set of regions, each
 of which has an associated set of actions. While this set of regions
@@ -1114,7 +1111,7 @@ stabilizes after a few iterations. Later repetitions are also less
 expensive due to the reduced input.
 
 
-== #smallcaps[Caap] algorithm
+=== #smallcaps[Caap] algorithm
 <appendix:caapalgorithm>
 
 #figure(kind: "algorithm", supplement: "Algorithm", pseudocode-list(numbered-title: [#caap])[
