@@ -17,8 +17,8 @@ Your support has made the process around my research smooth and reliable, and I 
 And this goes for all of you, but I would especially like to thank Helle Schroll for making me feel welcome, safe and supported by the department.
 
 Jeg vil bringe en stor tak til alle mine venner for jeres støtte og opmuntring i al den tid jeg har arbejdet på min ph.d. 
-Anders & Emilie, Alinka, Lumme, Sam & Cole, og Magnus.
-Både for jeres råd og heppen på mit arbejde, men også for bare at åbne jeres hjem og jeres hjerter som et sted jeg kan gå hen, som gør det hele værd.
+Anders & Emilie, Alinka, Lumme, Clíodhna, Sam & Cole, og Magnus.
+Både for jeres råd og opmuntring til mit arbejde, men også for bare at åbne jeres hjem og jeres hjerter som et sted jeg kan gå hen.
 Også tak til alle de fantastiske mennesker hos Buens Bogcafé, og til CfK, for at gøre mig til den kvinde jeg er i dag.
 
 Tak til hele min store, kære familie, men især mine forældre  Jette, Mads og min søde søskend Leona.
