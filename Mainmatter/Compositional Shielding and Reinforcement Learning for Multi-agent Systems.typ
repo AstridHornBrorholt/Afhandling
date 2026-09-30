@@ -1059,7 +1059,7 @@ the (deep) MARL approach MAPPO #cite(label("DBLP:conf/nips/YuVVGWBW22")) later.
 <car-platoon-with-adaptive-cruise-controls>
 Recall the car platoon model from
 @sect:platoon. The front car follows a random
-distribution depending on $v_n$ (described in #cite(label("CompositionalPaper_arxiv")), appendix).
+distribution depending on $v_n$ (described in @sect:envcar).
 
 The individual cost of an agent is the sum of the observed distances to
 the car immediately in front of it, during a 100-second episode (i.e.,
@@ -1189,7 +1189,7 @@ consumers with periodically varying demand. Arrows from source to target
 nodes denote potential flow at no incurred cost. Arrows without a source
 node denote potential flow from external providers, at a cost that
 individually and periodically varies. Consumption patterns and examples
-of the cost patterns are shown in the appendix of #cite(label("CompositionalPaper_arxiv")). The flow rate in all
+of the cost patterns are shown in the @sect:plant. The flow rate in all
 arrows follows a uniform random distribution in the range
 $lr([2.15 semi 3.15])$ $ell$/s.
 
@@ -1250,7 +1250,7 @@ centralized learning, MAPPO, and shielded random agents in
 @fig:cplearning. Centralized learning achieved a cost
 of $292$. The lowest cost overall, $172$, was achieved by cascading
 learning. We compare this to the (unshielded) MAPPO agents, whose lowest
-cost was $291$. More background information is given in #cite(label("CompositionalPaper_arxiv")).
+cost was $291$. More background information is given in @sect:cpmapposfaety>.
 
 == Conclusion
 <sect:conclusion>
@@ -1287,3 +1287,51 @@ Villum Investigator Grant S4OS under reference number 37819.
     title: none,
   )
 ]
+
+
+
+
+
+// APPENDIX
+
+#pagebreak(weak: true)
+#counter(heading).update(1)
+#set heading(
+  numbering: (..numbers) => "Appendix " + numbering("A", ..numbers.pos().slice(1)) + ":",
+  supplement: none)
+
+== Policy of the Environment-controlled Car <sect:envcar>
+
+The envrionment-controlled front car decides between accelera-
+tions of respectively −2 $skew(m/s^2)$ , 0 $skew(m/s^2)$ , or 2 $skew(m/s^2)$ through a random
+weighted draw. The weights that are used for the draw $(w_(−2), w_0, w_2 )$
+are influenced by the environment-controlled car’s own velocity,
+$v_n$ , in the following manner:
+
+$ 
+w_(-2) = cases(2 &" if " v_n > 10, 1 &" otherwise") \
+w_0 = 1 \
+w_2 = cases(2 & " if " v_n < 0, 1 &" otherwise")
+$
+
+== Chemical Production Plant: MAPPO Safety <sect:cpmapposfaety>
+
+The agents controlling the chemical production units were penalized by an immediate cost of $25600$ whenever they were in unsafe states.
+We arrived at that penalty value by the same process as the car platoon example, i.e., starting from $100$ and doubling the penalty until the rate of safety started to diminish.
+The severity of this penalty means that a single highly unsafe outlier can skew the mean performance massively, creating the spikes of bad performance seen in @fig:cplearning.
+
+@fig:cpmappopercentagesafe shows the resulting fraction of safe runs, learned under this penalty.
+
+#figure(image("../Graphics/AAMAS25/MAPPO CP Fraction Safe.svg"),
+  caption: [Percentage of safe runs with the MAPPO policy in the chemical production example. Blue bars show the mean of 10 repetitions, while black intervals give min and max values.]
+)<fig:cpmappopercentagesafe>
+
+
+== Demand and Cost Patterns of the Chemical Production Plant <sect:plant>
+
+#subpar.grid(columns: 1, align: top,
+  [#figure(image("../Graphics/AAMAS25/Consumer Demand.svg"),
+  caption: [Periodically varying demand by consumers.])<fig:consumerdemand>],
+  [#figure(image("../Graphics/AAMAS25/Provider Cost.svg"),
+  caption: [Exemplary periodically varying cost of the providers for units~1 and~10.  When there are multiple providers to the same unit, they all have the same cost.])<fig:providercost>],
+)<fig:patterns_demandcost>

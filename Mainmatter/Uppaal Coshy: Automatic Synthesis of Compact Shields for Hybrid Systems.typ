@@ -67,9 +67,6 @@ compute a compact representation in the form of a decision tree. We
 demonstrate that this algorithm leads to significant reductions as part
 of the workflow in #smallcaps[Uppaal Coshy].
 
-An extended version of this paper is available
-online #cite(label("CoshyPaper_arxiv")).
-
 === Tools for Shield Synthesis and Compact Representation
 <related-tools-for-shield-synthesis-and-compact-representation>
 ==== Shielding.
@@ -367,7 +364,7 @@ a state $s prime.double$ is reached in which the controller has the next
 choice (i.e., multiple action edges are enabled) again.
 #footnote[Where #cite(label("HybridPaper")) required a fixed
 control period, #smallcaps[Uppaal Coshy] supports non-periodic control.
-This is demonstrated in #cite(label("CoshyPaper_arxiv")).] Thus, $s prime.double$
+This is demonstrated in @appendix:nonperiodic.] Thus, $s prime.double$
 is a witness to add the corresponding
 cell $lr([s prime.double])_(cal(P)_gamma^omega)$ to the transition
 relation $C arrow.r^a lr([s prime.double])_(cal(P)_gamma^omega)$.
@@ -676,8 +673,7 @@ dimensions have been exhausted, $Delta_p$ adheres to
 We note that the algorithm is not guaranteed to find a local optimum.
 One reason is that the repair only expands in one dimension. This choice
 is deliberate to keep the algorithm efficient and avoid a combinatorial
-explosion. A more detailed description including pseudocode can be found
-in #cite(label("CoshyPaper_arxiv")).
+explosion.
 
 == Case Studies and Evaluation
 <sect:coshyevaluation>
@@ -694,7 +690,7 @@ benchmark the implementations on several models.
 sequence of queries on the #emph[bouncing ball] example to produce a
 safe and efficient strategy (cf. @fig:workflow).
 Documentation of the new query syntax is available online and
-in #cite(label("CoshyPaper_arxiv")).
+in @appendix:query_syntax.
 #footnote[#link("https://docs.uppaal.org/language-reference/query-syntax/controller_synthesis/#approximate-control-queries")[https://docs.uppaal.org/language-reference/query-syntax/controller\_synthesis/\#approximate-control-queries]]
 
 In Query 1, we train a strategy called , which is only concerned with
@@ -824,7 +820,7 @@ unsafe.
 State-space transformations can be used to synthesize a shield more
 efficiently #cite(label("TransPaper")). Since #smallcaps[Uppaal]
 supports function calls, transformations can be applied by modifying the
-model. Details can be found in #cite(label("CoshyPaper_arxiv")).
+model. Details can be found in @appendix:transformations.
 
 Next, we show quantitative results of the shield synthesis and
 subsequent shield reduction, for which we also use three additional
@@ -912,3 +908,242 @@ Investigator Grant S4OS under reference number 37819.
     title: none,
   )
 ]
+
+
+
+// APPENDIX
+
+#pagebreak(weak: true)
+#counter(heading).update(1)
+#set heading(
+  numbering: (..numbers) => "Appendix " + numbering("A", ..numbers.pos().slice(1)) + ":",
+  supplement: none
+)
+
+== Query Syntax <appendix:query_syntax>
+
+#ref(<eq:query>) shows a query to compute the shield in
+#ref(<fig:leave_bounds>) for the #emph[bouncing ball].
+
+#[
+  #show regex("acontrol"): set text(fill: emerald.darken(30%), weight: "bold")
+  #show regex("minE"): set text(fill: nephritis.darken(30%), weight: "bold")
+  #show regex("saveStrategy"): set text(fill: nephritis.darken(30%), weight: "bold")
+  #show regex("loadStrategy"): set text(fill: nephritis.darken(30%), weight: "bold")
+  #show regex("simulate"): set text(fill: nephritis.darken(30%), weight: "bold")
+  #show regex("Pr"): set text(fill: nephritis.darken(30%), weight: "bold")
+  #show regex("E"): set text(fill: nephritis.darken(30%), weight: "bold")
+  #show regex("strategy"): set text(fill: nephritis.darken(30%))
+  #show regex("under"): set text(fill: nephritis.darken(30%))
+  #show regex("max:"): set text(fill: nephritis.darken(30%))
+  #show regex("\".*\""): set text(fill: carrot.darken(30%))
+  #show regex("\d+"): set text(fill: black.darken(30%))
+
+  $ overbrace(#[`strategy shield =`], "Declaration")
+  #[`acontrol: `]
+  overbrace(#[`A[] !Ball.Stop`], "Desired invariant") \
+  underbrace(#[`{ v[-13, 13]:1300, p[0, 11]:550, Ball.location }`], "Parameters of the grid") $ <eq:query>
+]
+
+In Uppaal, strategies are first-class objects of the query
+language #cl("DBLP:conf/tacas/DavidJLMT15"). In this case, we declare
+a strategy named . The query starts with the keyword to indicate
+synthesis of a control strategy by #emph[approximating] a transition
+system, as previously described. Next comes the safety property, which
+must be an invariant property, indicated by a (mandatory) prefix,
+followed by an expression in the Uppaal language. Finally, the query
+expects a description of the grid. The user must list all relevant
+variables of the system; all other variables are ignored, as described
+in #ref(<sect:missing_variables>). For each relevant variable, we
+expect lower and upper bounds of the state space as well as the number
+of cells. In the example, the velocity  is bounded to
+$lr([minus 13 semi 13])$ and we ask for 1300 cells in that dimension,
+corresponding to a cell diameter of $0.02$. The location of a component
+is a special case of a (discrete) variable and requires no further
+parameters. In the example, we want to keep track of , for which the
+tool automatically infers that there are two possible values. This
+results in a grid of $1300 times 550 times 2 eq 1 thin 430 thin 000$
+cells.
+
+We note that, for the #emph[bouncing ball] model, a coarser grid yields
+a less permissive shield, or even a shield where no action is considered
+safe (i.e., $cal(C)_phi$ is empty). From the plots, we see that
+neighboring cells often have the same allowed actions. In fact, every
+cell where the ball is in location (half of all cells) is immediately
+marked as unsafe. In the next section, we describe a general method to
+obtaining a compact shield representation.
+
+== Nonperiodic Controllers
+<appendix:nonperiodic>
+The previous work #cl("HybridPaper") focused on
+systems with periodic control, i.e. there is a constant amount of time
+between player actions. In contrast, #smallcaps[Uppaal Coshy] allows the
+time between player actions to vary according to the environment. As
+described in #ref(<sect:reachability>), it does so by running the
+simulation until the player faces a new choice. We demonstrate this by
+modifying the player component from #ref(<fig:player>), which uses
+guards and invariants to ensure that the player can act exactly when `x == 0.1`.
+
+The guard on the edge between and is changed to allow the system to stay
+in for any period in the interval $\]0.05; 0.1\]$ (see
+#ref(<fig:player_stochastic>)). For the modified system, we obtain
+a slightly different shield, as shown in
+#ref(<fig:rand_period_shield>).
+
+#subpar.grid(columns: 2, placement: bottom,
+  [#figure([#image("../Graphics/RP25/Player_stochastic.pdf", width: 80%)],
+      caption: [
+        Stochastic player component. Compared to #ref(<fig:player>),
+        the guard has been updated to `x>0.05`. The ball component remains
+        unchanged.
+      ]
+    )<fig:player_stochastic>
+  ],
+  [#figure([#image("../Graphics/RP25/BB_stochastic_period.svg", width: 100%)],
+      caption: [
+        Resulting shield.
+      ]
+    )<fig:rand_period_shield>
+  ],
+  caption: [
+    Variant of the #emph[bouncing ball] with uniformly random decision
+    periods.
+  ]
+)
+
+== State-Space Transformation
+<appendix:transformations>
+In #cl("TransPaper"), we showed that state-space
+transformations can drastically reduce the synthesis time of a shield.
+The idea is to define the grid in a transformed state space
+$S prime subset.eq bb(R)^(k prime)$. The method relies on a function
+$f colon S arrow.r S prime$, mapping each state to a transformed state,
+and another function $f^(minus 1) colon S prime arrow.r S$ mapping back.
+#ref(<fig:commutative_diagram:coshy>) shows how to compute successors
+in $S prime$, which is required for approximating reachability as
+described in #ref(<sect:reachability>). Given a state
+$s_0 prime in S prime$, we wish to find a possible successor $s_1 prime$
+for a given action. The transition function $T$ of the EMDP is defined
+over $S$. Hence, we apply $f^(minus 1)$ to obtain a corresponding state
+$s_0 in S$. Then, we simulate $T$ as before. Finally, we apply $f$ to
+obtain $s_1 prime$.
+
+The same method can be applied in #smallcaps[Uppaal Coshy] by modifying
+the model, which we show using the #emph[bouncing ball] model.
+In #cl("TransPaper"), the transformation uses the
+ball’s mechanical energy  instead of , with transformation
+function $f lr((p comma v)) eq lr((9.81 p plus 1 / 2 v^2 comma v))$.
+
+#subpar.grid(columns: (0.5fr, 1fr), placement: bottom,
+  [#figure(image("../Graphics/RP25/Commutative Diagram.png", width: 80%),
+      caption: [Commutative diagram.]
+    )<fig:commutative_diagram:coshy>
+  ],
+  [#figure([#image("../Graphics/RP25/TransPlayer.pdf", width: 100%)],
+      caption: [Augmented player component (cf. #ref(<fig:player>)).]
+    )<fig:trans_player>
+  ],
+  caption: [
+    State-space transformations and template implementation in Uppaal.
+  ]
+)
+<fig:trans>
+
+Thanks to the rich modeling language in Uppaal, it is easy to augment a
+Uppaal model to support state-space transformations. We propose the
+following general modifications. First, add corresponding new variables
+and implement the transformation functions as standard functions (e.g.,
+called and ) in the Uppaal language. Then, modify the controller actions
+as illustrated in #ref(<fig:trans_player>): add calls to
+immediately after the location is left, and add calls to right before
+the location is entered again.
+
+The following query ran for 5 seconds and produced a shield of just
+$2 times 25 times 26 eq 1300$ cells, which #smallcaps[Caap] can further
+reduce to just $79$ regions.
+
+#[
+  #show regex("acontrol"): set text(fill: emerald.darken(30%), weight: "bold")
+  #show regex("minE"): set text(fill: nephritis.darken(30%), weight: "bold")
+  #show regex("saveStrategy"): set text(fill: nephritis.darken(30%), weight: "bold")
+  #show regex("loadStrategy"): set text(fill: nephritis.darken(30%), weight: "bold")
+  #show regex("simulate"): set text(fill: nephritis.darken(30%), weight: "bold")
+  #show regex("Pr"): set text(fill: nephritis.darken(30%), weight: "bold")
+  #show regex("E"): set text(fill: nephritis.darken(30%), weight: "bold")
+  #show regex("strategy"): set text(fill: nephritis.darken(30%))
+  #show regex("under"): set text(fill: nephritis.darken(30%))
+  #show regex("max:"): set text(fill: nephritis.darken(30%))
+  #show regex("\".*\""): set text(fill: carrot.darken(30%))
+  #show regex("\d+"): set text(fill: black.darken(30%))
+
+  ```
+  strategy safe = acontrol: 
+        A[] !Ball.Stop  { e[0, 100]:25, v[-13, 13]:26, Ball.location }```
+]
+
+
+== From Regions to a Decision Tree
+<appendix:regionsToD>
+The output of the #smallcaps[Caap] algorithm is a set of regions, each
+of which has an associated set of actions. While this set of regions
+represents a shield, it is not efficient for querying at run time.
+Hence, we aim to represent the set with another decision tree. However,
+it is unlikely that the suggested partitioning can be perfectly
+represented by a decision tree. For instance, the predicate in the root
+node always splits the whole state space, but we may have partially
+eliminated that split. To that end, we propose a simple algorithm that
+constructs a new tree from a list of regions by recursively searching
+for a predicate that balances the task of splitting as few regions as
+possible while also dividing the regions into two nearly equal-sized
+subsets. The resulting tree induces a partitioning that is finer than
+the partitioning used to create it. Still, as we will see, the reduction
+gained from applying #smallcaps[Caap] to the original input is so
+significant that the cost of converting its output to a decision tree is
+negligible.
+
+Since #smallcaps[Caap] does not guarantee optimal reduction but selects
+its expansion dimensions nondeterministically, we can achieve a better
+reduction by repeated application of the algorithm. That is, after
+obtaining a smaller partitioning and converting it to a decision tree,
+we use that new tree as input to the algorithm once again. This process
+is repeated until no significant reduction is observed. Note that the
+process does not converge to a fixed-point due to the nondeterministic
+choices. We found experimentally that the main reduction is achieved in
+the first application, and that the size of the output typically
+stabilizes after a few iterations. Later repetitions are also less
+expensive due to the reduced input.
+
+
+== #smallcaps[Caap] algorithm
+<appendix:caapalgorithm>
+
+#figure(kind: "algorithm", supplement: "Algorithm", pseudocode-list(numbered-title: [#caap])[
+  - *Input* $cal(T)$ : A binary decision tree inducing the partitioning $cal(P_T)$
+  - *Output* $cal(P ′)$ : A partitioning
+  + $cal(P ′) ← {}$
+  + Initialize matrix $M$ from $cal(P_T)$
+  + *While* $cal(P ′)$ does not cover $cal(P_T)$ *do*
+    + $(p^"min" , p^"max" ) ←$ select an unexplored region from $M$
+    + $∆_p ← p^"max" − p^"min"$
+    + $∆′_p ← ∆_p$
+    + *While* not all dimensions have been exhausted *do*
+      + $d$ ← select a non-exhausted dimension
+      + $∆′_p_d ← ∆_p_d + 1$
+      + $R′ ← (p^"max" , p^"max" + ∆′_p )$
+      + *If* $R′$ violates rules 1 or 2 *then*
+        + $∆′_p_d ← ∆_p_d$
+        + mark $d$ as exhausted
+      + *Else if* $R′$ violates Rule 3 (Definition 2) then
+        + $∆′′_p ← "Repair"(∆′_p , d)$
+        + *If* repair was successful *then*
+          + $∆′_p ← ∆′′_p$
+        + *Else*
+          + $∆′_p ← ∆_p$
+          + mark d as exhausted
+      + *Else*
+        + $∆_p ← ∆′_p$
+        + $R ← $region defined by $(p^"min" , p^"min" + ∆_p )$ according to $M$
+        + $cal(P ′) ← cal(P ′) ∪ {R}$
+    + return cal(P ′)
+])<line:choose_dimension>
+
