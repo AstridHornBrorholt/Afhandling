@@ -15,7 +15,6 @@
 #import "@preview/lemmify:0.1.8": *
 #import "Colours.typ" : *
 #import "@preview/lovelace:0.3.1": *
-#import "@preview/hydra:0.6.3": hydra
 
 #let box-style(c, background: none) = {
   if background == none {background = c.lighten(96%)}
@@ -29,29 +28,11 @@
 }
 
 #let apply_style(doc) = {
-  
-  let skip-linebreak(_, it) = {
-    show linebreak: none
-    it.body
-  }
-  let add-period(_, it) = {
-    if it.numbering == none {return it.body }
-    numbering(it.numbering, ..counter(heading).at(it.location()))
-    [. ]
-    it.body
-  }
 
   set page(
     width: 170mm,
     height: 240mm,
     margin: 25mm,
-    header: context {
-      if calc.odd(here().page()) {
-        align(center, emph(hydra(1, skip-starting: false, display: skip-linebreak)))
-      } else {
-        align(center, emph(hydra(2, skip-starting: false, display: add-period)))
-      }
-    }
   )
 
   // Text & paragraphs
