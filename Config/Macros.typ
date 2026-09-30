@@ -10,6 +10,19 @@
   )
 }
 
+
+  
+  #let skip-linebreak(_, it) = {
+    show linebreak: none
+    it.body
+  }
+  #let add-period(_, it) = {
+    if it.numbering == none {return it.body }
+    numbering(it.numbering, ..counter(heading).at(it.location()))
+    [. ]
+    it.body
+  }
+
 #let annotate(..args) = { // From the docs 
   box(place(..args))
   // Word-joiner
