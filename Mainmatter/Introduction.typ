@@ -925,8 +925,8 @@ A ball bouncing on the ground is one such example #cl("HybridPaper", "JaegerJLLS
   - $S subset.eq RR^n$ is an $n$-dimensional Euclidean space,
   - $s_0 in S$ is the initial state,
   - $A$ is a finite set of actions,
-  - $P : S times A → (S → RR_(>= 0))$ with  $integral_(s' in S) P(s, a)(s') d s' = 1$ is the transition function, which gives the  probability density over states that can be reached from state $s$ as a result of  taking the action $a$, 
-  - and $R : S times A times S -> RR$ gives the reward $R(s, a, s')$ for reaching $s'$ by taking $a$ in $s$.
+  - $P : S times A → (S → RR_(>= 0))$ with  $integral_(s' in S) P(s, a)(s') d s' = 1$ is the transition function, which gives the  probability density over states that can be reached from state $s$ as a result of  taking the action $a$, and
+  - $R : S times A times S -> RR$ is the reward $R(s, a, s')$ for reaching $s'$ by taking $a$ in $s$.
 
 ]<def:emdp:I> // label exists in Paper A as well
 
@@ -975,11 +975,12 @@ Hybrid systems can be specified in the modelling tool #uppaal through the extens
   Initially, the ball is motionless 7m above the ground, $s_0 = vec(7, 0)$.
   
   Once every 0.1 seconds, a player can choose between actions $A = {hit, nohit}$, with the latter having no effect on the system.
-  When the $hit$ action is chosen, this leads to the following update, with $r' ~ Unif(\[0.9; 1\])$:
+  Let $Unif(X)$ be the uniform distribution over some set $X$.
+  When the $hit$ action is chosen, this leads to the following update, with $r ~ Unif(\[0.9; 1\])$:
 
   $ v ← cases(
     -4 &"if" p >= 4 and v < 0 and v >= -4, 
-    -4 - r' v &"if" p >= 4 and v > 0,
+    -4 - r v &"if" p >= 4 and v > 0,
     v &"otherwise"
   ) $ 
 
@@ -990,16 +991,15 @@ Hybrid systems can be specified in the modelling tool #uppaal through the extens
 
   $ p' = v, #h(2em) v' = -9.81 $
   
-  Let $Unif(X)$ be the uniform distribution over some set $X$.
-  When the ball impacts with the ground at a speed greater than $10^(-5)$,  velocity is updated as $v ← -r v$ with $r ~ Unif(\[0.85; 0.97\])$. 
+  When the ball impacts with the ground at a speed greater than $10^(-5)$,  velocity is updated as $v ← -r' v$ with $r' ~ Unif(\[0.85; 0.97\])$. 
   If the speed of the ball is near zero, the ball instead comes to a stop ($p=0, v=0, p'=0, v'=0$).
 
   The transition density $P(s,a)$ describing this behaviour is not straightforward, and will not be given here.
-  Instead, refer to #paperref(<paper:Hybrid>), which presents a more expressive formalism, and gives examples that accurately describe the Bouncing Ball's behaviour.
+  Instead, refer to #paperref(<paper:Hybrid>), which presents a more expressive formalism, and accurately describes the Bouncing Ball's behaviour in its examples.
 ]<ex:BB>
 
 It is not possible to apply Q-learning as described in @alg:QLearning directly to continuous systems like @ex:BB.
-Clearly, it is not practical to represent a Q-table over uncountably infinite states, and most states will almost-surely never be visited twice.
+Clearly, it is not practical to represent a Q-table over uncountably infinite states, as most states will almost-surely never be visited twice.
 However, the state space can be discretized by grouping similar states according to some partitioning scheme, in order to obtain a finite Q-table @kaelbling1996reinforcement.
 A variant of discretized Q-learning with dynamic partitioning of the state space is a feature of #uppaalstratego @JaegerJLLST19, but for the next example, a simple uniform partitioning scheme is used.
 
@@ -1010,7 +1010,7 @@ A variant of discretized Q-learning with dynamic partitioning of the state space
   For example, the state $vec(-4, 1)$ is contained in the cell $ \[-4; -3.5\[#h(2pt) times \[1; 1.5\[$.
   In total, the number of cells will be $|S'| = (15 - (-15))/0.5 times 10/0.5 = #{(15 - (-15))/0.5 * 10/0.5}$.
 
-  The Q-value of states in $S'$ were initialized to zero: $Q(s', a) = 0$ for $s' in S'$ and $a in {hit, nohit}$.
+  The Q-value of cells in $S'$ were initialized to zero: $Q(s', a) = 0$ for $s' in S'$ and $a in {hit, nohit}$.
   In remaining states, $s in.not S'$, the ball will never be hit: $Q(s, nohit) = 0$ and $Q(s, hit) = -infinity$.
   Lastly, $gamma$, $alpha$, and $ε$ were as in @ex:GridWorld.
 
@@ -1356,7 +1356,7 @@ Full references are given in the following, while @tab:Formalisms shows the mode
 )<tab:Formalisms>
 
 #box(..box-style(wine))[#text("⚧", weight: "bold", font: "Noto Emoji") 
-  I changed my first name from Asger to Astrid between the publication of #paperref(<paper:Coshy>) and #paperref(<paper:Adaptive>).
+  I changed my first name from Asger to Astrid some time before the publication of #paperref(<paper:Adaptive>).
 ]
 
 #grid(columns: 2, row-gutter: 1em, column-gutter: 1em,

@@ -11,7 +11,7 @@ Dog er de mest avancerede politikker i dag -- som har den bedste ydeevne -- ofte
 De repræsenteres af f.eks. neurale netværk, hvis korrekthed er vanskelig at verificere.
 Især forstærkningslæring har vist sig som en effektiv metode til at finde frem til poltikker med meget høj ydeevne, når direkte søgning efter en optimal strategi ville være beregningsmæssigt uoverskuelig.
 
-Her er skjolde en lovende metode til sikre korrekt opførsel, uden at verificere politikkerne (eller forstærkningslæringsagneterne) direkte.
+Her er skjolde en lovende metode til sikre korrekt opførsel, uden at verificere politikkernes (eller forstærkningslæringsagneternes) sikkerhed direkte.
 Skjolde begrænser den mulige adfærd til en mængde af sikre handlinger for den givne tilstand.
 På den måde virker skjoldet som en sikkerhedsbarriere der forhindrer farlige situationer i at opstå.
 De syntetiseres ofte ud fra en abstrakt repræsentation af systemet, hvis opførsel kun dækker de dele som er relevante for systemets egentlige sikkerhed.
