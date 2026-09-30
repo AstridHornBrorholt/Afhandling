@@ -9,9 +9,9 @@
 #counter(page).update(1)
 #set page(numbering: "i")
 #include "Frontmatter/Colophon.typ"
-#pagebreak(to: "even", weak: true)
-// #include "Frontmatter/CV.typ"
-// #pagebreak(weak: true)
+#pagebreak(weak: true)
+#include "Frontmatter/Acknowledgements.typ"
+#pagebreak(weak: true)
 #include "Frontmatter/Abstract.typ"
 #pagebreak(weak: true)
 #include "Frontmatter/Dansk Abstract.typ"
