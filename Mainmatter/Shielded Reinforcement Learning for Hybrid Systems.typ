@@ -889,7 +889,7 @@ intervals for the statistical safety.
     [0.01],                    [$n eq 8$],   [27m 21s],   [$lr([99.9999 percent semi 100 percent])$],
     [0.01],                    [$n eq 16$],   [56m 32s],   [$lr([99.9999 percent semi 100 percent])$],
     table.hline(),
-    [0.01],   c(2)[#smallcaps[JuliaReach]],   [time step $0.002$],   [24h 30m],   [considers $s_0$ unsafe],
+    [0.01],   c(2)[#smallcaps[JuliaReach]],   [time step $0.002$],   [24h 30m],   [$s_0$ was unsafe],
     [0.01],                                   [time step $0.001$],   [41h 05m],   [safe by construction],
   )],
   caption: [ Synthesis results for the bouncing ball under varying
@@ -982,7 +982,7 @@ ball.
     align: (col, row) => (center,center,right,center,).at(col),
     inset: 6pt,
     table.header([#strong[$gamma$]], [#strong[$n$]], [#strong[Time]], [#strong[Probability safe]]),
-    [1],    [2],    [1m 50s],    [Considers $s_0$ unsafe],
+    [1],    [2],    [1m 50s],    [$s_0$ was unsafe],
     [0.5],    [2],    [13m 16s],    [$lr([99.9995 percent semi 100 percent])$],
     [0.5],    [3],    [23m 03s],    [$lr([99.9995 percent semi 100 percent])$],
     [0.5],    [4],    [35m 55s],    [$lr([99.9995 percent semi 100 percent])$],
@@ -990,38 +990,39 @@ ball.
   caption: [Cruise control. $ gamma=1$ corresponds to $1.9 times 10^5$ partitions, and $ gamma=0.5$ to $1.5 times 10^6$.]
 )<tab:CCSynthesis>
 
-#figure(table(
-    columns: 4,
-    align: (col, row) => (center,center,right,center,).at(col),
-    inset: 6pt,
-    table.header([#strong[$gamma$]], [#strong[$n$]], [#strong[Time]], [#strong[Probability safe]]),
-    [0.2],    [2],    [3m 07s],    [considers $s_0$ unsafe],
-    [0.1],    [2],    [32m 15s],    [$lr([99.9995 percent semi 100 percent])$],
-    [0.1],    [3],    [1h 37m],    [$lr([99.9995 percent semi 100 percent])$],
-    [0.1],    [4],    [5h 23m],    [$lr([99.9995 percent semi 100 percent])$],
-  ),
-  caption: [Oil pump. $gamma=0.2$ corresponds to $2.8 times 10^5$ partitions, and $gamma=0.1$ to $1.1 times 10^6$.],
-) <tab:OPSynthesis>
-
-#figure(table(
-    columns: 4,
-    align: (col, row) => (center,center,right,center,).at(col),
-    inset: 6pt,
-    table.header([#strong[$gamma$]], [#strong[$n$]], [#strong[Time]], [#strong[Probability safe]]),
-    [0.05],    [2],    [41s],    [$lr([99.9995 percent semi 100 percent])$],
-    [0.05],    [3],    [1m 50s],    [considers $s_0$ unsafe],
-    [0.05],    [4],    [3m 30s],    [considers $s_0$ unsafe],
-    [0.02],    [2],    [3m 43s],    [$lr([99.9995 percent semi 100 percent])$],
-    [0.02],    [3],    [8m 59s],    [$lr([99.9995 percent semi 100 percent])$],
-    [0.02],    [4],    [18m 11s],    [$lr([99.9995 percent semi 100 percent])$],
-    [0.01],    [2],    [15m 48s],    [$lr([99.9995 percent semi 100 percent])$],
-    [0.01],    [3],    [38m 26s],    [$lr([99.9995 percent semi 100 percent])$],
-    [0.01],    [4],    [1h 19m],    [$lr([99.9995 percent semi 100 percent])$],
-  ),
-  caption: [DC-DC boost converter. $gamma eq 0.05$ corresponds to
-  $3.1 dot.op 10^5$ partitions, $gamma eq 0.02$ to $1.7 dot.op 10^6$ and
-  $gamma eq 0.01$ to $7.0 dot.op 10^6 dot.basic$])
-<tab:DCSynthesis>
+#grid(columns: 2, gutter: 0.5em, align: top,
+  [#figure(table(
+      columns: 4,
+      align: (col, row) => (center,center,right,center,).at(col),
+      inset: 6pt,
+      table.header([#strong[$gamma$]], [#strong[$n$]], [#strong[Time]], [#strong[Probability safe]]),
+      [0.2],    [2],    [3m 07s],    [$s_0$ was unsafe],
+      [0.1],    [2],    [32m 15s],    [$lr([99.9995 percent semi 100 percent])$],
+      [0.1],    [3],    [1h 37m],    [$lr([99.9995 percent semi 100 percent])$],
+      [0.1],    [4],    [5h 23m],    [$lr([99.9995 percent semi 100 percent])$],
+    ),
+    caption: [Oil pump. $gamma=0.2$ corresponds to $2.8 times 10^5$ partitions, and $gamma=0.1$ to $1.1 times 10^6$.],
+  ) <tab:OPSynthesis>],
+  [#figure(table(
+      columns: 4,
+      align: (col, row) => (center,center,right,center,).at(col),
+      inset: 6pt,
+      table.header([#strong[$gamma$]], [#strong[$n$]], [#strong[Time]], [#strong[Probability safe]]),
+      [0.05],    [2],    [41s],    [$lr([99.9995 percent semi 100 percent])$],
+      [0.05],    [3],    [1m 50s],    [$s_0$ was unsafe],
+      [0.05],    [4],    [3m 30s],    [$s_0$ was unsafe],
+      [0.02],    [2],    [3m 43s],    [$lr([99.9995 percent semi 100 percent])$],
+      [0.02],    [3],    [8m 59s],    [$lr([99.9995 percent semi 100 percent])$],
+      [0.02],    [4],    [18m 11s],    [$lr([99.9995 percent semi 100 percent])$],
+      [0.01],    [2],    [15m 48s],    [$lr([99.9995 percent semi 100 percent])$],
+      [0.01],    [3],    [38m 26s],    [$lr([99.9995 percent semi 100 percent])$],
+      [0.01],    [4],    [1h 19m],    [$lr([99.9995 percent semi 100 percent])$],
+    ),
+    caption: [DC-DC boost converter. $gamma eq 0.05$ corresponds to
+    $3.1 dot.op 10^5$ partitions, $gamma eq 0.02$ to $1.7 dot.op 10^6$ and
+    $gamma eq 0.01$ to $7.0 dot.op 10^6 dot.basic$])
+  <tab:DCSynthesis>]
+)
 
 #subpar.grid(
   grid.cell(rowspan: 2)[#figure(image("../Graphics/AISOLA23/RWShieldingResults.svg"),
