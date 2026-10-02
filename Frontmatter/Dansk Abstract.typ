@@ -18,9 +18,9 @@ De syntetiseres ofte ud fra en abstrakt repræsentation af systemet, hvis opfør
 Ved hjælp af disse abstraktioner er det muligt at opnå sikker opførsel, selvom hele systemet er for komplekst til at finde frem til sikker og optimal opførsel direkte.
 
 Meget forskning har allerede været sat ind på at syntetisere skjolde i flere forskellige sammenhænge, men deres brugbarhed inden for cyber-fysiske systemer har indtil nu været begrænset.
-Det skyldes disse systemers unikke udfordringer, så som hybrid opførsel (som blander diskrete skift med kontinuær adfærd), ukendte aspekter af systemet, og flere agenter som interagerer med hinanden på kryds og tværs.
+Det skyldes disse systemers unikke udfordringer: Hybrid opførsel (som blander diskrete skift med kontinuær adfærd), ukendte aspekter af systemet, og flere agenter som interagerer med hinanden på kryds og tværs.
 
-Denne afhandling bidrager til at løse disse udfordringer. 
+Denne afhandling er en samling af artikler, som hver især bidrager til at løse enkelte dele af disse udfordringer. 
 Der præsenteres en metode til at syntetisere skjolde for hybride systemer på en skalerbar måde.
 Denne metodes gøres tilgængelig via en udvidelse til modelleringsredskabet #uppaal.
 Ydermere præsenteres en skalerbar metode for multi-agent systemer, via syntese af (simple) lokale skjolde ud fra (komplekse) globale sikkerhedskrav.
