@@ -32,15 +32,21 @@
 #pagebreak(to: "odd", weak: true)
 #counter(page).update(1)
 #set page(numbering: "1")
-#include "Mainmatter/Introduction.typ"
 
+#include "Mainmatter/Introduction.typ"
+#heading("", outlined: false, numbering: none)  // Removes header from these pagebreaks
 #pagebreak(to: "odd", weak: true)
 #include "Mainmatter/Shielded Reinforcement Learning for Hybrid Systems.typ"
+#heading("", outlined: false, numbering: none)  // Removes header from these pagebreaks
 #pagebreak(to: "odd", weak: true)
 #include "Mainmatter/Efficient Shield Synthesis via State-space Transformation.typ"
+#heading("", outlined: false, numbering: none)  // Removes header from these pagebreaks
 #pagebreak(to: "odd", weak: true)
 #include "Mainmatter/Uppaal Coshy: Automatic Synthesis of Compact Shields for Hybrid Systems.typ"
+#heading("", outlined: false, numbering: none)  // Removes header from these pagebreaks
 #pagebreak(to: "odd", weak: true)
 #include "Mainmatter/Compositional Shielding and Reinforcement Learning for Multi-agent Systems.typ"
+#heading("", outlined: false, numbering: none)  // Removes header from these pagebreaks
 #pagebreak(to: "odd", weak: true)
+#heading("", outlined: false, numbering: none)  // Removes header from these pagebreaks
 #include "Mainmatter/Adaptive Probabilistic Shielding by Learning MDPs for Safe Reinforcement Learning.typ"

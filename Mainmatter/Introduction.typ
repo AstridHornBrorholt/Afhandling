@@ -1063,8 +1063,9 @@ The discretization method outlined in @ex:UnshieldedBB may also be used to obtai
 
 == Adaptive Shielding <sec:AdaptiveShielding>
 
-Safety guarantees in shielding are conditional on the model used being suitable abstractions of the true system, but accurate models are not straightforward to obtain in practice.
-Let the MDP $mdp^star$ be the unknown, ideal, safety-relevant model of the underlying system.
+Safety guarantees in shielding are conditional on the model used being a suitable abstraction of the true system, but accurate models are not straightforward to obtain in practice.
+Let the MDP $mdp^star$ be the ideal, safety-relevant model of the underlying system.
+In many cases, $mdp^star$ is unknown.
 Instead, an estimate $hat(mdp)$ can be created, with epistemic uncertainty about model behaviour captured as additional stochasticity, or as uncertainty-sets over the transition function #cl("DBLP:journals/sttt/BadingsSSJ23").
 This approximation $hat(mdp)$ should ideally be a _conservative_ estimate, such that any shield for $hat(mdp)$ is also a (conservative) shield for $mdp^star$.
 
@@ -1076,20 +1077,20 @@ Options for representing the model estimate include neural networks #cl("DBLP:co
 
 These automated methods presume some degree of initial knowledge about $mdp^star$, such as the action space, initial state, state space, or information about the structure of the transition function.
 This initial knowledge can be provided by domain experts, or estimated using trace segments.
-For example, model parameter estimation requires a _parameterized_ MDP, $hat(mdp)_p$ whose transition function depends on $k$ parameters given as the vector $p in RR^k$ such that $hat(mdp)_(p^star) = mdp^star$ for some $p^star in RR^k$.
-Whether a shield for $hat(mdp)$ and  safe set $phi$, is also a shield for $mdp^star$ and $phi$, depends on the guarantees provided by the estimator.
+For example, model parameter estimation requires a _parameterized_ MDP $hat(mdp)_p$ whose transition function depends on $k$ parameters given as the vector $p in RR^k$ such that $hat(mdp)_(p^star) = mdp^star$ for some $p^star in RR^k$.
+Whether a shield for $hat(mdp)$ -- and  safe set $phi$ -- is also a shield for $mdp^star$ and $phi$, depends on the guarantees provided by the estimator.
 
 === Updating the Estimate
 
 A shield $shield$ acquired from an estimate $hat(mdp)$ can then be applied (through any manner described in @sec:ApplyingTheShield) to an RL agent interacting with $mdp^star$. 
 While the shield is in use, more traces are generated, and it is natural to use this additional experience to make $hat(mdp)$, and by extension the shield,  more precise.
-Periodically updating the shield in this way can e.g. make a conservative estimate more permissive, while still ensuring that exploration is done safely  #cl("DBLP:conf/isola/TapplerPKMBL22").
+Periodically updating the shield in this way can e.g. make a conservative estimate more precise, while still ensuring that exploration is done safely  #cl("DBLP:conf/isola/TapplerPKMBL22").
 
 Model estimation and shield synthesis is often computationally expensive.
 Therefore, it is reasonable to update the shield occasionally.
 An adaptive training-only pre-shielding RL loop is outlined in @alg:AdaptiveShielding and visualized in @fig:AdaptiveShielding.
 
-The algorithm presumes initial knowledge encoded as a preliminary model estimate $hat(mdp)$, and records new traces using a transition database $D$, which records which transitions $(s, a, s')$ are encountered during exploration.
+The algorithm presumes initial knowledge encoded as a preliminary model estimate $hat(mdp)$, and records new traces using a database $D$.
 An estimator function $E$ takes as arguments $hat(mdp)$ and $D$, and produces an updated model estimate.
 
 #figure(kind: "algorithm", supplement: "Algorithm", 
@@ -1122,7 +1123,7 @@ An estimator function $E$ takes as arguments $hat(mdp)$ and $D$, and produces an
 By observing past traces, one may learn of new possible transitions, but never entirely eliminate the possibility that a transition $P(s, a)(s') > 0$ can occur.
 The probability can become lower if it is never observed in data, but never reach zero.
 
-Thus, obtaining a shield which is safe according to @def:Safety, requires that the initial estimate is already conservative.
+Thus, obtaining a shield which is safe according to @def:Safety requires that the initial estimate is already conservative.
 If initially $hat(mdp)$ is not conservative, then a shield $hatshield$ for $hat(mdp)$ may not be safe for the underlying system.
 If on the other hand $hat(mdp)$ is conservative from the beginning, then the probability of a transition may change but which transitions are possible remain static. Therefore the shield $hatshield$ does not change since @def:Shielding does not depend on probabilities.
 The same applies to absolute guarantees of $k$-step lookahead shields.
@@ -1156,7 +1157,7 @@ These multi-agent settings present unique challenges.
 ]<def:mg>
 
 Note that $S$, $s_0$ and $P$ match those in @def:mdp, while the action space $A$ and reward function $R$ is changed to accommodate multiple agents.
-The joint action $a$ is the combination of agents' individual choices $a = (a_1, a_2, ..., a_n)^top$.
+The joint action~$a$ is the combination of agents' individual choices $a = (a_1, a_2, ..., a_n)^top$.
 When $a$ is taken in state $s$, the agent $i$ receives reward $R_i (s, a, s)$.
 
 For an MG, there is one policy for each of the $n$ agents, $(pi_1, pi_2, ..., pi_n)$.
@@ -1164,7 +1165,7 @@ These are as in @def:policy, except that each policy $pi_i$ is over the agent's 
 
 #definition(name:[Individual and joint policies])[
   In an MG $mg$, individual policies $pi_i$ represent one agent $i$ choosing from its own action space $A_i$.
-  Deterministic, probabilistic and nondeterministic policies are respectively defined over $S -> A_i$,\
+  Deterministic, probabilistic and nondeterministic policies are respectively defined over \ $S -> A_i$,
    $S -> (A_i  → \[0; 1\])$, and $S → powerset(A_i) \\ emptyset$ for each $i in N$.
 
    A full complement of individual policies $(pi_1, pi_2, ..., pi_n)$ induces a joint policy:
@@ -1239,7 +1240,7 @@ Formally, given $mg$ and $φ$, an individual policy $pi_i$ is safe if -- for any
 Analogously to joint and individual policies, a shield is called either _global_ or _local._
 
 #definition(name: "Global and local shields")[
-  For an $n$-agent MG $mg = (S, s_0, N, A, P, R)$ and a safe set $phi subset.eq S$, a nondeterministic global policy is a global shield $shield : S → powerset(A) \\ emptyset$, if it is safe.
+  For an $n$-agent Markov game $mg = (S, s_0, N, A, P, R)$ and a safe set $phi subset.eq S$, a nondeterministic global policy is a global shield $shield : S → powerset(A) \\ emptyset$, if it is safe.
 
   A safe nondeterministic individual policy is called a local shield $shield_i : S -> powerset(A_i) \\ emptyset$.
 ]<def:MultiAgentShielding>
@@ -1305,7 +1306,7 @@ Thus, the current literature on multi-agent shielding relies on additional assum
 === Variations on Markov Games
 It is common in multi-agent shielding to make additional assumptions about the model, to make multi-agent shielding feasible and sufficiently permissive.
 Rather than observing the full state of the  system, it is more realistic to assume the MG is partially observable, which also reduces the size of the state space (observation space).
-Orthogonally, assuming that agents are able to communicate amongst themselves can make shields more permissive by reducing uncertainty. 
+Assuming that agents are able to communicate amongst themselves can make shields more permissive by reducing uncertainty. 
 Besides explicit communication, agents may coordinate responsibilities before training starts, providing guarantees which can be relied on at runtime.
 
 ==== Partial Observability
@@ -1314,7 +1315,7 @@ The assumption of full observability is particularly strong in MGs, and may even
 When agents control physical systems, the limitations of sensors makes this omniscience technically impractical as well, and thus it is a common #cl("DBLP:conf/iclr/QinZCCF21")#cl("DBLP:conf/atal/MelcerAT24")#cl("DBLP:journals/corr/abs-2509-12085") assumption that the game is _partially observable._
 
 In general, the optimal policy for a partially observable game requires memory of all previous observations.
-If the trace $zeta_1^n = o_1 a_1 o_2 a_2, ...,  o_n$ is an alternating sequence of observations and actions, a policy with memory would choose the next action as $pi(zeta_1^n) = a_n$, while a memoryless policy would as only rely on the last observation $pi(o_n) = a_n$.
+If the trace $zeta_1^n = o_1 a_1 o_2 a_2, ...,  o_n$ is an alternating sequence of observations and actions, a policy with memory would choose the next action as $pi(zeta_1^n) = a_n$, while a memoryless policy would only rely on the last observation $pi(o_n) = a_n$.
 The difference in performance between the optimal memoryless policy and the optimal policy with memory depends on the game $mg$.
 
 Similarly, a shield in a partially observable system can use memory to maintain a "belief set" of states that are possible given current and previous observations~#cl("DBLP:conf/aaai/Carr0JT23").
@@ -1339,10 +1340,10 @@ The conversion creates local shields whose allowed actions jointly form a subset
 
 == Summary of Research Contributions <sec:Summary>
 
-Using the definitions of the previous sections, the research hypothesis from @sec:Hypothesis can be answered by a summary of contributions from the papers included in this thesis.
+Using the concepts described in the previous sections, the research hypothesis from @sec:Hypothesis can be answered by a summary of contributions from the papers included in this thesis.
 Each summary is based on the paper's abstract, but re-written to use terminology established in this introduction, and to list research contributions.
 
-Full references are given in the following, while @tab:Formalisms shows the model and safety criterion used in each paper.
+Full references are given for these papers in the following, while @tab:Formalisms shows the model and safety criterion used in each paper.
 
 #figure(table(columns: (auto, 1fr, 1fr),
   [*Paper*], [*Model*], [*Safety*],
